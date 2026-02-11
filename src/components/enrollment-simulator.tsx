@@ -1,3 +1,4 @@
+/* eslint-disable no-alert */
 import {
   createEffect,
   createMemo,
@@ -174,6 +175,68 @@ const CourseRow = (props: CourseRowProps) => (
       </Show>
     </TableCell>
   </TableRow>
+);
+
+type SimulatorToolbarProps = {
+  accreditation: Accreditation;
+  onReset: () => void;
+  onSwitchAccreditation: (acc: Accreditation) => void;
+  totalCredits: number;
+};
+
+const SimulatorToolbar = (props: SimulatorToolbarProps) => (
+  <div class="flex flex-wrap items-center gap-4">
+    <div
+      class="inline-flex rounded-md border"
+      role="group"
+    >
+      <button
+        class={`rounded-l-md px-4 py-2 text-sm font-medium transition-colors ${
+          props.accreditation === '2023'
+            ? 'bg-primary text-primary-foreground'
+            : 'hover:bg-muted'
+        }`}
+        onClick={() => {
+          props.onSwitchAccreditation('2023');
+        }}
+        type="button"
+      >
+        Акредитација 2023
+      </button>
+      <button
+        class={`rounded-r-md px-4 py-2 text-sm font-medium transition-colors ${
+          props.accreditation === '2018'
+            ? 'bg-primary text-primary-foreground'
+            : 'hover:bg-muted'
+        }`}
+        onClick={() => {
+          props.onSwitchAccreditation('2018');
+        }}
+        type="button"
+      >
+        Акредитација 2018
+      </button>
+    </div>
+
+    <div class="text-sm">
+      Вкупно кредити: <span class="font-bold">{props.totalCredits}</span>
+      <Show when={props.totalCredits >= 180}>
+        <span class="text-green-600 ml-2 font-medium">
+          (≥ 180 — сите предмети се отклучени)
+        </span>
+      </Show>
+    </div>
+
+    <button
+      class="text-destructive hover:bg-destructive/10 rounded-md border px-3 py-1.5 text-sm font-medium transition-colors"
+      onClick={() => {
+        props.onReset();
+      }}
+      type="button"
+    >
+      Ресетирај
+    </button>
+  </div>
 );
 
 // ---------------------------------------------------------------------------
@@ -389,51 +452,24 @@ export const EnrollmentSimulator = (props: EnrollmentSimulatorProps) => {
     });
   };
 
+  const resetStatuses = () => {
+    if (
+      !window.confirm(
+        'Дали сте сигурни дека сакате да ги ресетирате сите избрани предмети?',
+      )
+    )
+      return;
+    setStatuses({});
+  };
+
   return (
     <div class="space-y-4">
-      {/* accreditation selector + credits counter */}
-      <div class="flex flex-wrap items-center gap-4">
-        <div
-          class="inline-flex rounded-md border"
-          role="group"
-        >
-          <button
-            class={`rounded-l-md px-4 py-2 text-sm font-medium transition-colors ${
-              accreditation() === '2023'
-                ? 'bg-primary text-primary-foreground'
-                : 'hover:bg-muted'
-            }`}
-            onClick={() => {
-              switchAccreditation('2023');
-            }}
-            type="button"
-          >
-            Акредитација 2023
-          </button>
-          <button
-            class={`rounded-r-md px-4 py-2 text-sm font-medium transition-colors ${
-              accreditation() === '2018'
-                ? 'bg-primary text-primary-foreground'
-                : 'hover:bg-muted'
-            }`}
-            onClick={() => {
-              switchAccreditation('2018');
-            }}
-            type="button"
-          >
-            Акредитација 2018
-          </button>
-        </div>
-
-        <div class="text-sm">
-          Вкупно кредити: <span class="font-bold">{totalCredits()}</span>
-          <Show when={totalCredits() >= 180}>
-            <span class="text-green-600 ml-2 font-medium">
-              (≥ 180 — сите предмети се отклучени)
-            </span>
-          </Show>
-        </div>
-      </div>
+      <SimulatorToolbar
+        accreditation={accreditation()}
+        onReset={resetStatuses}
+        onSwitchAccreditation={switchAccreditation}
+        totalCredits={totalCredits()}
+      />
 
       {/* table */}
       <div class="rounded-md border">
