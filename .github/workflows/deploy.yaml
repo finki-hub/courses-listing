@@ -1,0 +1,17 @@
+name: Deploy to Cloudflare Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    uses: finki-hub/.github/.github/workflows/cloudflare-pages.yaml@main
+    with:
+      project-name: finki-courses-listing
+      directory: dist
+    secrets: inherit
