@@ -13,6 +13,7 @@ export const courseSchema = z.object({
   '2018-available': z.string(),
   '2018-channel': optionalString,
   '2018-code': optionalString,
+  '2018-credits': optionalString,
   '2018-level': optionalString,
   '2018-name': optionalString,
   '2018-prerequisite': optionalString,
@@ -25,6 +26,7 @@ export const courseSchema = z.object({
   '2023-available': z.string(),
   '2023-channel': optionalString,
   '2023-code': optionalString,
+  '2023-credits': optionalString,
   '2023-level': optionalString,
   '2023-name': optionalString,
   '2023-prerequisite': optionalString,
@@ -116,4 +118,18 @@ export const getLatestEnrollment = (course: CourseRaw): number => {
     if (val > 0) return val;
   }
   return 0;
+};
+
+const DEFAULT_CREDITS = 6;
+
+export const getCourseCredits = (
+  course: CourseRaw,
+  accreditation: '2018' | '2023',
+): number => {
+  const raw = course[`${accreditation}-credits`];
+  if (raw) {
+    const parsed = Number.parseInt(raw);
+    return Number.isNaN(parsed) ? DEFAULT_CREDITS : parsed;
+  }
+  return DEFAULT_CREDITS;
 };
