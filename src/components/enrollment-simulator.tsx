@@ -202,85 +202,81 @@ const SimulatorToolbar = (props: SimulatorToolbarProps) => {
     props.accreditation === '2023' ? STUDY_PROGRAMS_2023 : STUDY_PROGRAMS_2018;
 
   return (
-    <div class="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:gap-4">
-      <div
-        class="inline-flex rounded-md border"
-        role="group"
-      >
-        <button
-          class={`rounded-l-md px-4 py-2 text-sm font-medium transition-colors ${
-            props.accreditation === '2023'
-              ? 'bg-primary text-primary-foreground'
-              : 'hover:bg-muted'
-          }`}
-          onClick={() => {
-            props.onSwitchAccreditation('2023');
-          }}
-          type="button"
-        >
-          Акредитација 2023
-        </button>
-        <button
-          class={`rounded-r-md px-4 py-2 text-sm font-medium transition-colors ${
-            props.accreditation === '2018'
-              ? 'bg-primary text-primary-foreground'
-              : 'hover:bg-muted'
-          }`}
-          onClick={() => {
-            props.onSwitchAccreditation('2018');
-          }}
-          type="button"
-        >
-          Акредитација 2018
-        </button>
-      </div>
-
-      <div class="-mx-1 overflow-x-auto px-1 sm:mx-0 sm:px-0">
+    <div class="space-y-3">
+      {/* Row 1: selection controls */}
+      <div class="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:gap-4">
         <div
           class="inline-flex rounded-md border"
           role="group"
         >
-          <For each={[...programs()]}>
-            {(p, i) => (
-              <button
-                class={`whitespace-nowrap px-3 py-2 text-sm font-medium transition-colors ${
-                  i() === 0 ? 'rounded-l-md' : ''
-                } ${i() === programs().length - 1 ? 'rounded-r-md' : ''} ${
-                  props.program === p
-                    ? 'bg-primary text-primary-foreground'
-                    : 'hover:bg-muted'
-                }`}
-                onClick={() => {
-                  props.onSwitchProgram(p);
-                }}
-                type="button"
-              >
-                {STUDY_PROGRAM_LABELS[p] ?? p}
-              </button>
-            )}
-          </For>
+          <button
+            class={`rounded-l-md px-4 py-2 text-sm font-medium transition-colors ${
+              props.accreditation === '2023'
+                ? 'bg-primary text-primary-foreground'
+                : 'hover:bg-muted'
+            }`}
+            onClick={() => {
+              props.onSwitchAccreditation('2023');
+            }}
+            type="button"
+          >
+            Акредитација 2023
+          </button>
+          <button
+            class={`rounded-r-md px-4 py-2 text-sm font-medium transition-colors ${
+              props.accreditation === '2018'
+                ? 'bg-primary text-primary-foreground'
+                : 'hover:bg-muted'
+            }`}
+            onClick={() => {
+              props.onSwitchAccreditation('2018');
+            }}
+            type="button"
+          >
+            Акредитација 2018
+          </button>
+        </div>
+
+        <div class="-mx-1 overflow-x-auto px-1 sm:mx-0 sm:px-0">
+          <div
+            class="inline-flex rounded-md border"
+            role="group"
+          >
+            <For each={[...programs()]}>
+              {(p, i) => (
+                <button
+                  class={`whitespace-nowrap px-3 py-2 text-sm font-medium transition-colors ${
+                    i() === 0 ? 'rounded-l-md' : ''
+                  } ${i() === programs().length - 1 ? 'rounded-r-md' : ''} ${
+                    props.program === p
+                      ? 'bg-primary text-primary-foreground'
+                      : 'hover:bg-muted'
+                  }`}
+                  onClick={() => {
+                    props.onSwitchProgram(p);
+                  }}
+                  type="button"
+                >
+                  {STUDY_PROGRAM_LABELS[p] ?? p}
+                </button>
+              )}
+            </For>
+          </div>
         </div>
       </div>
 
-      <div class="text-sm">
-        Вкупно кредити: <span class="font-bold">{props.totalCredits}</span>
-        <Show when={props.totalCredits >= 180}>
-          <span class="text-green-600 ml-2 font-medium">
-            (≥ 180 — сите предмети се отклучени)
-          </span>
-        </Show>
-      </div>
+      {/* Row 2: stats + actions */}
+      <div class="flex flex-wrap items-center gap-3 sm:gap-4">
+        <div class="text-sm">
+          Вкупно кредити: <span class="font-bold">{props.totalCredits}</span>
+          <Show when={props.totalCredits >= 180}>
+            <span class="text-green-600 ml-2 font-medium">
+              (≥ 180 — сите предмети се отклучени)
+            </span>
+          </Show>
+        </div>
 
-      <div class="flex flex-wrap items-center gap-3">
-        <button
-          class="text-destructive hover:bg-destructive/10 rounded-md border px-3 py-1.5 text-sm font-medium transition-colors"
-          onClick={() => {
-            props.onReset();
-          }}
-          type="button"
-        >
-          Ресетирај
-        </button>
+        <div class="sm:ml-auto" />
 
         <label class="flex cursor-pointer items-center gap-2 text-sm">
           <input
@@ -293,6 +289,16 @@ const SimulatorToolbar = (props: SimulatorToolbarProps) => {
           />
           Само достапни
         </label>
+
+        <button
+          class="text-destructive hover:bg-destructive/10 rounded-md border px-3 py-1.5 text-sm font-medium transition-colors"
+          onClick={() => {
+            props.onReset();
+          }}
+          type="button"
+        >
+          Ресетирај
+        </button>
       </div>
     </div>
   );
