@@ -15,6 +15,16 @@ import { CourseDetailDialog } from './course-detail-dialog';
 type CourseTableProps = {
   courses: CourseRaw[];
 };
+type SortColumn = 'accreditation' | 'name';
+
+type SortDirection = 'asc' | 'desc';
+
+const getAccLabel = (course: CourseRaw): string => {
+  const labels: string[] = [];
+  if (getAccreditationInfo(course, '2023')) labels.push('2023');
+  if (getAccreditationInfo(course, '2018')) labels.push('2018');
+  return labels.join(', ');
+};
 
 export const CourseTable = (props: CourseTableProps) => {
   const [selectedCourse, setSelectedCourse] = createSignal<CourseRaw | null>(
@@ -22,16 +32,40 @@ export const CourseTable = (props: CourseTableProps) => {
   );
   const [dialogOpen, setDialogOpen] = createSignal(false);
   const [search, setSearch] = createSignal('');
+  const [sortColumn, setSortColumn] = createSignal<SortColumn>('name');
+  const [sortDirection, setSortDirection] = createSignal<SortDirection>('asc');
+
+  const toggleSort = (column: SortColumn) => {
+    if (sortColumn() === column) {
+      setSortDirection((d) => (d === 'asc' ? 'desc' : 'asc'));
+    } else {
+      setSortColumn(column);
+      setSortDirection('asc');
+    }
+  };
+
+  const sortIndicator = (column: SortColumn) =>
+    sortColumn() === column ? (sortDirection() === 'asc' ? ' ▲' : ' ▼') : '';
 
   const filteredCourses = createMemo(() => {
     const term = search().toLowerCase();
-    if (!term) return props.courses;
-    return props.courses.filter(
-      (c) =>
-        c.name.toLowerCase().includes(term) ||
-        c.professors.toLowerCase().includes(term) ||
-        (c.assistants?.toLowerCase().includes(term) ?? false),
-    );
+    const filtered = term
+      ? props.courses.filter(
+          (c) =>
+            c.name.toLowerCase().includes(term) ||
+            c.professors.toLowerCase().includes(term) ||
+            (c.assistants?.toLowerCase().includes(term) ?? false),
+        )
+      : [...props.courses];
+
+    const col = sortColumn();
+    const dir = sortDirection() === 'asc' ? 1 : -1;
+
+    return filtered.sort((a, b) => {
+      const valA = col === 'name' ? a.name : getAccLabel(a);
+      const valB = col === 'name' ? b.name : getAccLabel(b);
+      return valA.localeCompare(valB) * dir;
+    });
   });
 
   const handleRowClick = (course: CourseRaw) => {
@@ -57,8 +91,22 @@ export const CourseTable = (props: CourseTableProps) => {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead class="w-[300px]">Предмет</TableHead>
-              <TableHead>Акредитација</TableHead>
+              <TableHead
+                class="w-[300px] cursor-pointer select-none"
+                onClick={() => {
+                  toggleSort('name');
+                }}
+              >
+                Предмет{sortIndicator('name')}
+              </TableHead>
+              <TableHead
+                class="cursor-pointer select-none"
+                onClick={() => {
+                  toggleSort('accreditation');
+                }}
+              >
+                Акредитација{sortIndicator('accreditation')}
+              </TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -76,28 +124,17 @@ export const CourseTable = (props: CourseTableProps) => {
               when={filteredCourses().length > 0}
             >
               <For each={filteredCourses()}>
-                {(course) => {
-                  const acc2023 = () => getAccreditationInfo(course, '2023');
-                  const acc2018 = () => getAccreditationInfo(course, '2018');
-                  const accLabel = () => {
-                    const labels: string[] = [];
-                    if (acc2023()) labels.push('2023');
-                    if (acc2018()) labels.push('2018');
-                    return labels.join(', ');
-                  };
-
-                  return (
-                    <TableRow
-                      class="cursor-pointer"
-                      onClick={() => {
-                        handleRowClick(course);
-                      }}
-                    >
-                      <TableCell class="font-medium">{course.name}</TableCell>
-                      <TableCell>{accLabel()}</TableCell>
-                    </TableRow>
-                  );
-                }}
+                {(course) => (
+                  <TableRow
+                    class="cursor-pointer"
+                    onClick={() => {
+                      handleRowClick(course);
+                    }}
+                  >
+                    <TableCell class="font-medium">{course.name}</TableCell>
+                    <TableCell>{getAccLabel(course)}</TableCell>
+                  </TableRow>
+                )}
               </For>
             </Show>
           </TableBody>
