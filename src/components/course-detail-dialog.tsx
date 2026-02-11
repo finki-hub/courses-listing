@@ -23,7 +23,9 @@ import {
   type AccreditationInfo,
   type CourseRaw,
   getAccreditationInfo,
+  getCourseTags,
   getEnrollmentForYear,
+  TAG_TRANSLATIONS,
 } from '@/types/course';
 
 const AccreditationCard = (props: {
@@ -124,6 +126,24 @@ export const CourseDetailDialog = (props: CourseDetailDialogProps) => (
                       </div>
                     </Show>
                   </div>
+
+                  {/* Tags */}
+                  <Show when={getCourseTags(course()).length > 0}>
+                    <div>
+                      <h4 class="text-muted-foreground mb-1 text-xs font-medium uppercase tracking-wide">
+                        Тагови
+                      </h4>
+                      <div class="flex flex-wrap gap-1">
+                        <For each={getCourseTags(course())}>
+                          {(tag) => (
+                            <Badge variant="secondary">
+                              {TAG_TRANSLATIONS[tag] ?? tag}
+                            </Badge>
+                          )}
+                        </For>
+                      </div>
+                    </div>
+                  </Show>
 
                   {/* Accreditation info */}
                   <div class="grid gap-4 sm:grid-cols-2">

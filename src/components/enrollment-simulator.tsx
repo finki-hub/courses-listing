@@ -202,7 +202,7 @@ const SimulatorToolbar = (props: SimulatorToolbarProps) => {
     props.accreditation === '2023' ? STUDY_PROGRAMS_2023 : STUDY_PROGRAMS_2018;
 
   return (
-    <div class="flex flex-wrap items-center gap-4">
+    <div class="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:gap-4">
       <div
         class="inline-flex rounded-md border"
         role="group"
@@ -235,29 +235,31 @@ const SimulatorToolbar = (props: SimulatorToolbarProps) => {
         </button>
       </div>
 
-      <div
-        class="inline-flex rounded-md border"
-        role="group"
-      >
-        <For each={[...programs()]}>
-          {(p, i) => (
-            <button
-              class={`px-3 py-2 text-sm font-medium transition-colors ${
-                i() === 0 ? 'rounded-l-md' : ''
-              } ${i() === programs().length - 1 ? 'rounded-r-md' : ''} ${
-                props.program === p
-                  ? 'bg-primary text-primary-foreground'
-                  : 'hover:bg-muted'
-              }`}
-              onClick={() => {
-                props.onSwitchProgram(p);
-              }}
-              type="button"
-            >
-              {STUDY_PROGRAM_LABELS[p] ?? p}
-            </button>
-          )}
-        </For>
+      <div class="-mx-1 overflow-x-auto px-1 sm:mx-0 sm:px-0">
+        <div
+          class="inline-flex rounded-md border"
+          role="group"
+        >
+          <For each={[...programs()]}>
+            {(p, i) => (
+              <button
+                class={`whitespace-nowrap px-3 py-2 text-sm font-medium transition-colors ${
+                  i() === 0 ? 'rounded-l-md' : ''
+                } ${i() === programs().length - 1 ? 'rounded-r-md' : ''} ${
+                  props.program === p
+                    ? 'bg-primary text-primary-foreground'
+                    : 'hover:bg-muted'
+                }`}
+                onClick={() => {
+                  props.onSwitchProgram(p);
+                }}
+                type="button"
+              >
+                {STUDY_PROGRAM_LABELS[p] ?? p}
+              </button>
+            )}
+          </For>
+        </div>
       </div>
 
       <div class="text-sm">
@@ -269,27 +271,29 @@ const SimulatorToolbar = (props: SimulatorToolbarProps) => {
         </Show>
       </div>
 
-      <button
-        class="text-destructive hover:bg-destructive/10 rounded-md border px-3 py-1.5 text-sm font-medium transition-colors"
-        onClick={() => {
-          props.onReset();
-        }}
-        type="button"
-      >
-        Ресетирај
-      </button>
-
-      <label class="flex cursor-pointer items-center gap-2 text-sm">
-        <input
-          checked={props.showOnlyEnabled}
-          class="accent-primary h-4 w-4"
-          onChange={() => {
-            props.onToggleFilter();
+      <div class="flex flex-wrap items-center gap-3">
+        <button
+          class="text-destructive hover:bg-destructive/10 rounded-md border px-3 py-1.5 text-sm font-medium transition-colors"
+          onClick={() => {
+            props.onReset();
           }}
-          type="checkbox"
-        />
-        Само достапни
-      </label>
+          type="button"
+        >
+          Ресетирај
+        </button>
+
+        <label class="flex cursor-pointer items-center gap-2 text-sm">
+          <input
+            checked={props.showOnlyEnabled}
+            class="accent-primary h-4 w-4"
+            onChange={() => {
+              props.onToggleFilter();
+            }}
+            type="checkbox"
+          />
+          Само достапни
+        </label>
+      </div>
     </div>
   );
 };

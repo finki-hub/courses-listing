@@ -49,8 +49,10 @@ const CourseTableRow = (props: CourseTableRowProps) => (
     onClick={props.onClick}
   >
     <TableCell class="font-medium">{props.course.name}</TableCell>
-    <TableCell>{getAccLabel(props.course)}</TableCell>
-    <TableCell class="text-center">
+    <TableCell class="hidden md:table-cell">
+      {getAccLabel(props.course)}
+    </TableCell>
+    <TableCell class="hidden text-center sm:table-cell">
       <Show when={hasChannel(props.course)}>
         <svg
           class="text-primary mx-auto h-4 w-4"
@@ -63,7 +65,7 @@ const CourseTableRow = (props: CourseTableRowProps) => (
         </svg>
       </Show>
     </TableCell>
-    <TableCell>
+    <TableCell class="hidden lg:table-cell">
       <div class="flex flex-wrap gap-1">
         <For each={getCourseTags(props.course)}>
           {(tag) => (
@@ -194,16 +196,18 @@ export const CourseTable = (props: CourseTableProps) => {
                 Предмет{sortIndicator('name')}
               </TableHead>
               <TableHead
-                class="cursor-pointer select-none"
+                class="hidden cursor-pointer select-none md:table-cell"
                 onClick={() => {
                   toggleSort('accreditation');
                 }}
               >
                 Акредитација{sortIndicator('accreditation')}
               </TableHead>
-              <TableHead class="w-20 text-center">Канал (Дискорд)</TableHead>
+              <TableHead class="hidden w-20 text-center sm:table-cell">
+                Канал (Дискорд)
+              </TableHead>
               <TableHead
-                class="cursor-pointer select-none"
+                class="hidden cursor-pointer select-none lg:table-cell"
                 onClick={() => {
                   toggleSort('tags');
                 }}
@@ -220,6 +224,7 @@ export const CourseTable = (props: CourseTableProps) => {
                     class="h-24 text-center"
                     colSpan={4}
                   >
+                    {/* colSpan covers visible columns on desktop */}
                     Нема резултати.
                   </TableCell>
                 </TableRow>
