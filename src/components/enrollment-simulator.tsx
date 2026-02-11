@@ -40,10 +40,11 @@ import {
 // ---------------------------------------------------------------------------
 
 type Accreditation = '2018' | '2023';
-
 type EnrollmentSimulatorProps = {
   courses: CourseRaw[];
 };
+
+type SeasonFilter = 'summer' | 'winter' | null;
 
 type SimulatorCourse = {
   credits: number;
@@ -193,11 +194,13 @@ type SimulatorToolbarProps = {
   accreditation: Accreditation;
   hpcCompleted: boolean;
   onReset: () => void;
+  onSetSeason: (s: SeasonFilter) => void;
   onSwitchAccreditation: (acc: Accreditation) => void;
   onSwitchProgram: (p: string) => void;
   onToggleFilter: () => void;
   onToggleHpc: () => void;
   program: string;
+  seasonFilter: SeasonFilter;
   showOnlyEnabled: boolean;
   totalCredits: number;
 };
@@ -267,6 +270,42 @@ const SimulatorToolbar = (props: SimulatorToolbarProps) => {
               )}
             </For>
           </div>
+        </div>
+
+        <div
+          class="inline-flex rounded-md border"
+          role="group"
+        >
+          <button
+            class={`rounded-l-md px-3 py-2 text-sm font-medium transition-colors ${
+              props.seasonFilter === 'winter'
+                ? 'bg-primary text-primary-foreground'
+                : 'hover:bg-muted'
+            }`}
+            onClick={() => {
+              props.onSetSeason(
+                props.seasonFilter === 'winter' ? null : 'winter',
+              );
+            }}
+            type="button"
+          >
+            Зимски
+          </button>
+          <button
+            class={`rounded-r-md px-3 py-2 text-sm font-medium transition-colors ${
+              props.seasonFilter === 'summer'
+                ? 'bg-primary text-primary-foreground'
+                : 'hover:bg-muted'
+            }`}
+            onClick={() => {
+              props.onSetSeason(
+                props.seasonFilter === 'summer' ? null : 'summer',
+              );
+            }}
+            type="button"
+          >
+            Летен
+          </button>
         </div>
       </div>
 
@@ -338,6 +377,65 @@ const CreditLimitWarning = (props: CreditLimitWarningProps) => (
         .join(', ')}
     </div>
   </Show>
+);
+
+type SimulatorTableProps = {
+  courses: SimulatorCourse[];
+  enabledMap: Record<string, boolean>;
+  onToggleListened: (name: string) => void;
+  onTogglePassed: (name: string) => void;
+  overLimitSet: Set<string>;
+  seasonFilter: SeasonFilter;
+  showOnlyEnabled: boolean;
+  statuses: Record<string, CourseStatus>;
+};
+
+const SimulatorTable = (props: SimulatorTableProps) => (
+  <div class="rounded-md border">
+    <Table>
+      <TableHeader>
+        <TableRow>
+          <TableHead class="w-16 text-center">Сем.</TableHead>
+          <TableHead>Предмет</TableHead>
+          <TableHead class="w-24 text-center">Слушан</TableHead>
+          <TableHead class="w-24 text-center">Положен</TableHead>
+          <TableHead class="hidden md:table-cell">Предуслов</TableHead>
+        </TableRow>
+      </TableHeader>
+      <TableBody>
+        <For each={props.courses}>
+          {(course) => {
+            const enabled = () => props.enabledMap[course.name] ?? true;
+            return (
+              <Show
+                when={
+                  (!props.showOnlyEnabled || enabled()) &&
+                  (props.seasonFilter === null ||
+                    (props.seasonFilter === 'winter'
+                      ? course.semester % 2 === 1
+                      : course.semester % 2 === 0))
+                }
+              >
+                <CourseRow
+                  course={course}
+                  enabled={enabled()}
+                  listened={props.statuses[course.name]?.listened ?? false}
+                  onToggleListened={() => {
+                    props.onToggleListened(course.name);
+                  }}
+                  onTogglePassed={() => {
+                    props.onTogglePassed(course.name);
+                  }}
+                  overLimit={props.overLimitSet.has(course.name)}
+                  passed={props.statuses[course.name]?.passed ?? false}
+                />
+              </Show>
+            );
+          }}
+        </For>
+      </TableBody>
+    </Table>
+  </div>
 );
 
 // ---------------------------------------------------------------------------
@@ -534,6 +632,7 @@ export const EnrollmentSimulator = (props: EnrollmentSimulatorProps) => {
   );
 
   const [showOnlyEnabled, setShowOnlyEnabled] = createSignal(false);
+  const [seasonFilter, setSeasonFilter] = createSignal<SeasonFilter>(null);
   const [hpcCompleted, setHpcCompleted] = createSignal(
     localStorage.getItem(STORAGE_KEY_HPC) === 'true',
   );
@@ -663,6 +762,7 @@ export const EnrollmentSimulator = (props: EnrollmentSimulatorProps) => {
         accreditation={accreditation()}
         hpcCompleted={hpcCompleted()}
         onReset={resetStatuses}
+        onSetSeason={setSeasonFilter}
         onSwitchAccreditation={switchAccreditation}
         onSwitchProgram={setProgram}
         onToggleFilter={() => {
@@ -672,6 +772,7 @@ export const EnrollmentSimulator = (props: EnrollmentSimulatorProps) => {
           setHpcCompleted((v) => !v);
         }}
         program={program()}
+        seasonFilter={seasonFilter()}
         showOnlyEnabled={showOnlyEnabled()}
         totalCredits={totalCredits()}
       />
@@ -681,44 +782,16 @@ export const EnrollmentSimulator = (props: EnrollmentSimulatorProps) => {
         levels={overLimitLevels()}
       />
 
-      {/* table */}
-      <div class="rounded-md border">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead class="w-16 text-center">Сем.</TableHead>
-              <TableHead>Предмет</TableHead>
-              <TableHead class="w-24 text-center">Слушан</TableHead>
-              <TableHead class="w-24 text-center">Положен</TableHead>
-              <TableHead class="hidden md:table-cell">Предуслов</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            <For each={parsedCourses()}>
-              {(course) => {
-                const enabled = () => enabledMap()[course.name] ?? true;
-                return (
-                  <Show when={!showOnlyEnabled() || enabled()}>
-                    <CourseRow
-                      course={course}
-                      enabled={enabled()}
-                      listened={statuses()[course.name]?.listened ?? false}
-                      onToggleListened={() => {
-                        toggleListened(course.name);
-                      }}
-                      onTogglePassed={() => {
-                        togglePassed(course.name);
-                      }}
-                      overLimit={overLimitSet().has(course.name)}
-                      passed={statuses()[course.name]?.passed ?? false}
-                    />
-                  </Show>
-                );
-              }}
-            </For>
-          </TableBody>
-        </Table>
-      </div>
+      <SimulatorTable
+        courses={parsedCourses()}
+        enabledMap={enabledMap()}
+        onToggleListened={toggleListened}
+        onTogglePassed={togglePassed}
+        overLimitSet={overLimitSet()}
+        seasonFilter={seasonFilter()}
+        showOnlyEnabled={showOnlyEnabled()}
+        statuses={statuses()}
+      />
     </div>
   );
 };
