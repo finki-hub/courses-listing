@@ -62,9 +62,11 @@ export type CourseRaw = z.infer<typeof courseSchema>;
 
 export const TAG_TRANSLATIONS: Record<string, string> = {
   ai: 'Вештачка интелигенција',
+  databases: 'Бази на податоци',
   devops: 'DevOps',
   filler: 'Филер',
   math: 'Математика',
+  mobile: 'Мобилни',
   networking: 'Мрежи',
   web: 'Веб',
 };
