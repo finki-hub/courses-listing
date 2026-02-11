@@ -202,6 +202,7 @@ type SimulatorToolbarProps = {
   program: string;
   seasonFilter: SeasonFilter;
   showOnlyEnabled: boolean;
+  totalCourses: { enrolled: number; passed: number };
   totalCredits: number;
 };
 
@@ -311,11 +312,22 @@ const SimulatorToolbar = (props: SimulatorToolbarProps) => {
 
       {/* Row 2: stats + actions */}
       <div class="flex flex-wrap items-center gap-3 sm:gap-4">
-        <div class="text-sm">
-          Вкупно кредити: <span class="font-bold">{props.totalCredits}</span>
+        <div class="flex flex-wrap items-center gap-2 text-sm">
+          <div class="bg-muted inline-flex items-center gap-1.5 rounded-md px-2.5 py-1">
+            <span class="text-muted-foreground">Кредити</span>
+            <span class="font-bold">{props.totalCredits}</span>
+          </div>
+          <div class="inline-flex items-center gap-1.5 rounded-md bg-blue-500/10 px-2.5 py-1 text-blue-700 dark:text-blue-400">
+            <span class="opacity-80">Слушани</span>
+            <span class="font-bold">{props.totalCourses.enrolled}</span>
+          </div>
+          <div class="inline-flex items-center gap-1.5 rounded-md bg-green-500/10 px-2.5 py-1 text-green-700 dark:text-green-400">
+            <span class="opacity-80">Положени</span>
+            <span class="font-bold">{props.totalCourses.passed}</span>
+          </div>
           <Show when={props.totalCredits >= 180}>
-            <span class="text-green-600 ml-2 font-medium">
-              (≥ 180 — сите предмети се отклучени)
+            <span class="text-green-600 text-xs font-medium">
+              ≥ 180 — сите предмети се отклучени
             </span>
           </Show>
         </div>
@@ -653,6 +665,18 @@ export const EnrollmentSimulator = (props: EnrollmentSimulatorProps) => {
     return sum;
   });
 
+  const totalCourses = createMemo(() => {
+    const s = statuses();
+    let enrolled = 0;
+    let passed = 0;
+    for (const c of parsedCourses()) {
+      const st = s[c.name];
+      if (st?.listened) enrolled++;
+      if (st?.passed) passed++;
+    }
+    return { enrolled, passed };
+  });
+
   createEffect(
     on(hpcCompleted, (v) => {
       localStorage.setItem(STORAGE_KEY_HPC, String(v));
@@ -774,6 +798,7 @@ export const EnrollmentSimulator = (props: EnrollmentSimulatorProps) => {
         program={program()}
         seasonFilter={seasonFilter()}
         showOnlyEnabled={showOnlyEnabled()}
+        totalCourses={totalCourses()}
         totalCredits={totalCredits()}
       />
 
