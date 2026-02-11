@@ -1,10 +1,12 @@
 /* eslint-disable no-alert */
 import {
+  type Accessor,
   createEffect,
   createMemo,
   createSignal,
   For,
   on,
+  type Setter,
   Show,
 } from 'solid-js';
 
@@ -59,6 +61,8 @@ type SimulatorCourse = {
 // ---------------------------------------------------------------------------
 
 const STORAGE_KEY_PREFIX = 'enrollment-';
+const STORAGE_KEY_ACC = 'enrollment-accreditation';
+const STORAGE_KEY_PROGRAM = 'enrollment-program';
 
 const loadStatuses = (
   accreditation: Accreditation,
@@ -423,14 +427,83 @@ const useSimulatorCourses = (
 };
 
 // ---------------------------------------------------------------------------
+// Side-effects hook
+// ---------------------------------------------------------------------------
+
+type SimulatorEffectsParams = {
+  accreditation: Accessor<Accreditation>;
+  enabledMap: Accessor<Record<string, boolean>>;
+  parsedCourses: Accessor<SimulatorCourse[]>;
+  program: Accessor<string>;
+  setStatuses: Setter<Record<string, CourseStatus>>;
+  statuses: Accessor<Record<string, CourseStatus>>;
+};
+
+const useSimulatorEffects = (params: SimulatorEffectsParams): void => {
+  const {
+    accreditation,
+    enabledMap,
+    parsedCourses,
+    program,
+    setStatuses,
+    statuses,
+  } = params;
+
+  // Cascade-uncheck courses whose prerequisites became unmet
+  createEffect(
+    on([enabledMap, statuses], ([enabled, s]) => {
+      const updates: Record<string, CourseStatus> = {};
+      let changed = false;
+      for (const c of parsedCourses()) {
+        const st = s[c.name];
+        if (!st) continue;
+        if ((st.listened || st.passed) && enabled[c.name] === false) {
+          updates[c.name] = { listened: false, passed: false };
+          changed = true;
+        }
+      }
+      if (changed) {
+        setStatuses((prev) => ({ ...prev, ...updates }));
+      }
+    }),
+  );
+
+  createEffect(
+    on(statuses, (s) => {
+      saveStatuses(accreditation(), s);
+    }),
+  );
+
+  createEffect(
+    on(accreditation, (acc) => {
+      localStorage.setItem(STORAGE_KEY_ACC, acc);
+    }),
+  );
+
+  createEffect(
+    on(program, (p) => {
+      localStorage.setItem(STORAGE_KEY_PROGRAM, p);
+    }),
+  );
+};
+
+// ---------------------------------------------------------------------------
 // Component
 // ---------------------------------------------------------------------------
 
 export const EnrollmentSimulator = (props: EnrollmentSimulatorProps) => {
-  const [accreditation, setAccreditation] = createSignal<Accreditation>('2023');
-  const [program, setProgram] = createSignal<string>(STUDY_PROGRAMS_2023[0]);
+  const savedAcc =
+    (localStorage.getItem(STORAGE_KEY_ACC) as Accreditation | null) ?? '2023';
+  const defaultPrograms =
+    savedAcc === '2018' ? STUDY_PROGRAMS_2018 : STUDY_PROGRAMS_2023;
+  const savedProgram =
+    localStorage.getItem(STORAGE_KEY_PROGRAM) ?? defaultPrograms[0];
+
+  const [accreditation, setAccreditation] =
+    createSignal<Accreditation>(savedAcc);
+  const [program, setProgram] = createSignal<string>(savedProgram);
   const [statuses, setStatuses] = createSignal<Record<string, CourseStatus>>(
-    loadStatuses('2023'),
+    loadStatuses(savedAcc),
   );
 
   const [showOnlyEnabled, setShowOnlyEnabled] = createSignal(false);
@@ -491,34 +564,16 @@ export const EnrollmentSimulator = (props: EnrollmentSimulatorProps) => {
     }),
   );
 
-  // ---- cascade unchecks when prerequisites become unmet ----
+  // ---- side effects ----
 
-  createEffect(
-    on([enabledMap, statuses], ([enabled, s]) => {
-      let needsUpdate = false;
-      const next = { ...s };
-
-      for (const c of parsedCourses()) {
-        if (
-          !enabled[c.name] &&
-          (next[c.name]?.listened || next[c.name]?.passed)
-        ) {
-          next[c.name] = { listened: false, passed: false };
-          needsUpdate = true;
-        }
-      }
-
-      if (needsUpdate) setStatuses(next);
-    }),
-  );
-
-  // ---- persist to localStorage ----
-
-  createEffect(
-    on(statuses, (s) => {
-      saveStatuses(accreditation(), s);
-    }),
-  );
+  useSimulatorEffects({
+    accreditation,
+    enabledMap,
+    parsedCourses,
+    program,
+    setStatuses,
+    statuses,
+  });
 
   // ---- handlers ----
 
