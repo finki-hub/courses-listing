@@ -1,16 +1,4 @@
 {
-  "name": "finki-hub-courses-listing",
-  "private": true,
-  "version": "0.0.0",
-  "type": "module",
-  "scripts": {
-    "check": "tsc --noEmit",
-    "dev": "vite",
-    "build": "tsc -b && vite build",
-    "preview": "vite preview",
-    "lint": "eslint . --cache",
-    "format": "eslint . --fix"
-  },
   "dependencies": {
     "@kobalte/core": "^0.13.11",
     "autoprefixer": "^10.4.24",
@@ -30,5 +18,18 @@
     "typescript": "~5.9.3",
     "vite": "^7.3.1",
     "vite-plugin-solid": "^2.11.10"
-  }
+  },
+  "license": "MIT",
+  "name": "finki-hub-courses-listing",
+  "private": true,
+  "scripts": {
+    "build": "tsc -b && vite build",
+    "check": "tsc --noEmit",
+    "dev": "vite",
+    "format": "eslint . --fix",
+    "lint": "eslint . --cache",
+    "preview": "vite preview"
+  },
+  "type": "module",
+  "version": "0.0.0"
 }
