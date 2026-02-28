@@ -84,9 +84,15 @@ export const buildSimulatorCourse = (config: {
 export const computeEnabledMap = (config: {
   courseInfoMap: Map<string, CourseInfo>;
   courses: SimulatorCourse[];
+  electiveCourses: Set<string>;
   statuses: Record<string, CourseStatus>;
 }): Record<string, boolean> => {
-  const { courseInfoMap: infoMap, courses, statuses: s } = config;
+  const {
+    courseInfoMap: infoMap,
+    courses,
+    electiveCourses,
+    statuses: s,
+  } = config;
   const enabled: Record<string, boolean> = {};
 
   for (const c of courses) enabled[c.name] = true;
@@ -108,6 +114,7 @@ export const computeEnabledMap = (config: {
       const met = isPrerequisiteMet(c.prereqNode, {
         courseInfoMap: infoMap,
         courseSemester: c.semester,
+        electiveCourses,
         statuses: s,
         totalCredits: credits,
       });
@@ -127,6 +134,9 @@ const describePrereqNode = (node: PrereqNode, ctx: EvalContext): string[] => {
     case 'and':
       return node.children.flatMap((c) => describePrereqNode(c, ctx));
     case 'course': {
+      if (ctx.electiveCourses?.has(node.name)) {
+        return [`\u2713 ${node.name} (изборен — автоматски исполнет)`];
+      }
       const st = ctx.statuses[node.name];
       const info = ctx.courseInfoMap.get(node.name);
       const diff = info ? ctx.courseSemester - info.semester : 2;
@@ -163,6 +173,7 @@ const describePrereqNode = (node: PrereqNode, ctx: EvalContext): string[] => {
 export const computeReasonMap = (config: {
   courseInfoMap: Map<string, CourseInfo>;
   courses: SimulatorCourse[];
+  electiveCourses: Set<string>;
   enabledMap: Record<string, boolean>;
   fullLevels: Set<number>;
   overLimitSet: Set<string>;
@@ -208,6 +219,7 @@ export const computeReasonMap = (config: {
       const ctx: EvalContext = {
         courseInfoMap: config.courseInfoMap,
         courseSemester: c.semester,
+        electiveCourses: config.electiveCourses,
         statuses: config.statuses,
         totalCredits: credits,
       };

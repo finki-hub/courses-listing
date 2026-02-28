@@ -622,10 +622,21 @@ export const EnrollmentSimulator = (props: EnrollmentSimulatorProps) => {
   const overLimitLevels = createMemo(() => overLimitInfo().levels);
   const fullLevels = createMemo(() => overLimitInfo().fullLevels);
 
+  const electiveCourses = createMemo(() => {
+    const set = new Set<string>();
+    for (const c of parsedCourses()) {
+      if (c.programState && !c.programState.includes(REQUIRED_MARKER)) {
+        set.add(c.name);
+      }
+    }
+    return set;
+  });
+
   const enabledMap = createMemo(() =>
     computeEnabledMap({
       courseInfoMap: courseInfoMap(),
       courses: parsedCourses(),
+      electiveCourses: electiveCourses(),
       statuses: statuses(),
     }),
   );
@@ -634,6 +645,7 @@ export const EnrollmentSimulator = (props: EnrollmentSimulatorProps) => {
     computeReasonMap({
       courseInfoMap: courseInfoMap(),
       courses: parsedCourses(),
+      electiveCourses: electiveCourses(),
       enabledMap: enabledMap(),
       fullLevels: fullLevels(),
       overLimitSet: overLimitSet(),
