@@ -1,4 +1,4 @@
-import { createSignal, Match, Switch } from 'solid-js';
+import { createEffect, createSignal, Match, on, Switch } from 'solid-js';
 
 import { CourseTable } from '@/components/course-table';
 import { EnrollmentSimulator } from '@/components/enrollment-simulator';
@@ -7,9 +7,20 @@ import { useCourses } from '@/data/use-courses';
 
 type Page = 'listing' | 'simulator';
 
+const STORAGE_KEY_PAGE = 'active-page';
+
 const App = () => {
   const [courses] = useCourses();
-  const [page, setPage] = createSignal<Page>('listing');
+  const savedPage = localStorage.getItem(STORAGE_KEY_PAGE);
+  const [page, setPage] = createSignal<Page>(
+    savedPage === 'simulator' ? 'simulator' : 'listing',
+  );
+
+  createEffect(
+    on(page, (p) => {
+      localStorage.setItem(STORAGE_KEY_PAGE, p);
+    }),
+  );
 
   return (
     <div class="container mx-auto py-8">
