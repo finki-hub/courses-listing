@@ -157,7 +157,7 @@ const describePrereqNode = (
       );
     case 'course': {
       if (electives.has(node.name)) {
-        return [`\u2298 ${node.name} (изборен — не е предуслов)`];
+        return [`  \u2796 ${node.name} (изборен \u2014 не е предуслов)`];
       }
       const st = ctx.statuses[node.name];
       const info = ctx.courseInfoMap.get(node.name);
@@ -166,16 +166,16 @@ const describePrereqNode = (
       const met = diff === 1 ? (st?.listened ?? false) : (st?.passed ?? false);
       return [
         met
-          ? `\u2713 ${node.name} (${needed})`
-          : `\u2717 ${node.name} (потребно: ${needed})`,
+          ? `  \u2705 ${node.name} (${needed})`
+          : `  \u274C ${node.name} (потребно: ${needed})`,
       ];
     }
     case 'credits': {
       const met = ctx.totalCredits >= node.amount;
       return [
         met
-          ? `\u2713 ${String(node.amount)} кредити`
-          : `\u2717 ${String(node.amount)} кредити (имате ${String(ctx.totalCredits)})`,
+          ? `  \u2705 ${String(node.amount)} кредити`
+          : `  \u274C ${String(node.amount)} кредити (имате ${String(ctx.totalCredits)})`,
       ];
     }
     case 'or': {
@@ -183,11 +183,9 @@ const describePrereqNode = (
         describePrereqNode(c, ctx, electives),
       );
       const metIdx = descs.findIndex((d) =>
-        d.every((line) => line.startsWith('\u2713')),
+        d.every((line) => line.includes('\u2705')),
       );
-      return metIdx === -1
-        ? ['\u2717 Ниеден не е исполнет:', ...descs.flat()]
-        : ['\u2713 Еден од условите:', ...(descs[metIdx] ?? [])];
+      return metIdx === -1 ? descs.flat() : (descs[metIdx] ?? []);
     }
     default:
       return [];
@@ -210,10 +208,21 @@ export const computeReasonMap = (config: {
     const parts: string[] = [];
     const st = config.statuses[c.name];
     const isRequired = c.programState?.includes(REQUIRED_MARKER) ?? false;
+    const enabled = config.enabledMap[c.name] ?? true;
 
-    if (st?.passed) parts.push('\u2705 Положен');
-    else if (st?.listened) parts.push('\uD83D\uDCD6 Слушан');
+    // ── Status ──
+    if (st?.passed) parts.push('\u2705 Статус: Положен');
+    else if (st?.listened) parts.push('\uD83D\uDCD6 Статус: Слушан');
+    else parts.push('\u2B1C Статус: Не е слушан');
 
+    // ── Enrollment eligibility ──
+    if (enabled) {
+      parts.push('\u2705 Може да се запише');
+    } else {
+      parts.push('\u274C Не може да се запише (предусловите не се исполнети)');
+    }
+
+    // ── Credit level limits ──
     if (config.overLimitSet.has(c.name)) {
       const limit = LEVEL_CREDIT_LIMITS[c.level] ?? 0;
       parts.push(
@@ -226,6 +235,17 @@ export const computeReasonMap = (config: {
       );
     }
 
+    // ── Program info ──
+    if (isRequired) {
+      parts.push(`\u2139\uFE0F Задолжителен предмет`);
+    } else if (
+      c.programState &&
+      c.programState !== '\u043D\u0435\u043C\u0430'
+    ) {
+      parts.push('\u2139\uFE0F Изборен предмет');
+    }
+
+    // ── Prerequisites ──
     if (c.programState === '\u043D\u0435\u043C\u0430') {
       parts.push('\u2139\uFE0F Факултетска листа \u2013 нема предуслов');
     } else if (
@@ -253,7 +273,7 @@ export const computeReasonMap = (config: {
         parts.push('\u2705 \u2265180 кредити \u2013 предуслови не важат');
       } else {
         parts.push(
-          'Предуслов:',
+          '\uD83D\uDCCB Предуслов:',
           ...describePrereqNode(c.rawPrereqNode, ctx, config.electiveCourses),
         );
       }
