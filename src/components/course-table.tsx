@@ -27,7 +27,7 @@ type CourseTableRowProps = {
   onClick: () => void;
 };
 
-type SortColumn = 'accreditation' | 'name' | 'tags';
+type SortColumn = 'accreditation' | 'channel' | 'name' | 'tags';
 
 type SortDirection = 'asc' | 'desc';
 
@@ -134,6 +134,10 @@ export const CourseTable = (props: CourseTableProps) => {
     const dir = sortDirection() === 'asc' ? 1 : -1;
 
     return filtered.sort((a, b) => {
+      if (col === 'channel') {
+        return (Number(hasChannel(a)) - Number(hasChannel(b))) * dir;
+      }
+
       let valA: string;
       let valB: string;
       if (col === 'tags') {
@@ -205,8 +209,13 @@ export const CourseTable = (props: CourseTableProps) => {
               >
                 Акредитација{sortIndicator('accreditation')}
               </TableHead>
-              <TableHead class="hidden w-20 text-center sm:table-cell">
-                Канал (Дискорд)
+              <TableHead
+                class="hidden w-20 cursor-pointer text-center select-none sm:table-cell"
+                onClick={() => {
+                  toggleSort('channel');
+                }}
+              >
+                Канал (Дискорд){sortIndicator('channel')}
               </TableHead>
               <TableHead
                 class="hidden cursor-pointer select-none lg:table-cell"
