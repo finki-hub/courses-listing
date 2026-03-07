@@ -44,6 +44,22 @@ export const isFourYearOnly = (programState: string): boolean =>
   programState.includes(FOUR_YEAR_MARKER) ||
   FOUR_YEAR_SEMESTER_RE.test(programState);
 
+export type ProgramStateKind =
+  | 'elective'
+  | 'faculty-list'
+  | 'required'
+  | 'required-4yr';
+
+export const getProgramStateKind = (
+  programState: string | undefined,
+): ProgramStateKind | undefined => {
+  if (!programState) return undefined;
+  if (programState === '\u043D\u0435\u043C\u0430') return 'faculty-list';
+  if (programState.includes(REQUIRED_MARKER))
+    return isFourYearOnly(programState) ? 'required-4yr' : 'required';
+  return 'elective';
+};
+
 export const loadStatuses = (
   accreditation: Accreditation,
 ): Record<string, CourseStatus> => {
