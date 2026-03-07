@@ -194,7 +194,7 @@ export const CourseTable = (props: CourseTableProps) => {
           <TableHeader>
             <TableRow>
               <TableHead
-                class="w-[300px] cursor-pointer select-none"
+                class="w-75 cursor-pointer select-none"
                 onClick={() => {
                   toggleSort('name');
                 }}
