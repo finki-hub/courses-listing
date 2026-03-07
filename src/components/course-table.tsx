@@ -107,7 +107,7 @@ export const CourseTable = (props: CourseTableProps) => {
   };
 
   const sortIndicator = (column: SortColumn) =>
-    sortColumn() === column ? (sortDirection() === 'asc' ? ' ▲' : ' ▼') : '';
+    sortColumn() === column ? (sortDirection() === 'asc' ? ' ↑' : ' ↓') : '';
 
   const filteredCourses = createMemo(() => {
     const term = search().toLowerCase();
