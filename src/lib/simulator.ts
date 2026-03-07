@@ -32,6 +32,7 @@ export const STORAGE_KEY_ACC = `${STORAGE_KEY_PREFIX}accreditation`;
 export const STORAGE_KEY_HPC = `${STORAGE_KEY_PREFIX}hpc`;
 export const STORAGE_KEY_PROGRAM = `${STORAGE_KEY_PREFIX}program`;
 export const HPC_CREDITS = 6;
+export const DIPLOMA_THESIS_COURSE_NAME = 'Дипломска работа';
 export const LEVEL_CREDIT_LIMITS: Record<number, number> = { 1: 6, 2: 36 };
 export const REQUIRED_MARKER =
   '\u0437\u0430\u0434\u043E\u043B\u0436\u0438\u0442\u0435\u043B\u0435\u043D';

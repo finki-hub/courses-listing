@@ -45,10 +45,11 @@ export const GraduationAlert = (props: GraduationAlertProps) => {
         <Show when={graduated3yr() || graduated4yr()}>
           <div class={ALERT_STYLES.successBold}>🎉 Честитки дипломирање!</div>
         </Show>
-        <Show when={canGrad3yr()}>
+        <Show when={canGrad3yr() && !canGrad4yr() && !graduated3yr()}>
           <div class={ALERT_STYLES.success}>
             🎓 Ги исполнувате условите за дипломирање со 3 годишни студии (≥ 174
-            кредити и сите задолжителни предмети положени)
+            кредити и сите задолжителни предмети положени, освен Дипломска
+            работа)
           </div>
         </Show>
         <Show when={credits3yr() && !canGrad3yr()}>
@@ -60,10 +61,11 @@ export const GraduationAlert = (props: GraduationAlertProps) => {
             </span>
           </div>
         </Show>
-        <Show when={canGrad4yr()}>
+        <Show when={canGrad4yr() && !graduated4yr()}>
           <div class={ALERT_STYLES.success}>
             🎓 Ги исполнувате условите за дипломирање со 4 годишни студии (≥ 234
-            кредити и сите задолжителни предмети положени)
+            кредити и сите задолжителни предмети положени, освен Дипломска
+            работа)
           </div>
         </Show>
         <Show when={credits4yr() && !canGrad4yr()}>

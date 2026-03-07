@@ -5,6 +5,7 @@ import {
   computeEnabledMap,
   computeOverLimitInfo,
   computeReasonMap,
+  DIPLOMA_THESIS_COURSE_NAME,
   HPC_CREDITS,
   isFourYearOnly,
   REQUIRED_MARKER,
@@ -67,6 +68,7 @@ export const useSimulatorState = (params: UseSimulatorStateParams) => {
       const state = c.programState;
       const isRequired = state?.includes(REQUIRED_MARKER) ?? false;
       if (!isRequired) continue;
+      if (c.name === DIPLOMA_THESIS_COURSE_NAME) continue;
       if (s[c.name]?.passed) continue;
       const fourYearOnly = state ? isFourYearOnly(state) : false;
       if (!fourYearOnly) {

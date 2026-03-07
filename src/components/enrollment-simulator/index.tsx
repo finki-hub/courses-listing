@@ -6,6 +6,7 @@ import {
   type Accreditation,
   ALERT_STYLES,
   captureTableToClipboard,
+  DIPLOMA_THESIS_COURSE_NAME,
   LEVEL_CREDIT_LIMITS,
   loadStatuses,
   type SeasonFilter,
@@ -171,7 +172,7 @@ export const EnrollmentSimulator = (props: EnrollmentSimulatorProps) => {
       </Show>
 
       <GraduationAlert
-        diplomaPassed={statuses()['Дипломска работа']?.passed ?? false}
+        diplomaPassed={statuses()[DIPLOMA_THESIS_COURSE_NAME]?.passed ?? false}
         missingMandatory3yr={graduationInfo().missing3yr}
         missingMandatory4yr={graduationInfo().missing4yr}
         totalCredits={totalCredits()}
