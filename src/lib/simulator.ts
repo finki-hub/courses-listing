@@ -37,6 +37,13 @@ export const REQUIRED_MARKER =
   '\u0437\u0430\u0434\u043E\u043B\u0436\u0438\u0442\u0435\u043B\u0435\u043D';
 export const FOUR_YEAR_MARKER = '(4 г.)';
 
+/** Semesters 7+ belong to year 4, e.g. "задолжителен (сем. 7)" */
+const FOUR_YEAR_SEMESTER_RE = /\(сем\.\s*[78]\)/u;
+
+export const isFourYearOnly = (programState: string): boolean =>
+  programState.includes(FOUR_YEAR_MARKER) ||
+  FOUR_YEAR_SEMESTER_RE.test(programState);
+
 export const loadStatuses = (
   accreditation: Accreditation,
 ): Record<string, CourseStatus> => {

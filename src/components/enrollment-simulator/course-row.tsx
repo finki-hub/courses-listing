@@ -3,7 +3,7 @@ import { Show } from 'solid-js';
 import { Badge } from '@/components/ui/badge';
 import { TableCell, TableRow } from '@/components/ui/table';
 import {
-  FOUR_YEAR_MARKER,
+  isFourYearOnly,
   REQUIRED_MARKER,
   type SimulatorCourse,
 } from '@/lib/simulator';
@@ -49,8 +49,7 @@ export const CourseRow = (props: CourseRowProps) => (
         <Show when={props.course.programState}>
           {(state) => {
             const req = () => state().includes(REQUIRED_MARKER);
-            const fourYearOnly = () =>
-              req() && state().includes(FOUR_YEAR_MARKER);
+            const fourYearOnly = () => req() && isFourYearOnly(state());
             return (
               <Badge
                 class={`ml-1 px-1.5 py-0 text-[10px] leading-4 font-normal ${req() ? 'bg-blue-500/15 text-blue-700 dark:text-blue-400 border-blue-500/25' : 'bg-amber-500/15 text-amber-700 dark:text-amber-400 border-amber-500/25'}`}

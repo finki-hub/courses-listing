@@ -5,8 +5,8 @@ import {
   computeEnabledMap,
   computeOverLimitInfo,
   computeReasonMap,
-  FOUR_YEAR_MARKER,
   HPC_CREDITS,
+  isFourYearOnly,
   REQUIRED_MARKER,
   type SimulatorCourse,
 } from '@/lib/simulator';
@@ -68,8 +68,8 @@ export const useSimulatorState = (params: UseSimulatorStateParams) => {
       const isRequired = state?.includes(REQUIRED_MARKER) ?? false;
       if (!isRequired) continue;
       if (s[c.name]?.passed) continue;
-      const isFourYearOnly = state?.includes(FOUR_YEAR_MARKER) ?? false;
-      if (!isFourYearOnly) {
+      const fourYearOnly = state ? isFourYearOnly(state) : false;
+      if (!fourYearOnly) {
         missing3yr.push(c.name);
       }
       missing4yr.push(c.name);
