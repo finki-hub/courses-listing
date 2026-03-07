@@ -5,6 +5,7 @@ import {
   computeEnabledMap,
   computeOverLimitInfo,
   computeReasonMap,
+  FOUR_YEAR_MARKER,
   HPC_CREDITS,
   REQUIRED_MARKER,
   type SimulatorCourse,
@@ -61,7 +62,7 @@ export const useSimulatorState = (params: UseSimulatorStateParams) => {
     const s = statuses();
     const missing3yr: string[] = [];
     const missing4yr: string[] = [];
-    const FOUR_YEAR_MARKER = '(4 г.)';
+
     for (const c of parsedCourses()) {
       const state = c.programState;
       const isRequired = state?.includes(REQUIRED_MARKER) ?? false;

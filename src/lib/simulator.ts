@@ -35,6 +35,7 @@ export const HPC_CREDITS = 6;
 export const LEVEL_CREDIT_LIMITS: Record<number, number> = { 1: 6, 2: 36 };
 export const REQUIRED_MARKER =
   '\u0437\u0430\u0434\u043E\u043B\u0436\u0438\u0442\u0435\u043B\u0435\u043D';
+export const FOUR_YEAR_MARKER = '(4 г.)';
 
 export const loadStatuses = (
   accreditation: Accreditation,
