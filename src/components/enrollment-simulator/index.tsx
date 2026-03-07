@@ -4,6 +4,7 @@ import { createEffect, createSignal, on, Show } from 'solid-js';
 import { type CourseStatus } from '@/lib/prerequisite';
 import {
   type Accreditation,
+  ALERT_STYLES,
   captureTableToClipboard,
   LEVEL_CREDIT_LIMITS,
   loadStatuses,
@@ -164,7 +165,7 @@ export const EnrollmentSimulator = (props: EnrollmentSimulatorProps) => {
       />
 
       <Show when={totalCredits() >= 180}>
-        <div class="rounded-md border border-blue-300 bg-blue-50 p-3 text-sm text-blue-700 dark:border-blue-500/30 dark:bg-blue-500/10 dark:text-blue-400">
+        <div class={ALERT_STYLES.info}>
           🔓 Имате ≥ 180 кредити — сите предмети се отклучени
         </div>
       </Show>

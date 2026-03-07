@@ -2,7 +2,12 @@ import { Show } from 'solid-js';
 
 import { Badge } from '@/components/ui/badge';
 import { TableCell, TableRow } from '@/components/ui/table';
-import { getProgramStateKind, type SimulatorCourse } from '@/lib/simulator';
+import {
+  getProgramStateKind,
+  PROGRAM_STATE_BADGE_CLASSES,
+  PROGRAM_STATE_LABELS,
+  type SimulatorCourse,
+} from '@/lib/simulator';
 
 import { Checkbox } from './checkbox';
 
@@ -45,22 +50,17 @@ export const CourseRow = (props: CourseRowProps) => (
         <Show when={props.course.programState}>
           {(state) => {
             const kind = () => getProgramStateKind(state());
-            const req = () =>
-              kind() === 'required' || kind() === 'required-4yr';
             return (
-              <Badge
-                class={`ml-1 px-1.5 py-0 text-[10px] leading-4 font-normal ${req() ? 'bg-blue-500/15 text-blue-700 dark:text-blue-400 border-blue-500/25' : kind() === 'faculty-list' ? 'bg-zinc-500/15 text-zinc-700 dark:text-zinc-400 border-zinc-500/25' : 'bg-amber-500/15 text-amber-700 dark:text-amber-400 border-amber-500/25'}`}
-                variant="outline"
-              >
-                {
-                  {
-                    elective: 'Изборен',
-                    'faculty-list': 'Факултетска листа',
-                    required: 'Задолжителен',
-                    'required-4yr': 'Задолжителен (4г.)',
-                  }[kind() ?? 'elective']
-                }
-              </Badge>
+              <Show when={kind()}>
+                {(k) => (
+                  <Badge
+                    class={`ml-1 px-1.5 py-0 text-[10px] leading-4 font-normal ${PROGRAM_STATE_BADGE_CLASSES[k()]}`}
+                    variant="outline"
+                  >
+                    {PROGRAM_STATE_LABELS[k()]}
+                  </Badge>
+                )}
+              </Show>
             );
           }}
         </Show>
