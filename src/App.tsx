@@ -2,18 +2,22 @@ import { createEffect, createSignal, Match, on, Switch } from 'solid-js';
 
 import { CourseTable } from '@/components/course-table';
 import { EnrollmentSimulator } from '@/components/enrollment-simulator';
+import { PrerequisiteExplorer } from '@/components/prerequisite-explorer';
 import { ThemeToggle } from '@/components/theme-toggle';
 import { useCourses } from '@/data/use-courses';
 
-type Page = 'listing' | 'simulator';
+type Page = 'listing' | 'prerequisites' | 'simulator';
 
 const STORAGE_KEY_PAGE = 'active-page';
+
+const isPage = (value: null | string): value is Page =>
+  value === 'listing' || value === 'prerequisites' || value === 'simulator';
 
 const App = () => {
   const [courses] = useCourses();
   const savedPage = localStorage.getItem(STORAGE_KEY_PAGE);
   const [page, setPage] = createSignal<Page>(
-    savedPage === 'simulator' ? 'simulator' : 'listing',
+    isPage(savedPage) ? savedPage : 'listing',
   );
 
   createEffect(
@@ -78,6 +82,17 @@ const App = () => {
           >
             Симулатор
           </button>
+          <button
+            class={`px-4 py-2 text-sm font-medium transition-colors ${
+              page() === 'prerequisites'
+                ? 'border-primary text-primary -mb-px border-b-2'
+                : 'text-muted-foreground hover:text-foreground'
+            }`}
+            onClick={() => setPage('prerequisites')}
+            type="button"
+          >
+            Предуслови
+          </button>
         </nav>
 
         <Switch>
@@ -99,6 +114,9 @@ const App = () => {
                 </Match>
                 <Match when={page() === 'simulator'}>
                   <EnrollmentSimulator courses={data()} />
+                </Match>
+                <Match when={page() === 'prerequisites'}>
+                  <PrerequisiteExplorer courses={data()} />
                 </Match>
               </Switch>
             )}
