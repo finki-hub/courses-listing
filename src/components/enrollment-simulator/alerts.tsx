@@ -43,9 +43,7 @@ export const GraduationAlert = (props: GraduationAlertProps) => {
     <Show when={showAlert()}>
       <div class="space-y-2">
         <Show when={graduated3yr() || graduated4yr()}>
-          <div class={ALERT_STYLES.successBold}>
-            🎉 Честитки дипломирање!
-          </div>
+          <div class={ALERT_STYLES.successBold}>🎉 Честитки дипломирање!</div>
         </Show>
         <Show when={canGrad3yr()}>
           <div class={ALERT_STYLES.success}>
