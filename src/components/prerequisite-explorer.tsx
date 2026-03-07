@@ -159,6 +159,11 @@ export const PrerequisiteExplorer = (props: PrerequisiteExplorerProps) => {
 
   return (
     <div class="space-y-4">
+      <p class="text-muted-foreground text-sm">
+        Изберете акредитација и предмет за да ги видите сите предмети кои го
+        имаат како предуслов.
+      </p>
+
       <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-4">
         <AccreditationSwitch
           accreditation={accreditation()}
