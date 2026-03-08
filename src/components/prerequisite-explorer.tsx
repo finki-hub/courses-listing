@@ -92,12 +92,10 @@ export const PrerequisiteExplorer = (props: PrerequisiteExplorerProps) => {
         имаат како предуслов.
       </p>
 
-      <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-4">
-        <AccreditationSwitch
-          accreditation={accreditation()}
-          onSelect={handleAccreditationChange}
-        />
-      </div>
+      <AccreditationSwitch
+        accreditation={accreditation()}
+        onSelect={handleAccreditationChange}
+      />
 
       <div class="space-y-2">
         <label
@@ -160,7 +158,9 @@ export const PrerequisiteExplorer = (props: PrerequisiteExplorerProps) => {
               <For each={dependents()}>
                 {(course) => (
                   <TableRow>
-                    <TableCell>{course.semester}</TableCell>
+                    <TableCell class="whitespace-nowrap">
+                      {course.semester}
+                    </TableCell>
                     <TableCell class="font-medium">{course.name}</TableCell>
                     <TableCell class="text-muted-foreground hidden sm:table-cell">
                       {course.prerequisite ?? '—'}

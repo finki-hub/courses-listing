@@ -35,7 +35,7 @@ export const ScreenshotButton = (props: {
 
   return (
     <button
-      class={`rounded-md border px-3 py-1.5 text-sm font-medium transition-colors ${SCREENSHOT_STATE_CLASSES[state()]}`}
+      class={`hidden rounded-md border px-3 py-1.5 text-sm font-medium transition-colors sm:inline-flex ${SCREENSHOT_STATE_CLASSES[state()]}`}
       disabled={state() !== 'idle'}
       onClick={() => {
         void handle();

@@ -143,8 +143,10 @@ export const CourseDetailDialog = (props: CourseDetailDialogProps) => (
                                 getEnrollmentForYear(course(), year);
                               return (
                                 <TableRow>
-                                  <TableCell>{year}</TableCell>
-                                  <TableCell class="text-right">
+                                  <TableCell class="whitespace-nowrap">
+                                    {year}
+                                  </TableCell>
+                                  <TableCell class="whitespace-nowrap text-right">
                                     <Show
                                       fallback={
                                         <span class="text-muted-foreground">

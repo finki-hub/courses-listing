@@ -47,10 +47,12 @@ export const SimulatorToolbar = (props: SimulatorToolbarProps) => {
   return (
     <div class="space-y-3">
       <div class="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:gap-4">
-        <AccreditationSwitch
-          accreditation={props.accreditation}
-          onSelect={props.onSwitchAccreditation}
-        />
+        <div class="-mx-1 overflow-x-auto px-1 sm:mx-0 sm:px-0">
+          <AccreditationSwitch
+            accreditation={props.accreditation}
+            onSelect={props.onSwitchAccreditation}
+          />
+        </div>
 
         <div class="-mx-1 overflow-x-auto px-1 sm:mx-0 sm:px-0">
           <ButtonGroup
@@ -60,18 +62,20 @@ export const SimulatorToolbar = (props: SimulatorToolbarProps) => {
           />
         </div>
 
-        <ButtonGroup
-          items={SEASON_ITEMS}
-          onSelect={(v) => {
-            props.onSetSeason(
-              props.seasonFilter === v || !isSeasonFilter(v) ? null : v,
-            );
-          }}
-          value={props.seasonFilter ?? ''}
-        />
+        <div class="-mx-1 overflow-x-auto px-1 sm:mx-0 sm:px-0">
+          <ButtonGroup
+            items={SEASON_ITEMS}
+            onSelect={(v) => {
+              props.onSetSeason(
+                props.seasonFilter === v || !isSeasonFilter(v) ? null : v,
+              );
+            }}
+            value={props.seasonFilter ?? ''}
+          />
+        </div>
       </div>
 
-      <div class="flex flex-wrap items-center gap-3 sm:gap-4">
+      <div class="flex flex-wrap items-center gap-2 sm:gap-3">
         <div class="flex flex-wrap items-center gap-2 text-sm">
           <div class="bg-muted inline-flex items-center gap-1.5 rounded-md px-2.5 py-1">
             <span class="text-muted-foreground">Кредити</span>

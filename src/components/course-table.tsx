@@ -12,6 +12,8 @@ import {
 } from '@/components/ui/table';
 import {
   filterCourses,
+  SORT_COLUMN_LABELS,
+  SORT_COLUMNS,
   type SortColumn,
   sortCourses,
   type SortDirection,
@@ -19,6 +21,7 @@ import {
 } from '@/lib/course-filters';
 import { ALL_TAGS, type CourseRaw, getTagLabel } from '@/types/course';
 
+import { CourseCard } from './course-card';
 import { CourseDetailDialog } from './course-detail-dialog';
 import { CourseTableRow } from './course-table-row';
 
@@ -63,7 +66,7 @@ export const CourseTable = (props: CourseTableProps) => {
     ),
   );
 
-  const handleRowClick = (course: CourseRaw) => {
+  const openDetail = (course: CourseRaw) => {
     setSelectedCourse(course);
     setDialogOpen(true);
   };
@@ -93,11 +96,62 @@ export const CourseTable = (props: CourseTableProps) => {
         </For>
       </div>
 
+      <div class="flex flex-wrap items-center gap-2">
+        <span class="text-muted-foreground text-sm">Сортирај:</span>
+        <For each={SORT_COLUMNS}>
+          {(col) => {
+            const isActive = () => sortColumn() === col;
+            return (
+              <button
+                class={`inline-flex items-center gap-1 rounded-full border px-2.5 py-0.5 text-xs font-medium transition-colors ${
+                  isActive()
+                    ? 'bg-primary text-primary-foreground border-primary'
+                    : 'text-foreground hover:bg-muted border-border'
+                }`}
+                onClick={() => {
+                  toggleSort(col);
+                }}
+                type="button"
+              >
+                {SORT_COLUMN_LABELS[col]}
+                {isActive() && (
+                  <span class="text-[10px] leading-none">
+                    {sortDirection() === 'asc' ? '\u2191' : '\u2193'}
+                  </span>
+                )}
+              </button>
+            );
+          }}
+        </For>
+      </div>
       <div class="text-muted-foreground text-sm">
         {filteredCourses().length} предмети
       </div>
+      {/* Mobile: card layout */}
+      <div class="space-y-2 sm:hidden">
+        <Show
+          fallback={
+            <div class="text-muted-foreground py-12 text-center text-sm">
+              Нема резултати.
+            </div>
+          }
+          when={filteredCourses().length > 0}
+        >
+          <For each={filteredCourses()}>
+            {(course) => (
+              <CourseCard
+                course={course}
+                onClick={() => {
+                  openDetail(course);
+                }}
+              />
+            )}
+          </For>
+        </Show>
+      </div>
 
-      <div class="rounded-md border">
+      {/* Desktop: table layout */}
+      <div class="hidden rounded-md border sm:block">
         <Table>
           <TableHeader>
             <TableRow>
@@ -119,7 +173,7 @@ export const CourseTable = (props: CourseTableProps) => {
                 {sortIndicator(sortColumn(), sortDirection(), 'accreditation')}
               </TableHead>
               <TableHead
-                class="hidden w-20 cursor-pointer text-center select-none sm:table-cell"
+                class="hidden w-20 cursor-pointer text-center select-none md:table-cell"
                 onClick={() => {
                   toggleSort('channel');
                 }}
@@ -145,7 +199,6 @@ export const CourseTable = (props: CourseTableProps) => {
                     class="h-24 text-center"
                     colSpan={4}
                   >
-                    {/* colSpan covers visible columns on desktop */}
                     Нема резултати.
                   </TableCell>
                 </TableRow>
@@ -157,7 +210,7 @@ export const CourseTable = (props: CourseTableProps) => {
                   <CourseTableRow
                     course={course}
                     onClick={() => {
-                      handleRowClick(course);
+                      openDetail(course);
                     }}
                   />
                 )}

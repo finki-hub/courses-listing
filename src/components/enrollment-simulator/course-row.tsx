@@ -1,31 +1,20 @@
 import { Show } from 'solid-js';
 
 import { Badge } from '@/components/ui/badge';
-import { InfoCircleIcon } from '@/components/ui/icons';
 import { TableCell, TableRow } from '@/components/ui/table';
 import {
   getProgramStateKind,
   PROGRAM_STATE_LABELS,
-  type ProgramStateKind,
+  PROGRAM_STATE_SHORT_LABELS,
   type SimulatorCourse,
 } from '@/lib/simulator';
 
+import { getStatusClass, PROGRAM_STATE_BADGE_CLASSES } from './course-styles';
+import { InfoPopover } from './info-popover';
 import { Checkbox } from './simulator-checkbox';
 
 /** Minimum row height to prevent layout shift when badges wrap */
 const ROW_HEIGHT = '41px';
-
-const REQUIRED_BADGE_CLASS =
-  'bg-blue-500/15 text-blue-700 dark:text-blue-400 border-blue-500/25';
-
-const PROGRAM_STATE_BADGE_CLASSES: Record<ProgramStateKind, string> = {
-  elective:
-    'bg-amber-500/15 text-amber-700 dark:text-amber-400 border-amber-500/25',
-  'faculty-list':
-    'bg-zinc-500/15 text-zinc-700 dark:text-zinc-400 border-zinc-500/25',
-  required: REQUIRED_BADGE_CLASS,
-  'required-4yr': REQUIRED_BADGE_CLASS,
-};
 
 type CourseRowProps = {
   atLimit: boolean;
@@ -39,32 +28,16 @@ type CourseRowProps = {
   reason: string;
 };
 
-const getRowStatusClass = (status: {
-  atLimit: boolean;
-  listened: boolean;
-  overLimit: boolean;
-  passed: boolean;
-}): string => {
-  if (status.overLimit) return 'bg-red-500/10 border-l-red-500';
-  if (status.passed) return 'bg-green-500/10 border-l-green-500';
-  if (status.listened) return 'bg-blue-500/10 border-l-blue-500';
-  if (status.atLimit) return 'bg-orange-500/10 border-l-orange-400';
-  return 'border-l-transparent';
-};
-
 export const CourseRow = (props: CourseRowProps) => (
   <TableRow
-    class={`box-border border-l-[3px] ${props.enabled ? '' : 'opacity-40'} ${getRowStatusClass({ atLimit: props.atLimit, listened: props.listened, overLimit: props.overLimit, passed: props.passed })}`}
+    class={`box-border border-l-[3px] ${props.enabled ? '' : 'opacity-40'} ${getStatusClass({ atLimit: props.atLimit, listened: props.listened, overLimit: props.overLimit, passed: props.passed })}`}
     style={{ height: ROW_HEIGHT }}
   >
-    <TableCell class="text-muted-foreground text-center text-xs">
+    <TableCell class="text-muted-foreground whitespace-nowrap text-center text-xs">
       {props.course.semester}
     </TableCell>
     <TableCell class="font-medium">
-      <span
-        class="group/tip inline-flex cursor-help items-center gap-1 leading-none"
-        title={props.reason}
-      >
+      <span class="inline-flex items-center gap-1 leading-none">
         {props.course.name}
         <Show when={props.course.programState}>
           {(state) => {
@@ -76,14 +49,19 @@ export const CourseRow = (props: CourseRowProps) => (
                     class={`ml-1 px-1.5 py-0 text-[10px] leading-4 font-normal ${PROGRAM_STATE_BADGE_CLASSES[k()]}`}
                     variant="outline"
                   >
-                    {PROGRAM_STATE_LABELS[k()]}
+                    <span class="sm:hidden">
+                      {PROGRAM_STATE_SHORT_LABELS[k()]}
+                    </span>
+                    <span class="hidden sm:inline">
+                      {PROGRAM_STATE_LABELS[k()]}
+                    </span>
                   </Badge>
                 )}
               </Show>
             );
           }}
         </Show>
-        <InfoCircleIcon class="text-muted-foreground/50 group-hover/tip:text-muted-foreground h-3.5 w-3.5 shrink-0 translate-y-px transition-colors" />
+        <InfoPopover text={props.reason} />
       </span>
     </TableCell>
     <TableCell class="text-center">
@@ -109,9 +87,12 @@ export const CourseRow = (props: CourseRowProps) => (
         fallback="–"
         when={props.course.prerequisite}
       >
-        <span title={props.course.prerequisite}>
-          {props.course.prerequisite}
-        </span>
+        {(prereq) => (
+          <span class="inline-flex items-center gap-1">
+            <span class="truncate">{prereq()}</span>
+            <InfoPopover text={prereq()} />
+          </span>
+        )}
       </Show>
     </TableCell>
   </TableRow>

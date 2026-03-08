@@ -22,10 +22,10 @@ export const CourseTableRow = (props: CourseTableRowProps) => (
     onClick={props.onClick}
   >
     <TableCell class="font-medium">{props.course.name}</TableCell>
-    <TableCell class="hidden md:table-cell">
+    <TableCell class="hidden whitespace-nowrap md:table-cell">
       {getAccLabel(props.course)}
     </TableCell>
-    <TableCell class="hidden text-center sm:table-cell">
+    <TableCell class="hidden whitespace-nowrap text-center md:table-cell">
       <Show when={hasChannel(props.course)}>
         <CheckIcon class="text-primary mx-auto h-4 w-4" />
       </Show>

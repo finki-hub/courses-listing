@@ -97,6 +97,13 @@ export const PROGRAM_STATE_LABELS: Record<ProgramStateKind, string> = {
   'required-4yr': 'Задолжителен (4г.)',
 };
 
+export const PROGRAM_STATE_SHORT_LABELS: Record<ProgramStateKind, string> = {
+  elective: 'Изб.',
+  'faculty-list': 'Факс. листа',
+  required: 'Зад.',
+  'required-4yr': 'Зад. (4г.)',
+};
+
 const isStatusRecord = (v: unknown): v is Record<string, CourseStatus> => {
   if (typeof v !== 'object' || v === null || Array.isArray(v)) return false;
   for (const entry of Object.values(v as Record<string, unknown>)) {

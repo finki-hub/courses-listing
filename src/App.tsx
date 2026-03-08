@@ -32,14 +32,16 @@ const App = () => {
   return (
     <>
       <div class="border-b">
-        <div class="container mx-auto flex h-16 items-center px-4">
+        <div class="container mx-auto flex h-14 items-center px-3 sm:h-16 sm:px-4">
           <img
             alt="ФИНКИ Хаб"
-            class="mr-2 h-10 w-10"
+            class="mr-2 h-8 w-8 sm:h-10 sm:w-10"
             src="/logo.png"
           />
-          <h1 class="text-xl font-bold">ФИНКИ Хаб / Предмети</h1>
-          <div class="ml-auto flex items-center gap-2">
+          <h1 class="truncate text-base font-bold sm:text-xl">
+            ФИНКИ Хаб / Предмети
+          </h1>
+          <div class="ml-auto flex shrink-0 items-center gap-2">
             <IconLink
               href="https://github.com/finki-hub/courses-listing"
               rel="noopener noreferrer"
@@ -53,12 +55,12 @@ const App = () => {
         </div>
       </div>
 
-      <div class="container mx-auto py-8">
-        <nav class="mb-6 flex gap-1 border-b">
+      <div class="container mx-auto py-4 sm:py-8">
+        <nav class="-mx-3 mb-4 flex gap-1 overflow-x-auto overflow-y-hidden border-b px-3 sm:mx-0 sm:mb-6 sm:px-0">
           <For each={TABS}>
             {(tab) => (
               <button
-                class={`px-4 py-2 text-sm font-medium transition-colors ${
+                class={`whitespace-nowrap px-3 py-2 text-xs font-medium transition-colors sm:px-4 sm:text-sm ${
                   page() === tab.value
                     ? 'border-primary text-primary -mb-px border-b-2'
                     : 'text-muted-foreground hover:text-foreground'

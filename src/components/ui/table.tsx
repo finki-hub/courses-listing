@@ -54,7 +54,7 @@ export const TableHead = (props: ComponentProps<'th'>) => {
   return (
     <th
       class={cn(
-        'text-foreground h-10 whitespace-nowrap px-2 text-left align-middle font-medium',
+        'text-foreground h-10 whitespace-nowrap px-1.5 text-left align-middle text-xs font-medium sm:px-2 sm:text-sm',
         props.class,
       )}
       {...rest}
@@ -67,7 +67,7 @@ export const TableCell = (props: ComponentProps<'td'>) => {
 
   return (
     <td
-      class={cn('whitespace-nowrap p-2 align-middle', props.class)}
+      class={cn('px-1.5 py-1.5 align-middle sm:p-2', props.class)}
       {...rest}
     />
   );
