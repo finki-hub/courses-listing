@@ -1,6 +1,7 @@
 import { createMemo, createSignal, For, Show } from 'solid-js';
 
-import { Badge } from '@/components/ui/badge';
+import { LabeledCheckbox } from '@/components/ui/labeled-checkbox';
+import { SearchInput } from '@/components/ui/search-input';
 import {
   Table,
   TableBody,
@@ -12,70 +13,22 @@ import {
 import {
   ALL_TAGS,
   type CourseRaw,
-  getAccreditationInfo,
+  getAccLabel,
   getCourseTags,
-  TAG_TRANSLATIONS,
+  getTagLabel,
+  hasChannel,
 } from '@/types/course';
 
 import { CourseDetailDialog } from './course-detail-dialog';
+import { CourseTableRow } from './course-table-row';
 
 type CourseTableProps = {
   courses: CourseRaw[];
-};
-type CourseTableRowProps = {
-  course: CourseRaw;
-  onClick: () => void;
 };
 
 type SortColumn = 'accreditation' | 'channel' | 'name' | 'tags';
 
 type SortDirection = 'asc' | 'desc';
-
-const getAccLabel = (course: CourseRaw): string => {
-  const labels: string[] = [];
-  if (getAccreditationInfo(course, '2023')) labels.push('2023');
-  if (getAccreditationInfo(course, '2018')) labels.push('2018');
-  return labels.join(', ');
-};
-
-const hasChannel = (course: CourseRaw): boolean =>
-  course['2023-channel'] === '1' ||
-  course['2018-channel'] === '1' ||
-  course.channel === 'TRUE';
-
-const CourseTableRow = (props: CourseTableRowProps) => (
-  <TableRow
-    class="cursor-pointer"
-    onClick={props.onClick}
-  >
-    <TableCell class="font-medium">{props.course.name}</TableCell>
-    <TableCell class="hidden md:table-cell">
-      {getAccLabel(props.course)}
-    </TableCell>
-    <TableCell class="hidden text-center sm:table-cell">
-      <Show when={hasChannel(props.course)}>
-        <svg
-          class="text-primary mx-auto h-4 w-4"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="3"
-          viewBox="0 0 24 24"
-        >
-          <path d="M5 13l4 4L19 7" />
-        </svg>
-      </Show>
-    </TableCell>
-    <TableCell class="hidden lg:table-cell">
-      <div class="flex flex-wrap gap-1">
-        <For each={getCourseTags(props.course)}>
-          {(tag) => (
-            <Badge variant="secondary">{TAG_TRANSLATIONS[tag] ?? tag}</Badge>
-          )}
-        </For>
-      </div>
-    </TableCell>
-  </TableRow>
-);
 
 export const CourseTable = (props: CourseTableProps) => {
   const [selectedCourse, setSelectedCourse] = createSignal<CourseRaw | null>(
@@ -158,11 +111,9 @@ export const CourseTable = (props: CourseTableProps) => {
 
   return (
     <div class="space-y-4">
-      <input
-        class="bg-background border-input ring-offset-background placeholder:text-muted-foreground focus-visible:ring-ring w-full rounded-md border px-3 py-2 text-sm focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none"
+      <SearchInput
         onInput={(e) => setSearch(e.currentTarget.value)}
         placeholder="Пребарувај предмети..."
-        type="text"
         value={search()}
       />
 
@@ -170,17 +121,15 @@ export const CourseTable = (props: CourseTableProps) => {
         <span class="text-muted-foreground text-sm">Тагови:</span>
         <For each={ALL_TAGS}>
           {(tag) => (
-            <label class="flex cursor-pointer items-center gap-1.5 text-sm">
-              <input
-                checked={selectedTags().has(tag)}
-                class="accent-primary h-4 w-4 rounded"
-                onChange={() => {
-                  toggleTag(tag);
-                }}
-                type="checkbox"
-              />
-              {TAG_TRANSLATIONS[tag] ?? tag}
-            </label>
+            <LabeledCheckbox
+              checked={selectedTags().has(tag)}
+              class="gap-1.5"
+              onChange={() => {
+                toggleTag(tag);
+              }}
+            >
+              {getTagLabel(tag)}
+            </LabeledCheckbox>
           )}
         </For>
       </div>

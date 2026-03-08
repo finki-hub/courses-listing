@@ -2,9 +2,7 @@ import { type ComponentProps, splitProps } from 'solid-js';
 
 import { cn } from '@/lib/utils';
 
-export type TableProps = ComponentProps<'table'>;
-
-export const Table = (props: TableProps) => {
+export const Table = (props: ComponentProps<'table'>) => {
   const [, rest] = splitProps(props, ['class']);
 
   return (
@@ -17,9 +15,7 @@ export const Table = (props: TableProps) => {
   );
 };
 
-export type TableHeaderProps = ComponentProps<'thead'>;
-
-export const TableHeader = (props: TableHeaderProps) => {
+export const TableHeader = (props: ComponentProps<'thead'>) => {
   const [, rest] = splitProps(props, ['class']);
 
   return (
@@ -30,9 +26,7 @@ export const TableHeader = (props: TableHeaderProps) => {
   );
 };
 
-export type TableBodyProps = ComponentProps<'tbody'>;
-
-export const TableBody = (props: TableBodyProps) => {
+export const TableBody = (props: ComponentProps<'tbody'>) => {
   const [, rest] = splitProps(props, ['class']);
 
   return (
@@ -43,25 +37,7 @@ export const TableBody = (props: TableBodyProps) => {
   );
 };
 
-export type TableFooterProps = ComponentProps<'tfoot'>;
-
-export const TableFooter = (props: TableFooterProps) => {
-  const [, rest] = splitProps(props, ['class']);
-
-  return (
-    <tfoot
-      class={cn(
-        'bg-muted/50 border-t font-medium [&>tr]:last:border-b-0',
-        props.class,
-      )}
-      {...rest}
-    />
-  );
-};
-
-export type TableRowProps = ComponentProps<'tr'>;
-
-export const TableRow = (props: TableRowProps) => {
+export const TableRow = (props: ComponentProps<'tr'>) => {
   const [, rest] = splitProps(props, ['class']);
 
   return (
@@ -75,9 +51,7 @@ export const TableRow = (props: TableRowProps) => {
   );
 };
 
-export type TableHeadProps = ComponentProps<'th'>;
-
-export const TableHead = (props: TableHeadProps) => {
+export const TableHead = (props: ComponentProps<'th'>) => {
   const [, rest] = splitProps(props, ['class']);
 
   return (
@@ -91,9 +65,7 @@ export const TableHead = (props: TableHeadProps) => {
   );
 };
 
-export type TableCellProps = ComponentProps<'td'>;
-
-export const TableCell = (props: TableCellProps) => {
+export const TableCell = (props: ComponentProps<'td'>) => {
   const [, rest] = splitProps(props, ['class']);
 
   return (
@@ -102,19 +74,6 @@ export const TableCell = (props: TableCellProps) => {
         'whitespace-nowrap p-2 align-middle [&:has([role=checkbox])]:pr-0 [&>[role=checkbox]]:translate-y-[2px]',
         props.class,
       )}
-      {...rest}
-    />
-  );
-};
-
-export type TableCaptionProps = ComponentProps<'caption'>;
-
-export const TableCaption = (props: TableCaptionProps) => {
-  const [, rest] = splitProps(props, ['class']);
-
-  return (
-    <caption
-      class={cn('text-muted-foreground mt-4 text-sm', props.class)}
       {...rest}
     />
   );

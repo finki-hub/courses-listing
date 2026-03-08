@@ -6,9 +6,12 @@ import {
   computeOverLimitInfo,
   computeReasonMap,
   DIPLOMA_THESIS_COURSE_NAME,
+  GRADUATION_CREDITS_3YR,
+  GRADUATION_CREDITS_4YR,
+  type GraduationEligibility,
   HPC_CREDITS,
   isFourYearOnly,
-  REQUIRED_MARKER,
+  isRequired,
   type SimulatorCourse,
 } from '@/lib/simulator';
 
@@ -66,8 +69,8 @@ export const useSimulatorState = (params: UseSimulatorStateParams) => {
 
     for (const c of parsedCourses()) {
       const state = c.programState;
-      const isRequired = state?.includes(REQUIRED_MARKER) ?? false;
-      if (!isRequired) continue;
+      const required = isRequired(state);
+      if (!required) continue;
       if (c.name === DIPLOMA_THESIS_COURSE_NAME) continue;
       if (s[c.name]?.passed) continue;
       const fourYearOnly = state ? isFourYearOnly(state) : false;
@@ -77,6 +80,29 @@ export const useSimulatorState = (params: UseSimulatorStateParams) => {
       missing4yr.push(c.name);
     }
     return { missing3yr, missing4yr };
+  });
+
+  const graduationEligibility = createMemo((): GraduationEligibility => {
+    const credits = totalCredits();
+    const info = graduationInfo();
+    const diplomaPassed =
+      statuses()[DIPLOMA_THESIS_COURSE_NAME]?.passed ?? false;
+
+    const credits3yr = credits >= GRADUATION_CREDITS_3YR;
+    const credits4yr = credits >= GRADUATION_CREDITS_4YR;
+    const canGrad3yr = credits3yr && info.missing3yr.length === 0;
+    const canGrad4yr = credits4yr && info.missing4yr.length === 0;
+    const graduated3yr = canGrad3yr && diplomaPassed;
+    const graduated4yr = canGrad4yr && diplomaPassed;
+
+    return {
+      canGrad3yr,
+      canGrad4yr,
+      credits3yr,
+      credits4yr,
+      graduated3yr,
+      graduated4yr,
+    };
   });
 
   const enabledMap = createMemo(() =>
@@ -103,6 +129,7 @@ export const useSimulatorState = (params: UseSimulatorStateParams) => {
   return {
     enabledMap,
     fullLevels,
+    graduationEligibility,
     graduationInfo,
     overLimitLevels,
     overLimitSet,

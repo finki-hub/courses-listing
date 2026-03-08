@@ -44,51 +44,6 @@
 
   /* Container */
   --container-2xl: 1280px;
-
-  --animate-accordion-down: accordion-down 0.2s ease-out;
-  --animate-accordion-up: accordion-up 0.2s ease-out;
-  --animate-collapsible-down: collapsible-down 0.2s ease-out;
-  --animate-collapsible-up: collapsible-up 0.2s ease-out;
-
-  @keyframes accordion-down {
-    from {
-      height: 0;
-    }
-
-    to {
-      height: var(--kb-accordion-content-height);
-    }
-  }
-
-  @keyframes accordion-up {
-    from {
-      height: var(--kb-accordion-content-height);
-    }
-
-    to {
-      height: 0;
-    }
-  }
-
-  @keyframes collapsible-down {
-    from {
-      height: 0;
-    }
-
-    to {
-      height: var(--kb-collapsible-content-height);
-    }
-  }
-
-  @keyframes collapsible-up {
-    from {
-      height: var(--kb-collapsible-content-height);
-    }
-
-    to {
-      height: 0;
-    }
-  }
 }
 
 @utility container {
@@ -123,9 +78,6 @@
     --input: 0 0% 88%;
     --ring: 142 70% 45%;
     --radius: 0.75rem;
-    --glow-primary: 142 70% 45%;
-    --gradient-start: 142 70% 45%;
-    --gradient-end: 160 84% 39%;
   }
 
   [data-kb-theme="dark"] {
@@ -198,78 +150,5 @@
   code,
   pre {
     font-family: 'JetBrains Mono', monospace;
-  }
-}
-
-@layer utilities {
-  .text-gradient {
-    @apply bg-clip-text text-transparent;
-    background-image: linear-gradient(135deg,
-        hsl(var(--gradient-start)) 0%,
-        hsl(var(--gradient-end)) 100%);
-  }
-
-  .bg-gradient-primary {
-    background-image: linear-gradient(135deg,
-        hsl(var(--gradient-start)) 0%,
-        hsl(var(--gradient-end)) 100%);
-  }
-
-  .glow-primary {
-    box-shadow: 0 0 40px -10px hsl(var(--glow-primary) / 0.4);
-  }
-
-  .glow-primary-sm {
-    box-shadow: 0 0 20px -5px hsl(var(--glow-primary) / 0.3);
-  }
-
-  .glass {
-    @apply bg-card/50 backdrop-blur-xl border border-border/50;
-  }
-
-  .glass-hover {
-    @apply hover:bg-card/70 hover:border-border transition-all duration-300;
-  }
-
-  .hero-gradient {
-    background: radial-gradient(ellipse 80% 50% at 50% -20%,
-        hsl(var(--glow-primary) / 0.15),
-        transparent);
-  }
-
-  .section-gradient {
-    background: radial-gradient(ellipse 100% 100% at 50% 100%,
-        hsl(var(--glow-primary) / 0.05),
-        transparent);
-  }
-
-  .animate-float {
-    animation: float 6s ease-in-out infinite;
-  }
-
-  @keyframes float {
-    0%,
-    100% {
-      transform: translateY(0);
-    }
-
-    50% {
-      transform: translateY(-10px);
-    }
-  }
-
-  .animate-pulse-slow {
-    animation: pulse-slow 4s ease-in-out infinite;
-  }
-
-  @keyframes pulse-slow {
-    0%,
-    100% {
-      opacity: 0.4;
-    }
-
-    50% {
-      opacity: 0.8;
-    }
   }
 }

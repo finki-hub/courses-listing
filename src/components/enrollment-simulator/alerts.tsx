@@ -1,6 +1,7 @@
 import { Show } from 'solid-js';
 
-import { ALERT_STYLES } from '@/lib/simulator';
+import { ALERT_STYLES } from '@/lib/alert-styles';
+import { type GraduationEligibility } from '@/lib/simulator';
 
 type CreditLimitWarningProps = {
   levelLimits: Record<number, number>;
@@ -22,37 +23,30 @@ export const CreditLimitWarning = (props: CreditLimitWarningProps) => (
 );
 
 type GraduationAlertProps = {
-  diplomaPassed: boolean;
+  eligibility: GraduationEligibility;
   missingMandatory3yr: string[];
   missingMandatory4yr: string[];
-  totalCredits: number;
 };
 
 export const GraduationAlert = (props: GraduationAlertProps) => {
-  const credits3yr = () => props.totalCredits >= 174;
-  const credits4yr = () => props.totalCredits >= 234;
-  const canGrad3yr = () =>
-    credits3yr() && props.missingMandatory3yr.length === 0;
-  const canGrad4yr = () =>
-    credits4yr() && props.missingMandatory4yr.length === 0;
-  const graduated3yr = () => canGrad3yr() && props.diplomaPassed;
-  const graduated4yr = () => canGrad4yr() && props.diplomaPassed;
-  const showAlert = () => credits3yr() || credits4yr() || props.diplomaPassed;
+  const e = () => props.eligibility;
+  const showAlert = () =>
+    e().credits3yr || e().credits4yr || e().graduated3yr || e().graduated4yr;
 
   return (
     <Show when={showAlert()}>
       <div class="space-y-2">
-        <Show when={graduated3yr() || graduated4yr()}>
+        <Show when={e().graduated3yr || e().graduated4yr}>
           <div class={ALERT_STYLES.successBold}>🎉 Честитки дипломирање!</div>
         </Show>
-        <Show when={canGrad3yr() && !canGrad4yr() && !graduated3yr()}>
+        <Show when={e().canGrad3yr && !e().canGrad4yr && !e().graduated3yr}>
           <div class={ALERT_STYLES.success}>
             🎓 Ги исполнувате условите за дипломирање со 3 годишни студии (≥ 174
             кредити и сите задолжителни предмети положени, освен Дипломска
             работа)
           </div>
         </Show>
-        <Show when={credits3yr() && !canGrad3yr()}>
+        <Show when={e().credits3yr && !e().canGrad3yr}>
           <div class={ALERT_STYLES.warning}>
             ℹ️ Имате ≥ 174 кредити, но за 3 годишни студии ви недостасуваат
             следните задолжителни предмети:{' '}
@@ -61,14 +55,14 @@ export const GraduationAlert = (props: GraduationAlertProps) => {
             </span>
           </div>
         </Show>
-        <Show when={canGrad4yr() && !graduated4yr()}>
+        <Show when={e().canGrad4yr && !e().graduated4yr}>
           <div class={ALERT_STYLES.success}>
             🎓 Ги исполнувате условите за дипломирање со 4 годишни студии (≥ 234
             кредити и сите задолжителни предмети положени, освен Дипломска
             работа)
           </div>
         </Show>
-        <Show when={credits4yr() && !canGrad4yr()}>
+        <Show when={e().credits4yr && !e().canGrad4yr}>
           <div class={ALERT_STYLES.warning}>
             ℹ️ Имате ≥ 234 кредити, но за 4 годишни студии ви недостасуваат
             следните задолжителни предмети:{' '}

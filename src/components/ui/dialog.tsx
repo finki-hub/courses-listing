@@ -11,28 +11,15 @@ import { cn } from '@/lib/utils';
 
 export const DialogPortal = DialogPrimitive.Portal;
 
-export type DialogProps = ComponentProps<typeof DialogPrimitive>;
+export const Dialog = (props: ComponentProps<typeof DialogPrimitive>) => (
+  <DialogPrimitive {...props} />
+);
 
-export const Dialog = (props: DialogProps) => <DialogPrimitive {...props} />;
-
-export type DialogTriggerProps<T extends ValidComponent = 'button'> =
-  ComponentProps<typeof DialogPrimitive.Trigger<T>>;
-
-export const DialogTrigger = <T extends ValidComponent = 'button'>(
-  props: DialogTriggerProps<T>,
-) => <DialogPrimitive.Trigger {...props} />;
-
-export type DialogCloseButtonProps<T extends ValidComponent = 'button'> =
-  ComponentProps<typeof DialogPrimitive.CloseButton<T>>;
-
-export const DialogCloseButton = <T extends ValidComponent = 'button'>(
-  props: DialogCloseButtonProps<T>,
-) => <DialogPrimitive.CloseButton {...props} />;
-
-export type DialogContentProps<T extends ValidComponent = 'div'> =
-  ComponentProps<typeof DialogPrimitive.Content<T>> & {
-    showCloseButton?: boolean;
-  };
+type DialogContentProps<T extends ValidComponent = 'div'> = ComponentProps<
+  typeof DialogPrimitive.Content<T>
+> & {
+  showCloseButton?: boolean;
+};
 
 export const DialogContent = <T extends ValidComponent = 'div'>(
   props: DialogContentProps<T>,
@@ -81,7 +68,7 @@ export const DialogContent = <T extends ValidComponent = 'div'>(
   );
 };
 
-export type DialogHeaderProps = ComponentProps<'div'>;
+type DialogHeaderProps = ComponentProps<'div'>;
 
 export const DialogHeader = (props: DialogHeaderProps) => {
   const [, rest] = splitProps(props, ['class']);
@@ -94,23 +81,7 @@ export const DialogHeader = (props: DialogHeaderProps) => {
   );
 };
 
-export type DialogFooterProps = ComponentProps<'div'>;
-
-export const DialogFooter = (props: DialogFooterProps) => {
-  const [, rest] = splitProps(props, ['class']);
-
-  return (
-    <div
-      class={cn(
-        'flex flex-col-reverse gap-2 sm:flex-row sm:justify-end',
-        props.class,
-      )}
-      {...rest}
-    />
-  );
-};
-
-export type DialogTitleProps<T extends ValidComponent = 'h2'> = ComponentProps<
+type DialogTitleProps<T extends ValidComponent = 'h2'> = ComponentProps<
   typeof DialogPrimitive.Title<T>
 >;
 
@@ -127,8 +98,9 @@ export const DialogTitle = <T extends ValidComponent = 'h2'>(
   );
 };
 
-export type DialogDescriptionProps<T extends ValidComponent = 'p'> =
-  ComponentProps<typeof DialogPrimitive.Description<T>>;
+type DialogDescriptionProps<T extends ValidComponent = 'p'> = ComponentProps<
+  typeof DialogPrimitive.Description<T>
+>;
 
 export const DialogDescription = <T extends ValidComponent = 'p'>(
   props: DialogDescriptionProps<T>,

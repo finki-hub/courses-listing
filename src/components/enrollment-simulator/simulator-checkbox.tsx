@@ -1,5 +1,7 @@
 import { Show } from 'solid-js';
 
+import { CheckIcon } from '@/components/ui/icons';
+
 type CheckboxProps = {
   checked: boolean;
   disabled: boolean;
@@ -26,15 +28,7 @@ export const Checkbox = (props: CheckboxProps) => (
     type="button"
   >
     <Show when={props.checked}>
-      <svg
-        class="h-3.5 w-3.5"
-        fill="none"
-        stroke="currentColor"
-        stroke-width="3"
-        viewBox="0 0 24 24"
-      >
-        <path d="M5 13l4 4L19 7" />
-      </svg>
+      <CheckIcon class="h-3.5 w-3.5" />
     </Show>
   </button>
 );

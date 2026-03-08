@@ -1,12 +1,10 @@
 /* eslint-disable no-alert */
 import { createEffect, createSignal, on, Show } from 'solid-js';
 
-import { type CourseStatus } from '@/lib/prerequisite';
+import { ALERT_STYLES } from '@/lib/alert-styles';
+import { type CourseStatus, OVERRIDE_CREDITS } from '@/lib/prerequisite';
+import { captureTableToClipboard } from '@/lib/screenshot';
 import {
-  type Accreditation,
-  ALERT_STYLES,
-  captureTableToClipboard,
-  DIPLOMA_THESIS_COURSE_NAME,
   LEVEL_CREDIT_LIMITS,
   loadStatuses,
   type SeasonFilter,
@@ -15,10 +13,13 @@ import {
   STORAGE_KEY_PROGRAM,
 } from '@/lib/simulator';
 import {
+  type Accreditation,
   type CourseRaw,
-  STUDY_PROGRAMS_2018,
-  STUDY_PROGRAMS_2023,
+  getStudyPrograms,
+  isAccreditation,
 } from '@/types/course';
+
+const DEFAULT_PROGRAM = 'kn';
 
 import { CreditLimitWarning, GraduationAlert } from './alerts';
 import { SimulatorTable } from './simulator-table';
@@ -32,12 +33,15 @@ type EnrollmentSimulatorProps = {
 };
 
 export const EnrollmentSimulator = (props: EnrollmentSimulatorProps) => {
-  const savedAcc =
-    (localStorage.getItem(STORAGE_KEY_ACC) as Accreditation | null) ?? '2023';
-  const defaultPrograms =
-    savedAcc === '2018' ? STUDY_PROGRAMS_2018 : STUDY_PROGRAMS_2023;
+  const storedAcc = localStorage.getItem(STORAGE_KEY_ACC) ?? '';
+  const savedAcc: Accreditation = isAccreditation(storedAcc)
+    ? storedAcc
+    : '2023';
+  const defaultPrograms = getStudyPrograms(savedAcc);
   const savedProgram =
-    localStorage.getItem(STORAGE_KEY_PROGRAM) ?? defaultPrograms[0];
+    localStorage.getItem(STORAGE_KEY_PROGRAM) ??
+    defaultPrograms[0] ??
+    DEFAULT_PROGRAM;
 
   const [accreditation, setAccreditation] =
     createSignal<Accreditation>(savedAcc);
@@ -67,6 +71,7 @@ export const EnrollmentSimulator = (props: EnrollmentSimulatorProps) => {
   const {
     enabledMap,
     fullLevels,
+    graduationEligibility,
     graduationInfo,
     overLimitLevels,
     overLimitSet,
@@ -92,9 +97,7 @@ export const EnrollmentSimulator = (props: EnrollmentSimulatorProps) => {
 
   const switchAccreditation = (acc: Accreditation) => {
     setAccreditation(acc);
-    setProgram(
-      acc === '2023' ? STUDY_PROGRAMS_2023[0] : STUDY_PROGRAMS_2018[0],
-    );
+    setProgram(getStudyPrograms(acc)[0] ?? DEFAULT_PROGRAM);
     setStatuses(loadStatuses(acc));
   };
 
@@ -165,17 +168,16 @@ export const EnrollmentSimulator = (props: EnrollmentSimulatorProps) => {
         levels={overLimitLevels()}
       />
 
-      <Show when={totalCredits() >= 180}>
+      <Show when={totalCredits() >= OVERRIDE_CREDITS}>
         <div class={ALERT_STYLES.info}>
           🔓 Имате ≥ 180 кредити — сите предмети се отклучени
         </div>
       </Show>
 
       <GraduationAlert
-        diplomaPassed={statuses()[DIPLOMA_THESIS_COURSE_NAME]?.passed ?? false}
+        eligibility={graduationEligibility()}
         missingMandatory3yr={graduationInfo().missing3yr}
         missingMandatory4yr={graduationInfo().missing4yr}
-        totalCredits={totalCredits()}
       />
 
       <SimulatorTable

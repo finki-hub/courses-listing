@@ -74,6 +74,9 @@ export const TAG_TRANSLATIONS: Record<string, string> = {
 
 export const ALL_TAGS = Object.keys(TAG_TRANSLATIONS);
 
+export const getTagLabel = (tag: string): string =>
+  TAG_TRANSLATIONS[tag] ?? tag;
+
 export const getCourseTags = (course: CourseRaw): string[] =>
   course.tags?.split(',').filter(Boolean) ?? [];
 
@@ -95,8 +98,6 @@ export const ACADEMIC_YEARS = [
   '2011/2012',
 ] as const;
 
-export type AcademicYear = (typeof ACADEMIC_YEARS)[number];
-
 export type AccreditationInfo = {
   channel?: string;
   code?: string;
@@ -106,9 +107,11 @@ export type AccreditationInfo = {
   semester?: string;
 };
 
+type AcademicYear = (typeof ACADEMIC_YEARS)[number];
+
 export const getAccreditationInfo = (
   course: CourseRaw,
-  accreditation: '2018' | '2023',
+  accreditation: Accreditation,
 ): AccreditationInfo | undefined => {
   const available = course[`${accreditation}-available`];
   if (available !== 'TRUE') return undefined;
@@ -131,19 +134,11 @@ export const getEnrollmentForYear = (
   return value ? Number.parseInt(value) : 0;
 };
 
-export const getLatestEnrollment = (course: CourseRaw): number => {
-  for (const year of ACADEMIC_YEARS) {
-    const val = getEnrollmentForYear(course, year);
-    if (val > 0) return val;
-  }
-  return 0;
-};
-
 const DEFAULT_CREDITS = 6;
 
 export const getCourseCredits = (
   course: CourseRaw,
-  accreditation: '2018' | '2023',
+  accreditation: Accreditation,
 ): number => {
   const raw = course[`${accreditation}-credits`];
   if (raw) {
@@ -152,6 +147,15 @@ export const getCourseCredits = (
   }
   return DEFAULT_CREDITS;
 };
+
+// ---------------------------------------------------------------------------
+// Accreditation
+// ---------------------------------------------------------------------------
+
+export type Accreditation = '2018' | '2023';
+
+export const isAccreditation = (v: string): v is Accreditation =>
+  v === '2018' || v === '2023';
 
 // ---------------------------------------------------------------------------
 // Study programs
@@ -178,10 +182,6 @@ export const STUDY_PROGRAMS_2023 = [
   'ssp',
 ] as const;
 
-export type StudyProgram = StudyProgram2018 | StudyProgram2023;
-export type StudyProgram2018 = (typeof STUDY_PROGRAMS_2018)[number];
-export type StudyProgram2023 = (typeof STUDY_PROGRAMS_2023)[number];
-
 export const STUDY_PROGRAM_LABELS: Record<string, string> = {
   ie: 'ИЕ',
   imb: 'ИМБ',
@@ -196,7 +196,32 @@ export const STUDY_PROGRAM_LABELS: Record<string, string> = {
 
 export const getCourseStateForProgram = (
   course: CourseRaw,
-  accreditation: '2018' | '2023',
+  accreditation: Accreditation,
   program: string,
-): string | undefined =>
-  course[`${accreditation}-state-${program}` as keyof CourseRaw];
+): string | undefined => {
+  const key = `${accreditation}-state-${program}`;
+  return key in course ? course[key as keyof CourseRaw] : undefined;
+};
+
+export const getStudyPrograms = (
+  accreditation: Accreditation,
+): readonly string[] =>
+  accreditation === '2023' ? STUDY_PROGRAMS_2023 : STUDY_PROGRAMS_2018;
+
+// ---------------------------------------------------------------------------
+// Course accessors
+// ---------------------------------------------------------------------------
+
+export const getAccLabel = (course: CourseRaw): string => {
+  const labels: string[] = [];
+  if (getAccreditationInfo(course, '2023')) labels.push('2023');
+  if (getAccreditationInfo(course, '2018')) labels.push('2018');
+  return labels.join(', ');
+};
+
+export const hasChannel = (course: CourseRaw): boolean =>
+  course['2023-channel'] === '1' ||
+  course['2018-channel'] === '1' ||
+  course.channel === 'TRUE';
+
+export const HIGH_ENROLLMENT_THRESHOLD = 200;

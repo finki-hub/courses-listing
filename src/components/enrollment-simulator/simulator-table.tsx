@@ -9,7 +9,7 @@ import {
 } from '@/components/ui/table';
 import { type CourseStatus } from '@/lib/prerequisite';
 import {
-  REQUIRED_MARKER,
+  isRequired,
   type SeasonFilter,
   type SimulatorCourse,
 } from '@/lib/simulator';
@@ -62,9 +62,7 @@ export const SimulatorTable = (props: SimulatorTableProps) => (
                 <CourseRow
                   atLimit={
                     !props.statuses[course.name]?.passed &&
-                    !(
-                      course.programState?.includes(REQUIRED_MARKER) ?? false
-                    ) &&
+                    !isRequired(course.programState) &&
                     props.fullLevels.has(course.level)
                   }
                   course={course}

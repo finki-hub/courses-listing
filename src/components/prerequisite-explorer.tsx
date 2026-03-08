@@ -1,12 +1,7 @@
-import {
-  createEffect,
-  createMemo,
-  createSignal,
-  For,
-  on,
-  Show,
-} from 'solid-js';
+import { createMemo, createSignal, For, Show } from 'solid-js';
 
+import { AccreditationSwitch } from '@/components/accreditation-switch';
+import { SearchInput } from '@/components/ui/search-input';
 import {
   Table,
   TableBody,
@@ -15,9 +10,15 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { parsePrerequisite, type PrereqNode } from '@/lib/prerequisite';
-import { type Accreditation, STORAGE_KEY_ACC } from '@/lib/simulator';
-import { type CourseRaw, getAccreditationInfo } from '@/types/course';
+import { collectCourseNames, parsePrerequisite } from '@/lib/prerequisite';
+import { compareBySemesterAndName, STORAGE_KEY_ACC } from '@/lib/simulator';
+import { usePersistedSignal } from '@/lib/use-persisted-signal';
+import {
+  type Accreditation,
+  type CourseRaw,
+  getAccreditationInfo,
+  isAccreditation,
+} from '@/types/course';
 
 type AccCourse = {
   name: string;
@@ -25,75 +26,18 @@ type AccCourse = {
   semester: number;
 };
 
-type AccreditationSwitchProps = {
-  accreditation: Accreditation;
-  onSelect: (accreditation: Accreditation) => void;
-};
-
 type PrerequisiteExplorerProps = {
   courses: CourseRaw[];
 };
 
-const collectCourseNames = (node: PrereqNode): string[] => {
-  switch (node.type) {
-    case 'and':
-    case 'or':
-      return node.children.flatMap(collectCourseNames);
-    case 'course':
-      return [node.name];
-    default:
-      return [];
-  }
-};
-
-const AccreditationSwitch = (props: AccreditationSwitchProps) => (
-  <div
-    class="inline-flex rounded-md border"
-    role="group"
-  >
-    <button
-      class={`rounded-l-md px-4 py-2 text-sm font-medium transition-colors ${
-        props.accreditation === '2023'
-          ? 'bg-primary text-primary-foreground'
-          : 'hover:bg-muted'
-      }`}
-      onClick={() => {
-        props.onSelect('2023');
-      }}
-      type="button"
-    >
-      Акредитација 2023
-    </button>
-    <button
-      class={`rounded-r-md px-4 py-2 text-sm font-medium transition-colors ${
-        props.accreditation === '2018'
-          ? 'bg-primary text-primary-foreground'
-          : 'hover:bg-muted'
-      }`}
-      onClick={() => {
-        props.onSelect('2018');
-      }}
-      type="button"
-    >
-      Акредитација 2018
-    </button>
-  </div>
-);
-
 export const PrerequisiteExplorer = (props: PrerequisiteExplorerProps) => {
-  const savedAcc =
-    (localStorage.getItem(STORAGE_KEY_ACC) as Accreditation | null) ?? '2023';
-
-  const [accreditation, setAccreditation] =
-    createSignal<Accreditation>(savedAcc);
+  const [accreditation, setAccreditation] = usePersistedSignal<Accreditation>(
+    STORAGE_KEY_ACC,
+    '2023',
+    isAccreditation,
+  );
   const [selectedCourse, setSelectedCourse] = createSignal<string>('');
   const [search, setSearch] = createSignal('');
-
-  createEffect(
-    on(accreditation, (acc) => {
-      localStorage.setItem(STORAGE_KEY_ACC, acc);
-    }),
-  );
 
   const accCourses = createMemo<AccCourse[]>(() => {
     const acc = accreditation();
@@ -146,9 +90,7 @@ export const PrerequisiteExplorer = (props: PrerequisiteExplorerProps) => {
     const sel = selectedCourse();
     if (!sel) return [];
     const list = reverseMap().get(sel) ?? [];
-    return [...list].sort(
-      (a, b) => a.semester - b.semester || a.name.localeCompare(b.name, 'mk'),
-    );
+    return [...list].sort(compareBySemesterAndName);
   });
 
   const handleAccreditationChange = (acc: Accreditation) => {
@@ -178,20 +120,22 @@ export const PrerequisiteExplorer = (props: PrerequisiteExplorerProps) => {
         >
           Изберете предмет
         </label>
-        <input
-          class="bg-background border-input ring-offset-background placeholder:text-muted-foreground focus-visible:ring-ring w-full rounded-md border px-3 py-2 text-sm focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none"
+        <SearchInput
           id="course-search"
           onInput={(e) => {
             setSearch(e.currentTarget.value);
             setSelectedCourse('');
           }}
           placeholder="Пребарувај предмети..."
-          type="text"
           value={search()}
         />
-        <Show when={search() && !selectedCourse()}>
+        <Show when={!selectedCourse()}>
           <div class="max-h-60 overflow-y-auto rounded-md border">
-            <For each={filteredPickerCourses()}>
+            <For
+              each={
+                search() ? filteredPickerCourses() : coursesWithDependents()
+              }
+            >
               {(name) => (
                 <button
                   class="hover:bg-muted w-full px-3 py-2 text-left text-sm transition-colors"
@@ -205,29 +149,11 @@ export const PrerequisiteExplorer = (props: PrerequisiteExplorerProps) => {
                 </button>
               )}
             </For>
-            <Show when={filteredPickerCourses().length === 0}>
+            <Show when={search() && filteredPickerCourses().length === 0}>
               <div class="text-muted-foreground px-3 py-2 text-sm">
                 Нема резултати
               </div>
             </Show>
-          </div>
-        </Show>
-        <Show when={!search()}>
-          <div class="max-h-60 overflow-y-auto rounded-md border">
-            <For each={coursesWithDependents()}>
-              {(name) => (
-                <button
-                  class="hover:bg-muted w-full px-3 py-2 text-left text-sm transition-colors"
-                  onClick={() => {
-                    setSelectedCourse(name);
-                    setSearch(name);
-                  }}
-                  type="button"
-                >
-                  {name}
-                </button>
-              )}
-            </For>
           </div>
         </Show>
       </div>

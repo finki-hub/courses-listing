@@ -3,7 +3,7 @@ import { type ComponentProps, splitProps } from 'solid-js';
 
 import { cn } from '@/lib/utils';
 
-export const badgeVariants = cva(
+const badgeVariants = cva(
   'inline-flex items-center rounded-md border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2',
   {
     defaultVariants: {
@@ -23,8 +23,7 @@ export const badgeVariants = cva(
   },
 );
 
-export type BadgeProps = ComponentProps<'div'> &
-  VariantProps<typeof badgeVariants>;
+type BadgeProps = ComponentProps<'div'> & VariantProps<typeof badgeVariants>;
 
 export const Badge = (props: BadgeProps) => {
   const [local, rest] = splitProps(props, ['class', 'variant']);

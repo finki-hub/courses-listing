@@ -2,13 +2,17 @@ import { createMemo } from 'solid-js';
 
 import { type CourseInfo, parsePrerequisite } from '@/lib/prerequisite';
 import {
-  type Accreditation,
   buildSimulatorCourse,
+  compareBySemesterAndName,
+  isRequired,
   pruneElectivePrereqs,
-  REQUIRED_MARKER,
   type SimulatorCourse,
 } from '@/lib/simulator';
-import { type CourseRaw, getAccreditationInfo } from '@/types/course';
+import {
+  type Accreditation,
+  type CourseRaw,
+  getAccreditationInfo,
+} from '@/types/course';
 
 export const useSimulatorCourses = (
   getCourses: () => CourseRaw[],
@@ -27,21 +31,24 @@ export const useSimulatorCourses = (
       if (course) courses.push(course);
     }
 
-    courses.sort(
-      (a, b) => a.semester - b.semester || a.name.localeCompare(b.name, 'mk'),
-    );
+    courses.sort(compareBySemesterAndName);
     return courses;
+  });
+
+  const electiveCourses = createMemo(() => {
+    const set = new Set<string>();
+    for (const c of simulatorCourses()) {
+      if (c.programState && !isRequired(c.programState)) {
+        set.add(c.name);
+      }
+    }
+    return set;
   });
 
   const parsedCourses = createMemo<SimulatorCourse[]>(() => {
     const list = simulatorCourses();
     const names = list.map((c) => c.name);
-    const electives = new Set<string>();
-    for (const c of list) {
-      if (c.programState && !c.programState.includes(REQUIRED_MARKER)) {
-        electives.add(c.name);
-      }
-    }
+    const electives = electiveCourses();
     return list.map((c) => {
       const rawPrereqNode = parsePrerequisite(c.prerequisite, names);
       return {
@@ -62,16 +69,6 @@ export const useSimulatorCourses = (
       });
     }
     return map;
-  });
-
-  const electiveCourses = createMemo(() => {
-    const set = new Set<string>();
-    for (const c of parsedCourses()) {
-      if (c.programState && !c.programState.includes(REQUIRED_MARKER)) {
-        set.add(c.name);
-      }
-    }
-    return set;
   });
 
   return { courseInfoMap, electiveCourses, parsedCourses };

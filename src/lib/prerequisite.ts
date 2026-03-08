@@ -143,7 +143,7 @@ export const parsePrerequisite = (
 // Evaluation
 // ---------------------------------------------------------------------------
 
-const OVERRIDE_CREDITS = 180;
+export const OVERRIDE_CREDITS = 180;
 
 /**
  * Check whether a single course-name prerequisite is met.
@@ -201,34 +201,70 @@ export const isPrerequisiteMet = (
 };
 
 /**
- * Build a human-readable prerequisite string from a PrereqNode.
+ * Collect all course names referenced in a prerequisite tree.
  */
-export const prereqToString = (node: PrereqNode): string => {
+export const collectCourseNames = (node: PrereqNode): string[] => {
   switch (node.type) {
     case 'and':
-      return node.children
-        .map((c) => {
-          const s = prereqToString(c);
-          return c.type === 'or' ? `(${s})` : s;
-        })
-        .join(' и ');
-
-    case 'course':
-      return node.name;
-
-    case 'credits':
-      return `${String(node.amount)} кредити`;
-
-    case 'none':
-      return '';
-
     case 'or':
-      return node.children.map((c) => prereqToString(c)).join(' или ');
-
-    case 'unknown':
-      return node.text;
-
+      return node.children.flatMap(collectCourseNames);
+    case 'course':
+      return [node.name];
     default:
-      return '';
+      return [];
+  }
+};
+
+/**
+ * Build a human-readable status description of each prerequisite node,
+ * showing whether it is met or not (with emoji indicators).
+ *
+ * Elective courses that appear as prerequisites are marked as "not a
+ * prerequisite" and skipped.
+ */
+export const describePrereqNode = (
+  node: PrereqNode,
+  ctx: EvalContext,
+  electives: Set<string>,
+): string[] => {
+  switch (node.type) {
+    case 'and':
+      return node.children.flatMap((c) =>
+        describePrereqNode(c, ctx, electives),
+      );
+    case 'course': {
+      if (electives.has(node.name)) {
+        return [`  \u2796 ${node.name} (изборен \u2014 не е предуслов)`];
+      }
+      const st = ctx.statuses[node.name];
+      const info = ctx.courseInfoMap.get(node.name);
+      const diff = info ? ctx.courseSemester - info.semester : 2;
+      const needed = diff === 1 ? 'слушан' : 'положен';
+      const met = diff === 1 ? (st?.listened ?? false) : (st?.passed ?? false);
+      return [
+        met
+          ? `  \u2705 ${node.name} (${needed})`
+          : `  \u274C ${node.name} (потребно: ${needed})`,
+      ];
+    }
+    case 'credits': {
+      const met = ctx.totalCredits >= node.amount;
+      return [
+        met
+          ? `  \u2705 ${String(node.amount)} кредити`
+          : `  \u274C ${String(node.amount)} кредити (имате ${String(ctx.totalCredits)})`,
+      ];
+    }
+    case 'or': {
+      const descs = node.children.map((c) =>
+        describePrereqNode(c, ctx, electives),
+      );
+      const metIdx = descs.findIndex((d) =>
+        d.every((line) => line.includes('\u2705')),
+      );
+      return metIdx === -1 ? descs.flat() : (descs[metIdx] ?? []);
+    }
+    default:
+      return [];
   }
 };

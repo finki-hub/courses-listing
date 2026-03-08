@@ -1,15 +1,28 @@
 import { Show } from 'solid-js';
 
 import { Badge } from '@/components/ui/badge';
+import { InfoCircleIcon } from '@/components/ui/icons';
 import { TableCell, TableRow } from '@/components/ui/table';
 import {
   getProgramStateKind,
-  PROGRAM_STATE_BADGE_CLASSES,
   PROGRAM_STATE_LABELS,
+  type ProgramStateKind,
   type SimulatorCourse,
 } from '@/lib/simulator';
 
-import { Checkbox } from './checkbox';
+import { Checkbox } from './simulator-checkbox';
+
+const REQUIRED_BADGE_CLASS =
+  'bg-blue-500/15 text-blue-700 dark:text-blue-400 border-blue-500/25';
+
+const PROGRAM_STATE_BADGE_CLASSES: Record<ProgramStateKind, string> = {
+  elective:
+    'bg-amber-500/15 text-amber-700 dark:text-amber-400 border-amber-500/25',
+  'faculty-list':
+    'bg-zinc-500/15 text-zinc-700 dark:text-zinc-400 border-zinc-500/25',
+  required: REQUIRED_BADGE_CLASS,
+  'required-4yr': REQUIRED_BADGE_CLASS,
+};
 
 type CourseRowProps = {
   atLimit: boolean;
@@ -64,20 +77,7 @@ export const CourseRow = (props: CourseRowProps) => (
             );
           }}
         </Show>
-        <svg
-          class="text-muted-foreground/50 group-hover/tip:text-muted-foreground h-3.5 w-3.5 shrink-0 translate-y-px transition-colors"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2"
-          viewBox="0 0 24 24"
-        >
-          <circle
-            cx="12"
-            cy="12"
-            r="10"
-          />
-          <path d="M12 16v-4M12 8h.01" />
-        </svg>
+        <InfoCircleIcon class="text-muted-foreground/50 group-hover/tip:text-muted-foreground h-3.5 w-3.5 shrink-0 translate-y-px transition-colors" />
       </span>
     </TableCell>
     <TableCell class="text-center">

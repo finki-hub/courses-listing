@@ -1,18 +1,29 @@
 import {
   type CourseInfo,
   type CourseStatus,
+  describePrereqNode,
   type EvalContext,
   isPrerequisiteMet,
+  OVERRIDE_CREDITS,
   type PrereqNode,
 } from '@/lib/prerequisite';
 import {
+  type Accreditation,
   type AccreditationInfo,
   type CourseRaw,
   getCourseCredits,
   getCourseStateForProgram,
 } from '@/types/course';
 
-export type Accreditation = '2018' | '2023';
+export type GraduationEligibility = {
+  canGrad3yr: boolean;
+  canGrad4yr: boolean;
+  credits3yr: boolean;
+  credits4yr: boolean;
+  graduated3yr: boolean;
+  graduated4yr: boolean;
+};
+
 export type SeasonFilter = 'summer' | 'winter' | null;
 
 export type SimulatorCourse = {
@@ -33,10 +44,21 @@ export const STORAGE_KEY_HPC = `${STORAGE_KEY_PREFIX}hpc`;
 export const STORAGE_KEY_PROGRAM = `${STORAGE_KEY_PREFIX}program`;
 export const HPC_CREDITS = 6;
 export const DIPLOMA_THESIS_COURSE_NAME = 'Дипломска работа';
+export const GRADUATION_CREDITS_3YR = 174;
+export const GRADUATION_CREDITS_4YR = 234;
 export const LEVEL_CREDIT_LIMITS: Record<number, number> = { 1: 6, 2: 36 };
 export const REQUIRED_MARKER =
   '\u0437\u0430\u0434\u043E\u043B\u0436\u0438\u0442\u0435\u043B\u0435\u043D';
+export const FACULTY_LIST_MARKER = '\u043D\u0435\u043C\u0430';
 export const FOUR_YEAR_MARKER = '(4 г.)';
+
+export const isRequired = (programState: string | undefined): boolean =>
+  programState?.includes(REQUIRED_MARKER) ?? false;
+
+export const compareBySemesterAndName = (
+  a: { name: string; semester: number },
+  b: { name: string; semester: number },
+): number => a.semester - b.semester || a.name.localeCompare(b.name, 'mk');
 
 /** Semesters 7+ belong to year 4, e.g. "задолжителен (сем. 7)" */
 const FOUR_YEAR_SEMESTER_RE = /\(сем\.\s*[78]\)/u;
@@ -55,8 +77,8 @@ export const getProgramStateKind = (
   programState: string | undefined,
 ): ProgramStateKind | undefined => {
   if (!programState) return undefined;
-  if (programState === '\u043D\u0435\u043C\u0430') return 'faculty-list';
-  if (programState.includes(REQUIRED_MARKER))
+  if (programState === FACULTY_LIST_MARKER) return 'faculty-list';
+  if (isRequired(programState))
     return isFourYearOnly(programState) ? 'required-4yr' : 'required';
   return 'elective';
 };
@@ -68,35 +90,17 @@ export const PROGRAM_STATE_LABELS: Record<ProgramStateKind, string> = {
   'required-4yr': 'Задолжителен (4г.)',
 };
 
-export const PROGRAM_STATE_BADGE_CLASSES: Record<ProgramStateKind, string> = {
-  elective:
-    'bg-amber-500/15 text-amber-700 dark:text-amber-400 border-amber-500/25',
-  'faculty-list':
-    'bg-zinc-500/15 text-zinc-700 dark:text-zinc-400 border-zinc-500/25',
-  required:
-    'bg-blue-500/15 text-blue-700 dark:text-blue-400 border-blue-500/25',
-  'required-4yr':
-    'bg-blue-500/15 text-blue-700 dark:text-blue-400 border-blue-500/25',
-};
-
-export const ALERT_STYLES = {
-  error:
-    'rounded-md border border-red-300 bg-red-50 p-3 text-sm text-red-700 dark:border-red-500/30 dark:bg-red-500/10 dark:text-red-400',
-  info: 'rounded-md border border-blue-300 bg-blue-50 p-3 text-sm text-blue-700 dark:border-blue-500/30 dark:bg-blue-500/10 dark:text-blue-400',
-  success:
-    'rounded-md border border-green-300 bg-green-50 p-3 text-sm text-green-700 dark:border-green-500/30 dark:bg-green-500/10 dark:text-green-400',
-  successBold:
-    'rounded-md border border-green-400 bg-green-100 p-3 text-sm font-semibold text-green-800 dark:border-green-500/40 dark:bg-green-500/20 dark:text-green-300',
-  warning:
-    'rounded-md border border-amber-300 bg-amber-50 p-3 text-sm text-amber-700 dark:border-amber-500/30 dark:bg-amber-500/10 dark:text-amber-400',
-} as const;
+const isStatusRecord = (v: unknown): v is Record<string, CourseStatus> =>
+  typeof v === 'object' && v !== null && !Array.isArray(v);
 
 export const loadStatuses = (
   accreditation: Accreditation,
 ): Record<string, CourseStatus> => {
   try {
     const raw = localStorage.getItem(`${STORAGE_KEY_PREFIX}${accreditation}`);
-    return raw ? (JSON.parse(raw) as Record<string, CourseStatus>) : {};
+    if (!raw) return {};
+    const parsed: unknown = JSON.parse(raw);
+    return isStatusRecord(parsed) ? parsed : {};
   } catch {
     return {};
   }
@@ -176,7 +180,7 @@ export const computeEnabledMap = (config: {
       if (s[c.name]?.passed && enabled[c.name]) credits += c.credits;
     }
     for (const c of courses) {
-      if (c.programState === 'нема') {
+      if (c.programState === FACULTY_LIST_MARKER) {
         if (!enabled[c.name]) {
           enabled[c.name] = true;
           changed = true;
@@ -200,53 +204,6 @@ export const computeEnabledMap = (config: {
   return enabled;
 };
 
-const describePrereqNode = (
-  node: PrereqNode,
-  ctx: EvalContext,
-  electives: Set<string>,
-): string[] => {
-  switch (node.type) {
-    case 'and':
-      return node.children.flatMap((c) =>
-        describePrereqNode(c, ctx, electives),
-      );
-    case 'course': {
-      if (electives.has(node.name)) {
-        return [`  \u2796 ${node.name} (изборен \u2014 не е предуслов)`];
-      }
-      const st = ctx.statuses[node.name];
-      const info = ctx.courseInfoMap.get(node.name);
-      const diff = info ? ctx.courseSemester - info.semester : 2;
-      const needed = diff === 1 ? 'слушан' : 'положен';
-      const met = diff === 1 ? (st?.listened ?? false) : (st?.passed ?? false);
-      return [
-        met
-          ? `  \u2705 ${node.name} (${needed})`
-          : `  \u274C ${node.name} (потребно: ${needed})`,
-      ];
-    }
-    case 'credits': {
-      const met = ctx.totalCredits >= node.amount;
-      return [
-        met
-          ? `  \u2705 ${String(node.amount)} кредити`
-          : `  \u274C ${String(node.amount)} кредити (имате ${String(ctx.totalCredits)})`,
-      ];
-    }
-    case 'or': {
-      const descs = node.children.map((c) =>
-        describePrereqNode(c, ctx, electives),
-      );
-      const metIdx = descs.findIndex((d) =>
-        d.every((line) => line.includes('\u2705')),
-      );
-      return metIdx === -1 ? descs.flat() : (descs[metIdx] ?? []);
-    }
-    default:
-      return [];
-  }
-};
-
 export const computeReasonMap = (config: {
   courseInfoMap: Map<string, CourseInfo>;
   courses: SimulatorCourse[];
@@ -262,7 +219,7 @@ export const computeReasonMap = (config: {
   for (const c of config.courses) {
     const parts: string[] = [];
     const st = config.statuses[c.name];
-    const isRequired = c.programState?.includes(REQUIRED_MARKER) ?? false;
+    const required = isRequired(c.programState);
     const enabled = config.enabledMap[c.name] ?? true;
 
     // ── Status ──
@@ -283,7 +240,7 @@ export const computeReasonMap = (config: {
       parts.push(
         `\u274C Надминат L${String(c.level)} лимит (макс. ${String(limit)} кредити)`,
       );
-    } else if (!st?.passed && !isRequired && config.fullLevels.has(c.level)) {
+    } else if (!st?.passed && !required && config.fullLevels.has(c.level)) {
       const limit = LEVEL_CREDIT_LIMITS[c.level] ?? 0;
       parts.push(
         `\u26A0\uFE0F L${String(c.level)} лимит пополнет (${String(limit)} кредити)`,
@@ -291,17 +248,14 @@ export const computeReasonMap = (config: {
     }
 
     // ── Program info ──
-    if (isRequired) {
+    if (required) {
       parts.push(`\u2139\uFE0F Задолжителен предмет`);
-    } else if (
-      c.programState &&
-      c.programState !== '\u043D\u0435\u043C\u0430'
-    ) {
+    } else if (c.programState && c.programState !== FACULTY_LIST_MARKER) {
       parts.push('\u2139\uFE0F Изборен предмет');
     }
 
     // ── Prerequisites ──
-    if (c.programState === '\u043D\u0435\u043C\u0430') {
+    if (c.programState === FACULTY_LIST_MARKER) {
       parts.push('\u2139\uFE0F Факултетска листа \u2013 нема предуслов');
     } else if (
       c.prereqNode.type === 'none' &&
@@ -309,22 +263,13 @@ export const computeReasonMap = (config: {
     ) {
       parts.push('\u2705 Нема предуслов');
     } else {
-      let credits = 0;
-      for (const cc of config.courses) {
-        if (
-          config.statuses[cc.name]?.passed &&
-          (config.enabledMap[cc.name] ?? false)
-        ) {
-          credits += cc.credits;
-        }
-      }
       const ctx: EvalContext = {
         courseInfoMap: config.courseInfoMap,
         courseSemester: c.semester,
         statuses: config.statuses,
-        totalCredits: credits,
+        totalCredits: config.totalCredits,
       };
-      if (credits >= 180) {
+      if (config.totalCredits >= OVERRIDE_CREDITS) {
         parts.push('\u2705 \u2265180 кредити \u2013 предуслови не важат');
       } else {
         parts.push(
@@ -338,110 +283,6 @@ export const computeReasonMap = (config: {
   }
 
   return reasons;
-};
-
-type RasterizeOptions = {
-  height: number;
-  pixelRatio: number;
-  svgDataUrl: string;
-  width: number;
-};
-
-const rasterizeInWorker = ({
-  height,
-  pixelRatio,
-  svgDataUrl,
-  width,
-}: RasterizeOptions): Promise<Blob> =>
-  new Promise((resolve, reject) => {
-    const worker = new Worker(
-      new URL('screenshot-worker.ts', import.meta.url),
-      { type: 'module' },
-    );
-
-    const encoded = new TextEncoder().encode(svgDataUrl);
-    const { buffer } = encoded;
-
-    worker.addEventListener(
-      'message',
-      (e: MessageEvent<{ blob?: Blob; error?: string }>) => {
-        worker.terminate();
-        if (e.data.error) reject(new Error(e.data.error));
-        else if (e.data.blob) resolve(e.data.blob);
-        else reject(new Error('No blob returned'));
-      },
-    );
-
-    worker.addEventListener('error', (e) => {
-      worker.terminate();
-      reject(new Error(e.message));
-    });
-
-    worker.postMessage({ buffer, height, pixelRatio, width }, [buffer]);
-  });
-
-const rasterizeOnMainThread = ({
-  height,
-  pixelRatio,
-  svgDataUrl,
-  width,
-}: RasterizeOptions): Promise<Blob> =>
-  new Promise((resolve, reject) => {
-    const img = new Image();
-    img.addEventListener('load', () => {
-      const canvas = document.createElement('canvas');
-      canvas.width = width * pixelRatio;
-      canvas.height = height * pixelRatio;
-      const ctx = canvas.getContext('2d');
-      if (!ctx) {
-        reject(new Error('No 2d context'));
-        return;
-      }
-      ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-      canvas.toBlob((blob) => {
-        if (blob) resolve(blob);
-        else reject(new Error('toBlob returned null'));
-      }, 'image/png');
-    });
-    img.addEventListener('error', () => {
-      reject(new Error('Image load failed'));
-    });
-    img.src = svgDataUrl;
-  });
-
-export const captureTableToClipboard = async (
-  element: HTMLElement,
-): Promise<boolean> => {
-  const { toSvg } = await import('html-to-image');
-
-  const pixelRatio = 2;
-  const backgroundColor =
-    getComputedStyle(document.documentElement)
-      .getPropertyValue('--background')
-      .trim() ||
-    (document.documentElement.classList.contains('dark')
-      ? '#09090b'
-      : '#ffffff');
-
-  try {
-    const svgDataUrl = await toSvg(element, { backgroundColor, pixelRatio });
-
-    const opts: RasterizeOptions = {
-      height: element.scrollHeight,
-      pixelRatio,
-      svgDataUrl,
-      width: element.scrollWidth,
-    };
-
-    const blob = await rasterizeInWorker(opts).catch(() =>
-      rasterizeOnMainThread(opts),
-    );
-
-    await navigator.clipboard.write([new ClipboardItem({ [blob.type]: blob })]);
-    return true;
-  } catch {
-    return false;
-  }
 };
 
 export const computeOverLimitInfo = (
@@ -458,8 +299,7 @@ export const computeOverLimitInfo = (
 
   for (const c of courses) {
     if (!s[c.name]?.passed) continue;
-    const isRequired = c.programState?.includes(REQUIRED_MARKER) ?? false;
-    if (isRequired) continue;
+    if (isRequired(c.programState)) continue;
     creditsPerLevel[c.level] = (creditsPerLevel[c.level] ?? 0) + c.credits;
     (coursesByLevel[c.level] ??= []).push(c);
   }
@@ -480,9 +320,7 @@ export const computeOverLimitInfo = (
     excessCredits += actual - limit;
 
     const list = (coursesByLevel[lvl] ?? []).slice();
-    list.sort(
-      (a, b) => a.semester - b.semester || a.name.localeCompare(b.name, 'mk'),
-    );
+    list.sort(compareBySemesterAndName);
 
     let acc = 0;
     for (const c of list) {
@@ -496,3 +334,5 @@ export const computeOverLimitInfo = (
 
   return { excessCredits, fullLevels, levels, names };
 };
+
+export { type Accreditation } from '@/types/course';

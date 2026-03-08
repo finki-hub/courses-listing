@@ -2,9 +2,7 @@ import { type ComponentProps, splitProps } from 'solid-js';
 
 import { cn } from '@/lib/utils';
 
-export type CardProps = ComponentProps<'div'>;
-
-export const Card = (props: CardProps) => {
+export const Card = (props: ComponentProps<'div'>) => {
   const [, rest] = splitProps(props, ['class']);
 
   return (
@@ -18,9 +16,7 @@ export const Card = (props: CardProps) => {
   );
 };
 
-export type CardHeaderProps = ComponentProps<'div'>;
-
-export const CardHeader = (props: CardHeaderProps) => {
+export const CardHeader = (props: ComponentProps<'div'>) => {
   const [, rest] = splitProps(props, ['class']);
 
   return (
@@ -31,9 +27,7 @@ export const CardHeader = (props: CardHeaderProps) => {
   );
 };
 
-export type CardTitleProps = ComponentProps<'h3'>;
-
-export const CardTitle = (props: CardTitleProps) => {
+export const CardTitle = (props: ComponentProps<'h3'>) => {
   const [, rest] = splitProps(props, ['class']);
 
   return (
@@ -44,40 +38,12 @@ export const CardTitle = (props: CardTitleProps) => {
   );
 };
 
-export type CardDescriptionProps = ComponentProps<'p'>;
-
-export const CardDescription = (props: CardDescriptionProps) => {
-  const [, rest] = splitProps(props, ['class']);
-
-  return (
-    <p
-      class={cn('text-muted-foreground text-sm', props.class)}
-      {...rest}
-    />
-  );
-};
-
-export type CardContentProps = ComponentProps<'div'>;
-
-export const CardContent = (props: CardContentProps) => {
+export const CardContent = (props: ComponentProps<'div'>) => {
   const [, rest] = splitProps(props, ['class']);
 
   return (
     <div
       class={cn('p-6 pt-0', props.class)}
-      {...rest}
-    />
-  );
-};
-
-export type CardFooterProps = ComponentProps<'div'>;
-
-export const CardFooter = (props: CardFooterProps) => {
-  const [, rest] = splitProps(props, ['class']);
-
-  return (
-    <div
-      class={cn('flex items-center p-6 pt-0', props.class)}
       {...rest}
     />
   );

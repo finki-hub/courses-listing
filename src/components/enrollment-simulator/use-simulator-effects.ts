@@ -2,12 +2,12 @@ import { type Accessor, createEffect, on, type Setter } from 'solid-js';
 
 import { type CourseStatus } from '@/lib/prerequisite';
 import {
-  type Accreditation,
   saveStatuses,
   type SimulatorCourse,
   STORAGE_KEY_ACC,
   STORAGE_KEY_PROGRAM,
 } from '@/lib/simulator';
+import { type Accreditation } from '@/types/course';
 
 type SimulatorEffectsParams = {
   accreditation: Accessor<Accreditation>;

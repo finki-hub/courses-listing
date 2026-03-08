@@ -1,0 +1,41 @@
+import { For, Show } from 'solid-js';
+
+import { Badge } from '@/components/ui/badge';
+import { CheckIcon } from '@/components/ui/icons';
+import { TableCell, TableRow } from '@/components/ui/table';
+import {
+  type CourseRaw,
+  getAccLabel,
+  getCourseTags,
+  getTagLabel,
+  hasChannel,
+} from '@/types/course';
+
+type CourseTableRowProps = {
+  course: CourseRaw;
+  onClick: () => void;
+};
+
+export const CourseTableRow = (props: CourseTableRowProps) => (
+  <TableRow
+    class="cursor-pointer"
+    onClick={props.onClick}
+  >
+    <TableCell class="font-medium">{props.course.name}</TableCell>
+    <TableCell class="hidden md:table-cell">
+      {getAccLabel(props.course)}
+    </TableCell>
+    <TableCell class="hidden text-center sm:table-cell">
+      <Show when={hasChannel(props.course)}>
+        <CheckIcon class="text-primary mx-auto h-4 w-4" />
+      </Show>
+    </TableCell>
+    <TableCell class="hidden lg:table-cell">
+      <div class="flex flex-wrap gap-1">
+        <For each={getCourseTags(props.course)}>
+          {(tag) => <Badge variant="secondary">{getTagLabel(tag)}</Badge>}
+        </For>
+      </div>
+    </TableCell>
+  </TableRow>
+);
