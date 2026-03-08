@@ -2,7 +2,7 @@ import { z } from 'zod/v4';
 
 const optionalString = z.string().optional();
 
-export const courseSchema = z.object({
+const courseSchema = z.object({
   '2011/2012': optionalString,
   '2012/2013': optionalString,
   '2013/2014': optionalString,
@@ -60,7 +60,7 @@ export const coursesSchema = z.array(courseSchema);
 
 export type CourseRaw = z.infer<typeof courseSchema>;
 
-export const TAG_TRANSLATIONS: Record<string, string> = {
+const TAG_TRANSLATIONS: Record<string, string> = {
   ai: 'Вештачка интелигенција',
   coding: 'Кодирање',
   databases: 'Бази на податоци',
@@ -161,7 +161,7 @@ export const isAccreditation = (v: string): v is Accreditation =>
 // Study programs
 // ---------------------------------------------------------------------------
 
-export const STUDY_PROGRAMS_2018 = [
+const STUDY_PROGRAMS_2018 = [
   'imb',
   'ke',
   'ki',
@@ -171,7 +171,7 @@ export const STUDY_PROGRAMS_2018 = [
   'siis',
 ] as const;
 
-export const STUDY_PROGRAMS_2023 = [
+const STUDY_PROGRAMS_2023 = [
   'ie',
   'imb',
   'ki',

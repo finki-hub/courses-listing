@@ -11,9 +11,6 @@
   --color-card: hsl(var(--card));
   --color-card-foreground: hsl(var(--card-foreground));
 
-  --color-popover: hsl(var(--popover));
-  --color-popover-foreground: hsl(var(--popover-foreground));
-
   --color-primary: hsl(var(--primary));
   --color-primary-foreground: hsl(var(--primary-foreground));
 
@@ -32,6 +29,7 @@
   --color-border: hsl(var(--border));
   --color-input: hsl(var(--input));
   --color-ring: hsl(var(--ring));
+  --color-ring-offset-background: hsl(var(--background));
 
   /* Border radius */
   --radius-lg: var(--radius);
@@ -62,8 +60,6 @@
     --foreground: 0 0% 5%;
     --card: 0 0% 99%;
     --card-foreground: 0 0% 5%;
-    --popover: 0 0% 99%;
-    --popover-foreground: 0 0% 5%;
     --primary: 142 70% 45%;
     --primary-foreground: 0 0% 98%;
     --secondary: 0 0% 93%;
@@ -85,8 +81,6 @@
     --foreground: 0 0% 95%;
     --card: 0 0% 7%;
     --card-foreground: 0 0% 95%;
-    --popover: 0 0% 7%;
-    --popover-foreground: 0 0% 95%;
     --primary: 142 70% 45%;
     --primary-foreground: 0 0% 2%;
     --secondary: 0 0% 12%;
@@ -145,10 +139,5 @@
   h5,
   h6 {
     @apply font-semibold tracking-tight;
-  }
-
-  code,
-  pre {
-    font-family: 'JetBrains Mono', monospace;
   }
 }

@@ -42,10 +42,7 @@ export const TableRow = (props: ComponentProps<'tr'>) => {
 
   return (
     <tr
-      class={cn(
-        'hover:bg-muted/50 data-[state=selected]:bg-muted border-b transition-colors',
-        props.class,
-      )}
+      class={cn('hover:bg-muted/50 border-b transition-colors', props.class)}
       {...rest}
     />
   );
@@ -57,7 +54,7 @@ export const TableHead = (props: ComponentProps<'th'>) => {
   return (
     <th
       class={cn(
-        'text-foreground h-10 whitespace-nowrap px-2 text-left align-middle font-medium [&:has([role=checkbox])]:pr-0 [&>[role=checkbox]]:translate-y-[2px]',
+        'text-foreground h-10 whitespace-nowrap px-2 text-left align-middle font-medium',
         props.class,
       )}
       {...rest}
@@ -70,10 +67,7 @@ export const TableCell = (props: ComponentProps<'td'>) => {
 
   return (
     <td
-      class={cn(
-        'whitespace-nowrap p-2 align-middle [&:has([role=checkbox])]:pr-0 [&>[role=checkbox]]:translate-y-[2px]',
-        props.class,
-      )}
+      class={cn('whitespace-nowrap p-2 align-middle', props.class)}
       {...rest}
     />
   );

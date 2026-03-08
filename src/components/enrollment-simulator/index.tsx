@@ -11,6 +11,8 @@ import {
   STORAGE_KEY_ACC,
   STORAGE_KEY_HPC,
   STORAGE_KEY_PROGRAM,
+  toggleListenedStatus,
+  togglePassedStatus,
 } from '@/lib/simulator';
 import {
   type Accreditation,
@@ -19,14 +21,14 @@ import {
   isAccreditation,
 } from '@/types/course';
 
-const DEFAULT_PROGRAM = 'kn';
-
 import { CreditLimitWarning, GraduationAlert } from './alerts';
 import { SimulatorTable } from './simulator-table';
 import { SimulatorToolbar } from './simulator-toolbar';
 import { useSimulatorCourses } from './use-simulator-courses';
 import { useSimulatorEffects } from './use-simulator-effects';
 import { useSimulatorState } from './use-simulator-state';
+
+const DEFAULT_PROGRAM = 'kn';
 
 type EnrollmentSimulatorProps = {
   courses: CourseRaw[];
@@ -102,22 +104,11 @@ export const EnrollmentSimulator = (props: EnrollmentSimulatorProps) => {
   };
 
   const toggleListened = (name: string) => {
-    setStatuses((prev) => {
-      const cur = prev[name] ?? { listened: false, passed: false };
-      const listened = !cur.listened;
-      return {
-        ...prev,
-        [name]: { listened, passed: listened ? cur.passed : false },
-      };
-    });
+    setStatuses((prev) => toggleListenedStatus(prev, name));
   };
 
   const togglePassed = (name: string) => {
-    setStatuses((prev) => {
-      const cur = prev[name] ?? { listened: false, passed: false };
-      const passed = !cur.passed;
-      return { ...prev, [name]: { listened: passed || cur.listened, passed } };
-    });
+    setStatuses((prev) => togglePassedStatus(prev, name));
   };
 
   const resetStatuses = () => {

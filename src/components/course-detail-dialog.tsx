@@ -1,4 +1,4 @@
-import { For, type Setter, Show } from 'solid-js';
+import { For, Show } from 'solid-js';
 
 import { AccreditationCard } from '@/components/accreditation-card';
 import { Badge } from '@/components/ui/badge';
@@ -33,7 +33,7 @@ const SECTION_HEADING_CLASS =
 
 type CourseDetailDialogProps = {
   course: CourseRaw | null;
-  onOpenChange: Setter<boolean>;
+  onOpenChange: (open: boolean) => void;
   open: boolean;
 };
 

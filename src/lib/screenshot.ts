@@ -73,13 +73,14 @@ export const captureTableToClipboard = async (
   const { toSvg } = await import('html-to-image');
 
   const pixelRatio = 2;
-  const backgroundColor =
-    getComputedStyle(document.documentElement)
-      .getPropertyValue('--background')
-      .trim() ||
-    (document.documentElement.classList.contains('dark')
+  const bgValue = getComputedStyle(document.documentElement)
+    .getPropertyValue('--background')
+    .trim();
+  const backgroundColor = bgValue
+    ? `hsl(${bgValue})`
+    : document.documentElement.dataset['kbTheme'] === 'dark'
       ? '#09090b'
-      : '#ffffff');
+      : '#ffffff';
 
   try {
     const svgDataUrl = await toSvg(element, { backgroundColor, pixelRatio });

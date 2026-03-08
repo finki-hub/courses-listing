@@ -38,7 +38,7 @@ export type SimulatorCourse = {
   semester: number;
 };
 
-export const STORAGE_KEY_PREFIX = 'enrollment-';
+const STORAGE_KEY_PREFIX = 'enrollment-';
 export const STORAGE_KEY_ACC = `${STORAGE_KEY_PREFIX}accreditation`;
 export const STORAGE_KEY_HPC = `${STORAGE_KEY_PREFIX}hpc`;
 export const STORAGE_KEY_PROGRAM = `${STORAGE_KEY_PREFIX}program`;
@@ -47,10 +47,10 @@ export const DIPLOMA_THESIS_COURSE_NAME = 'Дипломска работа';
 export const GRADUATION_CREDITS_3YR = 174;
 export const GRADUATION_CREDITS_4YR = 234;
 export const LEVEL_CREDIT_LIMITS: Record<number, number> = { 1: 6, 2: 36 };
-export const REQUIRED_MARKER =
+const REQUIRED_MARKER =
   '\u0437\u0430\u0434\u043E\u043B\u0436\u0438\u0442\u0435\u043B\u0435\u043D';
-export const FACULTY_LIST_MARKER = '\u043D\u0435\u043C\u0430';
-export const FOUR_YEAR_MARKER = '(4 г.)';
+const FACULTY_LIST_MARKER = '\u043D\u0435\u043C\u0430';
+const FOUR_YEAR_MARKER = '(4 г.)';
 
 export const isRequired = (programState: string | undefined): boolean =>
   programState?.includes(REQUIRED_MARKER) ?? false;
@@ -59,6 +59,13 @@ export const compareBySemesterAndName = (
   a: { name: string; semester: number },
   b: { name: string; semester: number },
 ): number => a.semester - b.semester || a.name.localeCompare(b.name, 'mk');
+
+export const matchesSeasonFilter = (
+  semester: number,
+  filter: SeasonFilter,
+): boolean =>
+  filter === null ||
+  (filter === 'winter' ? semester % 2 === 1 : semester % 2 === 0);
 
 /** Semesters 7+ belong to year 4, e.g. "задолжителен (сем. 7)" */
 const FOUR_YEAR_SEMESTER_RE = /\(сем\.\s*[78]\)/u;
@@ -90,8 +97,19 @@ export const PROGRAM_STATE_LABELS: Record<ProgramStateKind, string> = {
   'required-4yr': 'Задолжителен (4г.)',
 };
 
-const isStatusRecord = (v: unknown): v is Record<string, CourseStatus> =>
-  typeof v === 'object' && v !== null && !Array.isArray(v);
+const isStatusRecord = (v: unknown): v is Record<string, CourseStatus> => {
+  if (typeof v !== 'object' || v === null || Array.isArray(v)) return false;
+  for (const entry of Object.values(v as Record<string, unknown>)) {
+    if (
+      typeof entry !== 'object' ||
+      entry === null ||
+      typeof (entry as Record<string, unknown>)['listened'] !== 'boolean' ||
+      typeof (entry as Record<string, unknown>)['passed'] !== 'boolean'
+    )
+      return false;
+  }
+  return true;
+};
 
 export const loadStatuses = (
   accreditation: Accreditation,
@@ -114,6 +132,30 @@ export const saveStatuses = (
     `${STORAGE_KEY_PREFIX}${accreditation}`,
     JSON.stringify(statuses),
   );
+};
+
+export const toggleListenedStatus = (
+  statuses: Record<string, CourseStatus>,
+  name: string,
+): Record<string, CourseStatus> => {
+  const cur = statuses[name] ?? { listened: false, passed: false };
+  const listened = !cur.listened;
+  return {
+    ...statuses,
+    [name]: { listened, passed: listened ? cur.passed : false },
+  };
+};
+
+export const togglePassedStatus = (
+  statuses: Record<string, CourseStatus>,
+  name: string,
+): Record<string, CourseStatus> => {
+  const cur = statuses[name] ?? { listened: false, passed: false };
+  const passed = !cur.passed;
+  return {
+    ...statuses,
+    [name]: { listened: passed || cur.listened, passed },
+  };
 };
 
 export const buildSimulatorCourse = (config: {
@@ -163,6 +205,9 @@ export const pruneElectivePrereqs = (
   }
 };
 
+/** Safety cap for the fixed-point iteration in computeEnabledMap */
+const MAX_FIXED_POINT_ITERATIONS = 20;
+
 export const computeEnabledMap = (config: {
   courseInfoMap: Map<string, CourseInfo>;
   courses: SimulatorCourse[];
@@ -173,7 +218,7 @@ export const computeEnabledMap = (config: {
 
   for (const c of courses) enabled[c.name] = true;
 
-  for (let iter = 0; iter < 20; iter++) {
+  for (let iter = 0; iter < MAX_FIXED_POINT_ITERATIONS; iter++) {
     let changed = false;
     let credits = 0;
     for (const c of courses) {
@@ -334,5 +379,3 @@ export const computeOverLimitInfo = (
 
   return { excessCredits, fullLevels, levels, names };
 };
-
-export { type Accreditation } from '@/types/course';

@@ -38,7 +38,7 @@ const App = () => {
             class="mr-2 h-10 w-10"
             src="/logo.png"
           />
-          <h1 class="text-xl font-bold tracking-tight">ФИНКИ Хаб / Предмети</h1>
+          <h1 class="text-xl font-bold">ФИНКИ Хаб / Предмети</h1>
           <div class="ml-auto flex items-center gap-2">
             <IconLink
               href="https://github.com/finki-hub/courses-listing"

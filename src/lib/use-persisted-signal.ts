@@ -5,9 +5,7 @@ import { type Accessor, createEffect, createSignal, on } from 'solid-js';
  *
  * @param key - The localStorage key
  * @param defaultValue - Default value if nothing is stored
- * @param options.validate - Optional validator; if it returns false, defaultValue is used
- * @param options.serialize - Custom serializer (defaults to identity for strings)
- * @param options.deserialize - Custom deserializer (defaults to identity for strings)
+ * @param validate - Optional type guard; if it returns false, defaultValue is used
  */
 export const usePersistedSignal = <T extends string>(
   key: string,

@@ -2,9 +2,6 @@ import { AccreditationSwitch } from '@/components/accreditation-switch';
 import { ButtonGroup } from '@/components/ui/button-group';
 import { LabeledCheckbox } from '@/components/ui/labeled-checkbox';
 import { HPC_CREDITS, type SeasonFilter } from '@/lib/simulator';
-
-const isSeasonFilter = (v: string): v is 'summer' | 'winter' =>
-  v === 'summer' || v === 'winter';
 import {
   type Accreditation,
   getStudyPrograms,
@@ -12,6 +9,9 @@ import {
 } from '@/types/course';
 
 import { ScreenshotButton } from './screenshot-button';
+
+const isSeasonFilter = (v: string): v is 'summer' | 'winter' =>
+  v === 'summer' || v === 'winter';
 
 type SimulatorToolbarProps = {
   accreditation: Accreditation;
@@ -31,8 +31,8 @@ type SimulatorToolbarProps = {
 };
 
 const SEASON_ITEMS = [
-  { label: 'Зимски', value: 'winter' as const },
-  { label: 'Летен', value: 'summer' as const },
+  { label: 'Зимски', value: 'winter' },
+  { label: 'Летен', value: 'summer' },
 ] as const;
 
 export const SimulatorToolbar = (props: SimulatorToolbarProps) => {

@@ -2,6 +2,15 @@ import { createSignal, Show } from 'solid-js';
 
 type ScreenshotState = 'capturing' | 'done' | 'error' | 'idle';
 
+const SCREENSHOT_STATE_CLASSES: Record<ScreenshotState, string> = {
+  capturing: 'cursor-wait opacity-70',
+  done: 'border-green-500 bg-green-500/10 text-green-700 dark:text-green-400',
+  error: 'border-red-500 bg-red-500/10 text-red-700 dark:text-red-400',
+  idle: 'hover:bg-muted',
+};
+
+const STATUS_RESET_DELAY_MS = 2_000;
+
 export const ScreenshotButton = (props: {
   onCapture: () => Promise<boolean>;
 }) => {
@@ -21,20 +30,12 @@ export const ScreenshotButton = (props: {
     }
     setTimeout(() => {
       setState('idle');
-    }, 2_000);
+    }, STATUS_RESET_DELAY_MS);
   };
 
   return (
     <button
-      class={`rounded-md border px-3 py-1.5 text-sm font-medium transition-colors ${
-        state() === 'done'
-          ? 'border-green-500 bg-green-500/10 text-green-700 dark:text-green-400'
-          : state() === 'error'
-            ? 'border-red-500 bg-red-500/10 text-red-700 dark:text-red-400'
-            : state() === 'capturing'
-              ? 'cursor-wait opacity-70'
-              : 'hover:bg-muted'
-      }`}
+      class={`rounded-md border px-3 py-1.5 text-sm font-medium transition-colors ${SCREENSHOT_STATE_CLASSES[state()]}`}
       disabled={state() !== 'idle'}
       onClick={() => {
         void handle();

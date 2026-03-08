@@ -11,13 +11,13 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import {
-  ALL_TAGS,
-  type CourseRaw,
-  getAccLabel,
-  getCourseTags,
-  getTagLabel,
-  hasChannel,
-} from '@/types/course';
+  filterCourses,
+  type SortColumn,
+  sortCourses,
+  type SortDirection,
+  sortIndicator,
+} from '@/lib/course-filters';
+import { ALL_TAGS, type CourseRaw, getTagLabel } from '@/types/course';
 
 import { CourseDetailDialog } from './course-detail-dialog';
 import { CourseTableRow } from './course-table-row';
@@ -25,10 +25,6 @@ import { CourseTableRow } from './course-table-row';
 type CourseTableProps = {
   courses: CourseRaw[];
 };
-
-type SortColumn = 'accreditation' | 'channel' | 'name' | 'tags';
-
-type SortDirection = 'asc' | 'desc';
 
 export const CourseTable = (props: CourseTableProps) => {
   const [selectedCourse, setSelectedCourse] = createSignal<CourseRaw | null>(
@@ -59,50 +55,13 @@ export const CourseTable = (props: CourseTableProps) => {
     }
   };
 
-  const sortIndicator = (column: SortColumn) =>
-    sortColumn() === column ? (sortDirection() === 'asc' ? ' ↑' : ' ↓') : '';
-
-  const filteredCourses = createMemo(() => {
-    const term = search().toLowerCase();
-    const tags = selectedTags();
-    let filtered = term
-      ? props.courses.filter(
-          (c) =>
-            c.name.toLowerCase().includes(term) ||
-            (c['2023-name']?.toLowerCase().includes(term) ?? false) ||
-            (c['2018-name']?.toLowerCase().includes(term) ?? false) ||
-            c.professors.toLowerCase().includes(term) ||
-            (c.assistants?.toLowerCase().includes(term) ?? false),
-        )
-      : [...props.courses];
-
-    if (tags.size > 0) {
-      filtered = filtered.filter((c) => {
-        const courseTags = getCourseTags(c);
-        return [...tags].some((t) => courseTags.includes(t));
-      });
-    }
-
-    const col = sortColumn();
-    const dir = sortDirection() === 'asc' ? 1 : -1;
-
-    return filtered.sort((a, b) => {
-      if (col === 'channel') {
-        return (Number(hasChannel(a)) - Number(hasChannel(b))) * dir;
-      }
-
-      let valA: string;
-      let valB: string;
-      if (col === 'tags') {
-        valA = getCourseTags(a).join(',');
-        valB = getCourseTags(b).join(',');
-      } else {
-        valA = col === 'name' ? a.name : getAccLabel(a);
-        valB = col === 'name' ? b.name : getAccLabel(b);
-      }
-      return valA.localeCompare(valB) * dir;
-    });
-  });
+  const filteredCourses = createMemo(() =>
+    sortCourses(
+      filterCourses(props.courses, search(), selectedTags()),
+      sortColumn(),
+      sortDirection(),
+    ),
+  );
 
   const handleRowClick = (course: CourseRaw) => {
     setSelectedCourse(course);
@@ -148,7 +107,7 @@ export const CourseTable = (props: CourseTableProps) => {
                   toggleSort('name');
                 }}
               >
-                Предмет{sortIndicator('name')}
+                Предмет{sortIndicator(sortColumn(), sortDirection(), 'name')}
               </TableHead>
               <TableHead
                 class="hidden cursor-pointer select-none md:table-cell"
@@ -156,7 +115,8 @@ export const CourseTable = (props: CourseTableProps) => {
                   toggleSort('accreditation');
                 }}
               >
-                Акредитација{sortIndicator('accreditation')}
+                Акредитација
+                {sortIndicator(sortColumn(), sortDirection(), 'accreditation')}
               </TableHead>
               <TableHead
                 class="hidden w-20 cursor-pointer text-center select-none sm:table-cell"
@@ -164,7 +124,8 @@ export const CourseTable = (props: CourseTableProps) => {
                   toggleSort('channel');
                 }}
               >
-                Канал (Дискорд){sortIndicator('channel')}
+                Канал (Дискорд)
+                {sortIndicator(sortColumn(), sortDirection(), 'channel')}
               </TableHead>
               <TableHead
                 class="hidden cursor-pointer select-none lg:table-cell"
@@ -172,7 +133,7 @@ export const CourseTable = (props: CourseTableProps) => {
                   toggleSort('tags');
                 }}
               >
-                Тагови{sortIndicator('tags')}
+                Тагови{sortIndicator(sortColumn(), sortDirection(), 'tags')}
               </TableHead>
             </TableRow>
           </TableHeader>

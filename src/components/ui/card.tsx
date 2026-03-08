@@ -32,7 +32,7 @@ export const CardTitle = (props: ComponentProps<'h3'>) => {
 
   return (
     <h3
-      class={cn('leading-none font-semibold tracking-tight', props.class)}
+      class={cn('leading-none', props.class)}
       {...rest}
     />
   );

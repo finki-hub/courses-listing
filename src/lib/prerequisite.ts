@@ -200,10 +200,7 @@ export const isPrerequisiteMet = (
   return evaluateNode(node, ctx);
 };
 
-/**
- * Collect all course names referenced in a prerequisite tree.
- */
-export const collectCourseNames = (node: PrereqNode): string[] => {
+const collectCourseNames = (node: PrereqNode): string[] => {
   switch (node.type) {
     case 'and':
     case 'or':
@@ -213,6 +210,31 @@ export const collectCourseNames = (node: PrereqNode): string[] => {
     default:
       return [];
   }
+};
+
+/**
+ * Build a reverse dependency map: for each prerequisite course name,
+ * list all courses that depend on it.
+ */
+export const buildReverseDependencyMap = <
+  T extends { name: string; prerequisite: string | undefined },
+>(
+  courses: T[],
+  courseNames: string[],
+): Map<string, T[]> => {
+  const map = new Map<string, T[]>();
+  for (const course of courses) {
+    const node = parsePrerequisite(course.prerequisite, courseNames);
+    for (const pn of collectCourseNames(node)) {
+      let list = map.get(pn);
+      if (!list) {
+        list = [];
+        map.set(pn, list);
+      }
+      list.push(course);
+    }
+  }
+  return map;
 };
 
 /**

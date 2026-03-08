@@ -10,6 +10,7 @@ import {
 import { type CourseStatus } from '@/lib/prerequisite';
 import {
   isRequired,
+  matchesSeasonFilter,
   type SeasonFilter,
   type SimulatorCourse,
 } from '@/lib/simulator';
@@ -53,10 +54,7 @@ export const SimulatorTable = (props: SimulatorTableProps) => (
               <Show
                 when={
                   (!props.showOnlyEnabled || enabled()) &&
-                  (props.seasonFilter === null ||
-                    (props.seasonFilter === 'winter'
-                      ? course.semester % 2 === 1
-                      : course.semester % 2 === 0))
+                  matchesSeasonFilter(course.semester, props.seasonFilter)
                 }
               >
                 <CourseRow

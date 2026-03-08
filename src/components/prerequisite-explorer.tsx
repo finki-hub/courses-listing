@@ -10,7 +10,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { collectCourseNames, parsePrerequisite } from '@/lib/prerequisite';
+import { buildReverseDependencyMap } from '@/lib/prerequisite';
 import { compareBySemesterAndName, STORAGE_KEY_ACC } from '@/lib/simulator';
 import { usePersistedSignal } from '@/lib/use-persisted-signal';
 import {
@@ -55,23 +55,9 @@ export const PrerequisiteExplorer = (props: PrerequisiteExplorerProps) => {
 
   const courseNames = createMemo(() => accCourses().map((c) => c.name));
 
-  const reverseMap = createMemo<Map<string, AccCourse[]>>(() => {
-    const map = new Map<string, AccCourse[]>();
-    const names = courseNames();
-    for (const course of accCourses()) {
-      const node = parsePrerequisite(course.prerequisite, names);
-      const prereqNames = collectCourseNames(node);
-      for (const pn of prereqNames) {
-        let list = map.get(pn);
-        if (!list) {
-          list = [];
-          map.set(pn, list);
-        }
-        list.push(course);
-      }
-    }
-    return map;
-  });
+  const reverseMap = createMemo(() =>
+    buildReverseDependencyMap(accCourses(), courseNames()),
+  );
 
   const coursesWithDependents = createMemo(() => {
     const map = reverseMap();
@@ -116,7 +102,7 @@ export const PrerequisiteExplorer = (props: PrerequisiteExplorerProps) => {
       <div class="space-y-2">
         <label
           class="text-sm font-medium"
-          for="course-select"
+          for="course-search"
         >
           Изберете предмет
         </label>
@@ -131,11 +117,7 @@ export const PrerequisiteExplorer = (props: PrerequisiteExplorerProps) => {
         />
         <Show when={!selectedCourse()}>
           <div class="max-h-60 overflow-y-auto rounded-md border">
-            <For
-              each={
-                search() ? filteredPickerCourses() : coursesWithDependents()
-              }
-            >
+            <For each={filteredPickerCourses()}>
               {(name) => (
                 <button
                   class="hover:bg-muted w-full px-3 py-2 text-left text-sm transition-colors"

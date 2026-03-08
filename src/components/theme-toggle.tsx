@@ -10,14 +10,11 @@ const STORAGE_KEY_THEME = 'theme';
 const isTheme = (v: null | string): v is Theme => v === 'dark' || v === 'light';
 
 const getInitialTheme = (): Theme => {
-  if (typeof window !== 'undefined') {
-    const stored = localStorage.getItem(STORAGE_KEY_THEME);
-    if (isTheme(stored)) return stored;
-    return window.matchMedia('(prefers-color-scheme: dark)').matches
-      ? 'dark'
-      : 'light';
-  }
-  return 'light';
+  const stored = localStorage.getItem(STORAGE_KEY_THEME);
+  if (isTheme(stored)) return stored;
+  return window.matchMedia('(prefers-color-scheme: dark)').matches
+    ? 'dark'
+    : 'light';
 };
 
 export const ThemeToggle = () => {

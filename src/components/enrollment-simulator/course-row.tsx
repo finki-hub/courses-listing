@@ -12,6 +12,9 @@ import {
 
 import { Checkbox } from './simulator-checkbox';
 
+/** Minimum row height to prevent layout shift when badges wrap */
+const ROW_HEIGHT = '41px';
+
 const REQUIRED_BADGE_CLASS =
   'bg-blue-500/15 text-blue-700 dark:text-blue-400 border-blue-500/25';
 
@@ -36,20 +39,23 @@ type CourseRowProps = {
   reason: string;
 };
 
+const getRowStatusClass = (status: {
+  atLimit: boolean;
+  listened: boolean;
+  overLimit: boolean;
+  passed: boolean;
+}): string => {
+  if (status.overLimit) return 'bg-red-500/10 border-l-red-500';
+  if (status.passed) return 'bg-green-500/10 border-l-green-500';
+  if (status.listened) return 'bg-blue-500/10 border-l-blue-500';
+  if (status.atLimit) return 'bg-orange-500/10 border-l-orange-400';
+  return 'border-l-transparent';
+};
+
 export const CourseRow = (props: CourseRowProps) => (
   <TableRow
-    class={`box-border border-l-[3px] ${props.enabled ? '' : 'opacity-40'} ${
-      props.overLimit
-        ? 'bg-red-500/10 border-l-red-500'
-        : props.passed
-          ? 'bg-green-500/10 border-l-green-500'
-          : props.listened
-            ? 'bg-blue-500/10 border-l-blue-500'
-            : props.atLimit
-              ? 'bg-orange-500/10 border-l-orange-400'
-              : 'border-l-transparent'
-    }`}
-    style={{ height: '41px' }}
+    class={`box-border border-l-[3px] ${props.enabled ? '' : 'opacity-40'} ${getRowStatusClass({ atLimit: props.atLimit, listened: props.listened, overLimit: props.overLimit, passed: props.passed })}`}
+    style={{ height: ROW_HEIGHT }}
   >
     <TableCell class="text-muted-foreground text-center text-xs">
       {props.course.semester}
