@@ -9,6 +9,7 @@ import {
 } from '@/components/ui/table';
 import { type CourseStatus } from '@/lib/prerequisite';
 import {
+  getExclusiveProjectBlocker,
   isRequired,
   matchesSeasonFilter,
   type SeasonFilter,
@@ -49,6 +50,8 @@ export const SimulatorTable = (props: SimulatorTableProps) => {
         <For each={visibleCourses()}>
           {(course) => {
             const enabled = () => props.enabledMap[course.name] ?? true;
+            const projectBlocker = () =>
+              getExclusiveProjectBlocker(props.statuses, course.name);
             return (
               <CourseCardRow
                 atLimit={
@@ -58,6 +61,7 @@ export const SimulatorTable = (props: SimulatorTableProps) => {
                 }
                 course={course}
                 enabled={enabled()}
+                exclusiveBlocker={projectBlocker()}
                 listened={props.statuses[course.name]?.listened ?? false}
                 onToggleListened={() => {
                   props.onToggleListened(course.name);
@@ -90,6 +94,8 @@ export const SimulatorTable = (props: SimulatorTableProps) => {
             <For each={visibleCourses()}>
               {(course) => {
                 const enabled = () => props.enabledMap[course.name] ?? true;
+                const projectBlocker = () =>
+                  getExclusiveProjectBlocker(props.statuses, course.name);
                 return (
                   <CourseRow
                     atLimit={
@@ -99,6 +105,7 @@ export const SimulatorTable = (props: SimulatorTableProps) => {
                     }
                     course={course}
                     enabled={enabled()}
+                    exclusiveBlocker={projectBlocker()}
                     listened={props.statuses[course.name]?.listened ?? false}
                     onToggleListened={() => {
                       props.onToggleListened(course.name);

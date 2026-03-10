@@ -44,6 +44,8 @@ export const STORAGE_KEY_HPC = `${STORAGE_KEY_PREFIX}hpc`;
 export const STORAGE_KEY_PROGRAM = `${STORAGE_KEY_PREFIX}program`;
 export const HPC_CREDITS = 6;
 export const DIPLOMA_THESIS_COURSE_NAME = 'Дипломска работа';
+export const TEAM_PROJECT_COURSE_NAME = 'Тимски проект';
+export const INDIVIDUAL_PROJECT_COURSE_NAME = 'Самостоен проект';
 export const GRADUATION_CREDITS_3YR = 174;
 export const GRADUATION_CREDITS_4YR = 234;
 export const LEVEL_CREDIT_LIMITS: Record<number, number> = { 1: 6, 2: 36 };
@@ -118,6 +120,44 @@ const isStatusRecord = (v: unknown): v is Record<string, CourseStatus> => {
   return true;
 };
 
+const EXCLUSIVE_PROJECT_PAIRS: Record<string, string> = {
+  [INDIVIDUAL_PROJECT_COURSE_NAME]: TEAM_PROJECT_COURSE_NAME,
+  [TEAM_PROJECT_COURSE_NAME]: INDIVIDUAL_PROJECT_COURSE_NAME,
+};
+
+export const getExclusiveProjectBlocker = (
+  statuses: Record<string, CourseStatus>,
+  name: string,
+): string | undefined => {
+  const pair = EXCLUSIVE_PROJECT_PAIRS[name];
+  if (!pair) return undefined;
+  const pairStatus = statuses[pair];
+  return pairStatus?.listened || pairStatus?.passed ? pair : undefined;
+};
+
+export const normalizeExclusiveProjectStatuses = (
+  statuses: Record<string, CourseStatus>,
+): Record<string, CourseStatus> => {
+  const team = statuses[TEAM_PROJECT_COURSE_NAME];
+  const individual = statuses[INDIVIDUAL_PROJECT_COURSE_NAME];
+
+  if (
+    !(team?.listened || team?.passed) ||
+    !(individual?.listened || individual?.passed)
+  ) {
+    return statuses;
+  }
+
+  const keepTeam = team.passed || !individual.passed;
+  return {
+    ...statuses,
+    [keepTeam ? INDIVIDUAL_PROJECT_COURSE_NAME : TEAM_PROJECT_COURSE_NAME]: {
+      listened: false,
+      passed: false,
+    },
+  };
+};
+
 export const loadStatuses = (
   accreditation: Accreditation,
 ): Record<string, CourseStatus> => {
@@ -125,7 +165,9 @@ export const loadStatuses = (
     const raw = localStorage.getItem(`${STORAGE_KEY_PREFIX}${accreditation}`);
     if (!raw) return {};
     const parsed: unknown = JSON.parse(raw);
-    return isStatusRecord(parsed) ? parsed : {};
+    return isStatusRecord(parsed)
+      ? normalizeExclusiveProjectStatuses(parsed)
+      : {};
   } catch {
     return {};
   }
@@ -147,10 +189,15 @@ export const toggleListenedStatus = (
 ): Record<string, CourseStatus> => {
   const cur = statuses[name] ?? { listened: false, passed: false };
   const listened = !cur.listened;
-  return {
+  const next = {
     ...statuses,
     [name]: { listened, passed: listened ? cur.passed : false },
   };
+  const pair = EXCLUSIVE_PROJECT_PAIRS[name];
+  if (listened && pair) {
+    next[pair] = { listened: false, passed: false };
+  }
+  return normalizeExclusiveProjectStatuses(next);
 };
 
 export const togglePassedStatus = (
@@ -159,10 +206,15 @@ export const togglePassedStatus = (
 ): Record<string, CourseStatus> => {
   const cur = statuses[name] ?? { listened: false, passed: false };
   const passed = !cur.passed;
-  return {
+  const next = {
     ...statuses,
     [name]: { listened: passed || cur.listened, passed },
   };
+  const pair = EXCLUSIVE_PROJECT_PAIRS[name];
+  if (passed && pair) {
+    next[pair] = { listened: false, passed: false };
+  }
+  return normalizeExclusiveProjectStatuses(next);
 };
 
 export const buildSimulatorCourse = (config: {
@@ -232,9 +284,11 @@ export const computeEnabledMap = (config: {
       if (s[c.name]?.passed && enabled[c.name]) credits += c.credits;
     }
     for (const c of courses) {
+      const isBlockedByProjectPair = getExclusiveProjectBlocker(s, c.name);
       if (c.programState === FACULTY_LIST_MARKER) {
-        if (!enabled[c.name]) {
-          enabled[c.name] = true;
+        const nextFacultyListEnabled = !isBlockedByProjectPair;
+        if (enabled[c.name] !== nextFacultyListEnabled) {
+          enabled[c.name] = nextFacultyListEnabled;
           changed = true;
         }
         continue;
@@ -245,8 +299,9 @@ export const computeEnabledMap = (config: {
         statuses: s,
         totalCredits: credits,
       });
-      if (met !== enabled[c.name]) {
-        enabled[c.name] = met;
+      const nextEnabled = met && !isBlockedByProjectPair;
+      if (nextEnabled !== enabled[c.name]) {
+        enabled[c.name] = nextEnabled;
         changed = true;
       }
     }
@@ -273,6 +328,10 @@ export const computeReasonMap = (config: {
     const st = config.statuses[c.name];
     const required = isRequired(c.programState);
     const enabled = config.enabledMap[c.name] ?? true;
+    const exclusiveProjectBlocker = getExclusiveProjectBlocker(
+      config.statuses,
+      c.name,
+    );
 
     // ── Status ──
     if (st?.passed) parts.push('\u2705 Статус: Положен');
@@ -280,10 +339,20 @@ export const computeReasonMap = (config: {
     else parts.push('\u2B1C Статус: Не е слушан');
 
     // ── Enrollment eligibility ──
-    if (enabled) {
+    if (exclusiveProjectBlocker) {
+      parts.push(
+        `\u274C Не може да се запише (${exclusiveProjectBlocker} е веќе слушан или положен)`,
+      );
+    } else if (enabled) {
       parts.push('\u2705 Може да се запише');
     } else {
       parts.push('\u274C Не може да се запише (предусловите не се исполнети)');
+    }
+
+    if (exclusiveProjectBlocker) {
+      parts.push(
+        `\u26D4 ${exclusiveProjectBlocker} е веќе слушан или положен - Тимски проект и Самостоен проект се меѓусебно исклучиви, може да се запише и положи само еден.`,
+      );
     }
 
     // ── Credit level limits ──

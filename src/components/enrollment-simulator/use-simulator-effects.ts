@@ -2,6 +2,8 @@ import { type Accessor, createEffect, on, type Setter } from 'solid-js';
 
 import { type CourseStatus } from '@/lib/prerequisite';
 import {
+  getExclusiveProjectBlocker,
+  normalizeExclusiveProjectStatuses,
   saveStatuses,
   type SimulatorCourse,
   STORAGE_KEY_ACC,
@@ -29,13 +31,26 @@ export const useSimulatorEffects = (params: SimulatorEffectsParams): void => {
   } = params;
 
   createEffect(
+    on(statuses, (s) => {
+      const normalized = normalizeExclusiveProjectStatuses(s);
+      if (normalized !== s) {
+        setStatuses(normalized);
+      }
+    }),
+  );
+
+  createEffect(
     on([enabledMap, statuses], ([enabled, s]) => {
       const updates: Record<string, CourseStatus> = {};
       let changed = false;
       for (const c of parsedCourses()) {
         const st = s[c.name];
         if (!st) continue;
-        if ((st.listened || st.passed) && enabled[c.name] === false) {
+        if (
+          (st.listened || st.passed) &&
+          enabled[c.name] === false &&
+          !getExclusiveProjectBlocker(s, c.name)
+        ) {
           updates[c.name] = { listened: false, passed: false };
           changed = true;
         }

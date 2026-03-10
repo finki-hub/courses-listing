@@ -18,6 +18,7 @@ type CourseCardRowProps = {
     semester: number;
   };
   enabled: boolean;
+  exclusiveBlocker?: string;
   listened: boolean;
   onToggleListened: () => void;
   onTogglePassed: () => void;
@@ -68,7 +69,7 @@ export const CourseCardRow = (props: CourseCardRowProps) => {
         <div class="flex flex-col items-center gap-0.5">
           <Checkbox
             checked={props.listened}
-            disabled={!props.enabled}
+            disabled={!props.enabled || props.exclusiveBlocker !== undefined}
             onToggle={() => {
               props.onToggleListened();
             }}
@@ -78,7 +79,7 @@ export const CourseCardRow = (props: CourseCardRowProps) => {
         <div class="flex flex-col items-center gap-0.5">
           <Checkbox
             checked={props.passed}
-            disabled={!props.enabled}
+            disabled={!props.enabled || props.exclusiveBlocker !== undefined}
             onToggle={() => {
               props.onTogglePassed();
             }}

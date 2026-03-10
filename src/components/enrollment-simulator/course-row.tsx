@@ -20,6 +20,7 @@ type CourseRowProps = {
   atLimit: boolean;
   course: SimulatorCourse;
   enabled: boolean;
+  exclusiveBlocker?: string;
   listened: boolean;
   onToggleListened: () => void;
   onTogglePassed: () => void;
@@ -67,7 +68,7 @@ export const CourseRow = (props: CourseRowProps) => (
     <TableCell class="text-center">
       <Checkbox
         checked={props.listened}
-        disabled={!props.enabled}
+        disabled={!props.enabled || props.exclusiveBlocker !== undefined}
         onToggle={() => {
           props.onToggleListened();
         }}
@@ -76,7 +77,7 @@ export const CourseRow = (props: CourseRowProps) => (
     <TableCell class="text-center">
       <Checkbox
         checked={props.passed}
-        disabled={!props.enabled}
+        disabled={!props.enabled || props.exclusiveBlocker !== undefined}
         onToggle={() => {
           props.onTogglePassed();
         }}
