@@ -12,6 +12,7 @@ const SCREENSHOT_STATE_CLASSES: Record<ScreenshotState, string> = {
 const STATUS_RESET_DELAY_MS = 2_000;
 
 export const ScreenshotButton = (props: {
+  class?: string;
   onCapture: () => Promise<boolean>;
 }) => {
   const [state, setState] = createSignal<ScreenshotState>('idle');
@@ -35,7 +36,7 @@ export const ScreenshotButton = (props: {
 
   return (
     <button
-      class={`hidden rounded-md border px-3 py-1.5 text-sm font-medium transition-colors sm:inline-flex ${SCREENSHOT_STATE_CLASSES[state()]}`}
+      class={`rounded-md border px-3 py-1.5 text-sm font-medium transition-colors ${props.class ?? ''} ${SCREENSHOT_STATE_CLASSES[state()]}`}
       disabled={state() !== 'idle'}
       onClick={() => {
         void handle();
