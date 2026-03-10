@@ -16,7 +16,7 @@ export const UniListCreditsField = (props: UniListCreditsFieldProps) => {
         class="text-muted-foreground whitespace-nowrap text-xs uppercase tracking-wide"
         for="uni-list-credits"
       >
-        Унив. листа
+        Уни. листа
       </label>
       <input
         class="border-input bg-background ring-offset-background placeholder:text-muted-foreground focus-visible:ring-ring h-9 w-14 rounded-md border px-2 text-center text-sm [appearance:textfield] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
