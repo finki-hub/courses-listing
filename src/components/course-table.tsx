@@ -96,7 +96,7 @@ export const CourseTable = (props: CourseTableProps) => {
         </For>
       </div>
 
-      <div class="flex flex-wrap items-center gap-2">
+      <div class="flex flex-wrap items-center gap-2 sm:hidden">
         <span class="text-muted-foreground text-sm">Сортирај:</span>
         <For each={SORT_COLUMNS}>
           {(col) => {
