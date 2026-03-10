@@ -21,6 +21,7 @@ type UseSimulatorStateParams = {
   hpcCompleted: Accessor<boolean>;
   parsedCourses: Accessor<SimulatorCourse[]>;
   statuses: Accessor<Record<string, CourseStatus>>;
+  uniListCredits: Accessor<number>;
 };
 
 export const useSimulatorState = (params: UseSimulatorStateParams) => {
@@ -30,6 +31,7 @@ export const useSimulatorState = (params: UseSimulatorStateParams) => {
     hpcCompleted,
     parsedCourses,
     statuses,
+    uniListCredits,
   } = params;
 
   const totalCourses = createMemo(() => {
@@ -55,6 +57,7 @@ export const useSimulatorState = (params: UseSimulatorStateParams) => {
       if (s[c.name]?.passed) sum += c.credits;
     }
     if (hpcCompleted()) sum += HPC_CREDITS;
+    sum += uniListCredits();
     return sum - overLimitInfo().excessCredits;
   });
 

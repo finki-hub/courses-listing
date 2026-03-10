@@ -5,12 +5,14 @@ import { ALERT_STYLES } from '@/lib/alert-styles';
 import { type CourseStatus, OVERRIDE_CREDITS } from '@/lib/prerequisite';
 import { captureTableToClipboard } from '@/lib/screenshot';
 import {
+  clampUniListCredits,
   LEVEL_CREDIT_LIMITS,
   loadStatuses,
   type SeasonFilter,
   STORAGE_KEY_ACC,
   STORAGE_KEY_HPC,
   STORAGE_KEY_PROGRAM,
+  STORAGE_KEY_UNI_LIST_CREDITS,
   toggleListenedStatus,
   togglePassedStatus,
 } from '@/lib/simulator';
@@ -57,6 +59,11 @@ export const EnrollmentSimulator = (props: EnrollmentSimulatorProps) => {
   const [hpcCompleted, setHpcCompleted] = createSignal(
     localStorage.getItem(STORAGE_KEY_HPC) === 'true',
   );
+  const [uniListCredits, setUniListCredits] = createSignal(
+    clampUniListCredits(
+      Number(localStorage.getItem(STORAGE_KEY_UNI_LIST_CREDITS) ?? '0'),
+    ),
+  );
 
   const { courseInfoMap, electiveCourses, parsedCourses } = useSimulatorCourses(
     () => props.courses,
@@ -86,6 +93,7 @@ export const EnrollmentSimulator = (props: EnrollmentSimulatorProps) => {
     hpcCompleted,
     parsedCourses,
     statuses,
+    uniListCredits,
   });
 
   useSimulatorEffects({
@@ -94,7 +102,9 @@ export const EnrollmentSimulator = (props: EnrollmentSimulatorProps) => {
     parsedCourses,
     program,
     setStatuses,
+    setUniListCredits,
     statuses,
+    uniListCredits,
   });
 
   const switchAccreditation = (acc: Accreditation) => {
@@ -120,6 +130,7 @@ export const EnrollmentSimulator = (props: EnrollmentSimulatorProps) => {
       return;
     setStatuses({});
     setHpcCompleted(false);
+    setUniListCredits(0);
   };
 
   let tableRef: HTMLDivElement | undefined;
@@ -147,11 +158,13 @@ export const EnrollmentSimulator = (props: EnrollmentSimulatorProps) => {
         onToggleHpc={() => {
           setHpcCompleted((v) => !v);
         }}
+        onUniListCreditsChange={setUniListCredits}
         program={program()}
         seasonFilter={seasonFilter()}
         showOnlyEnabled={showOnlyEnabled()}
         totalCourses={totalCourses()}
         totalCredits={totalCredits()}
+        uniListCredits={uniListCredits()}
       />
 
       <CreditLimitWarning

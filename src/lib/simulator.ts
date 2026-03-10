@@ -42,7 +42,9 @@ const STORAGE_KEY_PREFIX = 'enrollment-';
 export const STORAGE_KEY_ACC = `${STORAGE_KEY_PREFIX}accreditation`;
 export const STORAGE_KEY_HPC = `${STORAGE_KEY_PREFIX}hpc`;
 export const STORAGE_KEY_PROGRAM = `${STORAGE_KEY_PREFIX}program`;
+export const STORAGE_KEY_UNI_LIST_CREDITS = `${STORAGE_KEY_PREFIX}uni-list-credits`;
 export const HPC_CREDITS = 6;
+export const UNI_LIST_CREDITS_MAX = 36;
 export const DIPLOMA_THESIS_COURSE_NAME = 'Дипломска работа';
 export const TEAM_PROJECT_COURSE_NAME = 'Тимски проект';
 export const INDIVIDUAL_PROJECT_COURSE_NAME = 'Самостоен проект';
@@ -156,6 +158,11 @@ export const normalizeExclusiveProjectStatuses = (
       passed: false,
     },
   };
+};
+
+export const clampUniListCredits = (value: number): number => {
+  if (Number.isNaN(value) || value < 0) return 0;
+  return Math.min(UNI_LIST_CREDITS_MAX, Math.trunc(value));
 };
 
 export const loadStatuses = (

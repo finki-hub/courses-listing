@@ -2,12 +2,14 @@ import { type Accessor, createEffect, on, type Setter } from 'solid-js';
 
 import { type CourseStatus } from '@/lib/prerequisite';
 import {
+  clampUniListCredits,
   getExclusiveProjectBlocker,
   normalizeExclusiveProjectStatuses,
   saveStatuses,
   type SimulatorCourse,
   STORAGE_KEY_ACC,
   STORAGE_KEY_PROGRAM,
+  STORAGE_KEY_UNI_LIST_CREDITS,
 } from '@/lib/simulator';
 import { type Accreditation } from '@/types/course';
 
@@ -17,7 +19,9 @@ type SimulatorEffectsParams = {
   parsedCourses: Accessor<SimulatorCourse[]>;
   program: Accessor<string>;
   setStatuses: Setter<Record<string, CourseStatus>>;
+  setUniListCredits: Setter<number>;
   statuses: Accessor<Record<string, CourseStatus>>;
+  uniListCredits: Accessor<number>;
 };
 
 export const useSimulatorEffects = (params: SimulatorEffectsParams): void => {
@@ -27,7 +31,9 @@ export const useSimulatorEffects = (params: SimulatorEffectsParams): void => {
     parsedCourses,
     program,
     setStatuses,
+    setUniListCredits,
     statuses,
+    uniListCredits,
   } = params;
 
   createEffect(
@@ -76,6 +82,17 @@ export const useSimulatorEffects = (params: SimulatorEffectsParams): void => {
   createEffect(
     on(program, (p) => {
       localStorage.setItem(STORAGE_KEY_PROGRAM, p);
+    }),
+  );
+
+  createEffect(
+    on(uniListCredits, (credits) => {
+      const normalized = clampUniListCredits(credits);
+      if (normalized !== credits) {
+        setUniListCredits(normalized);
+        return;
+      }
+      localStorage.setItem(STORAGE_KEY_UNI_LIST_CREDITS, String(normalized));
     }),
   );
 };

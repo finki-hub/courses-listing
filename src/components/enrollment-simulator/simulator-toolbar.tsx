@@ -1,7 +1,14 @@
+import { createMemo } from 'solid-js';
+
 import { AccreditationSwitch } from '@/components/accreditation-switch';
 import { ButtonGroup } from '@/components/ui/button-group';
 import { LabeledCheckbox } from '@/components/ui/labeled-checkbox';
-import { HPC_CREDITS, type SeasonFilter } from '@/lib/simulator';
+import {
+  clampUniListCredits,
+  HPC_CREDITS,
+  type SeasonFilter,
+  UNI_LIST_CREDITS_MAX,
+} from '@/lib/simulator';
 import {
   type Accreditation,
   getStudyPrograms,
@@ -23,11 +30,13 @@ type SimulatorToolbarProps = {
   onSwitchProgram: (p: string) => void;
   onToggleFilter: () => void;
   onToggleHpc: () => void;
+  onUniListCreditsChange: (credits: number) => void;
   program: string;
   seasonFilter: SeasonFilter;
   showOnlyEnabled: boolean;
   totalCourses: { enrolled: number; passed: number };
   totalCredits: number;
+  uniListCredits: number;
 };
 
 const SEASON_ITEMS = [
@@ -43,6 +52,8 @@ export const SimulatorToolbar = (props: SimulatorToolbarProps) => {
       value: p,
     }));
   };
+
+  const uniListCreditsValue = createMemo(() => String(props.uniListCredits));
 
   return (
     <div class="space-y-3">
@@ -97,6 +108,33 @@ export const SimulatorToolbar = (props: SimulatorToolbarProps) => {
         >
           HPC (+{HPC_CREDITS} кредити)
         </LabeledCheckbox>
+
+        <label class="flex items-center gap-2 text-sm">
+          <span class="text-muted-foreground whitespace-nowrap">
+            Кредити од уни. листа
+          </span>
+          <input
+            class="border-input bg-background ring-offset-background placeholder:text-muted-foreground focus-visible:ring-ring h-9 w-14 rounded-md border px-2 text-center text-sm [appearance:textfield] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+            max={UNI_LIST_CREDITS_MAX}
+            min="0"
+            onBlur={(event) => {
+              props.onUniListCreditsChange(
+                clampUniListCredits(Number(event.currentTarget.value)),
+              );
+            }}
+            onInput={(event) => {
+              props.onUniListCreditsChange(
+                clampUniListCredits(Number(event.currentTarget.value)),
+              );
+            }}
+            step="1"
+            type="number"
+            value={uniListCreditsValue()}
+          />
+          <span class="text-muted-foreground whitespace-nowrap text-xs">
+            / {UNI_LIST_CREDITS_MAX}
+          </span>
+        </label>
 
         <div class="sm:ml-auto" />
 
