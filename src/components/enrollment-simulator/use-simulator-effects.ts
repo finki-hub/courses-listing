@@ -6,10 +6,10 @@ import {
   getExclusiveProjectBlocker,
   normalizeExclusiveProjectStatuses,
   saveStatuses,
+  saveUniListCredits,
   type SimulatorCourse,
   STORAGE_KEY_ACC,
   STORAGE_KEY_PROGRAM,
-  STORAGE_KEY_UNI_LIST_CREDITS,
 } from '@/lib/simulator';
 import { type Accreditation } from '@/types/course';
 
@@ -92,7 +92,7 @@ export const useSimulatorEffects = (params: SimulatorEffectsParams): void => {
         setUniListCredits(normalized);
         return;
       }
-      localStorage.setItem(STORAGE_KEY_UNI_LIST_CREDITS, String(normalized));
+      saveUniListCredits(normalized);
     }),
   );
 };

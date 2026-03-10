@@ -55,6 +55,8 @@ const REQUIRED_MARKER =
   '\u0437\u0430\u0434\u043E\u043B\u0436\u0438\u0442\u0435\u043B\u0435\u043D';
 const FACULTY_LIST_MARKER = '\u043D\u0435\u043C\u0430';
 const FOUR_YEAR_MARKER = '(4 г.)';
+const EXCLUSIVE_PROJECTS_RULE_TEXT =
+  'Тимски проект и Самостоен проект се меѓусебно исклучиви, може да се запише и положи само еден.';
 
 export const isRequired = (programState: string | undefined): boolean =>
   programState?.includes(REQUIRED_MARKER) ?? false;
@@ -164,6 +166,23 @@ export const clampUniListCredits = (value: number): number => {
   if (Number.isNaN(value) || value < 0) return 0;
   return Math.min(UNI_LIST_CREDITS_MAX, Math.trunc(value));
 };
+
+export const loadUniListCredits = (): number =>
+  clampUniListCredits(
+    Number(localStorage.getItem(STORAGE_KEY_UNI_LIST_CREDITS) ?? '0'),
+  );
+
+export const saveUniListCredits = (credits: number): void => {
+  localStorage.setItem(
+    STORAGE_KEY_UNI_LIST_CREDITS,
+    String(clampUniListCredits(credits)),
+  );
+};
+
+const getExclusiveProjectReasonLines = (blocker: string): string[] => [
+  `\u274C Не може да се запише (${blocker} е веќе слушан или положен)`,
+  `\u26D4 ${blocker} е веќе слушан или положен - ${EXCLUSIVE_PROJECTS_RULE_TEXT}`,
+];
 
 export const loadStatuses = (
   accreditation: Accreditation,
@@ -347,19 +366,11 @@ export const computeReasonMap = (config: {
 
     // ── Enrollment eligibility ──
     if (exclusiveProjectBlocker) {
-      parts.push(
-        `\u274C Не може да се запише (${exclusiveProjectBlocker} е веќе слушан или положен)`,
-      );
+      parts.push(...getExclusiveProjectReasonLines(exclusiveProjectBlocker));
     } else if (enabled) {
       parts.push('\u2705 Може да се запише');
     } else {
       parts.push('\u274C Не може да се запише (предусловите не се исполнети)');
-    }
-
-    if (exclusiveProjectBlocker) {
-      parts.push(
-        `\u26D4 ${exclusiveProjectBlocker} е веќе слушан или положен - Тимски проект и Самостоен проект се меѓусебно исклучиви, може да се запише и положи само еден.`,
-      );
     }
 
     // ── Credit level limits ──

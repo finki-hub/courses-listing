@@ -5,14 +5,13 @@ import { ALERT_STYLES } from '@/lib/alert-styles';
 import { type CourseStatus, OVERRIDE_CREDITS } from '@/lib/prerequisite';
 import { captureTableToClipboard } from '@/lib/screenshot';
 import {
-  clampUniListCredits,
   LEVEL_CREDIT_LIMITS,
   loadStatuses,
+  loadUniListCredits,
   type SeasonFilter,
   STORAGE_KEY_ACC,
   STORAGE_KEY_HPC,
   STORAGE_KEY_PROGRAM,
-  STORAGE_KEY_UNI_LIST_CREDITS,
   toggleListenedStatus,
   togglePassedStatus,
 } from '@/lib/simulator';
@@ -59,11 +58,8 @@ export const EnrollmentSimulator = (props: EnrollmentSimulatorProps) => {
   const [hpcCompleted, setHpcCompleted] = createSignal(
     localStorage.getItem(STORAGE_KEY_HPC) === 'true',
   );
-  const [uniListCredits, setUniListCredits] = createSignal(
-    clampUniListCredits(
-      Number(localStorage.getItem(STORAGE_KEY_UNI_LIST_CREDITS) ?? '0'),
-    ),
-  );
+  const [uniListCredits, setUniListCredits] =
+    createSignal(loadUniListCredits());
 
   const { courseInfoMap, electiveCourses, parsedCourses } = useSimulatorCourses(
     () => props.courses,
