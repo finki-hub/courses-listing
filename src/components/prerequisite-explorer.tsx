@@ -12,6 +12,10 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { buildReverseDependencyMap } from '@/lib/prerequisite';
+import {
+  matchesNormalizedSearch,
+  normalizeSearchText,
+} from '@/lib/search-normalization';
 import { compareBySemesterAndName, STORAGE_KEY_ACC } from '@/lib/simulator';
 import { usePersistedSignal } from '@/lib/use-persisted-signal';
 import {
@@ -80,10 +84,10 @@ export const PrerequisiteExplorer = (props: PrerequisiteExplorerProps) => {
   });
 
   const filteredPickerCourses = createMemo(() => {
-    const term = search().toLowerCase();
+    const term = normalizeSearchText(search());
     if (!term) return coursesWithDependents();
     return coursesWithDependents().filter((n) =>
-      n.toLowerCase().includes(term),
+      matchesNormalizedSearch(n, term),
     );
   });
 

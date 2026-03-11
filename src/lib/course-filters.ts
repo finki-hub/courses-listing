@@ -1,4 +1,8 @@
 import {
+  matchesNormalizedSearch,
+  normalizeSearchText,
+} from '@/lib/search-normalization';
+import {
   type CourseRaw,
   getAccLabel,
   getCourseTags,
@@ -28,15 +32,19 @@ export const filterCourses = (
   searchTerm: string,
   tags: Set<string>,
 ): CourseRaw[] => {
-  const term = searchTerm.toLowerCase();
+  const term = normalizeSearchText(searchTerm);
   let filtered = term
     ? courses.filter(
         (c) =>
-          c.name.toLowerCase().includes(term) ||
-          (c['2023-name']?.toLowerCase().includes(term) ?? false) ||
-          (c['2018-name']?.toLowerCase().includes(term) ?? false) ||
-          c.professors.toLowerCase().includes(term) ||
-          (c.assistants?.toLowerCase().includes(term) ?? false),
+          matchesNormalizedSearch(c.name, term) ||
+          (c['2023-name']
+            ? matchesNormalizedSearch(c['2023-name'], term)
+            : false) ||
+          (c['2018-name']
+            ? matchesNormalizedSearch(c['2018-name'], term)
+            : false) ||
+          matchesNormalizedSearch(c.professors, term) ||
+          (c.assistants ? matchesNormalizedSearch(c.assistants, term) : false),
       )
     : [...courses];
 
