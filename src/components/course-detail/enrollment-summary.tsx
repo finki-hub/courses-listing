@@ -63,6 +63,11 @@ export const EnrollmentSummary = (props: EnrollmentSummaryProps) => (
           <div class="text-muted-foreground mt-1 text-xs">
             {props.metrics.trend.periodLabel}
           </div>
+          <Show when={props.metrics.entries.length === 1}>
+            <div class="text-muted-foreground mt-2 text-xs">
+              Достапна е само една година, па трендот е информативен.
+            </div>
+          </Show>
         </div>
 
         <Show when={props.metrics.sparkline}>

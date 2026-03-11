@@ -1,5 +1,8 @@
+import { Show } from 'solid-js';
+
 import type { CourseRaw } from '@/types/course';
 
+import { Badge } from '@/components/ui/badge';
 import { buildEnrollmentMetrics } from '@/lib/course-enrollment';
 
 import { EnrollmentHistoryTable } from './enrollment-history-table';
@@ -20,8 +23,36 @@ export const EnrollmentHistorySection = (
   return (
     <div>
       <h4 class={`${SECTION_HEADING_CLASS} mb-2`}>Број на запишани студенти</h4>
-      <EnrollmentSummary metrics={metrics()} />
-      <EnrollmentHistoryTable metrics={metrics()} />
+      <Show
+        fallback={
+          <div class="rounded-lg border border-dashed bg-muted/20 p-4">
+            <div class="font-medium">Нема достапни историски податоци</div>
+            <div class="text-muted-foreground mt-1 text-sm">
+              За овој предмет моментално нема години со внесен број на слушачи.
+            </div>
+          </div>
+        }
+        when={metrics().entries.length > 0}
+      >
+        <div class="text-muted-foreground mb-3 flex flex-wrap items-center gap-2 text-xs">
+          <Badge
+            class="px-1.5 py-0 text-[10px]"
+            title="Година со највисок број на слушачи"
+            variant="default"
+          >
+            Макс.
+          </Badge>
+          <Badge
+            class="px-1.5 py-0 text-[10px]"
+            title="Година со најнизок број на слушачи"
+            variant="outline"
+          >
+            Мин.
+          </Badge>
+        </div>
+        <EnrollmentSummary metrics={metrics()} />
+        <EnrollmentHistoryTable metrics={metrics()} />
+      </Show>
     </div>
   );
 };

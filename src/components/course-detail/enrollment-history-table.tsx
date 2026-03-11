@@ -62,6 +62,7 @@ export const EnrollmentHistoryTable = (props: EnrollmentHistoryTableProps) => (
                     <Show when={entry()?.isPeak}>
                       <Badge
                         class="hidden px-1.5 py-0 text-[10px] sm:inline-flex"
+                        title="Година со највисок број на слушачи"
                         variant="default"
                       >
                         Макс.
@@ -70,6 +71,7 @@ export const EnrollmentHistoryTable = (props: EnrollmentHistoryTableProps) => (
                     <Show when={entry()?.isLowest}>
                       <Badge
                         class="hidden px-1.5 py-0 text-[10px] sm:inline-flex"
+                        title="Година со најнизок број на слушачи"
                         variant="outline"
                       >
                         Мин.
@@ -116,21 +118,27 @@ export const EnrollmentHistoryTable = (props: EnrollmentHistoryTableProps) => (
                         </Badge>
                         <Show
                           fallback={
-                            <Minus class={ENROLLMENT_TREND_NEUTRAL_CLASS} />
+                            <span title="Нема претходна година за споредба">
+                              <Minus class={ENROLLMENT_TREND_NEUTRAL_CLASS} />
+                            </span>
                           }
                           when={current().previousEnrollment !== null}
                         >
                           <Show
                             fallback={
                               <Show when={current().direction === 'down'}>
-                                <ArrowDown
-                                  class={ENROLLMENT_TREND_DOWN_CLASS}
-                                />
+                                <span title="Помал број на слушачи од претходната година">
+                                  <ArrowDown
+                                    class={ENROLLMENT_TREND_DOWN_CLASS}
+                                  />
+                                </span>
                               </Show>
                             }
                             when={current().direction === 'up'}
                           >
-                            <ArrowUp class={ENROLLMENT_TREND_UP_CLASS} />
+                            <span title="Поголем број на слушачи од претходната година">
+                              <ArrowUp class={ENROLLMENT_TREND_UP_CLASS} />
+                            </span>
                           </Show>
                         </Show>
                       </div>
