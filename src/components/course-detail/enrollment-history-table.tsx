@@ -126,7 +126,16 @@ export const EnrollmentHistoryTable = (props: EnrollmentHistoryTableProps) => (
                         >
                           <Show
                             fallback={
-                              <Show when={current().direction === 'down'}>
+                              <Show
+                                fallback={
+                                  <span title="Ист број на слушачи како претходната година">
+                                    <Minus
+                                      class={ENROLLMENT_TREND_NEUTRAL_CLASS}
+                                    />
+                                  </span>
+                                }
+                                when={current().direction === 'down'}
+                              >
                                 <span title="Помал број на слушачи од претходната година">
                                   <ArrowDown
                                     class={ENROLLMENT_TREND_DOWN_CLASS}
