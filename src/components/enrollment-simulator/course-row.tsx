@@ -91,7 +91,6 @@ export const CourseRow = (props: CourseRowProps) => (
         {(prereq) => (
           <span class="inline-flex items-center gap-1">
             <span class="truncate">{prereq()}</span>
-            <InfoPopover text={prereq()} />
           </span>
         )}
       </Show>
