@@ -113,6 +113,7 @@ export const useSimulatorState = (params: UseSimulatorStateParams) => {
       courseInfoMap: courseInfoMap(),
       courses: parsedCourses(),
       statuses: statuses(),
+      totalCredits: totalCredits(),
     }),
   );
 

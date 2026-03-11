@@ -297,18 +297,15 @@ export const computeEnabledMap = (config: {
   courseInfoMap: Map<string, CourseInfo>;
   courses: SimulatorCourse[];
   statuses: Record<string, CourseStatus>;
+  totalCredits: number;
 }): Record<string, boolean> => {
-  const { courseInfoMap: infoMap, courses, statuses: s } = config;
+  const { courseInfoMap: infoMap, courses, statuses: s, totalCredits } = config;
   const enabled: Record<string, boolean> = {};
 
   for (const c of courses) enabled[c.name] = true;
 
   for (let iter = 0; iter < MAX_FIXED_POINT_ITERATIONS; iter++) {
     let changed = false;
-    let credits = 0;
-    for (const c of courses) {
-      if (s[c.name]?.passed && enabled[c.name]) credits += c.credits;
-    }
     for (const c of courses) {
       const isBlockedByProjectPair = getExclusiveProjectBlocker(s, c.name);
       if (c.programState === FACULTY_LIST_MARKER) {
@@ -323,7 +320,7 @@ export const computeEnabledMap = (config: {
         courseInfoMap: infoMap,
         courseSemester: c.semester,
         statuses: s,
-        totalCredits: credits,
+        totalCredits,
       });
       const nextEnabled = met && !isBlockedByProjectPair;
       if (nextEnabled !== enabled[c.name]) {
