@@ -1,6 +1,7 @@
 import { createMemo, createSignal, For, Show } from 'solid-js';
 
 import { AccreditationSwitch } from '@/components/accreditation-switch';
+import { CourseDetailDialog } from '@/components/course-detail-dialog';
 import { SearchInput } from '@/components/ui/search-input';
 import {
   Table,
@@ -37,6 +38,9 @@ export const PrerequisiteExplorer = (props: PrerequisiteExplorerProps) => {
     isAccreditation,
   );
   const [selectedCourse, setSelectedCourse] = createSignal<string>('');
+  const [selectedModalCourse, setSelectedModalCourse] =
+    createSignal<CourseRaw | null>(null);
+  const [dialogOpen, setDialogOpen] = createSignal(false);
   const [search, setSearch] = createSignal('');
 
   const accCourses = createMemo<AccCourse[]>(() => {
@@ -58,6 +62,17 @@ export const PrerequisiteExplorer = (props: PrerequisiteExplorerProps) => {
   const reverseMap = createMemo(() =>
     buildReverseDependencyMap(accCourses(), courseNames()),
   );
+
+  const rawCourseMap = createMemo(() => {
+    const acc = accreditation();
+    const map = new Map<string, CourseRaw>();
+    for (const raw of props.courses) {
+      const info = getAccreditationInfo(raw, acc);
+      if (!info) continue;
+      map.set(info.name ?? raw.name, raw);
+    }
+    return map;
+  });
 
   const coursesWithDependents = createMemo(() => {
     const map = reverseMap();
@@ -83,6 +98,13 @@ export const PrerequisiteExplorer = (props: PrerequisiteExplorerProps) => {
     setAccreditation(acc);
     setSelectedCourse('');
     setSearch('');
+  };
+
+  const openDetail = (name: string) => {
+    const course = rawCourseMap().get(name);
+    if (!course) return;
+    setSelectedModalCourse(course);
+    setDialogOpen(true);
   };
 
   return (
@@ -157,7 +179,12 @@ export const PrerequisiteExplorer = (props: PrerequisiteExplorerProps) => {
             <TableBody>
               <For each={dependents()}>
                 {(course) => (
-                  <TableRow>
+                  <TableRow
+                    class="cursor-pointer"
+                    onClick={() => {
+                      openDetail(course.name);
+                    }}
+                  >
                     <TableCell class="whitespace-nowrap">
                       {course.semester}
                     </TableCell>
@@ -172,6 +199,12 @@ export const PrerequisiteExplorer = (props: PrerequisiteExplorerProps) => {
           </Table>
         </div>
       </Show>
+
+      <CourseDetailDialog
+        course={selectedModalCourse()}
+        onOpenChange={setDialogOpen}
+        open={dialogOpen()}
+      />
     </div>
   );
 };
