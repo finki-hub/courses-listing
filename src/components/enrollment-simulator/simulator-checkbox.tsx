@@ -1,6 +1,5 @@
+import { Check } from 'lucide-solid';
 import { Show } from 'solid-js';
-
-import { CheckIcon } from '@/components/ui/icons';
 
 type CheckboxProps = {
   checked: boolean;
@@ -28,7 +27,7 @@ export const Checkbox = (props: CheckboxProps) => (
     type="button"
   >
     <Show when={props.checked}>
-      <CheckIcon class="h-3.5 w-3.5" />
+      <Check class="h-3.5 w-3.5" />
     </Show>
   </button>
 );

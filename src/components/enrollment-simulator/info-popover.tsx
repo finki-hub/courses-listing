@@ -1,12 +1,13 @@
+import { CircleAlert } from 'lucide-solid';
 import { For, Show } from 'solid-js';
 
-import { InfoCircleIcon } from '@/components/ui/icons';
 import {
   Popover,
   PopoverContent,
   PopoverPortal,
   PopoverTrigger,
 } from '@/components/ui/popover';
+import { cn } from '@/lib/utils';
 
 type InfoPopoverProps = {
   /** Additional CSS classes for the trigger button */
@@ -23,10 +24,14 @@ export const InfoPopover = (props: InfoPopoverProps) => (
       <PopoverTrigger
         aria-label="Повеќе информации"
         as="button"
-        class={`text-muted-foreground/50 hover:text-muted-foreground inline-flex cursor-help items-center transition-colors ${props.class ?? ''}`}
+        class={cn(
+          'ring-offset-background inline-flex h-6 w-6 cursor-pointer items-center justify-center rounded-full border border-primary/25 bg-primary/10 text-primary shadow-sm transition-[transform,colors,box-shadow] hover:scale-105 hover:border-primary/45 hover:bg-primary/15 hover:shadow-md focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:outline-none',
+          props.class,
+        )}
+        title="Повеќе информации"
         type="button"
       >
-        <InfoCircleIcon class="h-3.5 w-3.5" />
+        <CircleAlert class="h-4 w-4" />
       </PopoverTrigger>
       <PopoverPortal>
         <PopoverContent>

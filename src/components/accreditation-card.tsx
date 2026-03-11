@@ -1,7 +1,7 @@
+import { ExternalLink } from 'lucide-solid';
 import { Show } from 'solid-js';
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { ExternalLinkIcon } from '@/components/ui/icons';
 import { type Accreditation, type AccreditationInfo } from '@/types/course';
 
 const FINKI_SUBJECT_BASE = 'https://www.finki.ukim.mk/mk/subject/';
@@ -24,7 +24,7 @@ export const AccreditationCard = (props: AccreditationCardProps) => (
             target="_blank"
           >
             Линк
-            <ExternalLinkIcon class="h-3 w-3" />
+            <ExternalLink class="h-3 w-3" />
           </a>
         </Show>
       </div>

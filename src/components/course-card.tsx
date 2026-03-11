@@ -1,7 +1,7 @@
+import { Check } from 'lucide-solid';
 import { For, Show } from 'solid-js';
 
 import { Badge } from '@/components/ui/badge';
-import { CheckIcon } from '@/components/ui/icons';
 import {
   type CourseRaw,
   getAccLabel,
@@ -30,7 +30,7 @@ export const CourseCard = (props: CourseCardProps) => (
 
       <Show when={hasChannel(props.course)}>
         <span class="text-primary inline-flex items-center gap-0.5">
-          <CheckIcon class="h-3 w-3" />
+          <Check class="h-3 w-3" />
           Канал
         </span>
       </Show>

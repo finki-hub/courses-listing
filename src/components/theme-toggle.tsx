@@ -1,7 +1,7 @@
+import { Moon, Sun } from 'lucide-solid';
 import { createSignal, onMount, Show } from 'solid-js';
 
 import { IconButton } from '@/components/ui/icon-controls';
-import { MoonIcon, SunIcon } from '@/components/ui/icons';
 
 type Theme = 'dark' | 'light';
 
@@ -41,10 +41,10 @@ export const ThemeToggle = () => {
       onClick={toggle}
     >
       <Show
-        fallback={<MoonIcon class="h-4 w-4" />}
+        fallback={<Moon class="h-4 w-4" />}
         when={theme() === 'dark'}
       >
-        <SunIcon class="h-4 w-4" />
+        <Sun class="h-4 w-4" />
       </Show>
     </IconButton>
   );

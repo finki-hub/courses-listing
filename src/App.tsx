@@ -1,3 +1,4 @@
+import { siGithub } from 'simple-icons';
 import { For, Match, Switch } from 'solid-js';
 
 import { CourseTable } from '@/components/course-table';
@@ -5,7 +6,6 @@ import { EnrollmentSimulator } from '@/components/enrollment-simulator';
 import { PrerequisiteExplorer } from '@/components/prerequisite-explorer';
 import { ThemeToggle } from '@/components/theme-toggle';
 import { IconLink } from '@/components/ui/icon-controls';
-import { GitHubIcon } from '@/components/ui/icons';
 import { useCourses } from '@/data/use-courses';
 import { ALERT_STYLES } from '@/lib/alert-styles';
 import { usePersistedSignal } from '@/lib/use-persisted-signal';
@@ -20,6 +20,8 @@ const TABS: Array<{ label: string; value: Page }> = [
   { label: 'Симулатор', value: 'simulator' },
   { label: 'Предуслови', value: 'prerequisites' },
 ];
+
+const githubPath = siGithub.path;
 
 const App = () => {
   const [courses] = useCourses();
@@ -48,7 +50,14 @@ const App = () => {
               target="_blank"
               title="GitHub"
             >
-              <GitHubIcon class="h-5 w-5" />
+              <svg
+                aria-hidden="true"
+                class="h-5 w-5"
+                fill="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path d={githubPath} />
+              </svg>
             </IconLink>
             <ThemeToggle />
           </div>

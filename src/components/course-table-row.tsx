@@ -1,7 +1,7 @@
+import { Check } from 'lucide-solid';
 import { For, Show } from 'solid-js';
 
 import { Badge } from '@/components/ui/badge';
-import { CheckIcon } from '@/components/ui/icons';
 import { TableCell, TableRow } from '@/components/ui/table';
 import {
   type CourseRaw,
@@ -27,7 +27,7 @@ export const CourseTableRow = (props: CourseTableRowProps) => (
     </TableCell>
     <TableCell class="hidden whitespace-nowrap text-center md:table-cell">
       <Show when={hasChannel(props.course)}>
-        <CheckIcon class="text-primary mx-auto h-4 w-4" />
+        <Check class="text-primary mx-auto h-4 w-4" />
       </Show>
     </TableCell>
     <TableCell class="hidden lg:table-cell">
