@@ -2,7 +2,6 @@ import { Show } from 'solid-js';
 
 import type { CourseRaw } from '@/types/course';
 
-import { Badge } from '@/components/ui/badge';
 import { buildEnrollmentMetrics } from '@/lib/course-enrollment';
 
 import { EnrollmentHistoryTable } from './enrollment-history-table';
