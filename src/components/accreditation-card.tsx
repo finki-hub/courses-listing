@@ -42,10 +42,6 @@ export const AccreditationCard = (props: AccreditationCardProps) => (
           <dt class="text-muted-foreground">Код</dt>
           <dd class="font-mono text-xs">{props.info.code}</dd>
         </Show>
-        <Show when={props.info.name}>
-          <dt class="text-muted-foreground">Име</dt>
-          <dd>{props.info.name}</dd>
-        </Show>
         <Show when={props.info.level}>
           <dt class="text-muted-foreground">Ниво</dt>
           <dd>{props.info.level}</dd>
@@ -57,6 +53,10 @@ export const AccreditationCard = (props: AccreditationCardProps) => (
         <Show when={getChannelLabel(props.info.channel)}>
           <dt class="text-muted-foreground">Канал</dt>
           <dd>{getChannelLabel(props.info.channel)}</dd>
+        </Show>
+        <Show when={props.info.name}>
+          <dt class="text-muted-foreground col-span-2">Име</dt>
+          <dd class="col-span-2">{props.info.name}</dd>
         </Show>
         <Show when={props.info.prerequisite}>
           <dt class="text-muted-foreground col-span-2">Предуслов</dt>
