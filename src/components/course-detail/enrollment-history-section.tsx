@@ -34,22 +34,6 @@ export const EnrollmentHistorySection = (
         }
         when={metrics().entries.length > 0}
       >
-        <div class="text-muted-foreground mb-3 flex flex-wrap items-center gap-2 text-xs">
-          <Badge
-            class="px-1.5 py-0 text-[10px]"
-            title="Година со највисок број на слушачи"
-            variant="default"
-          >
-            Макс.
-          </Badge>
-          <Badge
-            class="px-1.5 py-0 text-[10px]"
-            title="Година со најнизок број на слушачи"
-            variant="outline"
-          >
-            Мин.
-          </Badge>
-        </div>
         <EnrollmentSummary metrics={metrics()} />
         <EnrollmentHistoryTable metrics={metrics()} />
       </Show>
