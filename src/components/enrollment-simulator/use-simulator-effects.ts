@@ -9,6 +9,7 @@ import {
   saveUniListCredits,
   type SimulatorCourse,
   STORAGE_KEY_ACC,
+  STORAGE_KEY_HPC,
   STORAGE_KEY_PROGRAM,
 } from '@/lib/simulator';
 import { type Accreditation } from '@/types/course';
@@ -16,6 +17,7 @@ import { type Accreditation } from '@/types/course';
 type SimulatorEffectsParams = {
   accreditation: Accessor<Accreditation>;
   enabledMap: Accessor<Record<string, boolean>>;
+  hpcCompleted: Accessor<boolean>;
   parsedCourses: Accessor<SimulatorCourse[]>;
   program: Accessor<string>;
   setStatuses: Setter<Record<string, CourseStatus>>;
@@ -28,6 +30,7 @@ export const useSimulatorEffects = (params: SimulatorEffectsParams): void => {
   const {
     accreditation,
     enabledMap,
+    hpcCompleted,
     parsedCourses,
     program,
     setStatuses,
@@ -82,6 +85,12 @@ export const useSimulatorEffects = (params: SimulatorEffectsParams): void => {
   createEffect(
     on(program, (p) => {
       localStorage.setItem(STORAGE_KEY_PROGRAM, p);
+    }),
+  );
+
+  createEffect(
+    on(hpcCompleted, (value) => {
+      localStorage.setItem(STORAGE_KEY_HPC, String(value));
     }),
   );
 

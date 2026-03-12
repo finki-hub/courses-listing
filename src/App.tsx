@@ -1,5 +1,5 @@
 import { siGithub } from 'simple-icons';
-import { For, Match, Switch } from 'solid-js';
+import { createEffect, createSignal, For, Match, Switch } from 'solid-js';
 
 import { CourseTable } from '@/components/course-table';
 import { EnrollmentSimulator } from '@/components/enrollment-simulator';
@@ -8,7 +8,7 @@ import { ThemeToggle } from '@/components/theme-toggle';
 import { IconLink } from '@/components/ui/icon-controls';
 import { useCourses } from '@/data/use-courses';
 import { ALERT_STYLES } from '@/lib/alert-styles';
-import { usePersistedSignal } from '@/lib/use-persisted-signal';
+import { PAGE_QUERY_PARAM, SIMULATOR_SHARE_PARAM } from '@/lib/simulator-share';
 
 type Page = 'listing' | 'prerequisites' | 'simulator';
 
@@ -23,13 +23,29 @@ const TABS: Array<{ label: string; value: Page }> = [
 
 const githubPath = siGithub.path;
 
+const getInitialPage = (): Page => {
+  const url = new URL(window.location.href);
+  const queryPage = url.searchParams.get(PAGE_QUERY_PARAM);
+  if (queryPage && isPage(queryPage)) return queryPage;
+  if (url.searchParams.has(SIMULATOR_SHARE_PARAM)) return 'simulator';
+  const storedPage = localStorage.getItem('active-page') ?? '';
+  return isPage(storedPage) ? storedPage : 'listing';
+};
+
 const App = () => {
   const [courses] = useCourses();
-  const [page, setPage] = usePersistedSignal<Page>(
-    'active-page',
-    'listing',
-    isPage,
-  );
+  const [page, setPage] = createSignal<Page>(getInitialPage());
+
+  createEffect(() => {
+    localStorage.setItem('active-page', page());
+
+    const url = new URL(window.location.href);
+    url.searchParams.set(PAGE_QUERY_PARAM, page());
+    if (page() !== 'simulator') {
+      url.searchParams.delete(SIMULATOR_SHARE_PARAM);
+    }
+    window.history.replaceState({}, '', url);
+  });
 
   return (
     <>

@@ -1,17 +1,12 @@
 /* eslint-disable no-alert */
-import { createEffect, createSignal, on, Show } from 'solid-js';
+import { createSignal, Show } from 'solid-js';
 
 import { ALERT_STYLES } from '@/lib/alert-styles';
 import { type CourseStatus, OVERRIDE_CREDITS } from '@/lib/prerequisite';
-import { captureTableToClipboard } from '@/lib/screenshot';
 import {
   LEVEL_CREDIT_LIMITS,
   loadStatuses,
-  loadUniListCredits,
   type SeasonFilter,
-  STORAGE_KEY_ACC,
-  STORAGE_KEY_HPC,
-  STORAGE_KEY_PROGRAM,
   toggleListenedStatus,
   togglePassedStatus,
 } from '@/lib/simulator';
@@ -19,7 +14,6 @@ import {
   type Accreditation,
   type CourseRaw,
   getStudyPrograms,
-  isAccreditation,
 } from '@/types/course';
 
 import { CreditLimitWarning, GraduationAlert } from './alerts';
@@ -27,6 +21,8 @@ import { SimulatorTable } from './simulator-table';
 import { SimulatorToolbar } from './simulator-toolbar';
 import { useSimulatorCourses } from './use-simulator-courses';
 import { useSimulatorEffects } from './use-simulator-effects';
+import { getInitialSimulatorState } from './use-simulator-initial-state';
+import { useSimulatorShare } from './use-simulator-share';
 import { useSimulatorState } from './use-simulator-state';
 
 const DEFAULT_PROGRAM = 'kn';
@@ -36,30 +32,24 @@ type EnrollmentSimulatorProps = {
 };
 
 export const EnrollmentSimulator = (props: EnrollmentSimulatorProps) => {
-  const storedAcc = localStorage.getItem(STORAGE_KEY_ACC) ?? '';
-  const savedAcc: Accreditation = isAccreditation(storedAcc)
-    ? storedAcc
-    : '2023';
-  const defaultPrograms = getStudyPrograms(savedAcc);
-  const savedProgram =
-    localStorage.getItem(STORAGE_KEY_PROGRAM) ??
-    defaultPrograms[0] ??
-    DEFAULT_PROGRAM;
+  const initialState = getInitialSimulatorState();
 
-  const [accreditation, setAccreditation] =
-    createSignal<Accreditation>(savedAcc);
-  const [program, setProgram] = createSignal<string>(savedProgram);
-  const [statuses, setStatuses] = createSignal<Record<string, CourseStatus>>(
-    loadStatuses(savedAcc),
+  const [accreditation, setAccreditation] = createSignal<Accreditation>(
+    initialState.accreditation,
   );
-
-  const [showOnlyEnabled, setShowOnlyEnabled] = createSignal(false);
-  const [seasonFilter, setSeasonFilter] = createSignal<SeasonFilter>(null);
+  const [program, setProgram] = createSignal<string>(initialState.program);
+  const [showOnlyEnabled, setShowOnlyEnabled] = createSignal(
+    initialState.showOnlyEnabled,
+  );
+  const [seasonFilter, setSeasonFilter] = createSignal<SeasonFilter>(
+    initialState.seasonFilter,
+  );
   const [hpcCompleted, setHpcCompleted] = createSignal(
-    localStorage.getItem(STORAGE_KEY_HPC) === 'true',
+    initialState.hpcCompleted,
   );
-  const [uniListCredits, setUniListCredits] =
-    createSignal(loadUniListCredits());
+  const [uniListCredits, setUniListCredits] = createSignal(
+    initialState.uniListCredits,
+  );
 
   const { courseInfoMap, electiveCourses, parsedCourses } = useSimulatorCourses(
     () => props.courses,
@@ -67,10 +57,8 @@ export const EnrollmentSimulator = (props: EnrollmentSimulatorProps) => {
     program,
   );
 
-  createEffect(
-    on(hpcCompleted, (v) => {
-      localStorage.setItem(STORAGE_KEY_HPC, String(v));
-    }),
+  const [statuses, setStatuses] = createSignal<Record<string, CourseStatus>>(
+    initialState.resolveStatuses(parsedCourses()),
   );
 
   const {
@@ -95,10 +83,22 @@ export const EnrollmentSimulator = (props: EnrollmentSimulatorProps) => {
   useSimulatorEffects({
     accreditation,
     enabledMap,
+    hpcCompleted,
     parsedCourses,
     program,
     setStatuses,
     setUniListCredits,
+    statuses,
+    uniListCredits,
+  });
+
+  const { copyShareUrl } = useSimulatorShare({
+    accreditation,
+    courses: parsedCourses,
+    hpcCompleted,
+    program,
+    seasonFilter,
+    showOnlyEnabled,
     statuses,
     uniListCredits,
   });
@@ -129,8 +129,6 @@ export const EnrollmentSimulator = (props: EnrollmentSimulatorProps) => {
     setUniListCredits(0);
   };
 
-  let tableRef: HTMLDivElement | undefined;
-
   return (
     <div class="space-y-4">
       <p class="text-muted-foreground text-sm">
@@ -142,10 +140,8 @@ export const EnrollmentSimulator = (props: EnrollmentSimulatorProps) => {
         accreditation={accreditation()}
         hpcCompleted={hpcCompleted()}
         onReset={resetStatuses}
-        onScreenshot={() =>
-          tableRef ? captureTableToClipboard(tableRef) : Promise.resolve(false)
-        }
         onSetSeason={setSeasonFilter}
+        onShare={copyShareUrl}
         onSwitchAccreditation={switchAccreditation}
         onSwitchProgram={setProgram}
         onToggleFilter={() => {
@@ -188,9 +184,6 @@ export const EnrollmentSimulator = (props: EnrollmentSimulatorProps) => {
         onTogglePassed={togglePassed}
         overLimitSet={overLimitSet()}
         reasonMap={reasonMap()}
-        ref={(el) => {
-          tableRef = el;
-        }}
         seasonFilter={seasonFilter()}
         showOnlyEnabled={showOnlyEnabled()}
         statuses={statuses()}

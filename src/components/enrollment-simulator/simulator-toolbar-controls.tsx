@@ -1,13 +1,13 @@
 import { LabeledCheckbox } from '@/components/ui/labeled-checkbox';
 import { HPC_CREDITS } from '@/lib/simulator';
 
-import { ScreenshotButton } from './screenshot-button';
+import { ShareButton } from './share-button';
 import { UniListCreditsField } from './uni-list-credits-field';
 
 type SimulatorToolbarControlsProps = {
   hpcCompleted: boolean;
   onReset: () => void;
-  onScreenshot: () => Promise<boolean>;
+  onShare: () => Promise<boolean>;
   onToggleFilter: () => void;
   onToggleHpc: () => void;
   onUniListCreditsChange: (credits: number) => void;
@@ -52,9 +52,9 @@ export const SimulatorToolbarControls = (
       Ресетирај
     </button>
 
-    <ScreenshotButton
+    <ShareButton
       class="hidden min-h-9 justify-center sm:inline-flex"
-      onCapture={props.onScreenshot}
+      onShare={props.onShare}
     />
   </div>
 );

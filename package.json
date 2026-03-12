@@ -3,7 +3,6 @@
     "@kobalte/core": "^0.13.11",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
-    "html-to-image": "^1.11.13",
     "lucide-solid": "^0.577.0",
     "simple-icons": "^16.11.0",
     "solid-js": "^1.9.10",

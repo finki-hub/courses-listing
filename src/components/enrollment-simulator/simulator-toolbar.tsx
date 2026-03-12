@@ -17,8 +17,8 @@ type SimulatorToolbarProps = {
   accreditation: Accreditation;
   hpcCompleted: boolean;
   onReset: () => void;
-  onScreenshot: () => Promise<boolean>;
   onSetSeason: (s: SeasonFilter) => void;
+  onShare: () => Promise<boolean>;
   onSwitchAccreditation: (acc: Accreditation) => void;
   onSwitchProgram: (p: string) => void;
   onToggleFilter: () => void;
@@ -88,7 +88,7 @@ export const SimulatorToolbar = (props: SimulatorToolbarProps) => {
         <SimulatorToolbarControls
           hpcCompleted={props.hpcCompleted}
           onReset={props.onReset}
-          onScreenshot={props.onScreenshot}
+          onShare={props.onShare}
           onToggleFilter={props.onToggleFilter}
           onToggleHpc={props.onToggleHpc}
           onUniListCreditsChange={props.onUniListCreditsChange}
