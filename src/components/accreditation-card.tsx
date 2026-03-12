@@ -6,6 +6,13 @@ import { type Accreditation, type AccreditationInfo } from '@/types/course';
 
 const FINKI_SUBJECT_BASE = 'https://www.finki.ukim.mk/mk/subject/';
 
+const getChannelLabel = (channel?: string): string | undefined => {
+  if (channel === undefined || channel === '') return undefined;
+  if (channel === '1' || channel === 'TRUE') return 'Има';
+  if (channel === '0' || channel === 'FALSE') return 'Нема';
+  return channel;
+};
+
 type AccreditationCardProps = {
   info: AccreditationInfo;
   year: Accreditation;
@@ -47,9 +54,9 @@ export const AccreditationCard = (props: AccreditationCardProps) => (
           <dt class="text-muted-foreground">Семестар</dt>
           <dd>{props.info.semester}</dd>
         </Show>
-        <Show when={props.info.channel}>
+        <Show when={getChannelLabel(props.info.channel)}>
           <dt class="text-muted-foreground">Канал</dt>
-          <dd>{props.info.channel}</dd>
+          <dd>{getChannelLabel(props.info.channel)}</dd>
         </Show>
         <Show when={props.info.prerequisite}>
           <dt class="text-muted-foreground col-span-2">Предуслов</dt>
