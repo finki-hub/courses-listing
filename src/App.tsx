@@ -50,13 +50,13 @@ const App = () => {
   return (
     <>
       <div class="border-b">
-        <div class="container mx-auto flex h-14 items-center px-3 sm:h-16 sm:px-4">
+        <div class="container mx-auto flex h-14 items-center gap-3 sm:h-16">
           <img
             alt="ФИНКИ Хаб"
-            class="mr-2 h-12 w-12 object-contain"
+            class="h-12 w-12 object-contain"
             src="/logo.png"
           />
-          <h1 class="truncate text-base font-bold sm:text-xl">
+          <h1 class="min-w-0 flex-1 text-base font-bold leading-tight tracking-tight sm:text-xl">
             ФИНКИ Хаб / Предмети
           </h1>
           <div class="ml-auto flex shrink-0 items-center gap-2">
