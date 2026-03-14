@@ -53,7 +53,7 @@ const App = () => {
         <div class="container mx-auto flex h-14 items-center px-3 sm:h-16 sm:px-4">
           <img
             alt="ФИНКИ Хаб"
-            class="mr-2 h-8 w-8 sm:h-10 sm:w-10"
+            class="mr-2 h-12 w-12 object-contain"
             src="/logo.png"
           />
           <h1 class="truncate text-base font-bold sm:text-xl">
