@@ -86,9 +86,10 @@ type DialogTitleProps<T extends ValidComponent = 'h2'> = ComponentProps<
 >;
 
 export const DialogTitle = <T extends ValidComponent = 'h2'>(
-  props: DialogTitleProps<T>,
+  ownProps: DialogTitleProps<T>,
 ) => {
-  const [local, rest] = splitProps(props as DialogTitleProps, ['class']);
+  const props = ownProps as DialogTitleProps;
+  const [local, rest] = splitProps(props, ['class']);
 
   return (
     <DialogPrimitive.Title
@@ -103,9 +104,10 @@ type DialogDescriptionProps<T extends ValidComponent = 'p'> = ComponentProps<
 >;
 
 export const DialogDescription = <T extends ValidComponent = 'p'>(
-  props: DialogDescriptionProps<T>,
+  ownProps: DialogDescriptionProps<T>,
 ) => {
-  const [local, rest] = splitProps(props as DialogDescriptionProps, ['class']);
+  const props = ownProps as DialogDescriptionProps;
+  const [local, rest] = splitProps(props, ['class']);
 
   return (
     <DialogPrimitive.Description

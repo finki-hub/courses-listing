@@ -32,6 +32,7 @@ export const CardTitle = (props: ComponentProps<'h3'>) => {
 
   return (
     <h3
+      aria-hidden={!props.children}
       class={cn('leading-none', props.class)}
       {...rest}
     />

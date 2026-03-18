@@ -1,5 +1,6 @@
 import { type CourseStatus } from '@/lib/prerequisite';
 import {
+  DEFAULT_PROGRAM,
   loadStatuses,
   loadUniListCredits,
   type SeasonFilter,
@@ -17,8 +18,6 @@ import {
   getStudyPrograms,
   isAccreditation,
 } from '@/types/course';
-
-const DEFAULT_PROGRAM = 'kn';
 
 export type InitialSimulatorState = {
   accreditation: Accreditation;

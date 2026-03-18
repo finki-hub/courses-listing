@@ -12,7 +12,7 @@ const isTheme = (v: null | string): v is Theme => v === 'dark' || v === 'light';
 const getInitialTheme = (): Theme => {
   const stored = localStorage.getItem(STORAGE_KEY_THEME);
   if (isTheme(stored)) return stored;
-  return window.matchMedia('(prefers-color-scheme: dark)').matches
+  return globalThis.matchMedia('(prefers-color-scheme: dark)').matches
     ? 'dark'
     : 'light';
 };

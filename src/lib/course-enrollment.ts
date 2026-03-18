@@ -1,10 +1,9 @@
 import {
   ACADEMIC_YEARS,
+  type AcademicYear,
   type CourseRaw,
   getEnrollmentForYear,
 } from '@/types/course';
-
-export type AcademicYear = (typeof ACADEMIC_YEARS)[number];
 
 export type EnrollmentDirection = 'down' | 'flat' | 'none' | 'up';
 

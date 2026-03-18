@@ -19,9 +19,8 @@ export const ButtonGroup = <T extends string>(props: ButtonGroupProps<T>) => {
   );
 
   return (
-    <div
-      class={`grid gap-1 sm:inline-flex sm:gap-0 sm:overflow-hidden sm:rounded-md sm:border ${props.class ?? ''}`}
-      role="group"
+    <fieldset
+      class={`grid gap-1 border-none p-0 sm:inline-flex sm:gap-0 sm:overflow-hidden sm:rounded-md sm:border ${props.class ?? ''}`}
       style={{
         'grid-template-columns': `repeat(${String(mobileColumns())}, minmax(0, 1fr))`,
       }}
@@ -45,6 +44,6 @@ export const ButtonGroup = <T extends string>(props: ButtonGroupProps<T>) => {
           </button>
         )}
       </For>
-    </div>
+    </fieldset>
   );
 };

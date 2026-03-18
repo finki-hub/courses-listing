@@ -4,6 +4,7 @@ import { createSignal, Show } from 'solid-js';
 import { ALERT_STYLES } from '@/lib/alert-styles';
 import { type CourseStatus, OVERRIDE_CREDITS } from '@/lib/prerequisite';
 import {
+  DEFAULT_PROGRAM,
   LEVEL_CREDIT_LIMITS,
   loadStatuses,
   type SeasonFilter,
@@ -24,8 +25,6 @@ import { useSimulatorEffects } from './use-simulator-effects';
 import { getInitialSimulatorState } from './use-simulator-initial-state';
 import { useSimulatorShare } from './use-simulator-share';
 import { useSimulatorState } from './use-simulator-state';
-
-const DEFAULT_PROGRAM = 'kn';
 
 type EnrollmentSimulatorProps = {
   courses: CourseRaw[];
@@ -119,7 +118,7 @@ export const EnrollmentSimulator = (props: EnrollmentSimulatorProps) => {
 
   const resetStatuses = () => {
     if (
-      !window.confirm(
+      !globalThis.confirm(
         'Дали сте сигурни дека сакате да ги ресетирате сите избрани предмети?',
       )
     )

@@ -98,6 +98,8 @@ export const ACADEMIC_YEARS = [
   '2011/2012',
 ] as const;
 
+export type AcademicYear = (typeof ACADEMIC_YEARS)[number];
+
 export type AccreditationInfo = {
   channel?: string;
   code?: string;
@@ -106,8 +108,6 @@ export type AccreditationInfo = {
   prerequisite?: string;
   semester?: string;
 };
-
-type AcademicYear = (typeof ACADEMIC_YEARS)[number];
 
 export const getAccreditationInfo = (
   course: CourseRaw,

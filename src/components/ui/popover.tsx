@@ -11,9 +11,10 @@ type PopoverContentProps<T extends ValidComponent = 'div'> = ComponentProps<
 >;
 
 export const PopoverContent = <T extends ValidComponent = 'div'>(
-  props: PopoverContentProps<T>,
+  ownProps: PopoverContentProps<T>,
 ) => {
-  const [local, rest] = splitProps(props as PopoverContentProps, ['class']);
+  const props = ownProps as PopoverContentProps;
+  const [local, rest] = splitProps(props, ['class']);
 
   return (
     <PopoverPrimitive.Content

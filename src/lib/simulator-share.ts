@@ -40,14 +40,21 @@ const SEASON_CODES: Record<'none' | 'summer' | 'winter', number> = {
   winter: 1,
 };
 
-const getAccreditationCode = (accreditation: Accreditation): '18' | '23' =>
-  accreditation === '2018' ? '18' : '23';
-
-const parseAccreditationCode = (value: string): Accreditation | undefined => {
-  if (value === '18') return '2018';
-  if (value === '23') return '2023';
-  return undefined;
+const ACCREDITATION_TO_CODE: Record<Accreditation, string> = {
+  '2018': '18',
+  '2023': '23',
 };
+
+const CODE_TO_ACCREDITATION: Record<string, Accreditation> = {
+  '18': '2018',
+  '23': '2023',
+};
+
+const getAccreditationCode = (accreditation: Accreditation): string =>
+  ACCREDITATION_TO_CODE[accreditation];
+
+const parseAccreditationCode = (value: string): Accreditation | undefined =>
+  CODE_TO_ACCREDITATION[value];
 
 const encodeAlphabetValue = (value: number): string =>
   SHARE_ALPHABET[value] ?? '';
@@ -68,12 +75,7 @@ const encodeSettings = (config: {
   seasonFilter: SeasonFilter;
   showOnlyEnabled: boolean;
 }): string => {
-  const seasonCode =
-    config.seasonFilter === 'winter'
-      ? SEASON_CODES.winter
-      : config.seasonFilter === 'summer'
-        ? SEASON_CODES.summer
-        : SEASON_CODES.none;
+  const seasonCode = SEASON_CODES[config.seasonFilter ?? 'none'];
 
   const value =
     seasonCode +
@@ -95,14 +97,20 @@ const decodeSettings = (
   if (decoded < 0) return undefined;
 
   const seasonCode = decoded % 4;
-  const seasonFilter =
-    seasonCode === SEASON_CODES.winter
-      ? 'winter'
-      : seasonCode === SEASON_CODES.summer
-        ? 'summer'
-        : seasonCode === SEASON_CODES.none
-          ? null
-          : undefined;
+  let seasonFilter: SeasonFilter | undefined;
+  switch (seasonCode) {
+    case SEASON_CODES.none:
+      seasonFilter = null;
+      break;
+    case SEASON_CODES.summer:
+      seasonFilter = 'summer';
+      break;
+    case SEASON_CODES.winter:
+      seasonFilter = 'winter';
+      break;
+    default:
+      break;
+  }
 
   if (seasonFilter === undefined) return undefined;
 
@@ -114,16 +122,25 @@ const decodeSettings = (
 };
 
 const encodeCourseStatus = (status: CourseStatus | undefined): number => {
-  if (status?.passed) return 2;
-  if (status?.listened) return 1;
-  return 0;
+  switch (true) {
+    case status?.passed:
+      return 2;
+    case status?.listened:
+      return 1;
+    default:
+      return 0;
+  }
 };
 
 const decodeCourseStatus = (value: number): CourseStatus | undefined => {
-  if (value === 0) return undefined;
-  if (value === 1) return { listened: true, passed: false };
-  if (value === 2) return { listened: true, passed: true };
-  return undefined;
+  switch (value) {
+    case 1:
+      return { listened: true, passed: false };
+    case 2:
+      return { listened: true, passed: true };
+    default:
+      return undefined;
+  }
 };
 
 const encodeStatuses = (
@@ -171,7 +188,7 @@ const decodeStatuses = (
 };
 
 export const readSimulatorShareState = (): SimulatorShareState | undefined => {
-  const raw = new URL(window.location.href).searchParams.get(
+  const raw = new URL(globalThis.location.href).searchParams.get(
     SIMULATOR_SHARE_PARAM,
   );
   if (!raw) return undefined;
@@ -216,7 +233,7 @@ export const readSimulatorShareState = (): SimulatorShareState | undefined => {
 };
 
 export const getSimulatorShareUrl = (config: SharedSimulatorConfig): string => {
-  const url = new URL(window.location.href);
+  const url = new URL(globalThis.location.href);
   const encodedSettings = encodeSettings(config);
   const encodedUniListCredits = encodeAlphabetValue(
     clampUniListCredits(config.uniListCredits),
@@ -241,7 +258,7 @@ export const getSimulatorShareUrl = (config: SharedSimulatorConfig): string => {
 export const replaceSimulatorShareUrl = (
   config: SharedSimulatorConfig,
 ): void => {
-  window.history.replaceState({}, '', getSimulatorShareUrl(config));
+  globalThis.history.replaceState({}, '', getSimulatorShareUrl(config));
 };
 
 export const restoreStatusesFromShareState = (

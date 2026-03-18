@@ -66,20 +66,21 @@ export const sortCourses = (
   const dir = direction === 'asc' ? 1 : -1;
 
   return courses.sort((a, b) => {
-    if (column === 'channel') {
-      return (Number(hasChannel(a)) - Number(hasChannel(b))) * dir;
+    switch (column) {
+      case 'accreditation':
+        return getAccLabel(a).localeCompare(getAccLabel(b)) * dir;
+      case 'channel':
+        return (Number(hasChannel(a)) - Number(hasChannel(b))) * dir;
+      case 'name':
+        return a.name.localeCompare(b.name) * dir;
+      case 'tags':
+        return (
+          getCourseTags(a).join(',').localeCompare(getCourseTags(b).join(',')) *
+          dir
+        );
+      default:
+        return 0;
     }
-
-    let valA: string;
-    let valB: string;
-    if (column === 'tags') {
-      valA = getCourseTags(a).join(',');
-      valB = getCourseTags(b).join(',');
-    } else {
-      valA = column === 'name' ? a.name : getAccLabel(a);
-      valB = column === 'name' ? b.name : getAccLabel(b);
-    }
-    return valA.localeCompare(valB) * dir;
   });
 };
 
@@ -87,5 +88,7 @@ export const sortIndicator = (
   active: SortColumn,
   direction: SortDirection,
   column: SortColumn,
-): string =>
-  active === column ? (direction === 'asc' ? ' \u2191' : ' \u2193') : '';
+): string => {
+  if (active !== column) return '';
+  return direction === 'asc' ? ' \u2191' : ' \u2193';
+};

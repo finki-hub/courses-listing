@@ -21,11 +21,13 @@ export const IconButton = (props: IconButtonProps) => {
 type IconLinkProps = ComponentProps<'a'>;
 
 export const IconLink = (props: IconLinkProps) => {
-  const [local, rest] = splitProps(props, ['class']);
+  const [local, rest] = splitProps(props, ['class', 'title']);
 
   return (
     <a
+      aria-label={local.title}
       class={cn(ICON_BUTTON_CLASS, local.class)}
+      title={local.title}
       {...rest}
     />
   );

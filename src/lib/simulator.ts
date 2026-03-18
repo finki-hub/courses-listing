@@ -48,6 +48,7 @@ export const UNI_LIST_CREDITS_MAX = 36;
 export const DIPLOMA_THESIS_COURSE_NAME = 'Дипломска работа';
 export const TEAM_PROJECT_COURSE_NAME = 'Тимски проект';
 export const INDIVIDUAL_PROJECT_COURSE_NAME = 'Самостоен проект';
+export const DEFAULT_PROGRAM = 'kn';
 export const GRADUATION_CREDITS_3YR = 174;
 export const GRADUATION_CREDITS_4YR = 234;
 export const LEVEL_CREDIT_LIMITS: Record<number, number> = { 1: 6, 2: 36 };
@@ -293,6 +294,27 @@ export const pruneElectivePrereqs = (
 /** Safety cap for the fixed-point iteration in computeEnabledMap */
 const MAX_FIXED_POINT_ITERATIONS = 20;
 
+const computeCourseEnabled = (
+  c: SimulatorCourse,
+  ctx: {
+    infoMap: Map<string, CourseInfo>;
+    s: Record<string, CourseStatus>;
+    totalCredits: number;
+  },
+): boolean => {
+  const isBlockedByProjectPair = getExclusiveProjectBlocker(ctx.s, c.name);
+  if (c.programState === FACULTY_LIST_MARKER) {
+    return !isBlockedByProjectPair;
+  }
+  const met = isPrerequisiteMet(c.prereqNode, {
+    courseInfoMap: ctx.infoMap,
+    courseSemester: c.semester,
+    statuses: ctx.s,
+    totalCredits: ctx.totalCredits,
+  });
+  return met && !isBlockedByProjectPair;
+};
+
 export const computeEnabledMap = (config: {
   courseInfoMap: Map<string, CourseInfo>;
   courses: SimulatorCourse[];
@@ -307,22 +329,11 @@ export const computeEnabledMap = (config: {
   for (let iter = 0; iter < MAX_FIXED_POINT_ITERATIONS; iter++) {
     let changed = false;
     for (const c of courses) {
-      const isBlockedByProjectPair = getExclusiveProjectBlocker(s, c.name);
-      if (c.programState === FACULTY_LIST_MARKER) {
-        const nextFacultyListEnabled = !isBlockedByProjectPair;
-        if (enabled[c.name] !== nextFacultyListEnabled) {
-          enabled[c.name] = nextFacultyListEnabled;
-          changed = true;
-        }
-        continue;
-      }
-      const met = isPrerequisiteMet(c.prereqNode, {
-        courseInfoMap: infoMap,
-        courseSemester: c.semester,
-        statuses: s,
+      const nextEnabled = computeCourseEnabled(c, {
+        infoMap,
+        s,
         totalCredits,
       });
-      const nextEnabled = met && !isBlockedByProjectPair;
       if (nextEnabled !== enabled[c.name]) {
         enabled[c.name] = nextEnabled;
         changed = true;
@@ -332,6 +343,79 @@ export const computeEnabledMap = (config: {
   }
 
   return enabled;
+};
+
+const getStatusLine = (st: CourseStatus | undefined): string => {
+  if (st?.passed) return '\u2705 Статус: Положен';
+  if (st?.listened) return '\uD83D\uDCD6 Статус: Слушан';
+  return '\u2B1C Статус: Не е слушан';
+};
+
+const getEligibilityLines = (
+  exclusiveProjectBlocker: string | undefined,
+  enabled: boolean,
+): string[] => {
+  if (exclusiveProjectBlocker) {
+    return getExclusiveProjectReasonLines(exclusiveProjectBlocker);
+  }
+  if (enabled) return ['\u2705 Може да се запише'];
+  return ['\u274C Не може да се запише (предусловите не се исполнети)'];
+};
+
+const getCreditLimitLines = (config: {
+  course: SimulatorCourse;
+  fullLevels: Set<number>;
+  overLimitSet: Set<string>;
+  required: boolean;
+  st: CourseStatus | undefined;
+}): string[] => {
+  if (config.overLimitSet.has(config.course.name)) {
+    const limit = LEVEL_CREDIT_LIMITS[config.course.level] ?? 0;
+    return [
+      `\u274C Надминат L${String(config.course.level)} лимит (макс. ${String(limit)} кредити)`,
+    ];
+  }
+  if (
+    !config.st?.passed &&
+    !config.required &&
+    config.fullLevels.has(config.course.level)
+  ) {
+    const limit = LEVEL_CREDIT_LIMITS[config.course.level] ?? 0;
+    return [
+      `\u26A0\uFE0F L${String(config.course.level)} лимит пополнет (${String(limit)} кредити)`,
+    ];
+  }
+  return [];
+};
+
+const getPrerequisiteLines = (
+  c: SimulatorCourse,
+  config: {
+    courseInfoMap: Map<string, CourseInfo>;
+    electiveCourses: Set<string>;
+    statuses: Record<string, CourseStatus>;
+    totalCredits: number;
+  },
+): string[] => {
+  if (c.programState === FACULTY_LIST_MARKER) {
+    return ['\u2139\uFE0F Факултетска листа \u2013 нема предуслов'];
+  }
+  if (c.prereqNode.type === 'none' && c.rawPrereqNode.type === 'none') {
+    return ['\u2705 Нема предуслов'];
+  }
+  const ctx: EvalContext = {
+    courseInfoMap: config.courseInfoMap,
+    courseSemester: c.semester,
+    statuses: config.statuses,
+    totalCredits: config.totalCredits,
+  };
+  if (config.totalCredits >= OVERRIDE_CREDITS) {
+    return ['\u2705 \u2265180 кредити \u2013 предуслови не важат'];
+  }
+  return [
+    '\uD83D\uDCCB Предуслов:',
+    ...describePrereqNode(c.rawPrereqNode, ctx, config.electiveCourses),
+  ];
 };
 
 export const computeReasonMap = (config: {
@@ -356,69 +440,70 @@ export const computeReasonMap = (config: {
       c.name,
     );
 
-    // ── Status ──
-    if (st?.passed) parts.push('\u2705 Статус: Положен');
-    else if (st?.listened) parts.push('\uD83D\uDCD6 Статус: Слушан');
-    else parts.push('\u2B1C Статус: Не е слушан');
+    parts.push(
+      getStatusLine(st),
+      ...getEligibilityLines(exclusiveProjectBlocker, enabled),
+      ...getCreditLimitLines({
+        course: c,
+        fullLevels: config.fullLevels,
+        overLimitSet: config.overLimitSet,
+        required,
+        st,
+      }),
+    );
 
-    // ── Enrollment eligibility ──
-    if (exclusiveProjectBlocker) {
-      parts.push(...getExclusiveProjectReasonLines(exclusiveProjectBlocker));
-    } else if (enabled) {
-      parts.push('\u2705 Може да се запише');
-    } else {
-      parts.push('\u274C Не може да се запише (предусловите не се исполнети)');
-    }
-
-    // ── Credit level limits ──
-    if (config.overLimitSet.has(c.name)) {
-      const limit = LEVEL_CREDIT_LIMITS[c.level] ?? 0;
-      parts.push(
-        `\u274C Надминат L${String(c.level)} лимит (макс. ${String(limit)} кредити)`,
-      );
-    } else if (!st?.passed && !required && config.fullLevels.has(c.level)) {
-      const limit = LEVEL_CREDIT_LIMITS[c.level] ?? 0;
-      parts.push(
-        `\u26A0\uFE0F L${String(c.level)} лимит пополнет (${String(limit)} кредити)`,
-      );
-    }
-
-    // ── Program info ──
     if (required) {
       parts.push(`\u2139\uFE0F Задолжителен предмет`);
     } else if (c.programState && c.programState !== FACULTY_LIST_MARKER) {
       parts.push('\u2139\uFE0F Изборен предмет');
     }
 
-    // ── Prerequisites ──
-    if (c.programState === FACULTY_LIST_MARKER) {
-      parts.push('\u2139\uFE0F Факултетска листа \u2013 нема предуслов');
-    } else if (
-      c.prereqNode.type === 'none' &&
-      c.rawPrereqNode.type === 'none'
-    ) {
-      parts.push('\u2705 Нема предуслов');
-    } else {
-      const ctx: EvalContext = {
-        courseInfoMap: config.courseInfoMap,
-        courseSemester: c.semester,
-        statuses: config.statuses,
-        totalCredits: config.totalCredits,
-      };
-      if (config.totalCredits >= OVERRIDE_CREDITS) {
-        parts.push('\u2705 \u2265180 кредити \u2013 предуслови не важат');
-      } else {
-        parts.push(
-          '\uD83D\uDCCB Предуслов:',
-          ...describePrereqNode(c.rawPrereqNode, ctx, config.electiveCourses),
-        );
-      }
-    }
+    parts.push(...getPrerequisiteLines(c, config));
 
     reasons[c.name] = parts.join('\n');
   }
 
   return reasons;
+};
+
+const collectPassedElectiveCredits = (
+  courses: SimulatorCourse[],
+  s: Record<string, CourseStatus>,
+): {
+  coursesByLevel: Record<number, SimulatorCourse[]>;
+  creditsPerLevel: Record<number, number>;
+} => {
+  const creditsPerLevel: Record<number, number> = {};
+  const coursesByLevel: Record<number, SimulatorCourse[]> = {};
+
+  for (const c of courses) {
+    if (!s[c.name]?.passed) continue;
+    if (isRequired(c.programState)) continue;
+    creditsPerLevel[c.level] = (creditsPerLevel[c.level] ?? 0) + c.credits;
+    coursesByLevel[c.level] ??= [];
+    coursesByLevel[c.level]?.push(c);
+  }
+
+  return { coursesByLevel, creditsPerLevel };
+};
+
+const findOverLimitCourses = (
+  list: SimulatorCourse[],
+  limit: number,
+): string[] => {
+  const sorted = list.slice().sort(compareBySemesterAndName);
+  const overLimit: string[] = [];
+  let acc = 0;
+
+  for (const c of sorted) {
+    if (acc + c.credits <= limit) {
+      acc += c.credits;
+    } else {
+      overLimit.push(c.name);
+    }
+  }
+
+  return overLimit;
 };
 
 export const computeOverLimitInfo = (
@@ -430,15 +515,10 @@ export const computeOverLimitInfo = (
   levels: number[];
   names: Set<string>;
 } => {
-  const creditsPerLevel: Record<number, number> = {};
-  const coursesByLevel: Record<number, SimulatorCourse[]> = {};
-
-  for (const c of courses) {
-    if (!s[c.name]?.passed) continue;
-    if (isRequired(c.programState)) continue;
-    creditsPerLevel[c.level] = (creditsPerLevel[c.level] ?? 0) + c.credits;
-    (coursesByLevel[c.level] ??= []).push(c);
-  }
+  const { coursesByLevel, creditsPerLevel } = collectPassedElectiveCredits(
+    courses,
+    s,
+  );
 
   const names = new Set<string>();
   const levels: number[] = [];
@@ -455,16 +535,8 @@ export const computeOverLimitInfo = (
     levels.push(lvl);
     excessCredits += actual - limit;
 
-    const list = (coursesByLevel[lvl] ?? []).slice();
-    list.sort(compareBySemesterAndName);
-
-    let acc = 0;
-    for (const c of list) {
-      if (acc + c.credits <= limit) {
-        acc += c.credits;
-      } else {
-        names.add(c.name);
-      }
+    for (const name of findOverLimitCourses(coursesByLevel[lvl] ?? [], limit)) {
+      names.add(name);
     }
   }
 

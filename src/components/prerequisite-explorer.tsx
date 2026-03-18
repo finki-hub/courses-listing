@@ -124,13 +124,14 @@ export const PrerequisiteExplorer = (props: PrerequisiteExplorerProps) => {
       />
 
       <div class="space-y-2">
-        <label
+        <span
           class="text-sm font-medium"
-          for="course-search"
+          id="course-search-label"
         >
           Изберете предмет
-        </label>
+        </span>
         <SearchInput
+          aria-labelledby="course-search-label"
           id="course-search"
           onInput={(e) => {
             setSearch(e.currentTarget.value);

@@ -24,7 +24,7 @@ const TABS: Array<{ label: string; value: Page }> = [
 const githubPath = siGithub.path;
 
 const getInitialPage = (): Page => {
-  const url = new URL(window.location.href);
+  const url = new URL(globalThis.location.href);
   const queryPage = url.searchParams.get(PAGE_QUERY_PARAM);
   if (queryPage && isPage(queryPage)) return queryPage;
   if (url.searchParams.has(SIMULATOR_SHARE_PARAM)) return 'simulator';
@@ -39,12 +39,12 @@ const App = () => {
   createEffect(() => {
     localStorage.setItem('active-page', page());
 
-    const url = new URL(window.location.href);
+    const url = new URL(globalThis.location.href);
     url.searchParams.set(PAGE_QUERY_PARAM, page());
     if (page() !== 'simulator') {
       url.searchParams.delete(SIMULATOR_SHARE_PARAM);
     }
-    window.history.replaceState({}, '', url);
+    globalThis.history.replaceState({}, '', url);
   });
 
   return (
