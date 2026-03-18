@@ -43,37 +43,34 @@ export const SimulatorTable = (props: SimulatorTableProps) => {
       );
     });
 
+  const getCourseProps = (course: SimulatorCourse) => ({
+    atLimit:
+      !props.statuses[course.name]?.passed &&
+      !isRequired(course.programState) &&
+      props.fullLevels.has(course.level),
+    course,
+    enabled: props.enabledMap[course.name] ?? true,
+    exclusiveBlocker: getExclusiveProjectBlocker(props.statuses, course.name),
+    listened: props.statuses[course.name]?.listened ?? false,
+    onToggleListened: () => {
+      props.onToggleListened(course.name);
+    },
+    onTogglePassed: () => {
+      props.onTogglePassed(course.name);
+    },
+    overLimit: props.overLimitSet.has(course.name),
+    passed: props.statuses[course.name]?.passed ?? false,
+    reason: props.reasonMap[course.name] ?? '',
+  });
+
   return (
     <div ref={props.ref}>
       {/* Mobile: card layout */}
       <div class="space-y-1.5 sm:hidden">
         <For each={visibleCourses()}>
           {(course) => {
-            const enabled = () => props.enabledMap[course.name] ?? true;
-            const projectBlocker = () =>
-              getExclusiveProjectBlocker(props.statuses, course.name);
-            return (
-              <CourseCardRow
-                atLimit={
-                  !props.statuses[course.name]?.passed &&
-                  !isRequired(course.programState) &&
-                  props.fullLevels.has(course.level)
-                }
-                course={course}
-                enabled={enabled()}
-                exclusiveBlocker={projectBlocker()}
-                listened={props.statuses[course.name]?.listened ?? false}
-                onToggleListened={() => {
-                  props.onToggleListened(course.name);
-                }}
-                onTogglePassed={() => {
-                  props.onTogglePassed(course.name);
-                }}
-                overLimit={props.overLimitSet.has(course.name)}
-                passed={props.statuses[course.name]?.passed ?? false}
-                reason={props.reasonMap[course.name] ?? ''}
-              />
-            );
+            const courseProps = getCourseProps(course);
+            return <CourseCardRow {...courseProps} />;
           }}
         </For>
       </div>
@@ -93,31 +90,8 @@ export const SimulatorTable = (props: SimulatorTableProps) => {
           <TableBody>
             <For each={visibleCourses()}>
               {(course) => {
-                const enabled = () => props.enabledMap[course.name] ?? true;
-                const projectBlocker = () =>
-                  getExclusiveProjectBlocker(props.statuses, course.name);
-                return (
-                  <CourseRow
-                    atLimit={
-                      !props.statuses[course.name]?.passed &&
-                      !isRequired(course.programState) &&
-                      props.fullLevels.has(course.level)
-                    }
-                    course={course}
-                    enabled={enabled()}
-                    exclusiveBlocker={projectBlocker()}
-                    listened={props.statuses[course.name]?.listened ?? false}
-                    onToggleListened={() => {
-                      props.onToggleListened(course.name);
-                    }}
-                    onTogglePassed={() => {
-                      props.onTogglePassed(course.name);
-                    }}
-                    overLimit={props.overLimitSet.has(course.name)}
-                    passed={props.statuses[course.name]?.passed ?? false}
-                    reason={props.reasonMap[course.name] ?? ''}
-                  />
-                );
+                const courseProps = getCourseProps(course);
+                return <CourseRow {...courseProps} />;
               }}
             </For>
           </TableBody>
