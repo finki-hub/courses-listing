@@ -189,6 +189,14 @@ export const PrerequisiteExplorer = (props: PrerequisiteExplorerProps) => {
                     onClick={() => {
                       openDetail(course.name);
                     }}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        openDetail(course.name);
+                      }
+                    }}
+                    role="button"
+                    tabIndex={0}
                   >
                     <TableCell class="whitespace-nowrap">
                       {course.semester}

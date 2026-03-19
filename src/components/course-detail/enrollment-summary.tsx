@@ -2,6 +2,9 @@ import { ArrowDown, ArrowUp, Minus } from 'lucide-solid';
 import { Show } from 'solid-js';
 
 import {
+  ENROLLMENT_TREND_DOWN_CLASS,
+  ENROLLMENT_TREND_NEUTRAL_CLASS,
+  ENROLLMENT_TREND_UP_CLASS,
   type EnrollmentMetrics,
   formatEnrollmentDelta,
   formatEnrollmentDeltaPercent,
@@ -10,14 +13,6 @@ import {
 
 import { EnrollmentSparkline } from './enrollment-sparkline';
 import { EnrollmentStatCard } from './enrollment-stat-card';
-
-const ENROLLMENT_TREND_UP_CLASS =
-  'h-3.5 w-3.5 text-green-700 dark:text-green-400';
-
-const ENROLLMENT_TREND_DOWN_CLASS =
-  'h-3.5 w-3.5 text-red-700 dark:text-red-400';
-
-const ENROLLMENT_TREND_NEUTRAL_CLASS = 'h-3.5 w-3.5 text-muted-foreground';
 
 type EnrollmentSummaryProps = {
   metrics: EnrollmentMetrics;

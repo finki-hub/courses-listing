@@ -3,8 +3,7 @@ import { For, Show } from 'solid-js';
 import { Badge } from '@/components/ui/badge';
 import { type CourseRaw, getCourseTags, getTagLabel } from '@/types/course';
 
-const SECTION_HEADING_CLASS =
-  'text-muted-foreground mb-1 text-xs font-medium uppercase tracking-wide';
+import { SECTION_HEADING_CLASS } from './styles';
 
 type CourseTagsSectionProps = {
   course: CourseRaw;

@@ -20,6 +20,14 @@ export const CourseTableRow = (props: CourseTableRowProps) => (
   <TableRow
     class="cursor-pointer"
     onClick={props.onClick}
+    onKeyDown={(e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        props.onClick();
+      }
+    }}
+    role="button"
+    tabIndex={0}
   >
     <TableCell class="font-medium">{props.course.name}</TableCell>
     <TableCell class="hidden whitespace-nowrap md:table-cell">

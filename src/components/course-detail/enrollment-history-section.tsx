@@ -6,9 +6,7 @@ import { buildEnrollmentMetrics } from '@/lib/course-enrollment';
 
 import { EnrollmentHistoryTable } from './enrollment-history-table';
 import { EnrollmentSummary } from './enrollment-summary';
-
-const SECTION_HEADING_CLASS =
-  'text-muted-foreground mb-1 text-xs font-medium uppercase tracking-wide';
+import { SECTION_HEADING_CLASS } from './styles';
 
 type EnrollmentHistorySectionProps = {
   course: CourseRaw;

@@ -11,6 +11,9 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import {
+  ENROLLMENT_TREND_DOWN_CLASS,
+  ENROLLMENT_TREND_NEUTRAL_CLASS,
+  ENROLLMENT_TREND_UP_CLASS,
   type EnrollmentMetrics,
   formatEnrollmentDelta,
   formatEnrollmentDeltaPercent,
@@ -23,14 +26,6 @@ const ENROLLMENT_VALUE_CLASS =
 
 const ENROLLMENT_DELTA_CLASS =
   'inline-flex min-w-18 flex-col items-center justify-center rounded-md px-2 py-1 text-xs font-medium leading-none tabular-nums';
-
-const ENROLLMENT_TREND_UP_CLASS =
-  'h-3.5 w-3.5 text-green-700 dark:text-green-400';
-
-const ENROLLMENT_TREND_DOWN_CLASS =
-  'h-3.5 w-3.5 text-red-700 dark:text-red-400';
-
-const ENROLLMENT_TREND_NEUTRAL_CLASS = 'h-3.5 w-3.5 text-muted-foreground';
 
 type EnrollmentHistoryTableProps = {
   metrics: EnrollmentMetrics;

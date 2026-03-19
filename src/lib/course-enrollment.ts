@@ -62,6 +62,19 @@ type BaseEnrollmentEntry = {
   year: AcademicYear;
 };
 
+const OPACITY_MIN = 0.3;
+const OPACITY_MAX = 1;
+
+const BAR_WIDTH_BASE = 18;
+const BAR_WIDTH_SCALE = 82;
+
+const SPARKLINE_WIDTH = 120;
+const SPARKLINE_HEIGHT = 36;
+const SPARKLINE_PADDING = 4;
+
+const TREND_THRESHOLD = 0.05;
+const PERCENT_FACTOR = 100;
+
 const getBaseEntries = (course: CourseRaw): BaseEnrollmentEntry[] =>
   ACADEMIC_YEARS.map((year) => ({
     enrollment: getEnrollmentForYear(course, year),
@@ -86,15 +99,12 @@ const getScale = (enrollment: number, range: EnrollmentRange) => {
   return (enrollment - range.min) / (range.max - range.min);
 };
 
-const getOpacity = (enrollment: number, range: EnrollmentRange) => {
-  const min = 0.3;
-  const max = 1;
-  return min + getScale(enrollment, range) * (max - min);
-};
+const getOpacity = (enrollment: number, range: EnrollmentRange) =>
+  OPACITY_MIN + getScale(enrollment, range) * (OPACITY_MAX - OPACITY_MIN);
 
 const getBarWidth = (enrollment: number, range: EnrollmentRange) => {
   if (enrollment <= 0) return 0;
-  return 18 + getScale(enrollment, range) * 82;
+  return BAR_WIDTH_BASE + getScale(enrollment, range) * BAR_WIDTH_SCALE;
 };
 
 const getPeakYear = (entries: BaseEnrollmentEntry[]): AcademicYear | null => {
@@ -155,7 +165,7 @@ const getTrend = (entries: EnrollmentEntry[]): EnrollmentTrend => {
   const delta = latest.enrollment - previous.enrollment;
   const percent = delta / previous.enrollment;
 
-  if (delta === 0 || Math.abs(percent) < 0.05) {
+  if (delta === 0 || Math.abs(percent) < TREND_THRESHOLD) {
     return {
       className: 'bg-muted text-muted-foreground',
       delta,
@@ -186,22 +196,20 @@ const getSparkline = (
   if (entries.length === 0) return null;
 
   const orderedEntries = entries.toReversed();
-  const height = 36;
-  const width = 120;
-  const padding = 4;
   const points = orderedEntries.map((entry, index) => {
     const x =
       orderedEntries.length === 1
-        ? width / 2
-        : padding +
-          (index / (orderedEntries.length - 1)) * (width - padding * 2);
+        ? SPARKLINE_WIDTH / 2
+        : SPARKLINE_PADDING +
+          (index / (orderedEntries.length - 1)) *
+            (SPARKLINE_WIDTH - SPARKLINE_PADDING * 2);
     const y =
       range.max === range.min
-        ? height / 2
-        : height -
-          padding -
+        ? SPARKLINE_HEIGHT / 2
+        : SPARKLINE_HEIGHT -
+          SPARKLINE_PADDING -
           ((entry.enrollment - range.min) / (range.max - range.min)) *
-            (height - padding * 2);
+            (SPARKLINE_HEIGHT - SPARKLINE_PADDING * 2);
 
     return { ...entry, x, y };
   });
@@ -286,10 +294,19 @@ export const formatEnrollmentDelta = (delta: null | number) => {
 export const formatEnrollmentDeltaPercent = (percent: null | number) => {
   if (percent === null) return '—';
 
-  const rounded = Math.round(percent * 100);
+  const rounded = Math.round(percent * PERCENT_FACTOR);
   if (rounded === 0) return '0%';
   return rounded > 0 ? `+${rounded}%` : `${rounded}%`;
 };
 
 export const formatEnrollmentValue = (value: null | number) =>
   value === null ? '—' : String(value);
+
+export const ENROLLMENT_TREND_UP_CLASS =
+  'h-3.5 w-3.5 text-green-700 dark:text-green-400';
+
+export const ENROLLMENT_TREND_DOWN_CLASS =
+  'h-3.5 w-3.5 text-red-700 dark:text-red-400';
+
+export const ENROLLMENT_TREND_NEUTRAL_CLASS =
+  'h-3.5 w-3.5 text-muted-foreground';

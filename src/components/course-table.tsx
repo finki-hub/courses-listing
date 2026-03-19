@@ -1,4 +1,4 @@
-import { createMemo, createSignal, For, Show } from 'solid-js';
+import { createMemo, createSignal, For, type JSX, Show } from 'solid-js';
 
 import { LabeledCheckbox } from '@/components/ui/labeled-checkbox';
 import { SearchInput } from '@/components/ui/search-input';
@@ -25,6 +25,27 @@ import { CourseCard } from './course-card';
 import { CourseDetailDialog } from './course-detail-dialog';
 import { CourseTableRow } from './course-table-row';
 
+type SortableTableHeadProps = {
+  buttonClass?: string;
+  children: JSX.Element;
+  class?: string;
+  onClick: () => void;
+};
+
+const SortableTableHead = (props: SortableTableHeadProps) => (
+  <TableHead class={props.class}>
+    <button
+      class={`w-full cursor-pointer select-none ${props.buttonClass ?? 'text-left'}`}
+      onClick={() => {
+        props.onClick();
+      }}
+      type="button"
+    >
+      {props.children}
+    </button>
+  </TableHead>
+);
+
 type CourseTableProps = {
   courses: CourseRaw[];
 };
@@ -41,11 +62,7 @@ export const CourseTable = (props: CourseTableProps) => {
 
   const toggleTag = (tag: string) => {
     const current = new Set(selectedTags());
-    if (current.has(tag)) {
-      current.delete(tag);
-    } else {
-      current.add(tag);
-    }
+    current[current.has(tag) ? 'delete' : 'add'](tag);
     setSelectedTags(current);
   };
 
@@ -74,6 +91,7 @@ export const CourseTable = (props: CourseTableProps) => {
   return (
     <div class="space-y-4">
       <SearchInput
+        aria-label="Пребарувај предмети"
         onInput={(e) => setSearch(e.currentTarget.value)}
         placeholder="Пребарувај предмети..."
         value={search()}
@@ -155,40 +173,41 @@ export const CourseTable = (props: CourseTableProps) => {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead
-                class="w-75 cursor-pointer select-none"
+              <SortableTableHead
+                class="w-75"
                 onClick={() => {
                   toggleSort('name');
                 }}
               >
                 Предмет{sortIndicator(sortColumn(), sortDirection(), 'name')}
-              </TableHead>
-              <TableHead
-                class="hidden cursor-pointer select-none md:table-cell"
+              </SortableTableHead>
+              <SortableTableHead
+                class="hidden md:table-cell"
                 onClick={() => {
                   toggleSort('accreditation');
                 }}
               >
                 Акредитација
                 {sortIndicator(sortColumn(), sortDirection(), 'accreditation')}
-              </TableHead>
-              <TableHead
-                class="hidden w-20 cursor-pointer text-center select-none md:table-cell"
+              </SortableTableHead>
+              <SortableTableHead
+                buttonClass="text-center"
+                class="hidden w-20 text-center md:table-cell"
                 onClick={() => {
                   toggleSort('channel');
                 }}
               >
                 Канал (Дискорд)
                 {sortIndicator(sortColumn(), sortDirection(), 'channel')}
-              </TableHead>
-              <TableHead
-                class="hidden cursor-pointer select-none lg:table-cell"
+              </SortableTableHead>
+              <SortableTableHead
+                class="hidden lg:table-cell"
                 onClick={() => {
                   toggleSort('tags');
                 }}
               >
                 Тагови{sortIndicator(sortColumn(), sortDirection(), 'tags')}
-              </TableHead>
+              </SortableTableHead>
             </TableRow>
           </TableHeader>
           <TableBody>

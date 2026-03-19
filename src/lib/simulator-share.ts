@@ -40,6 +40,14 @@ const SEASON_CODES: Record<'none' | 'summer' | 'winter', number> = {
   winter: 1,
 };
 
+const SETTINGS_HPC_FLAG = 4;
+const SETTINGS_SHOW_ONLY_FLAG = 8;
+const SEASON_CODE_MODULUS = 4;
+
+const STATUS_GROUP_SIZE = 3;
+const STATUS_BASE = 4;
+const STATUS_BASE_SQUARED = STATUS_BASE * STATUS_BASE;
+
 const ACCREDITATION_TO_CODE: Record<Accreditation, string> = {
   '2018': '18',
   '2023': '23',
@@ -79,8 +87,8 @@ const encodeSettings = (config: {
 
   const value =
     seasonCode +
-    (config.hpcCompleted ? 4 : 0) +
-    (config.showOnlyEnabled ? 8 : 0);
+    (config.hpcCompleted ? SETTINGS_HPC_FLAG : 0) +
+    (config.showOnlyEnabled ? SETTINGS_SHOW_ONLY_FLAG : 0);
 
   return encodeAlphabetValue(value);
 };
@@ -96,7 +104,7 @@ const decodeSettings = (
   const decoded = decodeAlphabetValue(value);
   if (decoded < 0) return undefined;
 
-  const seasonCode = decoded % 4;
+  const seasonCode = decoded % SEASON_CODE_MODULUS;
   let seasonFilter: SeasonFilter | undefined;
   switch (seasonCode) {
     case SEASON_CODES.none:
@@ -115,9 +123,9 @@ const decodeSettings = (
   if (seasonFilter === undefined) return undefined;
 
   return {
-    hpcCompleted: Math.trunc(decoded / 4) % 2 === 1,
+    hpcCompleted: Math.trunc(decoded / SETTINGS_HPC_FLAG) % 2 === 1,
     seasonFilter,
-    showOnlyEnabled: Math.trunc(decoded / 8) % 2 === 1,
+    showOnlyEnabled: Math.trunc(decoded / SETTINGS_SHOW_ONLY_FLAG) % 2 === 1,
   };
 };
 
@@ -149,11 +157,13 @@ const encodeStatuses = (
 ): string => {
   let encoded = '';
 
-  for (let index = 0; index < courses.length; index += 3) {
+  for (let index = 0; index < courses.length; index += STATUS_GROUP_SIZE) {
     const first = encodeCourseStatus(statuses[courses[index]?.name ?? '']);
     const second = encodeCourseStatus(statuses[courses[index + 1]?.name ?? '']);
     const third = encodeCourseStatus(statuses[courses[index + 2]?.name ?? '']);
-    encoded += encodeAlphabetValue(first + second * 4 + third * 16);
+    encoded += encodeAlphabetValue(
+      first + second * STATUS_BASE + third * STATUS_BASE_SQUARED,
+    );
   }
 
   return encoded;
@@ -172,10 +182,12 @@ const decodeStatuses = (
 
     for (
       let offset = 0;
-      offset < 3 && courseIndex < courses.length;
+      offset < STATUS_GROUP_SIZE && courseIndex < courses.length;
       offset += 1
     ) {
-      const status = decodeCourseStatus(Math.trunc(packed / 4 ** offset) % 4);
+      const status = decodeCourseStatus(
+        Math.trunc(packed / STATUS_BASE ** offset) % STATUS_BASE,
+      );
       const course = courses[courseIndex];
       if (status && course) {
         statuses[course.name] = status;

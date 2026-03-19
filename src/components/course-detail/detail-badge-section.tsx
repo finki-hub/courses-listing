@@ -2,8 +2,7 @@ import { For, Show } from 'solid-js';
 
 import { Badge } from '@/components/ui/badge';
 
-const SECTION_HEADING_CLASS =
-  'text-muted-foreground mb-1 text-xs font-medium uppercase tracking-wide';
+import { SECTION_HEADING_CLASS } from './styles';
 
 type DetailBadgeSectionProps = {
   items: string[];
