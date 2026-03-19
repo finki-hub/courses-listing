@@ -69,6 +69,7 @@ const TAG_TRANSLATIONS: Record<string, string> = {
   math: 'Математика',
   mobile: 'Мобилни',
   networking: 'Мрежи',
+  security: 'Безбедност',
   web: 'Веб',
 };
 
