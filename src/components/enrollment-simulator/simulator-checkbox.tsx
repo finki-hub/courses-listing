@@ -1,3 +1,6 @@
+import { Check } from 'lucide-solid';
+import { Show } from 'solid-js';
+
 type CheckboxProps = {
   checked: boolean;
   disabled: boolean;
@@ -5,11 +8,11 @@ type CheckboxProps = {
 };
 
 export const Checkbox = (props: CheckboxProps) => (
-  <input
-    checked={props.checked}
-    class={`ring-offset-background focus-visible:ring-ring h-5 w-5 shrink-0 appearance-none rounded-sm border-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 ${
+  <button
+    aria-checked={props.checked}
+    class={`ring-offset-background focus-visible:ring-ring relative inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-sm border-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 ${
       props.checked
-        ? 'bg-primary border-primary accent-primary'
+        ? 'bg-primary text-primary-foreground border-primary'
         : 'border-foreground/40 bg-background'
     } ${
       props.disabled
@@ -17,9 +20,14 @@ export const Checkbox = (props: CheckboxProps) => (
         : 'cursor-pointer hover:border-foreground'
     }`}
     disabled={props.disabled}
-    onChange={() => {
+    onClick={() => {
       props.onToggle();
     }}
-    type="checkbox"
-  />
+    role="checkbox"
+    type="button"
+  >
+    <Show when={props.checked}>
+      <Check class="absolute h-3.5 w-3.5" />
+    </Show>
+  </button>
 );
