@@ -14,7 +14,7 @@
     "@tailwindcss/vite": "^4.2.2",
     "@types/node": "^25.5.0",
     "eslint": "^9.39.4",
-    "eslint-config-imperium": "^3.5.0",
+    "eslint-config-imperium": "^3.6.0",
     "tailwindcss": "^4.2.2",
     "typescript": "~5.9.3",
     "vite": "^8.0.3",
