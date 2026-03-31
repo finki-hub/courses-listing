@@ -16,7 +16,7 @@
     "eslint": "^9.39.4",
     "eslint-config-imperium": "^3.6.0",
     "tailwindcss": "^4.2.2",
-    "typescript": "~5.9.3",
+    "typescript": "~6.0.2",
     "vite": "^8.0.3",
     "vite-plugin-solid": "^2.11.11"
   },
