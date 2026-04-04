@@ -16,7 +16,7 @@ export const usePersistedSignal = <T extends string>(
   const isValid = stored !== null && (validate ? validate(stored) : true);
   const initial = isValid ? (stored as T) : defaultValue;
 
-  const [value, setValue] = createSignal<T>(initial);
+  const [value, setValue] = createSignal(initial);
 
   createEffect(
     on(value, (v) => {

@@ -2,7 +2,7 @@
 import { createSignal, Show } from 'solid-js';
 
 import { ALERT_STYLES } from '@/lib/alert-styles';
-import { type CourseStatus, OVERRIDE_CREDITS } from '@/lib/prerequisite';
+import { OVERRIDE_CREDITS } from '@/lib/prerequisite';
 import {
   DEFAULT_PROGRAM,
   LEVEL_CREDIT_LIMITS,
@@ -36,7 +36,7 @@ export const EnrollmentSimulator = (props: EnrollmentSimulatorProps) => {
   const [accreditation, setAccreditation] = createSignal<Accreditation>(
     initialState.accreditation,
   );
-  const [program, setProgram] = createSignal<string>(initialState.program);
+  const [program, setProgram] = createSignal(initialState.program);
   const [showOnlyEnabled, setShowOnlyEnabled] = createSignal(
     initialState.showOnlyEnabled,
   );
@@ -56,7 +56,7 @@ export const EnrollmentSimulator = (props: EnrollmentSimulatorProps) => {
     program,
   );
 
-  const [statuses, setStatuses] = createSignal<Record<string, CourseStatus>>(
+  const [statuses, setStatuses] = createSignal(
     initialState.resolveStatuses(parsedCourses()),
   );
 

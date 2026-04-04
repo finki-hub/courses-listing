@@ -58,7 +58,7 @@ export const CourseTable = (props: CourseTableProps) => {
   const [search, setSearch] = createSignal('');
   const [sortColumn, setSortColumn] = createSignal<SortColumn>('name');
   const [sortDirection, setSortDirection] = createSignal<SortDirection>('asc');
-  const [selectedTags, setSelectedTags] = createSignal<Set<string>>(new Set());
+  const [selectedTags, setSelectedTags] = createSignal(new Set());
 
   const toggleTag = (tag: string) => {
     const current = new Set(selectedTags());

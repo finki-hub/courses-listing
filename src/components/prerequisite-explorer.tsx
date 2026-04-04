@@ -41,7 +41,7 @@ export const PrerequisiteExplorer = (props: PrerequisiteExplorerProps) => {
     '2023',
     isAccreditation,
   );
-  const [selectedCourse, setSelectedCourse] = createSignal<string>('');
+  const [selectedCourse, setSelectedCourse] = createSignal('');
   const [selectedModalCourse, setSelectedModalCourse] =
     createSignal<CourseRaw | null>(null);
   const [dialogOpen, setDialogOpen] = createSignal(false);
