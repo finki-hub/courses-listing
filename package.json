@@ -3,7 +3,7 @@
     "@kobalte/core": "^0.13.11",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
-    "lucide-solid": "^0.577.0",
+    "lucide-solid": "^1.7.0",
     "simple-icons": "^16.14.0",
     "solid-js": "^1.9.12",
     "tailwind-merge": "^3.5.0",
@@ -16,7 +16,7 @@
     "eslint": "^9.39.4",
     "eslint-config-imperium": "^3.6.0",
     "tailwindcss": "^4.2.2",
-    "typescript": "~5.9.3",
+    "typescript": "^6.0.2",
     "vite": "^8.0.3",
     "vite-plugin-solid": "^2.11.11"
   },
