@@ -3,7 +3,6 @@
     "allowImportingTsExtensions": true,
     "allowUnreachableCode": false,
     "allowUnusedLabels": false,
-    "baseUrl": "./",
     "esModuleInterop": true,
     "exactOptionalPropertyTypes": false,
     "forceConsistentCasingInFileNames": true,
