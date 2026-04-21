@@ -11,7 +11,7 @@
     "zod": "^4.3.6"
   },
   "devDependencies": {
-    "@tailwindcss/vite": "^4.2.2",
+    "@tailwindcss/vite": "^4.2.4",
     "@types/node": "^25.6.0",
     "eslint": "^9.39.4",
     "eslint-config-imperium": "^3.6.0",
