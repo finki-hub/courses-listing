@@ -13,7 +13,7 @@
   "devDependencies": {
     "@tailwindcss/vite": "^4.2.4",
     "@types/node": "^25.6.0",
-    "eslint": "^9.39.4",
+    "eslint": "^10.3.0",
     "eslint-config-imperium": "^3.6.0",
     "tailwindcss": "^4.2.4",
     "typescript": "^6.0.3",
