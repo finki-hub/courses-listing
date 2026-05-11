@@ -24,6 +24,9 @@ export type PrereqNode =
   | { text: string; type: 'unknown' }
   | { type: 'none' };
 
+const TOKEN_RE = /^%%(?<idx>\d+)%%$/u;
+const CREDITS_RE = /^(?<amt>\d+)\s*кредити$/u;
+
 // ---------------------------------------------------------------------------
 // Parsing
 // ---------------------------------------------------------------------------
@@ -57,6 +60,11 @@ const splitTopLevel = (text: string, separator: string): string[] => {
  * Grammar: expr   → term (" или " term)*
  *          term   → factor (" и " factor)*
  *          factor → "(" expr ")" | course_token
+ *
+ * @param text - The prerequisite text to parse
+ * @param courses - The list of known course names
+ * @param level - The current grammar level (expr, term, or factor)
+ * @returns The parsed prerequisite node
  */
 const parseLevel = (
   text: string,
@@ -92,10 +100,10 @@ const parseLevel = (
     return parseLevel(trimmed.slice(1, -1), courses, 'expr');
   }
 
-  const match = /^%%(?<idx>\d+)%%$/u.exec(trimmed);
+  const match = TOKEN_RE.exec(trimmed);
   const idxStr = match?.groups?.['idx'];
   if (idxStr !== undefined) {
-    const idx = Number.parseInt(idxStr);
+    const idx = Number.parseInt(idxStr, 10);
     return { name: courses[idx] ?? trimmed, type: 'course' };
   }
 
@@ -105,6 +113,10 @@ const parseLevel = (
 /**
  * Tokenise known course names out of the text (longest-first, case-insensitive),
  * then recursive-descent-parse the remaining connectors / parentheses.
+ *
+ * @param text - The raw prerequisite text
+ * @param knownCourseNames - List of known course names for tokenisation
+ * @returns The parsed prerequisite node
  */
 export const parsePrerequisite = (
   text: string | undefined,
@@ -112,13 +124,13 @@ export const parsePrerequisite = (
 ): PrereqNode => {
   if (!text || text.trim() === '') return { type: 'none' };
 
-  const creditMatch = /^(?<amt>\d+)\s*кредити$/u.exec(text.trim());
+  const creditMatch = CREDITS_RE.exec(text.trim());
   const creditAmt = creditMatch?.groups?.['amt'];
   if (creditAmt !== undefined) {
-    return { amount: Number.parseInt(creditAmt), type: 'credits' };
+    return { amount: Number.parseInt(creditAmt, 10), type: 'credits' };
   }
 
-  const sorted = [...knownCourseNames].sort((a, b) => b.length - a.length);
+  const sorted = knownCourseNames.toSorted((a, b) => b.length - a.length);
   const found: string[] = [];
   let tokenised = text;
 
@@ -151,6 +163,10 @@ export const OVERRIDE_CREDITS = 180;
  * - If the prerequisite course is exactly 1 semester behind the current course,
  *   having **listened** (enrolled) is enough.
  * - Otherwise the prerequisite course must be **passed**.
+ *
+ * @param prereqName - The name of the prerequisite course
+ * @param ctx - The evaluation context
+ * @returns Whether the prerequisite is met
  */
 const isCoursePrereqMet = (prereqName: string, ctx: EvalContext): boolean => {
   const status = ctx.statuses[prereqName];
@@ -191,6 +207,10 @@ const evaluateNode = (node: PrereqNode, ctx: EvalContext): boolean => {
 /**
  * Top-level evaluation: returns `true` when the total credits already
  * reach the 180 override, or when the prerequisite tree is satisfied.
+ *
+ * @param node - The prerequisite node to evaluate
+ * @param ctx - The evaluation context
+ * @returns Whether the prerequisite is met
  */
 export const isPrerequisiteMet = (
   node: PrereqNode,
@@ -207,6 +227,10 @@ const collectCourseNames = (node: PrereqNode): string[] => {
       return node.children.flatMap(collectCourseNames);
     case 'course':
       return [node.name];
+    case 'credits':
+    case 'none':
+    case 'unknown':
+      return [];
     default:
       return [];
   }
@@ -215,6 +239,10 @@ const collectCourseNames = (node: PrereqNode): string[] => {
 /**
  * Build a reverse dependency map: for each prerequisite course name,
  * list all courses that depend on it.
+ *
+ * @param courses - List of courses with prerequisite strings
+ * @param courseNames - List of known course names for tokenisation
+ * @returns A map from course name to list of dependent courses
  */
 export const buildReverseDependencyMap = <
   T extends { name: string; prerequisite: string | undefined },
@@ -243,6 +271,11 @@ export const buildReverseDependencyMap = <
  *
  * Elective courses that appear as prerequisites are marked as "not a
  * prerequisite" and skipped.
+ *
+ * @param node - The prerequisite node to describe
+ * @param ctx - The evaluation context
+ * @param electives - Set of elective course names to skip
+ * @returns A list of description lines
  */
 export const describePrereqNode = (
   node: PrereqNode,
@@ -277,6 +310,9 @@ export const describePrereqNode = (
           : `  \u274C ${String(node.amount)} кредити (имате ${String(ctx.totalCredits)})`,
       ];
     }
+    case 'none':
+    case 'unknown':
+      return [];
     case 'or': {
       const descs = node.children.map((c) =>
         describePrereqNode(c, ctx, electives),

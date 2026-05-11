@@ -130,14 +130,9 @@ const decodeSettings = (
 };
 
 const encodeCourseStatus = (status: CourseStatus | undefined): number => {
-  switch (true) {
-    case status?.passed:
-      return 2;
-    case status?.listened:
-      return 1;
-    default:
-      return 0;
-  }
+  if (status?.passed) return 2;
+  if (status?.listened) return 1;
+  return 0;
 };
 
 const decodeCourseStatus = (value: number): CourseStatus | undefined => {
