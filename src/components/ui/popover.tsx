@@ -27,4 +27,5 @@ export const PopoverContent = <T extends ValidComponent = 'div'>(
   );
 };
 
-export { Popover } from '@kobalte/core/popover';
+// eslint-disable-next-line no-barrel-files/no-barrel-files, unicorn/prefer-export-from -- re-export Popover root component for UI wrapper
+export { PopoverPrimitive as Popover };

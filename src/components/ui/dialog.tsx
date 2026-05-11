@@ -24,12 +24,10 @@ type DialogContentProps<T extends ValidComponent = 'div'> = ComponentProps<
 export const DialogContent = <T extends ValidComponent = 'div'>(
   props: DialogContentProps<T>,
 ) => {
-  const merge = mergeProps(
-    {
-      showCloseButton: true,
-    } as DialogContentProps,
-    props,
-  );
+  const defaults: Partial<DialogContentProps> = {
+    showCloseButton: true,
+  };
+  const merge = mergeProps(defaults, props);
   const [, rest] = splitProps(merge, ['class', 'children', 'showCloseButton']);
 
   return (
