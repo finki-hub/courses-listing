@@ -1,4 +1,4 @@
-/* eslint-disable no-alert */
+/* eslint-disable no-alert -- allow confirm/alert for reset confirmation */
 import { createSignal, Show } from 'solid-js';
 
 import { ALERT_STYLES } from '@/lib/alert-styles';

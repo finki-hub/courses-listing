@@ -40,7 +40,7 @@ const SEASON_ITEMS = [
 export const SimulatorToolbar = (props: SimulatorToolbarProps) => {
   const programItems = () => {
     const list = getStudyPrograms(props.accreditation);
-    return [...list].map((p) => ({
+    return Array.from(list, (p) => ({
       label: STUDY_PROGRAM_LABELS[p] ?? p,
       value: p,
     }));
