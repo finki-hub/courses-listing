@@ -253,8 +253,8 @@ export const buildSimulatorCourse = (config: {
   const { acc, info, prog, raw } = config;
   const name = info.name ?? raw.name;
   if (!info.semester) return undefined;
-  const semester = Number.parseInt(info.semester);
-  const level = info.level ? Number.parseInt(info.level) : 0;
+  const semester = Number.parseInt(info.semester, 10);
+  const level = info.level ? Number.parseInt(info.level, 10) : 0;
   const programState = getCourseStateForProgram(raw, acc, prog);
 
   return {
@@ -286,6 +286,10 @@ export const pruneElectivePrereqs = (
     }
     case 'course':
       return electives.has(node.name) ? { type: 'none' } : node;
+    case 'credits':
+    case 'none':
+    case 'unknown':
+      return node;
     default:
       return node;
   }
@@ -491,7 +495,7 @@ const findOverLimitCourses = (
   list: SimulatorCourse[],
   limit: number,
 ): string[] => {
-  const sorted = list.slice().sort(compareBySemesterAndName);
+  const sorted = list.toSorted(compareBySemesterAndName);
   const overLimit: string[] = [];
   let acc = 0;
 

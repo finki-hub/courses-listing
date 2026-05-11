@@ -54,7 +54,7 @@ export const PrerequisiteExplorer = (props: PrerequisiteExplorerProps) => {
       const info = getAccreditationInfo(raw, acc);
       if (!info) continue;
       const name = info.name ?? raw.name;
-      const semester = info.semester ? Number.parseInt(info.semester) : 0;
+      const semester = info.semester ? Number.parseInt(info.semester, 10) : 0;
       courses.push({ name, prerequisite: info.prerequisite, semester });
     }
     courses.sort((a, b) => a.name.localeCompare(b.name, 'mk'));
@@ -95,7 +95,7 @@ export const PrerequisiteExplorer = (props: PrerequisiteExplorerProps) => {
     const sel = selectedCourse();
     if (!sel) return [];
     const list = reverseMap().get(sel) ?? [];
-    return [...list].sort(compareBySemesterAndName);
+    return list.toSorted(compareBySemesterAndName);
   });
 
   const handleAccreditationChange = (acc: Accreditation) => {

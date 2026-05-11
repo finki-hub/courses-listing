@@ -132,7 +132,7 @@ export const getEnrollmentForYear = (
   year: AcademicYear,
 ): number => {
   const value = course[year];
-  return value ? Number.parseInt(value) : 0;
+  return value ? Number.parseInt(value, 10) : 0;
 };
 
 const DEFAULT_CREDITS = 6;
@@ -143,7 +143,7 @@ export const getCourseCredits = (
 ): number => {
   const raw = course[`${accreditation}-credits`];
   if (raw) {
-    const parsed = Number.parseInt(raw);
+    const parsed = Number.parseInt(raw, 10);
     return Number.isNaN(parsed) ? DEFAULT_CREDITS : parsed;
   }
   return DEFAULT_CREDITS;
