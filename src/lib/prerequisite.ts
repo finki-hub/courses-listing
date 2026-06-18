@@ -255,6 +255,7 @@ export const buildReverseDependencyMap = <
     const node = parsePrerequisite(course.prerequisite, courseNames);
     for (const pn of collectCourseNames(node)) {
       let list = map.get(pn);
+      // eslint-disable-next-line e18e/prefer-get-or-insert -- Map.prototype.getOrInsert is Baseline newly-available (Feb 2026), unsupported on Safari < 26.2, and this build ships no runtime polyfill.
       if (!list) {
         list = [];
         map.set(pn, list);
