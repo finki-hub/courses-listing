@@ -53,8 +53,8 @@ export const GRADUATION_CREDITS_3YR = 174;
 export const GRADUATION_CREDITS_4YR = 234;
 export const LEVEL_CREDIT_LIMITS: Record<number, number> = { 1: 6, 2: 36 };
 const REQUIRED_MARKER =
-  '\u0437\u0430\u0434\u043E\u043B\u0436\u0438\u0442\u0435\u043B\u0435\u043D';
-const FACULTY_LIST_MARKER = '\u043D\u0435\u043C\u0430';
+  '\u{437}\u{430}\u{434}\u{43E}\u{43B}\u{436}\u{438}\u{442}\u{435}\u{43B}\u{435}\u{43D}';
+const FACULTY_LIST_MARKER = '\u{43D}\u{435}\u{43C}\u{430}';
 const FOUR_YEAR_MARKER = '(4 г.)';
 const EXCLUSIVE_PROJECTS_RULE_TEXT =
   'Тимски проект и Самостоен проект се меѓусебно исклучиви, може да се запише и положи само еден.';
@@ -181,8 +181,8 @@ export const saveUniListCredits = (credits: number): void => {
 };
 
 const getExclusiveProjectReasonLines = (blocker: string): string[] => [
-  `\u274C Не може да се запише (${blocker} е веќе слушан или положен)`,
-  `\u26D4 ${blocker} е веќе слушан или положен - ${EXCLUSIVE_PROJECTS_RULE_TEXT}`,
+  `\u{274C} Не може да се запише (${blocker} е веќе слушан или положен)`,
+  `\u{26D4} ${blocker} е веќе слушан или положен - ${EXCLUSIVE_PROJECTS_RULE_TEXT}`,
 ];
 
 export const loadStatuses = (
@@ -350,9 +350,9 @@ export const computeEnabledMap = (config: {
 };
 
 const getStatusLine = (st: CourseStatus | undefined): string => {
-  if (st?.passed) return '\u2705 Статус: Положен';
-  if (st?.listened) return '\uD83D\uDCD6 Статус: Слушан';
-  return '\u2B1C Статус: Не е слушан';
+  if (st?.passed) return '\u{2705} Статус: Положен';
+  if (st?.listened) return '\u{1F4D6} Статус: Слушан';
+  return '\u{2B1C} Статус: Не е слушан';
 };
 
 const getEligibilityLines = (
@@ -362,8 +362,8 @@ const getEligibilityLines = (
   if (exclusiveProjectBlocker) {
     return getExclusiveProjectReasonLines(exclusiveProjectBlocker);
   }
-  if (enabled) return ['\u2705 Може да се запише'];
-  return ['\u274C Не може да се запише (предусловите не се исполнети)'];
+  if (enabled) return ['\u{2705} Може да се запише'];
+  return ['\u{274C} Не може да се запише (предусловите не се исполнети)'];
 };
 
 const getCreditLimitLines = (config: {
@@ -376,7 +376,7 @@ const getCreditLimitLines = (config: {
   if (config.overLimitSet.has(config.course.name)) {
     const limit = LEVEL_CREDIT_LIMITS[config.course.level] ?? 0;
     return [
-      `\u274C Надминат L${String(config.course.level)} лимит (макс. ${String(limit)} кредити)`,
+      `\u{274C} Надминат L${String(config.course.level)} лимит (макс. ${String(limit)} кредити)`,
     ];
   }
   if (
@@ -386,7 +386,7 @@ const getCreditLimitLines = (config: {
   ) {
     const limit = LEVEL_CREDIT_LIMITS[config.course.level] ?? 0;
     return [
-      `\u26A0\uFE0F L${String(config.course.level)} лимит пополнет (${String(limit)} кредити)`,
+      `⚠️ L${String(config.course.level)} лимит пополнет (${String(limit)} кредити)`,
     ];
   }
   return [];
@@ -457,9 +457,9 @@ export const computeReasonMap = (config: {
     );
 
     if (required) {
-      parts.push(`\u2139\uFE0F Задолжителен предмет`);
+      parts.push('\u{2139}\u{FE0F} Задолжителен предмет');
     } else if (c.programState && c.programState !== FACULTY_LIST_MARKER) {
-      parts.push('\u2139\uFE0F Изборен предмет');
+      parts.push('\u{2139}\u{FE0F} Изборен предмет');
     }
 
     parts.push(...getPrerequisiteLines(c, config));

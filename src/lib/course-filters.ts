@@ -94,5 +94,5 @@ export const sortIndicator = (
   column: SortColumn,
 ): string => {
   if (active !== column) return '';
-  return direction === 'asc' ? ' \u2191' : ' \u2193';
+  return direction === 'asc' ? ' \u{2191}' : ' \u{2193}';
 };
