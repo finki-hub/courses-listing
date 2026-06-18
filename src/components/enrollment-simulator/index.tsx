@@ -118,7 +118,7 @@ export const EnrollmentSimulator = (props: EnrollmentSimulatorProps) => {
 
   const resetStatuses = () => {
     if (
-      !globalThis.confirm(
+      !confirm(
         'Дали сте сигурни дека сакате да ги ресетирате сите избрани предмети?',
       )
     )

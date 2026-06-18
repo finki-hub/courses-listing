@@ -195,9 +195,7 @@ const decodeStatuses = (
 };
 
 export const readSimulatorShareState = (): SimulatorShareState | undefined => {
-  const raw = new URL(globalThis.location.href).searchParams.get(
-    SIMULATOR_SHARE_PARAM,
-  );
+  const raw = new URL(location.href).searchParams.get(SIMULATOR_SHARE_PARAM);
   if (!raw) return undefined;
 
   const [
@@ -240,7 +238,7 @@ export const readSimulatorShareState = (): SimulatorShareState | undefined => {
 };
 
 export const getSimulatorShareUrl = (config: SharedSimulatorConfig): string => {
-  const url = new URL(globalThis.location.href);
+  const url = new URL(location.href);
   const encodedSettings = encodeSettings(config);
   const encodedUniListCredits = encodeAlphabetValue(
     clampUniListCredits(config.uniListCredits),
@@ -259,13 +257,13 @@ export const getSimulatorShareUrl = (config: SharedSimulatorConfig): string => {
       encodedStatuses,
     ].join('.'),
   );
-  return url.toString();
+  return url.href;
 };
 
 export const replaceSimulatorShareUrl = (
   config: SharedSimulatorConfig,
 ): void => {
-  globalThis.history.replaceState({}, '', getSimulatorShareUrl(config));
+  history.replaceState({}, '', getSimulatorShareUrl(config));
 };
 
 export const restoreStatusesFromShareState = (
