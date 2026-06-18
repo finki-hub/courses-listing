@@ -12,8 +12,13 @@ import { PAGE_QUERY_PARAM, SIMULATOR_SHARE_PARAM } from '@/lib/simulator-share';
 
 type Page = 'listing' | 'prerequisites' | 'simulator';
 
-const isPage = (value: string): value is Page =>
-  value === 'listing' || value === 'prerequisites' || value === 'simulator';
+const PAGE_VALUES: ReadonlySet<string> = new Set([
+  'listing',
+  'prerequisites',
+  'simulator',
+]);
+
+const isPage = (value: string): value is Page => PAGE_VALUES.has(value);
 
 const TABS: Array<{ label: string; value: Page }> = [
   { label: 'Предмети', value: 'listing' },
