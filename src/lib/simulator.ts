@@ -251,8 +251,8 @@ export const buildSimulatorCourse = (config: {
   raw: CourseRaw;
 }): SimulatorCourse | undefined => {
   const { acc, info, prog, raw } = config;
-  const name = info.name ?? raw.name;
   if (!info.semester) return undefined;
+  const name = info.name ?? raw.name;
   const semester = Number.parseInt(info.semester, 10);
   const level = info.level ? Number.parseInt(info.level, 10) : 0;
   const programState = getCourseStateForProgram(raw, acc, prog);
@@ -402,10 +402,13 @@ const getPrerequisiteLines = (
   },
 ): string[] => {
   if (c.programState === FACULTY_LIST_MARKER) {
-    return ['\u2139\uFE0F Факултетска листа \u2013 нема предуслов'];
+    return ['\u{2139}\u{FE0F} Факултетска листа \u{2013} нема предуслов'];
   }
   if (c.prereqNode.type === 'none' && c.rawPrereqNode.type === 'none') {
-    return ['\u2705 Нема предуслов'];
+    return ['\u{2705} Нема предуслов'];
+  }
+  if (config.totalCredits >= OVERRIDE_CREDITS) {
+    return ['\u{2705} \u{2265}180 кредити \u{2013} предуслови не важат'];
   }
   const ctx: EvalContext = {
     courseInfoMap: config.courseInfoMap,
@@ -413,11 +416,8 @@ const getPrerequisiteLines = (
     statuses: config.statuses,
     totalCredits: config.totalCredits,
   };
-  if (config.totalCredits >= OVERRIDE_CREDITS) {
-    return ['\u2705 \u2265180 кредити \u2013 предуслови не важат'];
-  }
   return [
-    '\uD83D\uDCCB Предуслов:',
+    '\u{1F4CB} Предуслов:',
     ...describePrereqNode(c.rawPrereqNode, ctx, config.electiveCourses),
   ];
 };
@@ -539,7 +539,8 @@ export const computeOverLimitInfo = (
     levels.push(lvl);
     excessCredits += actual - limit;
 
-    for (const name of findOverLimitCourses(coursesByLevel[lvl] ?? [], limit)) {
+    const overLimit = findOverLimitCourses(coursesByLevel[lvl] ?? [], limit);
+    for (const name of overLimit) {
       names.add(name);
     }
   }

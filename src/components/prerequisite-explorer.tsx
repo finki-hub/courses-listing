@@ -192,10 +192,12 @@ export const PrerequisiteExplorer = (props: PrerequisiteExplorerProps) => {
                       openDetail(course.name);
                     }}
                     onKeyDown={(e) => {
-                      if (e.key === 'Enter' || e.key === ' ') {
-                        e.preventDefault();
-                        openDetail(course.name);
+                      if (!(e.key === 'Enter' || e.key === ' ')) {
+                        return;
                       }
+
+                      e.preventDefault();
+                      openDetail(course.name);
                     }}
                     role="button"
                     tabIndex={0}
