@@ -4,6 +4,7 @@
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "lucide-solid": "^1.16.0",
+    "posthog-js": "^1.395.0",
     "simple-icons": "^16.20.0",
     "solid-js": "^1.9.13",
     "tailwind-merge": "^3.6.0",
