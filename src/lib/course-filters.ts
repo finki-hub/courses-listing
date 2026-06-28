@@ -58,6 +58,8 @@ export const filterCourses = (
   return filtered;
 };
 
+const SORT_COLLATOR = new Intl.Collator();
+
 export const sortCourses = (
   courses: CourseRaw[],
   column: SortColumn,
@@ -68,15 +70,17 @@ export const sortCourses = (
   return courses.sort((a, b) => {
     switch (column) {
       case 'accreditation':
-        return getAccLabel(a).localeCompare(getAccLabel(b)) * dir;
+        return SORT_COLLATOR.compare(getAccLabel(a), getAccLabel(b)) * dir;
       case 'channel':
         return (Number(hasChannel(a)) - Number(hasChannel(b))) * dir;
       case 'name':
-        return a.name.localeCompare(b.name) * dir;
+        return SORT_COLLATOR.compare(a.name, b.name) * dir;
       case 'tags':
         return (
-          getCourseTags(a).join(',').localeCompare(getCourseTags(b).join(',')) *
-          dir
+          SORT_COLLATOR.compare(
+            getCourseTags(a).join(','),
+            getCourseTags(b).join(','),
+          ) * dir
         );
       default:
         return 0;
@@ -90,5 +94,5 @@ export const sortIndicator = (
   column: SortColumn,
 ): string => {
   if (active !== column) return '';
-  return direction === 'asc' ? ' \u2191' : ' \u2193';
+  return direction === 'asc' ? ' \u{2191}' : ' \u{2193}';
 };

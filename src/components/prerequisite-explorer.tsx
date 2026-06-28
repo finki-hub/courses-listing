@@ -35,6 +35,8 @@ type PrerequisiteExplorerProps = {
   courses: CourseRaw[];
 };
 
+const NAME_COLLATOR = new Intl.Collator('mk');
+
 export const PrerequisiteExplorer = (props: PrerequisiteExplorerProps) => {
   const [accreditation, setAccreditation] = usePersistedSignal<Accreditation>(
     STORAGE_KEY_ACC,
@@ -57,7 +59,7 @@ export const PrerequisiteExplorer = (props: PrerequisiteExplorerProps) => {
       const semester = info.semester ? Number.parseInt(info.semester, 10) : 0;
       courses.push({ name, prerequisite: info.prerequisite, semester });
     }
-    courses.sort((a, b) => a.name.localeCompare(b.name, 'mk'));
+    courses.sort((a, b) => NAME_COLLATOR.compare(a.name, b.name));
     return courses;
   });
 
@@ -190,10 +192,12 @@ export const PrerequisiteExplorer = (props: PrerequisiteExplorerProps) => {
                       openDetail(course.name);
                     }}
                     onKeyDown={(e) => {
-                      if (e.key === 'Enter' || e.key === ' ') {
-                        e.preventDefault();
-                        openDetail(course.name);
+                      if (!(e.key === 'Enter' || e.key === ' ')) {
+                        return;
                       }
+
+                      e.preventDefault();
+                      openDetail(course.name);
                     }}
                     role="button"
                     tabIndex={0}

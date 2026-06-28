@@ -165,7 +165,7 @@ export const CourseTable = (props: CourseTableProps) => {
                 {SORT_COLUMN_LABELS[col]}
                 {isActive() && (
                   <span class="text-[10px] leading-none">
-                    {sortDirection() === 'asc' ? '\u2191' : '\u2193'}
+                    {sortDirection() === 'asc' ? '\u{2191}' : '\u{2193}'}
                   </span>
                 )}
               </button>

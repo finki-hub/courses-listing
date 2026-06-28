@@ -201,7 +201,9 @@ export const getCourseStateForProgram = (
   program: string,
 ): string | undefined => {
   const key = `${accreditation}-state-${program}`;
-  return key in course ? course[key as keyof CourseRaw] : undefined;
+  return Object.hasOwn(course, key)
+    ? course[key as keyof CourseRaw]
+    : undefined;
 };
 
 export const getStudyPrograms = (

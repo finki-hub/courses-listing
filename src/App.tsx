@@ -12,8 +12,13 @@ import { PAGE_QUERY_PARAM, SIMULATOR_SHARE_PARAM } from '@/lib/simulator-share';
 
 type Page = 'listing' | 'prerequisites' | 'simulator';
 
-const isPage = (value: string): value is Page =>
-  value === 'listing' || value === 'prerequisites' || value === 'simulator';
+const PAGE_VALUES: ReadonlySet<string> = new Set([
+  'listing',
+  'prerequisites',
+  'simulator',
+]);
+
+const isPage = (value: string): value is Page => PAGE_VALUES.has(value);
 
 const TABS: Array<{ label: string; value: Page }> = [
   { label: 'Предмети', value: 'listing' },
@@ -24,7 +29,7 @@ const TABS: Array<{ label: string; value: Page }> = [
 const githubPath = siGithub.path;
 
 const getInitialPage = (): Page => {
-  const url = new URL(globalThis.location.href);
+  const url = new URL(location.href);
   const queryPage = url.searchParams.get(PAGE_QUERY_PARAM);
   if (queryPage && isPage(queryPage)) return queryPage;
   if (url.searchParams.has(SIMULATOR_SHARE_PARAM)) return 'simulator';
@@ -39,12 +44,12 @@ const App = () => {
   createEffect(() => {
     localStorage.setItem('active-page', page());
 
-    const url = new URL(globalThis.location.href);
+    const url = new URL(location.href);
     url.searchParams.set(PAGE_QUERY_PARAM, page());
     if (page() !== 'simulator') {
       url.searchParams.delete(SIMULATOR_SHARE_PARAM);
     }
-    globalThis.history.replaceState({}, '', url);
+    history.replaceState({}, '', url);
   });
 
   return (

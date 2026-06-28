@@ -21,10 +21,12 @@ export const CourseTableRow = (props: CourseTableRowProps) => (
     class="cursor-pointer"
     onClick={props.onClick}
     onKeyDown={(e) => {
-      if (e.key === 'Enter' || e.key === ' ') {
-        e.preventDefault();
-        props.onClick();
+      if (!(e.key === 'Enter' || e.key === ' ')) {
+        return;
       }
+
+      e.preventDefault();
+      props.onClick();
     }}
     role="button"
     tabIndex={0}

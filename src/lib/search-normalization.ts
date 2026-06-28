@@ -65,7 +65,7 @@ const normalizeLatinVariants = (value: string) => {
   let normalized = value;
 
   for (const [from, to] of LATIN_EQUIVALENTS) {
-    normalized = normalized.replaceAll(from, to);
+    normalized = normalized.replaceAll(from, () => to);
   }
 
   return normalized;

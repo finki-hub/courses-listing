@@ -27,16 +27,14 @@ export const CardHeader = (props: ComponentProps<'div'>) => {
   );
 };
 
+const EMPTY_CHILDREN: ReadonlySet<unknown> = new Set([false, null, undefined]);
+
 export const CardTitle = (props: ComponentProps<'h3'>) => {
   const [, rest] = splitProps(props, ['class']);
 
   return (
     <h3
-      aria-hidden={
-        props.children === undefined ||
-        props.children === null ||
-        props.children === false
-      }
+      aria-hidden={EMPTY_CHILDREN.has(props.children)}
       class={cn('leading-none', props.class)}
       {...rest}
     />

@@ -255,6 +255,7 @@ export const buildReverseDependencyMap = <
     const node = parsePrerequisite(course.prerequisite, courseNames);
     for (const pn of collectCourseNames(node)) {
       let list = map.get(pn);
+      // eslint-disable-next-line e18e/prefer-get-or-insert -- Map.prototype.getOrInsert is Baseline newly-available (Feb 2026), unsupported on Safari < 26.2, and this build ships no runtime polyfill.
       if (!list) {
         list = [];
         map.set(pn, list);
@@ -289,7 +290,7 @@ export const describePrereqNode = (
       );
     case 'course': {
       if (electives.has(node.name)) {
-        return [`  \u2796 ${node.name} (изборен \u2014 не е предуслов)`];
+        return [`  \u{2796} ${node.name} (изборен \u{2014} не е предуслов)`];
       }
       const st = ctx.statuses[node.name];
       const info = ctx.courseInfoMap.get(node.name);
@@ -298,16 +299,16 @@ export const describePrereqNode = (
       const met = diff === 1 ? (st?.listened ?? false) : (st?.passed ?? false);
       return [
         met
-          ? `  \u2705 ${node.name} (${needed})`
-          : `  \u274C ${node.name} (потребно: ${needed})`,
+          ? `  \u{2705} ${node.name} (${needed})`
+          : `  \u{274C} ${node.name} (потребно: ${needed})`,
       ];
     }
     case 'credits': {
       const met = ctx.totalCredits >= node.amount;
       return [
         met
-          ? `  \u2705 ${String(node.amount)} кредити`
-          : `  \u274C ${String(node.amount)} кредити (имате ${String(ctx.totalCredits)})`,
+          ? `  \u{2705} ${String(node.amount)} кредити`
+          : `  \u{274C} ${String(node.amount)} кредити (имате ${String(ctx.totalCredits)})`,
       ];
     }
     case 'none':
@@ -318,7 +319,7 @@ export const describePrereqNode = (
         describePrereqNode(c, ctx, electives),
       );
       const metIdx = descs.findIndex((d) =>
-        d.every((line) => line.includes('\u2705')),
+        d.every((line) => line.includes('\u{2705}')),
       );
       return metIdx === -1 ? descs.flat() : (descs[metIdx] ?? []);
     }
