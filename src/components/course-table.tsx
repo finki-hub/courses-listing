@@ -55,7 +55,6 @@ const SortableTableHead = (props: SortableTableHeadProps) => (
   </TableHead>
 );
 
-// Debounced search analytics — fires 500 ms after the user stops typing
 const useSearchAnalytics = (
   getSearch: () => string,
   getFilteredCourses: () => CourseRaw[],
