@@ -1,4 +1,13 @@
-import { createMemo, createSignal, For, type JSX, Show } from 'solid-js';
+import { posthog } from 'posthog-js';
+import {
+  createEffect,
+  createMemo,
+  createSignal,
+  For,
+  type JSX,
+  onCleanup,
+  Show,
+} from 'solid-js';
 
 import { LabeledCheckbox } from '@/components/ui/labeled-checkbox';
 import { SearchInput } from '@/components/ui/search-input';
@@ -46,6 +55,26 @@ const SortableTableHead = (props: SortableTableHeadProps) => (
   </TableHead>
 );
 
+// Debounced search analytics — fires 500 ms after the user stops typing
+const useSearchAnalytics = (
+  getSearch: () => string,
+  getFilteredCourses: () => CourseRaw[],
+): void => {
+  createEffect(() => {
+    const q = getSearch();
+    const timer = setTimeout(() => {
+      if (q === '') return;
+      const count = getFilteredCourses().length;
+      // eslint-disable-next-line camelcase -- PostHog event props are snake_case
+      posthog.capture('catalog_search', { query: q, result_count: count });
+      if (count === 0) posthog.capture('search_zero_results', { query: q });
+    }, 500);
+    onCleanup(() => {
+      clearTimeout(timer);
+    });
+  });
+};
+
 type CourseTableProps = {
   courses: CourseRaw[];
 };
@@ -83,7 +112,10 @@ export const CourseTable = (props: CourseTableProps) => {
     ),
   );
 
-  const openDetail = (course: CourseRaw) => {
+  useSearchAnalytics(search, () => filteredCourses());
+  const openDetail = (course: CourseRaw, position: number) => {
+    // eslint-disable-next-line camelcase -- PostHog event props are snake_case
+    posthog.capture('result_clicked', { position, result_id: course.name });
     setSelectedCourse(course);
     setDialogOpen(true);
   };
@@ -156,11 +188,11 @@ export const CourseTable = (props: CourseTableProps) => {
           when={filteredCourses().length > 0}
         >
           <For each={filteredCourses()}>
-            {(course) => (
+            {(course, index) => (
               <CourseCard
                 course={course}
                 onClick={() => {
-                  openDetail(course);
+                  openDetail(course, index());
                 }}
               />
             )}
@@ -225,11 +257,11 @@ export const CourseTable = (props: CourseTableProps) => {
               when={filteredCourses().length > 0}
             >
               <For each={filteredCourses()}>
-                {(course) => (
+                {(course, index) => (
                   <CourseTableRow
                     course={course}
                     onClick={() => {
-                      openDetail(course);
+                      openDetail(course, index());
                     }}
                   />
                 )}
