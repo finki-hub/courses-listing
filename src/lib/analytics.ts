@@ -19,6 +19,8 @@ export const initAnalytics = (): void => {
     // eslint-disable-next-line camelcase -- PostHog config keys are snake_case
     capture_exceptions: true,
     // eslint-disable-next-line camelcase -- PostHog config keys are snake_case
-    person_profiles: 'always',
+    capture_pageview: 'history_change',
+    // eslint-disable-next-line camelcase -- PostHog config keys are snake_case
+    person_profiles: 'identified_only',
   });
 };
