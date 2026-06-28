@@ -3,6 +3,9 @@ import { render } from 'solid-js/web';
 
 import './index.css';
 import App from './App.tsx';
+import { initAnalytics } from './lib/analytics.ts';
+
+initAnalytics();
 
 const root = document.querySelector('#root');
 
