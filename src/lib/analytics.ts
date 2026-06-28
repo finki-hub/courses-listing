@@ -17,6 +17,8 @@ export const initAnalytics = (): void => {
     api_host: host === '' ? DEFAULT_HOST : host,
     autocapture: true,
     // eslint-disable-next-line camelcase -- PostHog config keys are snake_case
+    capture_exceptions: true,
+    // eslint-disable-next-line camelcase -- PostHog config keys are snake_case
     person_profiles: 'always',
   });
 };
