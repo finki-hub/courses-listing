@@ -1,6 +1,6 @@
 {
   "dependencies": {
-    "@kobalte/core": "^0.13.11",
+    "@kobalte/core": "^0.13.12",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "lucide-solid": "^1.23.0",
