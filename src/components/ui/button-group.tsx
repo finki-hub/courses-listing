@@ -1,18 +1,21 @@
 import { createMemo, For } from 'solid-js';
 
-type ButtonGroupItem<T extends string> = {
+type ButtonGroupItem<T extends number | string> = {
   label: string;
   value: T;
 };
 
-type ButtonGroupProps<T extends string> = {
+type ButtonGroupProps<T extends number | string> = {
+  'aria-label'?: string;
   class?: string;
   items: Array<ButtonGroupItem<T>> | ReadonlyArray<ButtonGroupItem<T>>;
   onSelect: (value: T) => void;
-  value: T;
+  value?: T;
 };
 
-export const ButtonGroup = <T extends string>(props: ButtonGroupProps<T>) => {
+export const ButtonGroup = <T extends number | string>(
+  props: ButtonGroupProps<T>,
+) => {
   const items = createMemo(() => [...props.items]);
   const mobileColumns = createMemo(() =>
     Math.min(Math.max(items().length, 1), 4),
@@ -20,6 +23,7 @@ export const ButtonGroup = <T extends string>(props: ButtonGroupProps<T>) => {
 
   return (
     <fieldset
+      aria-label={props['aria-label']}
       class={`grid gap-1 border-none p-0 sm:inline-flex sm:gap-0 sm:overflow-hidden sm:rounded-md sm:border ${props.class ?? ''}`}
       style={{
         'grid-template-columns': `repeat(${String(mobileColumns())}, minmax(0, 1fr))`,

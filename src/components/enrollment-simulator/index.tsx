@@ -13,6 +13,7 @@ import {
 } from '@/lib/simulator';
 import {
   type Accreditation,
+  type CourseLevelFilter,
   type CourseRaw,
   getStudyPrograms,
 } from '@/types/course';
@@ -43,6 +44,7 @@ export const EnrollmentSimulator = (props: EnrollmentSimulatorProps) => {
   const [seasonFilter, setSeasonFilter] = createSignal<SeasonFilter>(
     initialState.seasonFilter,
   );
+  const [levelFilter, setLevelFilter] = createSignal<CourseLevelFilter>(null);
   const [hpcCompleted, setHpcCompleted] = createSignal(
     initialState.hpcCompleted,
   );
@@ -138,7 +140,9 @@ export const EnrollmentSimulator = (props: EnrollmentSimulatorProps) => {
       <SimulatorToolbar
         accreditation={accreditation()}
         hpcCompleted={hpcCompleted()}
+        levelFilter={levelFilter()}
         onReset={resetStatuses}
+        onSetLevel={setLevelFilter}
         onSetSeason={setSeasonFilter}
         onShare={copyShareUrl}
         onSwitchAccreditation={switchAccreditation}
@@ -179,6 +183,7 @@ export const EnrollmentSimulator = (props: EnrollmentSimulatorProps) => {
         courses={parsedCourses()}
         enabledMap={enabledMap()}
         fullLevels={fullLevels()}
+        levelFilter={levelFilter()}
         onToggleListened={toggleListened}
         onTogglePassed={togglePassed}
         overLimitSet={overLimitSet()}
