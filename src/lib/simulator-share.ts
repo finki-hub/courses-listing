@@ -1,10 +1,10 @@
 import { type CourseStatus } from '@/lib/prerequisite';
+import { clampUniListCredits, type SimulatorCourse } from '@/lib/simulator';
 import {
-  clampUniListCredits,
+  type Accreditation,
+  getStudyPrograms,
   type SeasonFilter,
-  type SimulatorCourse,
-} from '@/lib/simulator';
-import { type Accreditation, getStudyPrograms } from '@/types/course';
+} from '@/types/course';
 
 export const SIMULATOR_SHARE_PARAM = 'sim';
 export const PAGE_QUERY_PARAM = 'page';

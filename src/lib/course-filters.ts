@@ -3,10 +3,15 @@ import {
   normalizeSearchText,
 } from '@/lib/search-normalization';
 import {
+  type Accreditation,
+  type CourseLevelFilter,
   type CourseRaw,
   getAccLabel,
+  getAccreditationInfo,
+  getCourseStateForProgram,
   getCourseTags,
   hasChannel,
+  type SeasonFilter,
 } from '@/types/course';
 
 export type SortColumn = 'accreditation' | 'channel' | 'name' | 'tags';
@@ -27,12 +32,45 @@ export const SORT_COLUMNS: SortColumn[] = [
   'tags',
 ];
 
+export type CourseFilterCriteria = {
+  readonly accreditation: Accreditation;
+  readonly level: CourseLevelFilter;
+  readonly program: string;
+  readonly searchTerm: string;
+  readonly season: SeasonFilter;
+  readonly tags: ReadonlySet<string>;
+};
+
+const FACULTY_LIST_STATE = 'нема';
+
+const matchesCurriculumFilters = (
+  course: CourseRaw,
+  criteria: CourseFilterCriteria,
+): boolean => {
+  const info = getAccreditationInfo(course, criteria.accreditation);
+  if (!info) return false;
+
+  const programState = getCourseStateForProgram(
+    course,
+    criteria.accreditation,
+    criteria.program,
+  );
+  if (!programState || programState === FACULTY_LIST_STATE) return false;
+
+  if (criteria.level !== null && info.level !== String(criteria.level)) {
+    return false;
+  }
+
+  if (criteria.season === null) return true;
+  const semester = Number.parseInt(info.semester ?? '', 10);
+  return criteria.season === 'winter' ? semester % 2 === 1 : semester % 2 === 0;
+};
+
 export const filterCourses = (
   courses: CourseRaw[],
-  searchTerm: string,
-  tags: Set<string>,
+  criteria: CourseFilterCriteria,
 ): CourseRaw[] => {
-  const term = normalizeSearchText(searchTerm);
+  const term = normalizeSearchText(criteria.searchTerm);
   let filtered = term
     ? courses.filter(
         (c) =>
@@ -48,10 +86,14 @@ export const filterCourses = (
       )
     : [...courses];
 
-  if (tags.size > 0) {
+  filtered = filtered.filter((course) =>
+    matchesCurriculumFilters(course, criteria),
+  );
+
+  if (criteria.tags.size > 0) {
     filtered = filtered.filter((c) => {
       const courseTags = getCourseTags(c);
-      return [...tags].some((t) => courseTags.includes(t));
+      return [...criteria.tags].some((t) => courseTags.includes(t));
     });
   }
 

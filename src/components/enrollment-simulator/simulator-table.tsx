@@ -12,10 +12,9 @@ import {
   getExclusiveProjectBlocker,
   isRequired,
   matchesSeasonFilter,
-  type SeasonFilter,
   type SimulatorCourse,
 } from '@/lib/simulator';
-import { type CourseLevelFilter } from '@/types/course';
+import { type CourseLevelFilter, type SeasonFilter } from '@/types/course';
 
 import { CourseCardRow } from './course-card-row';
 import { CourseRow } from './course-row';
