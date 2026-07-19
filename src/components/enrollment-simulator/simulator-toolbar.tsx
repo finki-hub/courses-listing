@@ -1,8 +1,10 @@
 import { AccreditationSwitch } from '@/components/accreditation-switch';
+import { CourseLevelFilter } from '@/components/course-level-filter';
 import { ButtonGroup } from '@/components/ui/button-group';
 import { type SeasonFilter } from '@/lib/simulator';
 import {
   type Accreditation,
+  type CourseLevelFilter as CourseLevelFilterValue,
   getStudyPrograms,
   STUDY_PROGRAM_LABELS,
 } from '@/types/course';
@@ -16,7 +18,9 @@ const isSeasonFilter = (v: string): v is 'summer' | 'winter' =>
 type SimulatorToolbarProps = {
   accreditation: Accreditation;
   hpcCompleted: boolean;
+  levelFilter: CourseLevelFilterValue;
   onReset: () => void;
+  onSetLevel: (level: CourseLevelFilterValue) => void;
   onSetSeason: (s: SeasonFilter) => void;
   onShare: () => Promise<boolean>;
   onSwitchAccreditation: (acc: Accreditation) => void;
@@ -77,6 +81,11 @@ export const SimulatorToolbar = (props: SimulatorToolbarProps) => {
             value={props.seasonFilter ?? ''}
           />
         </div>
+
+        <CourseLevelFilter
+          onSelect={props.onSetLevel}
+          value={props.levelFilter}
+        />
       </div>
 
       <div class="grid gap-2 sm:flex sm:flex-wrap sm:items-center sm:gap-3">

@@ -110,6 +110,12 @@ export type AccreditationInfo = {
   semester?: string;
 };
 
+export const COURSE_LEVELS = [1, 2, 3] as const;
+
+export type CourseLevel = (typeof COURSE_LEVELS)[number];
+
+export type CourseLevelFilter = CourseLevel | null;
+
 export const getAccreditationInfo = (
   course: CourseRaw,
   accreditation: Accreditation,

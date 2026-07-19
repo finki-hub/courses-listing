@@ -15,6 +15,7 @@ import {
   type SeasonFilter,
   type SimulatorCourse,
 } from '@/lib/simulator';
+import { type CourseLevelFilter } from '@/types/course';
 
 import { CourseCardRow } from './course-card-row';
 import { CourseRow } from './course-row';
@@ -23,6 +24,7 @@ type SimulatorTableProps = {
   courses: SimulatorCourse[];
   enabledMap: Record<string, boolean>;
   fullLevels: Set<number>;
+  levelFilter: CourseLevelFilter;
   onToggleListened: (name: string) => void;
   onTogglePassed: (name: string) => void;
   overLimitSet: Set<string>;
@@ -39,6 +41,7 @@ export const SimulatorTable = (props: SimulatorTableProps) => {
       const enabled = props.enabledMap[course.name] ?? true;
       return (
         (!props.showOnlyEnabled || enabled) &&
+        (props.levelFilter === null || course.level === props.levelFilter) &&
         matchesSeasonFilter(course.semester, props.seasonFilter)
       );
     });
