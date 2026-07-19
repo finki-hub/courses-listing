@@ -1,16 +1,6 @@
 import { posthog } from 'posthog-js';
-import {
-  createEffect,
-  createMemo,
-  createSignal,
-  For,
-  type JSX,
-  onCleanup,
-  Show,
-} from 'solid-js';
+import { createMemo, createSignal, For, type JSX, Show } from 'solid-js';
 
-import { LabeledCheckbox } from '@/components/ui/labeled-checkbox';
-import { SearchInput } from '@/components/ui/search-input';
 import {
   Table,
   TableBody,
@@ -20,19 +10,26 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import {
+  type CourseFilterCriteria,
   filterCourses,
-  SORT_COLUMN_LABELS,
-  SORT_COLUMNS,
   type SortColumn,
   sortCourses,
   type SortDirection,
   sortIndicator,
 } from '@/lib/course-filters';
-import { ALL_TAGS, type CourseRaw, getTagLabel } from '@/types/course';
+import {
+  type Accreditation,
+  type CourseLevelFilter,
+  type CourseRaw,
+  getStudyPrograms,
+  type SeasonFilter,
+} from '@/types/course';
 
 import { CourseCard } from './course-card';
 import { CourseDetailDialog } from './course-detail-dialog';
+import { CourseListingControls } from './course-listing-controls';
 import { CourseTableRow } from './course-table-row';
+import { useCourseSearchAnalytics } from './use-course-search-analytics';
 
 type SortableTableHeadProps = {
   buttonClass?: string;
@@ -55,28 +52,11 @@ const SortableTableHead = (props: SortableTableHeadProps) => (
   </TableHead>
 );
 
-const useSearchAnalytics = (
-  getSearch: () => string,
-  getFilteredCourses: () => CourseRaw[],
-): void => {
-  createEffect(() => {
-    const q = getSearch();
-    const timer = setTimeout(() => {
-      if (q === '') return;
-      const count = getFilteredCourses().length;
-      // eslint-disable-next-line camelcase -- PostHog event props are snake_case
-      posthog.capture('catalog_search', { query: q, result_count: count });
-      if (count === 0) posthog.capture('search_zero_results', { query: q });
-    }, 500);
-    onCleanup(() => {
-      clearTimeout(timer);
-    });
-  });
-};
-
 type CourseTableProps = {
   courses: CourseRaw[];
 };
+
+const DEFAULT_ACCREDITATION: Accreditation = '2023';
 
 export const CourseTable = (props: CourseTableProps) => {
   const [selectedCourse, setSelectedCourse] = createSignal<CourseRaw | null>(
@@ -84,6 +64,14 @@ export const CourseTable = (props: CourseTableProps) => {
   );
   const [dialogOpen, setDialogOpen] = createSignal(false);
   const [search, setSearch] = createSignal('');
+  const [accreditation, setAccreditation] = createSignal<Accreditation>(
+    DEFAULT_ACCREDITATION,
+  );
+  const [program, setProgram] = createSignal(
+    getStudyPrograms(DEFAULT_ACCREDITATION)[0] ?? '',
+  );
+  const [seasonFilter, setSeasonFilter] = createSignal<SeasonFilter>(null);
+  const [levelFilter, setLevelFilter] = createSignal<CourseLevelFilter>(null);
   const [sortColumn, setSortColumn] = createSignal<SortColumn>('name');
   const [sortDirection, setSortDirection] = createSignal<SortDirection>('asc');
   const [selectedTags, setSelectedTags] = createSignal(new Set<string>());
@@ -103,15 +91,29 @@ export const CourseTable = (props: CourseTableProps) => {
     }
   };
 
+  const switchAccreditation = (value: Accreditation) => {
+    setAccreditation(value);
+    setProgram(getStudyPrograms(value)[0] ?? '');
+  };
+
+  const filterCriteria = (): CourseFilterCriteria => ({
+    accreditation: accreditation(),
+    level: levelFilter(),
+    program: program(),
+    searchTerm: search(),
+    season: seasonFilter(),
+    tags: selectedTags(),
+  });
+
   const filteredCourses = createMemo(() =>
     sortCourses(
-      filterCourses(props.courses, search(), selectedTags()),
+      filterCourses(props.courses, filterCriteria()),
       sortColumn(),
       sortDirection(),
     ),
   );
 
-  useSearchAnalytics(search, () => filteredCourses());
+  useCourseSearchAnalytics(search, () => filteredCourses());
   const openDetail = (course: CourseRaw, position: number) => {
     // eslint-disable-next-line camelcase -- PostHog event props are snake_case
     posthog.capture('result_clicked', { position, result_id: course.name });
@@ -121,61 +123,24 @@ export const CourseTable = (props: CourseTableProps) => {
 
   return (
     <div class="space-y-4">
-      <SearchInput
-        aria-label="Пребарувај предмети"
-        onInput={(e) => setSearch(e.currentTarget.value)}
-        placeholder="Пребарувај предмети..."
-        value={search()}
+      <CourseListingControls
+        accreditation={accreditation()}
+        levelFilter={levelFilter()}
+        onSearchInput={setSearch}
+        onSetLevel={setLevelFilter}
+        onSetSeason={setSeasonFilter}
+        onSwitchAccreditation={switchAccreditation}
+        onSwitchProgram={setProgram}
+        onToggleSort={toggleSort}
+        onToggleTag={toggleTag}
+        program={program()}
+        resultCount={filteredCourses().length}
+        search={search()}
+        seasonFilter={seasonFilter()}
+        selectedTags={selectedTags()}
+        sortColumn={sortColumn()}
+        sortDirection={sortDirection()}
       />
-
-      <div class="flex flex-wrap items-center gap-3">
-        <span class="text-muted-foreground text-sm">Тагови:</span>
-        <For each={ALL_TAGS}>
-          {(tag) => (
-            <LabeledCheckbox
-              checked={selectedTags().has(tag)}
-              class="gap-1.5"
-              onChange={() => {
-                toggleTag(tag);
-              }}
-            >
-              {getTagLabel(tag)}
-            </LabeledCheckbox>
-          )}
-        </For>
-      </div>
-
-      <div class="flex flex-wrap items-center gap-2 sm:hidden">
-        <span class="text-muted-foreground text-sm">Сортирај:</span>
-        <For each={SORT_COLUMNS}>
-          {(col) => {
-            const isActive = () => sortColumn() === col;
-            return (
-              <button
-                class={`inline-flex items-center gap-1 rounded-full border px-2.5 py-0.5 text-xs font-medium transition-colors ${
-                  isActive()
-                    ? 'bg-primary text-primary-foreground border-primary'
-                    : 'text-foreground hover:bg-muted border-border'
-                }`}
-                onClick={() => {
-                  toggleSort(col);
-                }}
-                type="button"
-              >
-                {SORT_COLUMN_LABELS[col]}
-                {isActive() && (
-                  <span class="text-[10px] leading-none">
-                    {sortDirection() === 'asc' ? '\u{2191}' : '\u{2193}'}
-                  </span>
-                )}
-              </button>
-            );
-          }}
-        </For>
-      </div>
-      <div class="text-muted-foreground text-sm">
-        {filteredCourses().length} предмети
-      </div>
       {/* Mobile: card layout */}
       <div class="space-y-2 sm:hidden">
         <Show

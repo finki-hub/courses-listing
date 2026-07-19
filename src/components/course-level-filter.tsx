@@ -16,16 +16,13 @@ type CourseLevelFilterProps = {
 };
 
 export const CourseLevelFilter = (props: CourseLevelFilterProps) => (
-  <div class={`flex items-center gap-2 ${props.class ?? ''}`}>
-    <span class="text-muted-foreground text-sm">Ниво:</span>
-    <ButtonGroup
-      aria-label="Ниво на предмет"
-      class="flex-1 sm:w-auto sm:flex-none"
-      items={LEVEL_ITEMS}
-      onSelect={(level) => {
-        props.onSelect(props.value === level ? null : level);
-      }}
-      value={props.value ?? undefined}
-    />
-  </div>
+  <ButtonGroup
+    aria-label="Ниво на предмет"
+    class={`w-full sm:w-auto ${props.class ?? ''}`}
+    items={LEVEL_ITEMS}
+    onSelect={(level) => {
+      props.onSelect(props.value === level ? null : level);
+    }}
+    value={props.value ?? undefined}
+  />
 );

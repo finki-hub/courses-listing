@@ -7,7 +7,6 @@ import {
   DEFAULT_PROGRAM,
   LEVEL_CREDIT_LIMITS,
   loadStatuses,
-  type SeasonFilter,
   toggleListenedStatus,
   togglePassedStatus,
 } from '@/lib/simulator';
@@ -16,6 +15,7 @@ import {
   type CourseLevelFilter,
   type CourseRaw,
   getStudyPrograms,
+  type SeasonFilter,
 } from '@/types/course';
 
 import { CreditLimitWarning, GraduationAlert } from './alerts';

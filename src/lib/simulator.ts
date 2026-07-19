@@ -13,6 +13,7 @@ import {
   type CourseRaw,
   getCourseCredits,
   getCourseStateForProgram,
+  type SeasonFilter,
 } from '@/types/course';
 
 export type GraduationEligibility = {
@@ -23,8 +24,6 @@ export type GraduationEligibility = {
   graduated3yr: boolean;
   graduated4yr: boolean;
 };
-
-export type SeasonFilter = 'summer' | 'winter' | null;
 
 export type SimulatorCourse = {
   credits: number;

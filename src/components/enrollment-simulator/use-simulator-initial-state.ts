@@ -3,7 +3,6 @@ import {
   DEFAULT_PROGRAM,
   loadStatuses,
   loadUniListCredits,
-  type SeasonFilter,
   STORAGE_KEY_ACC,
   STORAGE_KEY_HPC,
   STORAGE_KEY_PROGRAM,
@@ -17,6 +16,7 @@ import {
   type Accreditation,
   getStudyPrograms,
   isAccreditation,
+  type SeasonFilter,
 } from '@/types/course';
 
 export type InitialSimulatorState = {

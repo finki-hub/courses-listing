@@ -1,19 +1,12 @@
-import { AccreditationSwitch } from '@/components/accreditation-switch';
-import { CourseLevelFilter } from '@/components/course-level-filter';
-import { ButtonGroup } from '@/components/ui/button-group';
-import { type SeasonFilter } from '@/lib/simulator';
+import { CourseFilterRow } from '@/components/course-filter-row';
 import {
   type Accreditation,
   type CourseLevelFilter as CourseLevelFilterValue,
-  getStudyPrograms,
-  STUDY_PROGRAM_LABELS,
+  type SeasonFilter,
 } from '@/types/course';
 
 import { SimulatorStats } from './simulator-stats';
 import { SimulatorToolbarControls } from './simulator-toolbar-controls';
-
-const isSeasonFilter = (v: string): v is 'summer' | 'winter' =>
-  v === 'summer' || v === 'winter';
 
 type SimulatorToolbarProps = {
   accreditation: Accreditation;
@@ -36,75 +29,35 @@ type SimulatorToolbarProps = {
   uniListCredits: number;
 };
 
-const SEASON_ITEMS = [
-  { label: 'Зимски', value: 'winter' },
-  { label: 'Летен', value: 'summer' },
-] as const;
+export const SimulatorToolbar = (props: SimulatorToolbarProps) => (
+  <div class="space-y-3">
+    <CourseFilterRow
+      accreditation={props.accreditation}
+      levelFilter={props.levelFilter}
+      onSetLevel={props.onSetLevel}
+      onSetSeason={props.onSetSeason}
+      onSwitchAccreditation={props.onSwitchAccreditation}
+      onSwitchProgram={props.onSwitchProgram}
+      program={props.program}
+      seasonFilter={props.seasonFilter}
+    />
 
-export const SimulatorToolbar = (props: SimulatorToolbarProps) => {
-  const programItems = () => {
-    const list = getStudyPrograms(props.accreditation);
-    return Array.from(list, (p) => ({
-      label: STUDY_PROGRAM_LABELS[p] ?? p,
-      value: p,
-    }));
-  };
+    <div class="grid gap-2 sm:flex sm:flex-wrap sm:items-center sm:gap-3">
+      <SimulatorStats
+        totalCourses={props.totalCourses}
+        totalCredits={props.totalCredits}
+      />
 
-  return (
-    <div class="space-y-3">
-      <div class="grid gap-3 sm:flex sm:flex-wrap sm:items-center sm:gap-4">
-        <div>
-          <AccreditationSwitch
-            accreditation={props.accreditation}
-            onSelect={props.onSwitchAccreditation}
-          />
-        </div>
-
-        <div>
-          <ButtonGroup
-            class="w-full sm:w-auto"
-            items={programItems()}
-            onSelect={props.onSwitchProgram}
-            value={props.program}
-          />
-        </div>
-
-        <div>
-          <ButtonGroup
-            class="w-full sm:w-auto"
-            items={SEASON_ITEMS}
-            onSelect={(v) => {
-              props.onSetSeason(
-                props.seasonFilter === v || !isSeasonFilter(v) ? null : v,
-              );
-            }}
-            value={props.seasonFilter ?? ''}
-          />
-        </div>
-
-        <CourseLevelFilter
-          onSelect={props.onSetLevel}
-          value={props.levelFilter}
-        />
-      </div>
-
-      <div class="grid gap-2 sm:flex sm:flex-wrap sm:items-center sm:gap-3">
-        <SimulatorStats
-          totalCourses={props.totalCourses}
-          totalCredits={props.totalCredits}
-        />
-
-        <SimulatorToolbarControls
-          hpcCompleted={props.hpcCompleted}
-          onReset={props.onReset}
-          onShare={props.onShare}
-          onToggleFilter={props.onToggleFilter}
-          onToggleHpc={props.onToggleHpc}
-          onUniListCreditsChange={props.onUniListCreditsChange}
-          showOnlyEnabled={props.showOnlyEnabled}
-          uniListCredits={props.uniListCredits}
-        />
-      </div>
+      <SimulatorToolbarControls
+        hpcCompleted={props.hpcCompleted}
+        onReset={props.onReset}
+        onShare={props.onShare}
+        onToggleFilter={props.onToggleFilter}
+        onToggleHpc={props.onToggleHpc}
+        onUniListCreditsChange={props.onUniListCreditsChange}
+        showOnlyEnabled={props.showOnlyEnabled}
+        uniListCredits={props.uniListCredits}
+      />
     </div>
-  );
-};
+  </div>
+);

@@ -116,6 +116,8 @@ export type CourseLevel = (typeof COURSE_LEVELS)[number];
 
 export type CourseLevelFilter = CourseLevel | null;
 
+export type SeasonFilter = 'summer' | 'winter' | null;
+
 export const getAccreditationInfo = (
   course: CourseRaw,
   accreditation: Accreditation,
