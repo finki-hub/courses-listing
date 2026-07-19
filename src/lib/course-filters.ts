@@ -41,8 +41,6 @@ export type CourseFilterCriteria = {
   readonly tags: ReadonlySet<string>;
 };
 
-const FACULTY_LIST_STATE = 'нема';
-
 const matchesCurriculumFilters = (
   course: CourseRaw,
   criteria: CourseFilterCriteria,
@@ -55,7 +53,7 @@ const matchesCurriculumFilters = (
     criteria.accreditation,
     criteria.program,
   );
-  if (!programState || programState === FACULTY_LIST_STATE) return false;
+  if (!programState) return false;
 
   if (criteria.level !== null && info.level !== String(criteria.level)) {
     return false;
