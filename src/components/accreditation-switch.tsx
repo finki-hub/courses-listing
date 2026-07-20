@@ -8,7 +8,7 @@ const ACCREDITATION_ITEMS = [
 ] as const;
 
 type AccreditationSwitchProps = {
-  accreditation: Accreditation;
+  accreditation: Accreditation | null;
   onSelect: (accreditation: Accreditation) => void;
 };
 
@@ -16,6 +16,6 @@ export const AccreditationSwitch = (props: AccreditationSwitchProps) => (
   <ButtonGroup
     items={ACCREDITATION_ITEMS}
     onSelect={props.onSelect}
-    value={props.accreditation}
+    value={props.accreditation ?? undefined}
   />
 );

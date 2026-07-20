@@ -18,16 +18,14 @@ import {
 } from '@/types/course';
 
 type CourseListingControlsProps = {
-  readonly accreditation: Accreditation;
+  readonly accreditation: Accreditation | null;
   readonly levelFilter: CourseLevelFilter;
   readonly onSearchInput: (value: string) => void;
   readonly onSetLevel: (level: CourseLevelFilter) => void;
   readonly onSetSeason: (season: SeasonFilter) => void;
   readonly onSwitchAccreditation: (accreditation: Accreditation) => void;
-  readonly onSwitchProgram: (program: string) => void;
   readonly onToggleSort: (column: SortColumn) => void;
   readonly onToggleTag: (tag: string) => void;
-  readonly program: string;
   readonly resultCount: number;
   readonly search: string;
   readonly seasonFilter: SeasonFilter;
@@ -53,8 +51,6 @@ export const CourseListingControls = (props: CourseListingControlsProps) => (
       onSetLevel={props.onSetLevel}
       onSetSeason={props.onSetSeason}
       onSwitchAccreditation={props.onSwitchAccreditation}
-      onSwitchProgram={props.onSwitchProgram}
-      program={props.program}
       seasonFilter={props.seasonFilter}
     />
 

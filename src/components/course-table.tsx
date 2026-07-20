@@ -21,7 +21,6 @@ import {
   type Accreditation,
   type CourseLevelFilter,
   type CourseRaw,
-  getStudyPrograms,
   type SeasonFilter,
 } from '@/types/course';
 
@@ -56,19 +55,14 @@ type CourseTableProps = {
   courses: CourseRaw[];
 };
 
-const DEFAULT_ACCREDITATION: Accreditation = '2023';
-
 export const CourseTable = (props: CourseTableProps) => {
   const [selectedCourse, setSelectedCourse] = createSignal<CourseRaw | null>(
     null,
   );
   const [dialogOpen, setDialogOpen] = createSignal(false);
   const [search, setSearch] = createSignal('');
-  const [accreditation, setAccreditation] = createSignal<Accreditation>(
-    DEFAULT_ACCREDITATION,
-  );
-  const [program, setProgram] = createSignal(
-    getStudyPrograms(DEFAULT_ACCREDITATION)[0] ?? '',
+  const [accreditation, setAccreditation] = createSignal<Accreditation | null>(
+    null,
   );
   const [seasonFilter, setSeasonFilter] = createSignal<SeasonFilter>(null);
   const [levelFilter, setLevelFilter] = createSignal<CourseLevelFilter>(null);
@@ -92,14 +86,12 @@ export const CourseTable = (props: CourseTableProps) => {
   };
 
   const switchAccreditation = (value: Accreditation) => {
-    setAccreditation(value);
-    setProgram(getStudyPrograms(value)[0] ?? '');
+    setAccreditation((current) => (current === value ? null : value));
   };
 
   const filterCriteria = (): CourseFilterCriteria => ({
     accreditation: accreditation(),
     level: levelFilter(),
-    program: program(),
     searchTerm: search(),
     season: seasonFilter(),
     tags: selectedTags(),
@@ -130,10 +122,8 @@ export const CourseTable = (props: CourseTableProps) => {
         onSetLevel={setLevelFilter}
         onSetSeason={setSeasonFilter}
         onSwitchAccreditation={switchAccreditation}
-        onSwitchProgram={setProgram}
         onToggleSort={toggleSort}
         onToggleTag={toggleTag}
-        program={program()}
         resultCount={filteredCourses().length}
         search={search()}
         seasonFilter={seasonFilter()}

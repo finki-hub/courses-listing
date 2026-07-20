@@ -8,7 +8,6 @@ import {
   type CourseRaw,
   getAccLabel,
   getAccreditationInfo,
-  getCourseStateForProgram,
   getCourseTags,
   hasChannel,
   type SeasonFilter,
@@ -33,9 +32,8 @@ export const SORT_COLUMNS: SortColumn[] = [
 ];
 
 export type CourseFilterCriteria = {
-  readonly accreditation: Accreditation;
+  readonly accreditation: Accreditation | null;
   readonly level: CourseLevelFilter;
-  readonly program: string;
   readonly searchTerm: string;
   readonly season: SeasonFilter;
   readonly tags: ReadonlySet<string>;
@@ -45,23 +43,33 @@ const matchesCurriculumFilters = (
   course: CourseRaw,
   criteria: CourseFilterCriteria,
 ): boolean => {
-  const info = getAccreditationInfo(course, criteria.accreditation);
-  if (!info) return false;
-
-  const programState = getCourseStateForProgram(
-    course,
-    criteria.accreditation,
-    criteria.program,
-  );
-  if (!programState) return false;
-
-  if (criteria.level !== null && info.level !== String(criteria.level)) {
-    return false;
+  if (
+    criteria.accreditation === null &&
+    criteria.level === null &&
+    criteria.season === null
+  ) {
+    return true;
   }
 
-  if (criteria.season === null) return true;
-  const semester = Number.parseInt(info.semester ?? '', 10);
-  return criteria.season === 'winter' ? semester % 2 === 1 : semester % 2 === 0;
+  const accreditations: readonly Accreditation[] =
+    criteria.accreditation === null
+      ? ['2023', '2018']
+      : [criteria.accreditation];
+
+  return accreditations.some((accreditation) => {
+    const info = getAccreditationInfo(course, accreditation);
+    if (!info) return false;
+
+    if (criteria.level !== null && info.level !== String(criteria.level)) {
+      return false;
+    }
+
+    if (criteria.season === null) return true;
+    const semester = Number.parseInt(info.semester ?? '', 10);
+    return criteria.season === 'winter'
+      ? semester % 2 === 1
+      : semester % 2 === 0;
+  });
 };
 
 export const filterCourses = (

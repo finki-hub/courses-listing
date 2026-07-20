@@ -18,22 +18,24 @@ const isSeasonFilter = (value: string): value is 'summer' | 'winter' =>
   value === 'summer' || value === 'winter';
 
 type CourseFilterRowProps = {
-  readonly accreditation: Accreditation;
+  readonly accreditation: Accreditation | null;
   readonly levelFilter: CourseLevelFilterValue;
   readonly onSetLevel: (level: CourseLevelFilterValue) => void;
   readonly onSetSeason: (season: SeasonFilter) => void;
   readonly onSwitchAccreditation: (accreditation: Accreditation) => void;
-  readonly onSwitchProgram: (program: string) => void;
-  readonly program: string;
+  readonly onSwitchProgram?: (program: string) => void;
+  readonly program?: null | string;
   readonly seasonFilter: SeasonFilter;
 };
 
 export const CourseFilterRow = (props: CourseFilterRowProps) => {
   const programItems = () =>
-    Array.from(getStudyPrograms(props.accreditation), (program) => ({
-      label: STUDY_PROGRAM_LABELS[program] ?? program,
-      value: program,
-    }));
+    props.accreditation === null
+      ? []
+      : Array.from(getStudyPrograms(props.accreditation), (program) => ({
+          label: STUDY_PROGRAM_LABELS[program] ?? program,
+          value: program,
+        }));
 
   return (
     <div class="grid gap-3 sm:flex sm:flex-wrap sm:items-center sm:gap-4">
@@ -44,14 +46,16 @@ export const CourseFilterRow = (props: CourseFilterRowProps) => {
         />
       </div>
 
-      <div>
-        <ButtonGroup
-          class="w-full sm:w-auto"
-          items={programItems()}
-          onSelect={props.onSwitchProgram}
-          value={props.program}
-        />
-      </div>
+      {props.onSwitchProgram ? (
+        <div>
+          <ButtonGroup
+            class="w-full sm:w-auto"
+            items={programItems()}
+            onSelect={props.onSwitchProgram}
+            value={props.program ?? undefined}
+          />
+        </div>
+      ) : null}
 
       <div>
         <ButtonGroup
