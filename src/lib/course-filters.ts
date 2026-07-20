@@ -8,6 +8,7 @@ import {
   type CourseRaw,
   getAccLabel,
   getAccreditationInfo,
+  getCourseName,
   getCourseTags,
   hasChannel,
   type SeasonFilter,
@@ -110,19 +111,27 @@ const SORT_COLLATOR = new Intl.Collator();
 
 export const sortCourses = (
   courses: CourseRaw[],
-  column: SortColumn,
-  direction: SortDirection,
+  config: {
+    readonly accreditation: Accreditation | null;
+    readonly column: SortColumn;
+    readonly direction: SortDirection;
+  },
 ): CourseRaw[] => {
-  const dir = direction === 'asc' ? 1 : -1;
+  const dir = config.direction === 'asc' ? 1 : -1;
 
   return courses.sort((a, b) => {
-    switch (column) {
+    switch (config.column) {
       case 'accreditation':
         return SORT_COLLATOR.compare(getAccLabel(a), getAccLabel(b)) * dir;
       case 'channel':
         return (Number(hasChannel(a)) - Number(hasChannel(b))) * dir;
       case 'name':
-        return SORT_COLLATOR.compare(a.name, b.name) * dir;
+        return (
+          SORT_COLLATOR.compare(
+            getCourseName(a, config.accreditation),
+            getCourseName(b, config.accreditation),
+          ) * dir
+        );
       case 'tags':
         return (
           SORT_COLLATOR.compare(

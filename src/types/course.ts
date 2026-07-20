@@ -230,6 +230,14 @@ export const getAccLabel = (course: CourseRaw): string => {
   return labels.join(', ');
 };
 
+export const getCourseName = (
+  course: CourseRaw,
+  accreditation: Accreditation | null,
+): string =>
+  accreditation === null
+    ? course.name
+    : (getAccreditationInfo(course, accreditation)?.name ?? course.name);
+
 export const hasChannel = (course: CourseRaw): boolean =>
   course['2023-channel'] === '1' ||
   course['2018-channel'] === '1' ||

@@ -4,14 +4,17 @@ import { For, Show } from 'solid-js';
 import { Badge } from '@/components/ui/badge';
 import { TableCell, TableRow } from '@/components/ui/table';
 import {
+  type Accreditation,
   type CourseRaw,
   getAccLabel,
+  getCourseName,
   getCourseTags,
   getTagLabel,
   hasChannel,
 } from '@/types/course';
 
 type CourseTableRowProps = {
+  accreditation: Accreditation | null;
   course: CourseRaw;
   onClick: () => void;
 };
@@ -31,7 +34,9 @@ export const CourseTableRow = (props: CourseTableRowProps) => (
     role="button"
     tabIndex={0}
   >
-    <TableCell class="font-medium">{props.course.name}</TableCell>
+    <TableCell class="font-medium">
+      {getCourseName(props.course, props.accreditation)}
+    </TableCell>
     <TableCell class="hidden whitespace-nowrap md:table-cell">
       {getAccLabel(props.course)}
     </TableCell>

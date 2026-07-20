@@ -12,9 +12,14 @@ import {
   DialogPortal,
   DialogTitle,
 } from '@/components/ui/dialog';
-import { type CourseRaw } from '@/types/course';
+import {
+  type Accreditation,
+  type CourseRaw,
+  getCourseName,
+} from '@/types/course';
 
 type CourseDetailDialogProps = {
+  accreditation: Accreditation | null;
   course: CourseRaw | null;
   onOpenChange: (open: boolean) => void;
   open: boolean;
@@ -31,7 +36,9 @@ export const CourseDetailDialog = (props: CourseDetailDialogProps) => (
           {(course) => (
             <>
               <DialogHeader>
-                <DialogTitle>{course().name}</DialogTitle>
+                <DialogTitle>
+                  {getCourseName(course(), props.accreditation)}
+                </DialogTitle>
                 <DialogDescription>
                   Детални информации за предметот
                 </DialogDescription>

@@ -98,11 +98,11 @@ export const CourseTable = (props: CourseTableProps) => {
   });
 
   const filteredCourses = createMemo(() =>
-    sortCourses(
-      filterCourses(props.courses, filterCriteria()),
-      sortColumn(),
-      sortDirection(),
-    ),
+    sortCourses(filterCourses(props.courses, filterCriteria()), {
+      accreditation: accreditation(),
+      column: sortColumn(),
+      direction: sortDirection(),
+    }),
   );
 
   useCourseSearchAnalytics(search, () => filteredCourses());
@@ -144,6 +144,7 @@ export const CourseTable = (props: CourseTableProps) => {
           <For each={filteredCourses()}>
             {(course, index) => (
               <CourseCard
+                accreditation={accreditation()}
                 course={course}
                 onClick={() => {
                   openDetail(course, index());
@@ -213,6 +214,7 @@ export const CourseTable = (props: CourseTableProps) => {
               <For each={filteredCourses()}>
                 {(course, index) => (
                   <CourseTableRow
+                    accreditation={accreditation()}
                     course={course}
                     onClick={() => {
                       openDetail(course, index());
@@ -226,6 +228,7 @@ export const CourseTable = (props: CourseTableProps) => {
       </div>
 
       <CourseDetailDialog
+        accreditation={accreditation()}
         course={selectedCourse()}
         onOpenChange={setDialogOpen}
         open={dialogOpen()}

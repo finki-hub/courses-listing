@@ -3,14 +3,17 @@ import { For, Show } from 'solid-js';
 
 import { Badge } from '@/components/ui/badge';
 import {
+  type Accreditation,
   type CourseRaw,
   getAccLabel,
+  getCourseName,
   getCourseTags,
   getTagLabel,
   hasChannel,
 } from '@/types/course';
 
 type CourseCardProps = {
+  accreditation: Accreditation | null;
   course: CourseRaw;
   onClick: () => void;
 };
@@ -23,7 +26,9 @@ export const CourseCard = (props: CourseCardProps) => (
     }}
     type="button"
   >
-    <div class="mb-1.5 font-medium">{props.course.name}</div>
+    <div class="mb-1.5 font-medium">
+      {getCourseName(props.course, props.accreditation)}
+    </div>
 
     <div class="text-muted-foreground flex flex-wrap items-center gap-x-3 gap-y-1 text-xs">
       <span>{getAccLabel(props.course)}</span>
