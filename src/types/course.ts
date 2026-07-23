@@ -64,6 +64,7 @@ const TAG_TRANSLATIONS: Record<string, string> = {
   ai: 'Вештачка интелигенција',
   coding: 'Кодирање',
   databases: 'Бази на податоци',
+  delemangi: "⭐ Stefan's picks",
   devops: 'DevOps',
   filler: 'Филер',
   math: 'Математика',
