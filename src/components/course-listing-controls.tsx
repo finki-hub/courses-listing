@@ -9,10 +9,12 @@ import {
   type SortColumn,
   type SortDirection,
 } from '@/lib/course-filters';
+import { cn } from '@/lib/utils';
 import {
   type Accreditation,
   ALL_TAGS,
   type CourseLevelFilter,
+  FEATURED_TAG,
   getTagLabel,
   type SeasonFilter,
 } from '@/types/course';
@@ -60,7 +62,15 @@ export const CourseListingControls = (props: CourseListingControlsProps) => (
         {(tag) => (
           <LabeledCheckbox
             checked={props.selectedTags.has(tag)}
-            class="gap-1.5"
+            class={cn(
+              'gap-1.5',
+              tag === FEATURED_TAG &&
+                'rounded-md border px-2 py-1 transition-colors [&>input]:accent-amber-500',
+              tag === FEATURED_TAG && props.selectedTags.has(tag)
+                ? 'border-amber-300 bg-amber-50 text-amber-700 dark:border-amber-500/30 dark:bg-amber-500/10 dark:text-amber-400'
+                : tag === FEATURED_TAG &&
+                    'border-border bg-background hover:bg-muted/50',
+            )}
             onChange={() => {
               props.onToggleTag(tag);
             }}

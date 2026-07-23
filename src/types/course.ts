@@ -60,6 +60,8 @@ export const coursesSchema = z.array(courseSchema);
 
 export type CourseRaw = z.infer<typeof courseSchema>;
 
+export const FEATURED_TAG = 'delemangi';
+
 const TAG_TRANSLATIONS: Record<string, string> = {
   ai: 'Вештачка интелигенција',
   coding: 'Кодирање',
@@ -74,7 +76,10 @@ const TAG_TRANSLATIONS: Record<string, string> = {
   web: 'Веб',
 };
 
-export const ALL_TAGS = Object.keys(TAG_TRANSLATIONS);
+export const ALL_TAGS = [
+  FEATURED_TAG,
+  ...Object.keys(TAG_TRANSLATIONS).filter((tag) => tag !== FEATURED_TAG),
+];
 
 export const getTagLabel = (tag: string): string =>
   TAG_TRANSLATIONS[tag] ?? tag;
