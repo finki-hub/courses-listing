@@ -15,7 +15,7 @@ export const LabeledCheckbox = (props: LabeledCheckboxProps) => (
   >
     <input
       checked={props.checked}
-      class="accent-primary h-4 w-4"
+      class="accent-primary h-4 w-4 dark:[color-scheme:dark]"
       onChange={() => {
         props.onChange();
       }}
