@@ -81,10 +81,7 @@ export const isFourYearOnly = (programState: string): boolean =>
   FOUR_YEAR_SEMESTER_RE.test(programState);
 
 export type ProgramStateKind =
-  | 'elective'
-  | 'faculty-list'
-  | 'required'
-  | 'required-4yr';
+  'elective' | 'faculty-list' | 'required' | 'required-4yr';
 
 export const getProgramStateKind = (
   programState: string | undefined,
