@@ -33,40 +33,59 @@ export const CourseDetailDialog = (props: CourseDetailDialogProps) => (
     <DialogPortal>
       <DialogContent class="max-h-[90vh] overflow-y-auto sm:max-w-2xl">
         <Show when={props.course}>
-          {(course) => (
-            <>
-              <DialogHeader>
-                <DialogTitle>
-                  {getCourseName(course(), props.accreditation)}
-                </DialogTitle>
-                <DialogDescription>
-                  Детални информации за предметот
-                </DialogDescription>
-              </DialogHeader>
+          {(course) => {
+            const primaryName = () =>
+              getCourseName(course(), props.accreditation);
+            const alternateName = () =>
+              [
+                course().name,
+                course()['2023-name'],
+                course()['2018-name'],
+              ].find(
+                (name) =>
+                  name !== undefined && name !== '' && name !== primaryName(),
+              );
 
-              <div class="space-y-4">
-                <div class="flex flex-wrap gap-4">
-                  <DetailBadgeSection
-                    items={course().professors.split('\n').filter(Boolean)}
-                    title="Професори"
-                  />
-                  <DetailBadgeSection
-                    items={
-                      course().assistants?.split('\n').filter(Boolean) ?? []
-                    }
-                    title="Асистенти"
-                    variant="outline"
-                  />
+            return (
+              <>
+                <DialogHeader>
+                  <div class="space-y-1">
+                    <DialogTitle>{primaryName()}</DialogTitle>
+                    <Show when={alternateName()}>
+                      {(name) => (
+                        <p class="text-muted-foreground text-sm">{name()}</p>
+                      )}
+                    </Show>
+                  </div>
+                  <DialogDescription>
+                    Детални информации за предметот
+                  </DialogDescription>
+                </DialogHeader>
+
+                <div class="space-y-4">
+                  <div class="flex flex-wrap gap-4">
+                    <DetailBadgeSection
+                      items={course().professors.split('\n').filter(Boolean)}
+                      title="Професори"
+                    />
+                    <DetailBadgeSection
+                      items={
+                        course().assistants?.split('\n').filter(Boolean) ?? []
+                      }
+                      title="Асистенти"
+                      variant="outline"
+                    />
+                  </div>
+
+                  <CourseTagsSection course={course()} />
+
+                  <AccreditationCardsGrid course={course()} />
+
+                  <EnrollmentHistorySection course={course()} />
                 </div>
-
-                <CourseTagsSection course={course()} />
-
-                <AccreditationCardsGrid course={course()} />
-
-                <EnrollmentHistorySection course={course()} />
-              </div>
-            </>
-          )}
+              </>
+            );
+          }}
         </Show>
       </DialogContent>
     </DialogPortal>
