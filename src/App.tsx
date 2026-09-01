@@ -1,6 +1,14 @@
 import { siGithub } from 'simple-icons';
-import { createEffect, createSignal, For, Match, Switch } from 'solid-js';
+import {
+  createEffect,
+  createSignal,
+  For,
+  Match,
+  onCleanup,
+  Switch,
+} from 'solid-js';
 
+import { CourseEquivalencies } from '@/components/course-equivalencies';
 import { CourseTable } from '@/components/course-table';
 import { EnrollmentSimulator } from '@/components/enrollment-simulator';
 import { PrerequisiteExplorer } from '@/components/prerequisite-explorer';
@@ -10,9 +18,10 @@ import { useCourses } from '@/data/use-courses';
 import { ALERT_STYLES } from '@/lib/alert-styles';
 import { PAGE_QUERY_PARAM, SIMULATOR_SHARE_PARAM } from '@/lib/simulator-share';
 
-type Page = 'listing' | 'prerequisites' | 'simulator';
+type Page = 'equivalencies' | 'listing' | 'prerequisites' | 'simulator';
 
 const PAGE_VALUES: ReadonlySet<string> = new Set([
+  'equivalencies',
   'listing',
   'prerequisites',
   'simulator',
@@ -24,6 +33,7 @@ const TABS: Array<{ label: string; value: Page }> = [
   { label: 'Предмети', value: 'listing' },
   { label: 'Симулатор', value: 'simulator' },
   { label: 'Предуслови', value: 'prerequisites' },
+  { label: 'Еквиваленции', value: 'equivalencies' },
 ];
 
 const githubPath = siGithub.path;
@@ -40,16 +50,30 @@ const getInitialPage = (): Page => {
 const App = () => {
   const [courses] = useCourses();
   const [page, setPage] = createSignal<Page>(getInitialPage());
+  let navigationElement: HTMLElement | undefined;
 
   createEffect(() => {
-    localStorage.setItem('active-page', page());
+    const activePage = page();
+    localStorage.setItem('active-page', activePage);
 
     const url = new URL(location.href);
-    url.searchParams.set(PAGE_QUERY_PARAM, page());
-    if (page() !== 'simulator') {
+    url.searchParams.set(PAGE_QUERY_PARAM, activePage);
+    if (activePage !== 'simulator') {
       url.searchParams.delete(SIMULATOR_SHARE_PARAM);
     }
     history.replaceState({}, '', url);
+
+    const scrollActivePageIntoView = () => {
+      navigationElement
+        ?.querySelector(`[data-page="${CSS.escape(activePage)}"]`)
+        ?.scrollIntoView({ block: 'nearest', inline: 'nearest' });
+    };
+
+    queueMicrotask(scrollActivePageIntoView);
+    window.addEventListener('resize', scrollActivePageIntoView);
+    onCleanup(() => {
+      window.removeEventListener('resize', scrollActivePageIntoView);
+    });
   });
 
   return (
@@ -86,15 +110,22 @@ const App = () => {
       </div>
 
       <div class="container mx-auto py-4 sm:py-8">
-        <nav class="-mx-3 mb-4 flex gap-1 overflow-x-auto overflow-y-hidden border-b px-3 sm:mx-0 sm:mb-6 sm:px-0">
+        <nav
+          class="-mx-3 mb-4 flex gap-1 overflow-x-auto overflow-y-hidden border-b px-3 sm:mx-0 sm:mb-6 sm:px-0"
+          ref={(element) => {
+            navigationElement = element;
+          }}
+        >
           <For each={TABS}>
             {(tab) => (
               <button
+                aria-current={page() === tab.value ? 'page' : undefined}
                 class={`whitespace-nowrap px-3 py-2 text-xs font-medium transition-colors sm:px-4 sm:text-sm ${
                   page() === tab.value
                     ? 'border-primary text-primary -mb-px border-b-2'
                     : 'text-muted-foreground hover:text-foreground'
                 }`}
+                data-page={tab.value}
                 onClick={() => {
                   setPage(tab.value);
                 }}
@@ -128,6 +159,9 @@ const App = () => {
                 </Match>
                 <Match when={page() === 'prerequisites'}>
                   <PrerequisiteExplorer courses={data()} />
+                </Match>
+                <Match when={page() === 'equivalencies'}>
+                  <CourseEquivalencies courses={data()} />
                 </Match>
               </Switch>
             )}
