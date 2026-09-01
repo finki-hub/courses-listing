@@ -23,17 +23,6 @@
   },
   "license": "MIT",
   "name": "finki-hub-courses-listing",
-  "overrides": {
-    "eslint-plugin-jsx-a11y": {
-      "eslint": "$eslint"
-    },
-    "eslint-plugin-promise": {
-      "eslint": "$eslint"
-    },
-    "eslint-plugin-solid": {
-      "eslint": "$eslint"
-    }
-  },
   "private": true,
   "scripts": {
     "build": "tsc -b && vite build",
