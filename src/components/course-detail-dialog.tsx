@@ -53,7 +53,9 @@ export const CourseDetailDialog = (props: CourseDetailDialogProps) => (
                     <DialogTitle>{primaryName()}</DialogTitle>
                     <Show when={alternateName()}>
                       {(name) => (
-                        <p class="text-muted-foreground text-sm">{name()}</p>
+                        <p class="text-foreground/80 text-sm font-medium">
+                          {name()}
+                        </p>
                       )}
                     </Show>
                   </div>
