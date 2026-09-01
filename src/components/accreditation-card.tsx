@@ -1,8 +1,9 @@
 import { ExternalLink } from 'lucide-solid';
 import { Show } from 'solid-js';
 
+import type { Accreditation, AccreditationInfo } from '@/types/course';
+
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { type Accreditation, type AccreditationInfo } from '@/types/course';
 
 const FINKI_SUBJECT_BASE = 'https://www.finki.ukim.mk/mk/subject/';
 
@@ -38,6 +39,10 @@ export const AccreditationCard = (props: AccreditationCardProps) => (
     </CardHeader>
     <CardContent>
       <dl class="grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
+        <Show when={props.info.name}>
+          <dt class="text-muted-foreground col-span-2">Име</dt>
+          <dd class="col-span-2">{props.info.name}</dd>
+        </Show>
         <Show when={props.info.code}>
           <dt class="text-muted-foreground">Код</dt>
           <dd class="font-mono text-xs">{props.info.code}</dd>
@@ -53,10 +58,6 @@ export const AccreditationCard = (props: AccreditationCardProps) => (
         <Show when={getChannelLabel(props.info.channel)}>
           <dt class="text-muted-foreground">Канал</dt>
           <dd>{getChannelLabel(props.info.channel)}</dd>
-        </Show>
-        <Show when={props.info.name}>
-          <dt class="text-muted-foreground col-span-2">Име</dt>
-          <dd class="col-span-2">{props.info.name}</dd>
         </Show>
         <Show when={props.info.prerequisite}>
           <dt class="text-muted-foreground col-span-2">Предуслов</dt>
