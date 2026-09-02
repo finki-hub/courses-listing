@@ -64,9 +64,21 @@ const App = () => {
     history.replaceState({}, '', url);
 
     const scrollActivePageIntoView = () => {
-      navigationElement
-        ?.querySelector(`[data-page="${CSS.escape(activePage)}"]`)
-        ?.scrollIntoView({ block: 'nearest', inline: 'nearest' });
+      const navigation = navigationElement;
+      const activeTab = navigation?.querySelector<HTMLElement>(
+        `[data-page="${CSS.escape(activePage)}"]`,
+      );
+      if (!(navigation && activeTab)) return;
+
+      const navigationRect = navigation.getBoundingClientRect();
+      const activeTabRect = activeTab.getBoundingClientRect();
+      if (activeTabRect.left < navigationRect.left) {
+        navigation.scrollBy({ left: activeTabRect.left - navigationRect.left });
+      } else if (activeTabRect.right > navigationRect.right) {
+        navigation.scrollBy({
+          left: activeTabRect.right - navigationRect.right,
+        });
+      }
     };
 
     queueMicrotask(scrollActivePageIntoView);
