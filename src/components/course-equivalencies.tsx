@@ -189,7 +189,7 @@ export const CourseEquivalencies = (props: CourseEquivalenciesProps) => {
           <TableHeader>
             <TableRow class="hover:bg-transparent transition-none">
               <TableHead
-                class="w-1/2 border-l"
+                class="w-1/2 border-r"
                 scope="col"
               >
                 Акредитација 2018
@@ -219,7 +219,7 @@ export const CourseEquivalencies = (props: CourseEquivalenciesProps) => {
               <For each={filteredRows()}>
                 {(row) => (
                   <TableRow class="even:bg-muted/20 hover:bg-transparent even:hover:bg-muted/20 transition-none">
-                    <TableCell class="min-w-0 border-l align-top whitespace-normal">
+                    <TableCell class="min-w-0 border-r align-top whitespace-normal">
                       <CourseCell course={row.accreditation2018} />
                     </TableCell>
                     <TableCell class="min-w-0 align-top whitespace-normal">
