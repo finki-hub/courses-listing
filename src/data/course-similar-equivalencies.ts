@@ -15,6 +15,8 @@ export type SimilarEquivalency =
       targets: SimilarCourse[];
     };
 
+type CombinationRule = Extract<CuratedRule, { kind: 'combination' }>;
+
 type CuratedRule =
   | { accreditation: Accreditation; codes: string[]; kind: 'related' }
   | {
@@ -24,55 +26,26 @@ type CuratedRule =
       targets: string[];
     };
 
+const makeCombinationRule = (
+  accreditation: Accreditation,
+  sources: string[],
+  target: string,
+): CombinationRule => ({
+  accreditation,
+  kind: 'combination',
+  sources,
+  targets: [target],
+});
+
 const CURATED_RULES: readonly CuratedRule[] = [
-  {
-    accreditation: '2023',
-    kind: 'combination',
-    sources: ['F23L2W031', 'F23L2S032'],
-    targets: ['F23L2W003'],
-  },
-  {
-    accreditation: '2023',
-    kind: 'combination',
-    sources: ['F23L2W031', 'F23L2S032'],
-    targets: ['F23L2S011'],
-  },
-  {
-    accreditation: '2023',
-    kind: 'combination',
-    sources: ['F23L2W031', 'F23L2S032'],
-    targets: ['F23L2S001'],
-  },
-  {
-    accreditation: '2018',
-    kind: 'combination',
-    sources: ['F18L1W031', 'F18L1S032'],
-    targets: ['F18L1W011'],
-  },
-  {
-    accreditation: '2023',
-    kind: 'combination',
-    sources: ['F23L2W033', 'F23L2S034'],
-    targets: ['F23L2W002'],
-  },
-  {
-    accreditation: '2023',
-    kind: 'combination',
-    sources: ['F23L2W002'],
-    targets: ['F23L2W033'],
-  },
-  {
-    accreditation: '2018',
-    kind: 'combination',
-    sources: ['F18L1W033', 'F18L1S034'],
-    targets: ['F18L1S013'],
-  },
-  {
-    accreditation: '2018',
-    kind: 'combination',
-    sources: ['F18L1S013'],
-    targets: ['F18L1W033'],
-  },
+  makeCombinationRule('2023', ['F23L2W031', 'F23L2S032'], 'F23L2W003'),
+  makeCombinationRule('2023', ['F23L2W031', 'F23L2S032'], 'F23L2S011'),
+  makeCombinationRule('2023', ['F23L2W031', 'F23L2S032'], 'F23L2S001'),
+  makeCombinationRule('2018', ['F18L1W031', 'F18L1S032'], 'F18L1W011'),
+  makeCombinationRule('2023', ['F23L2W033', 'F23L2S034'], 'F23L2W002'),
+  makeCombinationRule('2023', ['F23L2W002'], 'F23L2W033'),
+  makeCombinationRule('2018', ['F18L1W033', 'F18L1S034'], 'F18L1S013'),
+  makeCombinationRule('2018', ['F18L1S013'], 'F18L1W033'),
   { accreditation: '2023', codes: ['F23L2W201', 'F23L2W001'], kind: 'related' },
   { accreditation: '2023', codes: ['F23L1S003', 'F23L1S045'], kind: 'related' },
   { accreditation: '2018', codes: ['F18L1S003', 'F18L1S045'], kind: 'related' },
