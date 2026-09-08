@@ -1,8 +1,7 @@
 import { createMemo, createSignal, For, Show } from 'solid-js';
 
 import { Badge } from '@/components/ui/badge';
-import { ButtonGroup } from '@/components/ui/button-group';
-import { Card, CardContent } from '@/components/ui/card';
+import { LabeledCheckbox } from '@/components/ui/labeled-checkbox';
 import { SearchInput } from '@/components/ui/search-input';
 import {
   Table,
@@ -36,8 +35,11 @@ type EquivalencyRow = {
   readonly searchText: string;
 };
 
+type UnifiedRule =
+  | { kind: 'one-to-one'; row: EquivalencyRow }
+  | { kind: 'similar'; rule: SimilarEquivalency };
+
 const NAME_COLLATOR = new Intl.Collator('mk');
-const ONE_TO_ONE_VIEW = 'one-to-one' as const;
 
 const CourseCell = (props: {
   readonly course: EquivalencyCourse | undefined;
@@ -61,6 +63,20 @@ const CourseCell = (props: {
   </Show>
 );
 
+const OneToOneRelationship = (props: { row: EquivalencyRow }) => (
+  <div class="grid gap-3 sm:grid-cols-[1fr_auto_1fr] sm:items-center">
+    <CourseCell course={props.row.accreditation2018} />
+    <span
+      aria-label="еквивалентен помеѓу акредитациите 2018 и 2023"
+      class="text-primary text-center text-lg font-semibold"
+    >
+      <span aria-hidden="true">↔</span>
+      <span class="sr-only">е еквивалентен со</span>
+    </span>
+    <CourseCell course={props.row.accreditation2023} />
+  </div>
+);
+
 const SimilarCourseList = (props: { courses: SimilarCourse[] }) => (
   <div class="space-y-2">
     <For each={props.courses}>
@@ -82,15 +98,6 @@ const SimilarRule = (props: { rule: SimilarEquivalency }) => {
     const courses = props.rule.courses;
     return (
       <div class="space-y-3">
-        <div class="flex flex-wrap items-center gap-2">
-          <Badge
-            class="md:hidden"
-            variant="outline"
-          >
-            Акредитација {props.rule.accreditation}
-          </Badge>
-          <Badge variant="secondary">Поврзани</Badge>
-        </div>
         <div class="flex flex-wrap items-center gap-2 sm:gap-3">
           <For each={courses}>
             {(course, index) => (
@@ -115,28 +122,6 @@ const SimilarRule = (props: { rule: SimilarEquivalency }) => {
 
   return (
     <div class="space-y-3">
-      <div class="flex flex-wrap items-center gap-2">
-        <Badge
-          class="md:hidden"
-          variant="outline"
-        >
-          Акредитација {props.rule.accreditation}
-        </Badge>
-        <Badge variant="secondary">
-          {props.rule.kind === 'combination' ? 'Комбинација' : 'Насочена'}
-        </Badge>
-      </div>
-      <Show when={props.rule.kind === 'combination'}>
-        <div
-          class="bg-muted/40 rounded-md border px-3 py-2 text-xs"
-          role="note"
-        >
-          Условот важи само за изворните предмети: најмалку еден изворен предмет
-          мора да е положен, а сите останати изворни предмети мора да се
-          слушани/запишани. Целните предмети се признатиот исход на ова правило
-          и не се условени со овој услов.
-        </div>
-      </Show>
       <div class="grid gap-3 sm:grid-cols-[1fr_auto_1fr] sm:items-center">
         <SimilarCourseList courses={props.rule.sources} />
         <span
@@ -161,12 +146,80 @@ const SimilarRule = (props: { rule: SimilarEquivalency }) => {
 };
 /* eslint-enable solid/components-return-once, solid/reactivity -- end conditional rule markup */
 
+const mergeCombinationRules = (
+  rules: readonly SimilarEquivalency[],
+): SimilarEquivalency[] => {
+  const merged: SimilarEquivalency[] = [];
+  const combinationIndexes = new Map<string, number>();
+
+  for (const rule of rules) {
+    if (rule.kind !== 'combination') {
+      merged.push(rule);
+      continue;
+    }
+
+    const key = `${rule.accreditation}:${rule.sources.map((course) => course.code).join('|')}`;
+    const existingIndex = combinationIndexes.get(key);
+    const existing =
+      existingIndex === undefined ? undefined : merged[existingIndex];
+    if (existing?.kind === 'combination') {
+      existing.targets.push(...rule.targets);
+      continue;
+    }
+
+    combinationIndexes.set(key, merged.length);
+    merged.push({
+      accreditation: rule.accreditation,
+      kind: 'combination',
+      sources: rule.sources,
+      targets: [...rule.targets],
+    });
+  }
+
+  return merged;
+};
+
+/* eslint-disable solid/components-return-once, solid/reactivity -- table cells branch on a discriminated rule entry */
+const similarRuleLabel = (rule: SimilarEquivalency): string => {
+  if (rule.kind === 'related') return 'Сродни';
+  if (rule.kind === 'combination') return 'Комбинација';
+  return 'Насочена';
+};
+
+const UnifiedTypeCell = (props: { entry: UnifiedRule }) => {
+  if (props.entry.kind === 'one-to-one') {
+    return (
+      <div class="space-y-2">
+        <Badge variant="secondary">1:1</Badge>
+        <div class="text-muted-foreground text-xs">2018 ↔ 2023</div>
+      </div>
+    );
+  }
+
+  return (
+    <div class="space-y-2">
+      <Badge variant="secondary">{similarRuleLabel(props.entry.rule)}</Badge>
+      <div class="text-muted-foreground text-xs">
+        Акредитација {props.entry.rule.accreditation}
+      </div>
+    </div>
+  );
+};
+
+const UnifiedRelationshipCell = (props: { entry: UnifiedRule }) => {
+  if (props.entry.kind === 'one-to-one') {
+    return <OneToOneRelationship row={props.entry.row} />;
+  }
+
+  return <SimilarRule rule={props.entry.rule} />;
+};
+/* eslint-enable solid/components-return-once, solid/reactivity -- end table rule cells */
+
 /* eslint-disable max-lines-per-function -- this page owns both intentionally parallel responsive views */
 export const CourseEquivalencies = (props: CourseEquivalenciesProps) => {
   const [search, setSearch] = createSignal('');
-  const [view, setView] = createSignal<'similar' | typeof ONE_TO_ONE_VIEW>(
-    ONE_TO_ONE_VIEW,
-  );
+  const [showOneToOne, setShowOneToOne] = createSignal(true);
+  const [showSimilar, setShowSimilar] = createSignal(true);
 
   const equivalencies = createMemo(() => {
     const rows: EquivalencyRow[] = [];
@@ -247,57 +300,76 @@ export const CourseEquivalencies = (props: CourseEquivalenciesProps) => {
     });
   });
 
+  const hasCombinationRules = createMemo(() =>
+    resolveSimilarEquivalencies(props.courses).some(
+      (rule) => rule.kind === 'combination',
+    ),
+  );
+
+  const unifiedRules = createMemo<UnifiedRule[]>(() => [
+    ...(showOneToOne()
+      ? filteredRows().map((row) => ({ kind: 'one-to-one' as const, row }))
+      : []),
+    ...(showSimilar()
+      ? mergeCombinationRules(similarRules()).map((rule) => ({
+          kind: 'similar' as const,
+          rule,
+        }))
+      : []),
+  ]);
+
+  const combinationRulesEnabled = createMemo(
+    () => showSimilar() && hasCombinationRules(),
+  );
+  const selectedRuleCount = createMemo(
+    () =>
+      (showOneToOne() ? filteredRows().length : 0) +
+      (showSimilar() ? similarRules().length : 0),
+  );
+
   return (
     <section
       aria-labelledby="equivalencies-heading"
       class="space-y-4"
     >
-      <div class="space-y-1">
-        <h2
-          class="text-lg font-semibold"
-          id="equivalencies-heading"
+      <h2
+        class="text-lg font-semibold"
+        id="equivalencies-heading"
+      >
+        Еквиваленции на предмети
+      </h2>
+
+      <div class="flex flex-wrap gap-2">
+        <LabeledCheckbox
+          checked={showOneToOne()}
+          class="rounded-md border px-3 py-2 font-medium"
+          onChange={() => setShowOneToOne((current) => !current)}
         >
-          <Show
-            fallback="Сродни еквиваленции"
-            when={view() === ONE_TO_ONE_VIEW}
-          >
-            1:1 еквиваленции
-          </Show>
-        </h2>
-        <p class="text-muted-foreground text-sm">
-          <Show
-            fallback="Истражете ги поврзаните и насочените правила во секоја акредитација."
-            when={view() === ONE_TO_ONE_VIEW}
-          >
-            Споредете ги предметите од акредитациите 2018 и 2023.
-          </Show>
-        </p>
+          1:1 еквиваленции
+        </LabeledCheckbox>
+        <LabeledCheckbox
+          checked={showSimilar()}
+          class="rounded-md border px-3 py-2 font-medium"
+          onChange={() => setShowSimilar((current) => !current)}
+        >
+          Сродни еквиваленции
+        </LabeledCheckbox>
       </div>
 
-      <Show when={view() === ONE_TO_ONE_VIEW}>
-        <div class="flex flex-wrap gap-x-4 gap-y-1 text-sm">
-          <span>
-            <strong>{equivalencies().renamedCount}</strong>{' '}
-            <span class="text-muted-foreground">преименувани предмети</span>
-          </span>
-          <span>
-            <strong>{equivalencies().oneSidedCount}</strong>{' '}
-            <span class="text-muted-foreground">
-              предмети само во една акредитација
-            </span>
-          </span>
-        </div>
-      </Show>
-
-      <ButtonGroup
-        aria-label="Поглед на еквиваленции"
-        items={[
-          { label: '1:1 еквиваленции', value: ONE_TO_ONE_VIEW },
-          { label: 'Сродни еквиваленции', value: 'similar' },
-        ]}
-        onSelect={setView}
-        value={view()}
-      />
+      <div class="space-y-1">
+        <p class="text-muted-foreground text-sm">
+          Споредете ги предметите од акредитациите 2018 и 2023 или истражете ги
+          сродните правила во секоја акредитација.
+        </p>
+        <p
+          aria-live="polite"
+          class="text-muted-foreground text-sm"
+        >
+          Прикажани {selectedRuleCount()} правила · 1:1:{' '}
+          {showOneToOne() ? filteredRows().length : 0} · сродни:{' '}
+          {showSimilar() ? similarRules().length : 0}
+        </p>
+      </div>
 
       <div class="space-y-2">
         <label
@@ -316,117 +388,65 @@ export const CourseEquivalencies = (props: CourseEquivalenciesProps) => {
         />
       </div>
 
-      <div class="flex flex-wrap items-center justify-between gap-3">
-        <p
-          aria-live="polite"
-          class="text-muted-foreground text-sm"
+      <Show when={combinationRulesEnabled()}>
+        <div
+          class="bg-muted/40 flex gap-3 rounded-md border p-3 text-sm"
+          role="note"
         >
-          <Show
-            fallback={`Прикажани ${similarRules().length} правила`}
-            when={view() === ONE_TO_ONE_VIEW}
+          <span
+            aria-hidden="true"
+            class="text-primary text-lg leading-none"
           >
-            Прикажани {filteredRows().length} од{' '}
-            {
-              equivalencies().rows.filter(
-                (row) => row.accreditation2018 && row.accreditation2023,
-              ).length
-            }
-          </Show>
-        </p>
-      </div>
+            ⓘ
+          </span>
+          <p>
+            Комбинациските правила: условот за положување и слушање важи само за
+            изворните предмети. Најмалку еден изворен предмет мора да е положен,
+            а сите останати мора да се слушани/запишани; целните предмети се
+            признатиот исход на правилото.
+          </p>
+        </div>
+      </Show>
 
       <Show
         fallback={
-          <div class="space-y-3">
-            <div class="hidden rounded-md border md:block">
-              <Table class="table-fixed">
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Правило</TableHead>
-                    <TableHead>Предмети</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  <For each={similarRules()}>
-                    {(rule) => (
-                      <TableRow>
-                        <TableCell class="w-32 align-top">
-                          <Badge variant="outline">{rule.accreditation}</Badge>
-                        </TableCell>
-                        <TableCell>
-                          <SimilarRule rule={rule} />
-                        </TableCell>
-                      </TableRow>
-                    )}
-                  </For>
-                </TableBody>
-              </Table>
-            </div>
-            <div class="grid gap-3 md:hidden">
-              <For each={similarRules()}>
-                {(rule) => (
-                  <Card>
-                    <CardContent class="p-4">
-                      <SimilarRule rule={rule} />
-                    </CardContent>
-                  </Card>
-                )}
-              </For>
-            </div>
-            <Show when={similarRules().length === 0}>
-              <div class="rounded-md border p-8 text-center text-sm">
-                Нема резултати.
-              </div>
-            </Show>
+          <div class="rounded-md border p-8 text-center text-sm">
+            Нема резултати.
           </div>
         }
-        when={view() === ONE_TO_ONE_VIEW}
+        when={unifiedRules().length > 0}
       >
-        <div class="rounded-md border">
-          <Table class="table-fixed">
+        <div class="overflow-x-auto rounded-md border">
+          <Table class="w-full table-fixed">
             <TableHeader>
               <TableRow class="hover:bg-transparent transition-none">
                 <TableHead
-                  class="w-1/2 border-r"
+                  class="w-28 border-r pr-2 whitespace-normal break-words leading-tight sm:w-36"
                   scope="col"
                 >
-                  Акредитација 2018
+                  Вид / акредитација
                 </TableHead>
                 <TableHead
-                  class="w-1/2"
+                  class="pl-2 whitespace-normal break-words leading-tight"
                   scope="col"
                 >
-                  Акредитација 2023
+                  Однос помеѓу предметите
                 </TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              <Show
-                fallback={
-                  <TableRow class="hover:bg-transparent transition-none">
-                    <TableCell
-                      class="h-24 text-center"
-                      colSpan={2}
-                    >
-                      Нема резултати.
+              <For each={unifiedRules()}>
+                {(entry) => (
+                  <TableRow class="even:bg-muted/20 hover:bg-transparent even:hover:bg-muted/20 transition-none">
+                    <TableCell class="border-r align-top pr-2">
+                      <UnifiedTypeCell entry={entry} />
+                    </TableCell>
+                    <TableCell class="min-w-0 align-top whitespace-normal pl-2">
+                      <UnifiedRelationshipCell entry={entry} />
                     </TableCell>
                   </TableRow>
-                }
-                when={filteredRows().length > 0}
-              >
-                <For each={filteredRows()}>
-                  {(row) => (
-                    <TableRow class="even:bg-muted/20 hover:bg-transparent even:hover:bg-muted/20 transition-none">
-                      <TableCell class="min-w-0 border-r align-top whitespace-normal">
-                        <CourseCell course={row.accreditation2018} />
-                      </TableCell>
-                      <TableCell class="min-w-0 align-top whitespace-normal">
-                        <CourseCell course={row.accreditation2023} />
-                      </TableCell>
-                    </TableRow>
-                  )}
-                </For>
-              </Show>
+                )}
+              </For>
             </TableBody>
           </Table>
         </div>
