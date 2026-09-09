@@ -79,7 +79,7 @@ const OneToOneRelationship = (props: { row: EquivalencyRow }) => (
 );
 
 const SimilarCourseList = (props: { courses: SimilarCourse[] }) => (
-  <div class="space-y-2">
+  <div class="min-w-0 space-y-2">
     <For each={props.courses}>
       {(course) => (
         <div class="min-w-0">
@@ -99,7 +99,13 @@ const SimilarRule = (props: { rule: SimilarEquivalency }) => {
     const courses = props.rule.courses;
     return (
       <div class="space-y-3">
-        <div class="flex flex-col items-start gap-2 sm:flex-row sm:items-start sm:gap-3">
+        <div
+          class={`grid grid-cols-1 items-start gap-2 sm:items-start sm:gap-3 ${
+            courses.length === 2
+              ? 'sm:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)]'
+              : 'sm:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)_auto_minmax(0,1fr)]'
+          }`}
+        >
           <For each={courses}>
             {(course, index) => (
               <>
@@ -107,7 +113,7 @@ const SimilarRule = (props: { rule: SimilarEquivalency }) => {
                 <Show when={index() < courses.length - 1}>
                   <span
                     aria-hidden="true"
-                    class="text-primary text-lg font-semibold sm:pt-1"
+                    class="text-primary justify-self-center text-lg font-semibold sm:pt-1"
                   >
                     ↔
                   </span>
