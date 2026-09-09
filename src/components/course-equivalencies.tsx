@@ -65,11 +65,11 @@ const CourseCell = (props: {
 );
 
 const OneToOneRelationship = (props: { row: EquivalencyRow }) => (
-  <div class="grid gap-3 sm:grid-cols-[1fr_auto_1fr] sm:items-center">
+  <div class="grid gap-3 sm:grid-cols-[1fr_auto_1fr] sm:items-start">
     <CourseCell course={props.row.accreditation2018} />
     <span
       aria-label="еквивалентен помеѓу акредитациите 2018 и 2023"
-      class="text-primary text-center text-lg font-semibold"
+      class="text-primary text-center text-lg font-semibold sm:pt-1"
     >
       <span aria-hidden="true">↔</span>
       <span class="sr-only">е еквивалентен со</span>
@@ -99,7 +99,7 @@ const SimilarRule = (props: { rule: SimilarEquivalency }) => {
     const courses = props.rule.courses;
     return (
       <div class="space-y-3">
-        <div class="flex flex-col items-start gap-2 sm:flex-row sm:items-center sm:gap-3">
+        <div class="flex flex-col items-start gap-2 sm:flex-row sm:items-start sm:gap-3">
           <For each={courses}>
             {(course, index) => (
               <>
@@ -107,7 +107,7 @@ const SimilarRule = (props: { rule: SimilarEquivalency }) => {
                 <Show when={index() < courses.length - 1}>
                   <span
                     aria-hidden="true"
-                    class="text-primary text-lg font-semibold"
+                    class="text-primary text-lg font-semibold sm:pt-1"
                   >
                     ↔
                   </span>
@@ -123,7 +123,7 @@ const SimilarRule = (props: { rule: SimilarEquivalency }) => {
 
   return (
     <div class="space-y-3">
-      <div class="grid gap-3 sm:grid-cols-[1fr_auto_1fr] sm:items-center">
+      <div class="grid gap-3 sm:grid-cols-[1fr_auto_1fr] sm:items-start">
         <SimilarCourseList courses={props.rule.sources} />
         <span
           aria-label={
@@ -131,7 +131,7 @@ const SimilarRule = (props: { rule: SimilarEquivalency }) => {
               ? 'изворни предмети кон целни предмети'
               : 'изворен предмет кон целен предмет'
           }
-          class="text-primary text-center text-lg font-semibold"
+          class="text-primary text-center text-lg font-semibold sm:pt-1"
         >
           <span class="sm:hidden">
             {props.rule.kind === 'combination' ? '+ ↓' : '↓'}
@@ -192,7 +192,7 @@ const UnifiedTypeCell = (props: { entry: UnifiedRule }) => {
     return (
       <div class="space-y-2">
         <Badge variant="secondary">1:1</Badge>
-        <div class="text-muted-foreground text-xs">2018 ↔ 2023</div>
+        <div class="text-muted-foreground font-mono text-xs">2018 ↔ 2023</div>
       </div>
     );
   }
@@ -200,8 +200,8 @@ const UnifiedTypeCell = (props: { entry: UnifiedRule }) => {
   return (
     <div class="space-y-2">
       <Badge variant="secondary">{similarRuleLabel(props.entry.rule)}</Badge>
-      <div class="text-muted-foreground text-xs">
-        Акредитација {props.entry.rule.accreditation}
+      <div class="text-muted-foreground font-mono text-xs">
+        {props.entry.rule.accreditation}
       </div>
     </div>
   );
@@ -359,17 +359,23 @@ export const CourseEquivalencies = (props: CourseEquivalenciesProps) => {
 
       <div class="space-y-1">
         <p class="text-muted-foreground text-sm">
-          Споредете ги предметите од акредитациите 2018 и 2023 или истражете ги
-          сродните правила во секоја акредитација.
+          Прегледајте ги достапните еквиваленции и сродни правила за
+          акредитациите 2018 и 2023.
         </p>
-        <p
+        <div
           aria-live="polite"
-          class="text-muted-foreground text-sm"
+          class="flex flex-wrap items-baseline gap-x-4 gap-y-1 text-sm"
         >
-          Прикажани {selectedRuleCount()} правила · 1:1:{' '}
-          {showOneToOne() ? filteredRows().length : 0} · сродни:{' '}
-          {showSimilar() ? similarRules().length : 0}
-        </p>
+          <strong class="text-foreground font-semibold">
+            {selectedRuleCount()} прикажани правила
+          </strong>
+          <span class="text-muted-foreground">
+            1:1 {showOneToOne() ? filteredRows().length : 0}
+          </span>
+          <span class="text-muted-foreground">
+            Сродни {showSimilar() ? similarRules().length : 0}
+          </span>
+        </div>
       </div>
 
       <div class="space-y-2">
@@ -425,7 +431,7 @@ export const CourseEquivalencies = (props: CourseEquivalenciesProps) => {
                   class="w-28 border-r pr-2 whitespace-normal break-words leading-tight sm:w-36"
                   scope="col"
                 >
-                  Вид / акредитација
+                  Вид
                 </TableHead>
                 <TableHead
                   class="pl-2 whitespace-normal break-words leading-tight"
