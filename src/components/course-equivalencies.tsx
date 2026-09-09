@@ -359,8 +359,7 @@ export const CourseEquivalencies = (props: CourseEquivalenciesProps) => {
 
       <div class="space-y-1">
         <p class="text-muted-foreground text-sm">
-          Прегледајте ги достапните еквиваленции и сродни правила за
-          акредитациите 2018 и 2023.
+          Прегледајте ги еквиваленциите на предметите помеѓу акредитациите.
         </p>
         <div
           aria-live="polite"
