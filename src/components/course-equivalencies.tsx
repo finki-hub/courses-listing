@@ -16,6 +16,7 @@ import {
   type SimilarCourse,
   type SimilarEquivalency,
 } from '@/data/course-similar-equivalencies';
+import { ALERT_STYLES } from '@/lib/alert-styles';
 import { normalizeSearchText } from '@/lib/search-normalization';
 import { type CourseRaw, getAccreditationInfo } from '@/types/course';
 
@@ -98,7 +99,7 @@ const SimilarRule = (props: { rule: SimilarEquivalency }) => {
     const courses = props.rule.courses;
     return (
       <div class="space-y-3">
-        <div class="flex flex-wrap items-center gap-2 sm:gap-3">
+        <div class="flex flex-col items-start gap-2 sm:flex-row sm:items-center sm:gap-3">
           <For each={courses}>
             {(course, index) => (
               <>
@@ -339,17 +340,17 @@ export const CourseEquivalencies = (props: CourseEquivalenciesProps) => {
         Еквиваленции на предмети
       </h2>
 
-      <div class="flex flex-wrap gap-2">
+      <div class="flex flex-wrap items-center gap-3">
         <LabeledCheckbox
           checked={showOneToOne()}
-          class="rounded-md border px-3 py-2 font-medium"
+          class="gap-2 py-1.5"
           onChange={() => setShowOneToOne((current) => !current)}
         >
           1:1 еквиваленции
         </LabeledCheckbox>
         <LabeledCheckbox
           checked={showSimilar()}
-          class="rounded-md border px-3 py-2 font-medium"
+          class="gap-2 py-1.5"
           onChange={() => setShowSimilar((current) => !current)}
         >
           Сродни еквиваленции
@@ -390,7 +391,7 @@ export const CourseEquivalencies = (props: CourseEquivalenciesProps) => {
 
       <Show when={combinationRulesEnabled()}>
         <div
-          class="bg-muted/40 flex gap-3 rounded-md border p-3 text-sm"
+          class={`${ALERT_STYLES.info} flex gap-3`}
           role="note"
         >
           <span
@@ -416,7 +417,7 @@ export const CourseEquivalencies = (props: CourseEquivalenciesProps) => {
         }
         when={unifiedRules().length > 0}
       >
-        <div class="overflow-x-auto rounded-md border">
+        <div class="rounded-md border">
           <Table class="w-full table-fixed">
             <TableHeader>
               <TableRow class="hover:bg-transparent transition-none">
