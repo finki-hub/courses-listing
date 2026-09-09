@@ -1,5 +1,6 @@
 import { createMemo, createSignal, For, Show } from 'solid-js';
 
+import { Badge } from '@/components/ui/badge';
 import { LabeledCheckbox } from '@/components/ui/labeled-checkbox';
 import { SearchInput } from '@/components/ui/search-input';
 import {
@@ -10,6 +11,12 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
+import {
+  resolveSimilarEquivalencies,
+  type SimilarCourse,
+  type SimilarEquivalency,
+} from '@/data/course-similar-equivalencies';
+import { ALERT_STYLES } from '@/lib/alert-styles';
 import { normalizeSearchText } from '@/lib/search-normalization';
 import { type CourseRaw, getAccreditationInfo } from '@/types/course';
 
@@ -28,6 +35,10 @@ type EquivalencyRow = {
   readonly isDifferent: boolean;
   readonly searchText: string;
 };
+
+type UnifiedRule =
+  | { kind: 'one-to-one'; row: EquivalencyRow }
+  | { kind: 'similar'; rule: SimilarEquivalency };
 
 const NAME_COLLATOR = new Intl.Collator('mk');
 
@@ -53,9 +64,169 @@ const CourseCell = (props: {
   </Show>
 );
 
+const OneToOneRelationship = (props: { row: EquivalencyRow }) => (
+  <div class="grid gap-3 sm:grid-cols-[1fr_auto_1fr] sm:items-start">
+    <CourseCell course={props.row.accreditation2018} />
+    <span
+      aria-label="еквивалентен помеѓу акредитациите 2018 и 2023"
+      class="text-primary text-center text-lg font-semibold sm:pt-1"
+    >
+      <span aria-hidden="true">↔</span>
+      <span class="sr-only">е еквивалентен со</span>
+    </span>
+    <CourseCell course={props.row.accreditation2023} />
+  </div>
+);
+
+const SimilarCourseList = (props: { courses: SimilarCourse[] }) => (
+  <div class="min-w-0 space-y-2">
+    <For each={props.courses}>
+      {(course) => (
+        <div class="min-w-0">
+          <div class="text-pretty break-words font-medium">{course.name}</div>
+          <div class="text-muted-foreground font-mono text-xs break-all">
+            {course.code}
+          </div>
+        </div>
+      )}
+    </For>
+  </div>
+);
+
+/* eslint-disable solid/components-return-once, solid/reactivity -- conditional course rule markup must preserve discriminated types */
+const SimilarRule = (props: { rule: SimilarEquivalency }) => {
+  if (props.rule.kind === 'related') {
+    const courses = props.rule.courses;
+    return (
+      <div class="space-y-3">
+        <div
+          class={`grid grid-cols-1 items-start gap-2 sm:items-start sm:gap-3 ${
+            courses.length === 2
+              ? 'sm:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)]'
+              : 'sm:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)_auto_minmax(0,1fr)]'
+          }`}
+        >
+          <For each={courses}>
+            {(course, index) => (
+              <>
+                <SimilarCourseList courses={[course]} />
+                <Show when={index() < courses.length - 1}>
+                  <span
+                    aria-hidden="true"
+                    class="text-primary justify-self-center text-lg font-semibold sm:pt-1"
+                  >
+                    ↔
+                  </span>
+                  <span class="sr-only">е еквивалентен со</span>
+                </Show>
+              </>
+            )}
+          </For>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div class="space-y-3">
+      <div class="grid gap-3 sm:grid-cols-[1fr_auto_1fr] sm:items-start">
+        <SimilarCourseList courses={props.rule.sources} />
+        <span
+          aria-label={
+            props.rule.kind === 'combination'
+              ? 'изворни предмети кон целни предмети'
+              : 'изворен предмет кон целен предмет'
+          }
+          class="text-primary text-center text-lg font-semibold sm:pt-1"
+        >
+          <span class="sm:hidden">
+            {props.rule.kind === 'combination' ? '+ ↓' : '↓'}
+          </span>
+          <span class="hidden sm:inline">
+            {props.rule.kind === 'combination' ? '+ →' : '→'}
+          </span>
+        </span>
+        <SimilarCourseList courses={props.rule.targets} />
+      </div>
+    </div>
+  );
+};
+/* eslint-enable solid/components-return-once, solid/reactivity -- end conditional rule markup */
+
+const mergeCombinationRules = (
+  rules: readonly SimilarEquivalency[],
+): SimilarEquivalency[] => {
+  const merged: SimilarEquivalency[] = [];
+  const combinationIndexes = new Map<string, number>();
+
+  for (const rule of rules) {
+    if (rule.kind !== 'combination') {
+      merged.push(rule);
+      continue;
+    }
+
+    const key = `${rule.accreditation}:${rule.sources.map((course) => course.code).join('|')}`;
+    const existingIndex = combinationIndexes.get(key);
+    const existing =
+      existingIndex === undefined ? undefined : merged[existingIndex];
+    if (existing?.kind === 'combination') {
+      existing.targets.push(...rule.targets);
+      continue;
+    }
+
+    combinationIndexes.set(key, merged.length);
+    merged.push({
+      accreditation: rule.accreditation,
+      kind: 'combination',
+      sources: rule.sources,
+      targets: [...rule.targets],
+    });
+  }
+
+  return merged;
+};
+
+/* eslint-disable solid/components-return-once, solid/reactivity -- table cells branch on a discriminated rule entry */
+const similarRuleLabel = (rule: SimilarEquivalency): string => {
+  if (rule.kind === 'related') return 'Сродни';
+  if (rule.kind === 'combination') return 'Комбинација';
+  return 'Насочена';
+};
+
+const UnifiedTypeCell = (props: { entry: UnifiedRule }) => {
+  if (props.entry.kind === 'one-to-one') {
+    return (
+      <div class="space-y-2">
+        <Badge variant="secondary">1:1</Badge>
+        <div class="text-muted-foreground font-mono text-xs">2018 ↔ 2023</div>
+      </div>
+    );
+  }
+
+  return (
+    <div class="space-y-2">
+      <Badge variant="secondary">{similarRuleLabel(props.entry.rule)}</Badge>
+      <div class="text-muted-foreground font-mono text-xs">
+        {props.entry.rule.accreditation}
+      </div>
+    </div>
+  );
+};
+
+const UnifiedRelationshipCell = (props: { entry: UnifiedRule }) => {
+  if (props.entry.kind === 'one-to-one') {
+    return <OneToOneRelationship row={props.entry.row} />;
+  }
+
+  return <SimilarRule rule={props.entry.rule} />;
+};
+/* eslint-enable solid/components-return-once, solid/reactivity -- end table rule cells */
+
+/* eslint-disable max-lines-per-function -- this page owns both intentionally parallel responsive views */
 export const CourseEquivalencies = (props: CourseEquivalenciesProps) => {
   const [search, setSearch] = createSignal('');
-  const [onlyDifferences, setOnlyDifferences] = createSignal(false);
+  const [showOneToOne, setShowOneToOne] = createSignal(true);
+  const [showSimilar, setShowSimilar] = createSignal(true);
 
   const equivalencies = createMemo(() => {
     const rows: EquivalencyRow[] = [];
@@ -114,39 +285,102 @@ export const CourseEquivalencies = (props: CourseEquivalenciesProps) => {
     const searchTerm = normalizeSearchText(search());
     return equivalencies().rows.filter(
       (row) =>
-        (!onlyDifferences() || row.isDifferent) &&
+        row.accreditation2018 !== undefined &&
+        row.accreditation2023 !== undefined &&
         (!searchTerm || row.searchText.includes(searchTerm)),
     );
   });
+
+  const similarRules = createMemo(() => {
+    const term = normalizeSearchText(search());
+    return resolveSimilarEquivalencies(props.courses).filter((rule) => {
+      const courses =
+        rule.kind === 'related'
+          ? rule.courses
+          : [...rule.sources, ...rule.targets];
+      return (
+        !term ||
+        courses.some((course) =>
+          normalizeSearchText(`${course.name} ${course.code}`).includes(term),
+        )
+      );
+    });
+  });
+
+  const hasCombinationRules = createMemo(() =>
+    resolveSimilarEquivalencies(props.courses).some(
+      (rule) => rule.kind === 'combination',
+    ),
+  );
+
+  const unifiedRules = createMemo<UnifiedRule[]>(() => [
+    ...(showOneToOne()
+      ? filteredRows().map((row) => ({ kind: 'one-to-one' as const, row }))
+      : []),
+    ...(showSimilar()
+      ? mergeCombinationRules(similarRules()).map((rule) => ({
+          kind: 'similar' as const,
+          rule,
+        }))
+      : []),
+  ]);
+
+  const combinationRulesEnabled = createMemo(
+    () => showSimilar() && hasCombinationRules(),
+  );
+  const selectedRuleCount = createMemo(
+    () =>
+      (showOneToOne() ? filteredRows().length : 0) +
+      (showSimilar() ? similarRules().length : 0),
+  );
 
   return (
     <section
       aria-labelledby="equivalencies-heading"
       class="space-y-4"
     >
-      <div class="space-y-1">
-        <h2
-          class="text-lg font-semibold"
-          id="equivalencies-heading"
+      <h2
+        class="text-lg font-semibold"
+        id="equivalencies-heading"
+      >
+        Еквиваленции на предмети
+      </h2>
+
+      <div class="flex flex-wrap items-center gap-3">
+        <LabeledCheckbox
+          checked={showOneToOne()}
+          class="gap-2 py-1.5"
+          onChange={() => setShowOneToOne((current) => !current)}
         >
-          Еквиваленции на предмети
-        </h2>
-        <p class="text-muted-foreground text-sm">
-          Споредете ги предметите од акредитациите 2018 и 2023.
-        </p>
+          1:1 еквиваленции
+        </LabeledCheckbox>
+        <LabeledCheckbox
+          checked={showSimilar()}
+          class="gap-2 py-1.5"
+          onChange={() => setShowSimilar((current) => !current)}
+        >
+          Сродни еквиваленции
+        </LabeledCheckbox>
       </div>
 
-      <div class="flex flex-wrap gap-x-4 gap-y-1 text-sm">
-        <span>
-          <strong>{equivalencies().renamedCount}</strong>{' '}
-          <span class="text-muted-foreground">преименувани предмети</span>
-        </span>
-        <span>
-          <strong>{equivalencies().oneSidedCount}</strong>{' '}
+      <div class="space-y-1">
+        <p class="text-muted-foreground text-sm">
+          Прегледајте ги еквиваленциите на предметите помеѓу акредитациите.
+        </p>
+        <div
+          aria-live="polite"
+          class="flex flex-wrap items-baseline gap-x-4 gap-y-1 text-sm"
+        >
+          <strong class="text-foreground font-semibold">
+            {selectedRuleCount()} прикажани правила
+          </strong>
           <span class="text-muted-foreground">
-            предмети само во една акредитација
+            1:1 {showOneToOne() ? filteredRows().length : 0}
           </span>
-        </span>
+          <span class="text-muted-foreground">
+            Сродни {showSimilar() ? similarRules().length : 0}
+          </span>
+        </div>
       </div>
 
       <div class="space-y-2">
@@ -166,72 +400,70 @@ export const CourseEquivalencies = (props: CourseEquivalenciesProps) => {
         />
       </div>
 
-      <div class="flex flex-wrap items-center justify-between gap-3">
-        <LabeledCheckbox
-          checked={onlyDifferences()}
-          class="rounded-md border px-3 py-2 font-medium"
-          onChange={() => {
-            setOnlyDifferences((current) => !current);
-          }}
+      <Show when={combinationRulesEnabled()}>
+        <div
+          class={`${ALERT_STYLES.info} flex gap-3`}
+          role="note"
         >
-          Само различни
-        </LabeledCheckbox>
-        <p
-          aria-live="polite"
-          class="text-muted-foreground text-sm"
-        >
-          Прикажани {filteredRows().length} од {equivalencies().rows.length}
-        </p>
-      </div>
+          <span
+            aria-hidden="true"
+            class="text-primary text-lg leading-none"
+          >
+            ⓘ
+          </span>
+          <p>
+            Комбинациските правила: условот за положување и слушање важи само за
+            изворните предмети. Најмалку еден изворен предмет мора да е положен,
+            а сите останати мора да се слушани/запишани; целните предмети се
+            признатиот исход на правилото.
+          </p>
+        </div>
+      </Show>
 
-      <div class="rounded-md border">
-        <Table class="table-fixed">
-          <TableHeader>
-            <TableRow class="hover:bg-transparent transition-none">
-              <TableHead
-                class="w-1/2 border-r"
-                scope="col"
-              >
-                Акредитација 2018
-              </TableHead>
-              <TableHead
-                class="w-1/2"
-                scope="col"
-              >
-                Акредитација 2023
-              </TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            <Show
-              fallback={
-                <TableRow class="hover:bg-transparent transition-none">
-                  <TableCell
-                    class="h-24 text-center"
-                    colSpan={2}
-                  >
-                    Нема резултати.
-                  </TableCell>
-                </TableRow>
-              }
-              when={filteredRows().length > 0}
-            >
-              <For each={filteredRows()}>
-                {(row) => (
+      <Show
+        fallback={
+          <div class="rounded-md border p-8 text-center text-sm">
+            Нема резултати.
+          </div>
+        }
+        when={unifiedRules().length > 0}
+      >
+        <div class="rounded-md border">
+          <Table class="w-full table-fixed">
+            <TableHeader>
+              <TableRow class="hover:bg-transparent transition-none">
+                <TableHead
+                  class="w-28 border-r pr-2 whitespace-normal break-words leading-tight sm:w-36"
+                  scope="col"
+                >
+                  Вид
+                </TableHead>
+                <TableHead
+                  class="pl-2 whitespace-normal break-words leading-tight"
+                  scope="col"
+                >
+                  Однос помеѓу предметите
+                </TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              <For each={unifiedRules()}>
+                {(entry) => (
                   <TableRow class="even:bg-muted/20 hover:bg-transparent even:hover:bg-muted/20 transition-none">
-                    <TableCell class="min-w-0 border-r align-top whitespace-normal">
-                      <CourseCell course={row.accreditation2018} />
+                    <TableCell class="border-r align-top pr-2">
+                      <UnifiedTypeCell entry={entry} />
                     </TableCell>
-                    <TableCell class="min-w-0 align-top whitespace-normal">
-                      <CourseCell course={row.accreditation2023} />
+                    <TableCell class="min-w-0 align-top whitespace-normal pl-2">
+                      <UnifiedRelationshipCell entry={entry} />
                     </TableCell>
                   </TableRow>
                 )}
               </For>
-            </Show>
-          </TableBody>
-        </Table>
-      </div>
+            </TableBody>
+          </Table>
+        </div>
+      </Show>
     </section>
   );
 };
+/* eslint-enable max-lines-per-function -- end equivalencies page */
