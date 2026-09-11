@@ -3,7 +3,7 @@
     "@kobalte/core": "^0.13.14",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
-    "lucide-solid": "^1.42.0",
+    "lucide-solid": "^1.43.0",
     "posthog-js": "^1.428.1",
     "simple-icons": "^16.30.0",
     "solid-js": "^1.9.15",
