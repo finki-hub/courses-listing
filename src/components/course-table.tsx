@@ -105,10 +105,23 @@ export const CourseTable = (props: CourseTableProps) => {
     }),
   );
 
-  useCourseSearchAnalytics(search, () => filteredCourses());
+  const searchLinkage = useCourseSearchAnalytics(() => ({
+    accreditation: accreditation(),
+    level: levelFilter(),
+    query: search(),
+    resultCount: filteredCourses().length,
+    season: seasonFilter(),
+    sortColumn: sortColumn(),
+    sortDirection: sortDirection(),
+    tags: selectedTags(),
+  }));
   const openDetail = (course: CourseRaw, position: number) => {
-    // eslint-disable-next-line camelcase -- PostHog event props are snake_case
-    posthog.capture('result_clicked', { position, result_id: course.name });
+    posthog.capture('result_clicked', {
+      ...searchLinkage(),
+      position,
+      // eslint-disable-next-line camelcase -- PostHog event props are snake_case
+      result_id: course.name,
+    });
     setSelectedCourse(course);
     setDialogOpen(true);
   };
