@@ -39,9 +39,39 @@ revision, not a dataset revision. No deployment environment is inferred.
 Run `npm test` on Node 24+ for real Solid reactive lifecycle/fake-timer tests and
 revision validation (Node's module mocking is experimental), then `npm run check`,
 `npm run lint`, and `npm run build`. These checks do not verify production event
-delivery, retention, dashboards, or remote replay settings. Existing raw query,
-course-name capture and automatic capture settings need a separate privacy
-review; this change does not establish metadata-only collection.
+delivery, retention, dashboards, or remote replay settings.
+
+### Capture boundary
+
+Only `catalog_search`, `search_zero_results`, and `result_clicked` are sent.
+The final SDK hook rebuilds the event and properties from an allowlist, removing
+automatic URL/referrer/campaign data, simulator share-state metadata, nested
+extras, and top-level `$set`, `$set_once`, and `$unset` updates.
+
+Allowed business properties are raw `query` and `result_count` for searches,
+raw `query` for zero results, and zero-based `position` and public course-name
+`result_id` for clicks. UUID-shaped `search_attempt_id` links the existing events.
+Technical fields retained are the event UUID/timestamp, public ingest token,
+SDK name/version, UUID-shaped distinct/device/session/window IDs, constant
+`service`, trusted `app_revision`, and a false person-profile processing flag.
+
+Autocapture, automatic exceptions, pageviews/pageleave, replay, performance,
+heatmaps, campaign/referrer saving, and remote-config/feature-flag fetching are
+disabled locally. External SDK script loading, surveys, tours, conversations,
+and person profiles are disabled. Separate log/metric hooks drop those payloads
+because they bypass the event hook. SDK opt-out continues to suppress captures.
+
+Raw queries deliberately remain raw (including any sensitive text or URL a user
+types into search), and existing SDK identifiers/cookies remain. This is neither
+anonymous nor metadata-only collection. Existing local SDK attribution storage
+and previously collected data are not purged. Retention, notice/consent, server
+enrichment, and project-wide privacy settings remain separate follow-ups.
+
+Tests intercept the real installed SDK's serialized fetch payloads with a fake
+key and sentinel study-plan URL; no analytics requests leave the test process.
+They verify the payload boundary, disabled replay configuration after a simulated
+remote response, and opted-out search behavior. They do not exercise a real DOM
+recorder, live ingestion, browser-generated HTTP headers, or production settings.
 
 ## License
 
