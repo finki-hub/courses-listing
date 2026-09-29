@@ -13,7 +13,7 @@ permissions:
 jobs:
   test:
     name: Tests
-    uses: finki-hub/.github/.github/workflows/vitest.yaml@main
+    uses: finki-hub/.github/.github/workflows/vitest.yaml@c545734f912fe47b9d24533e495471f4496cdf79
     with:
       test-args: ''
 
