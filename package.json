@@ -3,8 +3,8 @@
     "@kobalte/core": "^0.13.14",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
-    "lucide-solid": "^1.47.0",
-    "posthog-js": "^1.434.8",
+    "lucide-solid": "^1.48.0",
+    "posthog-js": "^1.434.14",
     "simple-icons": "^16.32.0",
     "solid-js": "^1.9.15",
     "tailwind-merge": "^3.7.0",
@@ -18,7 +18,7 @@
     "eslint-config-imperium": "^4.1.4",
     "tailwindcss": "^4.3.3",
     "typescript": "^6.0.3",
-    "vite": "^8.3.0",
+    "vite": "^8.3.1",
     "vite-plugin-solid": "^2.11.14"
   },
   "license": "MIT",
@@ -34,7 +34,7 @@
     "format": "eslint . --fix",
     "lint": "eslint . --cache",
     "preview": "vite preview",
-    "test": "node --conditions=browser --experimental-test-module-mocks --test tests/*.test.mjs"
+    "test": "node --conditions=browser --experimental-test-module-mocks --test tests/*.test.js"
   },
   "type": "module",
   "version": "0.0.0"
