@@ -34,7 +34,7 @@
     "format": "eslint . --fix",
     "lint": "eslint . --cache",
     "preview": "vite preview",
-    "test": "node --conditions=browser --experimental-test-module-mocks --test tests/*.test.mjs"
+    "test": "node --conditions=browser --experimental-test-module-mocks --test tests/*.test.js"
   },
   "type": "module",
   "version": "0.0.0"
