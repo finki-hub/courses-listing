@@ -12,10 +12,9 @@ permissions:
 
 jobs:
   test:
-    name: Tests (Node 24)
+    name: Tests
     uses: finki-hub/.github/.github/workflows/vitest.yaml@main
     with:
-      node-version: '24'
       test-args: ''
 
   tsc:
