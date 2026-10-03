@@ -33,26 +33,41 @@ export const useCourseSearchAnalytics = (
     });
   });
   let attempt: undefined | { id: string; state: string };
+  let settled: undefined | { id: string; query: string; state: string };
 
   createEffect(() => {
     const currentState = state();
     const { query, resultCount } = untrack(getContext);
     attempt = undefined;
-    if (query === '') return;
+    if (query === '') {
+      settled = undefined;
+      return;
+    }
 
     const timer = setTimeout(() => {
+      // A canceled edit returning to the settled state is not another attempt.
+      // Its clicks remain unlinked until this debounce has finished.
+      if (settled?.state === currentState) {
+        attempt = settled;
+        return;
+      }
+      // Refinement also includes result-count updates, not only user actions.
+      const event =
+        settled?.query === query
+          ? 'catalog_refinement'
+          : 'catalog_query_intent';
       const id = crypto.randomUUID();
       attempt = { id, state: currentState };
+      settled = { ...attempt, query };
       // eslint-disable-next-line camelcase -- PostHog event props are snake_case
       const linkage = { search_attempt_id: id };
-      posthog.capture('catalog_search', {
+      posthog.capture(event, {
         ...linkage,
-        query,
         // eslint-disable-next-line camelcase -- PostHog event props are snake_case
         result_count: resultCount,
       });
       if (resultCount === 0) {
-        posthog.capture('search_zero_results', { ...linkage, query });
+        posthog.capture('search_zero_results', linkage);
       }
     }, 500);
     onCleanup(() => {

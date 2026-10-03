@@ -23,9 +23,10 @@ const EVENT_FIELDS: Record<
   string,
   Record<string, (value: unknown) => boolean>
 > = {
-  catalog_search: { query: isString, result_count: isCount },
+  catalog_query_intent: { result_count: isCount },
+  catalog_refinement: { result_count: isCount },
   result_clicked: { position: isCount, result_id: isString },
-  search_zero_results: { query: isString },
+  search_zero_results: {},
 };
 
 // Rebuild both levels rather than recursively redacting an open-ended SDK payload.
@@ -44,6 +45,7 @@ export const sanitizeAnalyticsEvent = (
   const properties: Record<string, unknown> = {
     $lib: 'web',
     $process_person_profile: false,
+    analytics_schema_version: 2,
     service: 'courses-listing',
     token,
   };
