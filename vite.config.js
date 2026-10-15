@@ -4,7 +4,9 @@ import process from 'node:process';
 import { defineConfig } from 'vite';
 import solid from 'vite-plugin-solid';
 
-export default defineConfig({
+import { localizeHtml } from './src/lib/page-metadata.ts';
+
+export default defineConfig(() => ({
   define: {
     // The deployment workflow checks out the triggering commit before this build.
     // Local/non-GitHub builds intentionally have no trusted revision.
@@ -14,10 +16,17 @@ export default defineConfig({
         : '',
     ),
   },
-  plugins: [tailwindcss(), solid()],
+  plugins: [
+    tailwindcss(),
+    solid(),
+    {
+      name: 'localized-metadata',
+      transformIndexHtml: (html) => localizeHtml(html),
+    },
+  ],
   resolve: {
     alias: {
       '@': resolve(import.meta.dirname, './src'),
     },
   },
-});
+}));
