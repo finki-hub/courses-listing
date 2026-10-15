@@ -31,7 +31,8 @@ export const localizeHtml = (
   language: Language = 'mk',
 ): string => {
   let localized = html;
-  for (const [key, value] of Object.entries(getPageMetadata(language))) {
+  const entries = Object.entries(getPageMetadata(language));
+  for (const [key, value] of entries) {
     localized = localized.replaceAll(`__LOCALIZED_${key.toUpperCase()}__`, () =>
       escapeHtml(value),
     );

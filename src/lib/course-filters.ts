@@ -18,13 +18,6 @@ export type SortColumn = 'accreditation' | 'channel' | 'name' | 'tags';
 
 export type SortDirection = 'asc' | 'desc';
 
-export const SORT_COLUMN_LABELS: Record<SortColumn, string> = {
-  accreditation: 'Акредитација',
-  channel: 'Канал',
-  name: 'Предмет',
-  tags: 'Тагови',
-};
-
 export const SORT_COLUMNS: SortColumn[] = [
   'name',
   'accreditation',

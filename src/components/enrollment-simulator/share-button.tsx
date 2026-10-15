@@ -1,5 +1,7 @@
 import { createSignal } from 'solid-js';
 
+import { useLanguage } from '@/lib/LanguageProvider';
+
 type ShareState = 'copying' | 'done' | 'error' | 'idle';
 
 const SHARE_STATE_CLASSES: Record<ShareState, string> = {
@@ -15,6 +17,8 @@ export const ShareButton = (props: {
   class?: string;
   onShare: () => Promise<boolean>;
 }) => {
+  const { t } = useLanguage();
+
   const [state, setState] = createSignal<ShareState>('idle');
 
   const handle = async () => {
@@ -38,14 +42,14 @@ export const ShareButton = (props: {
       onClick={() => {
         void handle();
       }}
-      title="Копирај линк со тековната состојба"
+      title={t().simulator.copyLink}
       type="button"
     >
       <span class="inline-flex items-center gap-1.5">
         <span class={state() === 'copying' ? 'inline-block animate-spin' : ''}>
           {state() === 'copying' ? '⏳' : '🔗'}
         </span>
-        <span>Сподели</span>
+        <span>{t().simulator.share}</span>
       </span>
     </button>
   );

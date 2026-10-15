@@ -1,11 +1,9 @@
 import { createMemo } from 'solid-js';
 
+import { useLanguage } from '@/lib/LanguageProvider';
 import { clampUniListCredits, UNI_LIST_CREDITS_MAX } from '@/lib/simulator';
 
 import { InfoPopover } from './info-popover';
-
-const UNI_LIST_CREDITS_TOOLTIP =
-  'Нема формално ограничување за максималниот број на освоени кредити од уни. листа.\nВо пракса, може да имате најмногу 4 предмети со по 9 кредити, односно 36 кредити.';
 
 type UniListCreditsFieldProps = {
   onChange: (credits: number) => void;
@@ -13,6 +11,8 @@ type UniListCreditsFieldProps = {
 };
 
 export const UniListCreditsField = (props: UniListCreditsFieldProps) => {
+  const { t } = useLanguage();
+
   const inputValue = createMemo(() => String(props.value));
 
   return (
@@ -21,7 +21,7 @@ export const UniListCreditsField = (props: UniListCreditsFieldProps) => {
         class="text-muted-foreground whitespace-nowrap text-xs uppercase tracking-wide"
         id="uni-list-credits-label"
       >
-        Уни. листа
+        {t().simulator.universityList}
       </span>
       <input
         aria-labelledby="uni-list-credits-label"
@@ -44,7 +44,7 @@ export const UniListCreditsField = (props: UniListCreditsFieldProps) => {
       />
       <span class="text-muted-foreground inline-flex items-center gap-1 whitespace-nowrap text-xs">
         / {UNI_LIST_CREDITS_MAX}
-        <InfoPopover text={UNI_LIST_CREDITS_TOOLTIP} />
+        <InfoPopover text={t().simulator.universityListInfo} />
       </span>
     </div>
   );

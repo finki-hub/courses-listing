@@ -1,4 +1,11 @@
 import {
+  formatNumber,
+  interpolate,
+  type Language,
+  languageLocales,
+  type Translations,
+} from '@/lib/i18n';
+import {
   ACADEMIC_YEARS,
   type AcademicYear,
   type CourseRaw,
@@ -73,7 +80,6 @@ const SPARKLINE_HEIGHT = 36;
 const SPARKLINE_PADDING = 4;
 
 const TREND_THRESHOLD = 0.05;
-const PERCENT_FACTOR = 100;
 
 const getBaseEntries = (course: CourseRaw): BaseEnrollmentEntry[] =>
   ACADEMIC_YEARS.map((year) => ({
@@ -95,17 +101,18 @@ const getRange = (entries: BaseEnrollmentEntry[]): EnrollmentRange => {
 
 const getScale = (enrollment: number, range: EnrollmentRange) => {
   if (enrollment <= 0) return 0;
-  if (range.max === range.min) return 0.6;
-  return (enrollment - range.min) / (range.max - range.min);
+  return range.max === range.min
+    ? 0.6
+    : (enrollment - range.min) / (range.max - range.min);
 };
 
 const getOpacity = (enrollment: number, range: EnrollmentRange) =>
   OPACITY_MIN + getScale(enrollment, range) * (OPACITY_MAX - OPACITY_MIN);
 
-const getBarWidth = (enrollment: number, range: EnrollmentRange) => {
-  if (enrollment <= 0) return 0;
-  return BAR_WIDTH_BASE + getScale(enrollment, range) * BAR_WIDTH_SCALE;
-};
+const getBarWidth = (enrollment: number, range: EnrollmentRange) =>
+  enrollment <= 0
+    ? 0
+    : BAR_WIDTH_BASE + getScale(enrollment, range) * BAR_WIDTH_SCALE;
 
 const getPeakYear = (entries: BaseEnrollmentEntry[]): AcademicYear | null => {
   if (entries.length === 0) return null;
@@ -143,11 +150,13 @@ const getDirection = (
 ): EnrollmentDirection => {
   if (previousEnrollment === null) return 'none';
   if (enrollment > previousEnrollment) return 'up';
-  if (enrollment < previousEnrollment) return 'down';
-  return 'flat';
+  return enrollment < previousEnrollment ? 'down' : 'flat';
 };
 
-const getTrend = (entries: EnrollmentEntry[]): EnrollmentTrend => {
+const getTrend = (
+  entries: EnrollmentEntry[],
+  t: Translations,
+): EnrollmentTrend => {
   const latest = entries[0];
   const previous = entries[1];
 
@@ -156,9 +165,9 @@ const getTrend = (entries: EnrollmentEntry[]): EnrollmentTrend => {
       className: 'bg-muted text-muted-foreground',
       delta: null,
       direction: 'none',
-      label: 'Нема споредба',
+      label: t.enrollment.noComparison,
       percent: null,
-      periodLabel: 'Недоволно податоци',
+      periodLabel: t.enrollment.insufficientData,
     };
   }
 
@@ -170,9 +179,12 @@ const getTrend = (entries: EnrollmentEntry[]): EnrollmentTrend => {
       className: 'bg-muted text-muted-foreground',
       delta,
       direction: 'flat',
-      label: 'Стабилно',
+      label: t.enrollment.stable,
       percent,
-      periodLabel: `${latest.year} vs ${previous.year}`,
+      periodLabel: interpolate(t.enrollment.comparison, {
+        latest: latest.year,
+        previous: previous.year,
+      }),
     };
   }
 
@@ -183,9 +195,12 @@ const getTrend = (entries: EnrollmentEntry[]): EnrollmentTrend => {
         : 'bg-red-500/10 text-red-700 dark:text-red-400',
     delta,
     direction: delta > 0 ? 'up' : 'down',
-    label: delta > 0 ? 'Расте' : 'Опаѓа',
+    label: delta > 0 ? t.enrollment.increasing : t.enrollment.decreasing,
     percent,
-    periodLabel: `${latest.year} vs ${previous.year}`,
+    periodLabel: interpolate(t.enrollment.comparison, {
+      latest: latest.year,
+      previous: previous.year,
+    }),
   };
 };
 
@@ -224,6 +239,7 @@ const getSparkline = (
 
 export const buildEnrollmentMetrics = (
   course: CourseRaw,
+  t: Translations,
 ): EnrollmentMetrics => {
   const baseEntries = getBaseEntries(course);
   const range = getRange(baseEntries);
@@ -274,33 +290,44 @@ export const buildEnrollmentMetrics = (
     peakEntry,
     range,
     sparkline: getSparkline(baseEntries, range),
-    trend: getTrend(entries),
+    trend: getTrend(entries, t),
   };
 };
 
 export const getEnrollmentDeltaClass = (delta: null | number) => {
   if (delta === null) return 'bg-muted text-muted-foreground';
   if (delta > 0) return 'bg-green-500/10 text-green-700 dark:text-green-400';
-  if (delta < 0) return 'bg-red-500/10 text-red-700 dark:text-red-400';
-  return 'bg-muted text-muted-foreground';
+  return delta < 0
+    ? 'bg-red-500/10 text-red-700 dark:text-red-400'
+    : 'bg-muted text-muted-foreground';
 };
 
-export const formatEnrollmentDelta = (delta: null | number) => {
-  if (delta === null) return '—';
-  if (delta === 0) return '0';
-  return delta > 0 ? `+${delta}` : String(delta);
-};
+export const formatEnrollmentDelta = (
+  delta: null | number,
+  language: Language,
+) =>
+  delta === null
+    ? '—'
+    : new Intl.NumberFormat(languageLocales[language], {
+        signDisplay: 'exceptZero',
+      }).format(delta);
 
-export const formatEnrollmentDeltaPercent = (percent: null | number) => {
-  if (percent === null) return '—';
+export const formatEnrollmentDeltaPercent = (
+  percent: null | number,
+  language: Language,
+) =>
+  percent === null
+    ? '—'
+    : new Intl.NumberFormat(languageLocales[language], {
+        maximumFractionDigits: 0,
+        signDisplay: 'exceptZero',
+        style: 'percent',
+      }).format(percent);
 
-  const rounded = Math.round(percent * PERCENT_FACTOR);
-  if (rounded === 0) return '0%';
-  return rounded > 0 ? `+${rounded}%` : `${rounded}%`;
-};
-
-export const formatEnrollmentValue = (value: null | number) =>
-  value === null ? '—' : String(value);
+export const formatEnrollmentValue = (
+  value: null | number,
+  language: Language,
+) => (value === null ? '—' : formatNumber(value, language));
 
 export const ENROLLMENT_TREND_UP_CLASS =
   'h-3.5 w-3.5 text-green-700 dark:text-green-400';

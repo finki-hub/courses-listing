@@ -17,6 +17,13 @@ import {
   type SimilarEquivalency,
 } from '@/data/course-similar-equivalencies';
 import { ALERT_STYLES } from '@/lib/alert-styles';
+import {
+  formatCount,
+  formatNumber,
+  interpolate,
+  type Translations,
+} from '@/lib/i18n';
+import { useLanguage } from '@/lib/LanguageProvider';
 import { normalizeSearchText } from '@/lib/search-normalization';
 import { type CourseRaw, getAccreditationInfo } from '@/types/course';
 
@@ -44,39 +51,49 @@ const NAME_COLLATOR = new Intl.Collator('mk');
 
 const CourseCell = (props: {
   readonly course: EquivalencyCourse | undefined;
-}) => (
-  <Show
-    fallback={<span class="text-muted-foreground italic">Нема предмет</span>}
-    when={props.course}
-  >
-    {(course) => (
-      <div class="min-w-0 space-y-1">
-        <div class="text-pretty break-words font-medium">{course().name}</div>
-        <Show when={course().code}>
-          {(code) => (
-            <div class="text-muted-foreground font-mono text-xs break-all">
-              {code()}
-            </div>
-          )}
-        </Show>
-      </div>
-    )}
-  </Show>
-);
-
-const OneToOneRelationship = (props: { row: EquivalencyRow }) => (
-  <div class="grid gap-3 sm:grid-cols-[1fr_auto_1fr] sm:items-start">
-    <CourseCell course={props.row.accreditation2018} />
-    <span
-      aria-label="еквивалентен помеѓу акредитациите 2018 и 2023"
-      class="text-primary text-center text-lg font-semibold sm:pt-1"
+}) => {
+  const { t } = useLanguage();
+  return (
+    <Show
+      fallback={
+        <span class="text-muted-foreground italic">
+          {t().equivalencies.noCourse}
+        </span>
+      }
+      when={props.course}
     >
-      <span aria-hidden="true">↔</span>
-      <span class="sr-only">е еквивалентен со</span>
-    </span>
-    <CourseCell course={props.row.accreditation2023} />
-  </div>
-);
+      {(course) => (
+        <div class="min-w-0 space-y-1">
+          <div class="text-pretty break-words font-medium">{course().name}</div>
+          <Show when={course().code}>
+            {(code) => (
+              <div class="text-muted-foreground font-mono text-xs break-all">
+                {code()}
+              </div>
+            )}
+          </Show>
+        </div>
+      )}
+    </Show>
+  );
+};
+
+const OneToOneRelationship = (props: { row: EquivalencyRow }) => {
+  const { t } = useLanguage();
+  return (
+    <div class="grid gap-3 sm:grid-cols-[1fr_auto_1fr] sm:items-start">
+      <CourseCell course={props.row.accreditation2018} />
+      <span
+        aria-label={t().equivalencies.equivalentAcross}
+        class="text-primary text-center text-lg font-semibold sm:pt-1"
+      >
+        <span aria-hidden="true">↔</span>
+        <span class="sr-only">{t().equivalencies.equivalentTo}</span>
+      </span>
+      <CourseCell course={props.row.accreditation2023} />
+    </div>
+  );
+};
 
 const SimilarCourseList = (props: { courses: SimilarCourse[] }) => (
   <div class="min-w-0 space-y-2">
@@ -95,6 +112,8 @@ const SimilarCourseList = (props: { courses: SimilarCourse[] }) => (
 
 /* eslint-disable solid/components-return-once, solid/reactivity -- conditional course rule markup must preserve discriminated types */
 const SimilarRule = (props: { rule: SimilarEquivalency }) => {
+  const { t } = useLanguage();
+
   if (props.rule.kind === 'related') {
     const courses = props.rule.courses;
     return (
@@ -117,7 +136,7 @@ const SimilarRule = (props: { rule: SimilarEquivalency }) => {
                   >
                     ↔
                   </span>
-                  <span class="sr-only">е еквивалентен со</span>
+                  <span class="sr-only">{t().equivalencies.equivalentTo}</span>
                 </Show>
               </>
             )}
@@ -134,8 +153,8 @@ const SimilarRule = (props: { rule: SimilarEquivalency }) => {
         <span
           aria-label={
             props.rule.kind === 'combination'
-              ? 'изворни предмети кон целни предмети'
-              : 'изворен предмет кон целен предмет'
+              ? t().equivalencies.sourcesToTargets
+              : t().equivalencies.sourceToTarget
           }
           class="text-primary text-center text-lg font-semibold sm:pt-1"
         >
@@ -187,13 +206,19 @@ const mergeCombinationRules = (
 };
 
 /* eslint-disable solid/components-return-once, solid/reactivity -- table cells branch on a discriminated rule entry */
-const similarRuleLabel = (rule: SimilarEquivalency): string => {
-  if (rule.kind === 'related') return 'Сродни';
-  if (rule.kind === 'combination') return 'Комбинација';
-  return 'Насочена';
+const similarRuleLabel = (
+  rule: SimilarEquivalency,
+  t: Translations,
+): string => {
+  if (rule.kind === 'related') return t.equivalencies.related;
+  return rule.kind === 'combination'
+    ? t.equivalencies.combination
+    : t.equivalencies.directional;
 };
 
 const UnifiedTypeCell = (props: { entry: UnifiedRule }) => {
+  const { t } = useLanguage();
+
   if (props.entry.kind === 'one-to-one') {
     return (
       <div class="space-y-2">
@@ -205,7 +230,9 @@ const UnifiedTypeCell = (props: { entry: UnifiedRule }) => {
 
   return (
     <div class="space-y-2">
-      <Badge variant="secondary">{similarRuleLabel(props.entry.rule)}</Badge>
+      <Badge variant="secondary">
+        {similarRuleLabel(props.entry.rule, t())}
+      </Badge>
       <div class="text-muted-foreground font-mono text-xs">
         {props.entry.rule.accreditation}
       </div>
@@ -213,17 +240,18 @@ const UnifiedTypeCell = (props: { entry: UnifiedRule }) => {
   );
 };
 
-const UnifiedRelationshipCell = (props: { entry: UnifiedRule }) => {
-  if (props.entry.kind === 'one-to-one') {
-    return <OneToOneRelationship row={props.entry.row} />;
-  }
-
-  return <SimilarRule rule={props.entry.rule} />;
-};
+const UnifiedRelationshipCell = (props: { entry: UnifiedRule }) =>
+  props.entry.kind === 'one-to-one' ? (
+    <OneToOneRelationship row={props.entry.row} />
+  ) : (
+    <SimilarRule rule={props.entry.rule} />
+  );
 /* eslint-enable solid/components-return-once, solid/reactivity -- end table rule cells */
 
 /* eslint-disable max-lines-per-function -- this page owns both intentionally parallel responsive views */
 export const CourseEquivalencies = (props: CourseEquivalenciesProps) => {
+  const { language, t } = useLanguage();
+
   const [search, setSearch] = createSignal('');
   const [showOneToOne, setShowOneToOne] = createSignal(true);
   const [showSimilar, setShowSimilar] = createSignal(true);
@@ -343,7 +371,7 @@ export const CourseEquivalencies = (props: CourseEquivalenciesProps) => {
         class="text-lg font-semibold"
         id="equivalencies-heading"
       >
-        Еквиваленции на предмети
+        {t().equivalencies.heading}
       </h2>
 
       <div class="flex flex-wrap items-center gap-3">
@@ -352,33 +380,41 @@ export const CourseEquivalencies = (props: CourseEquivalenciesProps) => {
           class="gap-2 py-1.5"
           onChange={() => setShowOneToOne((current) => !current)}
         >
-          1:1 еквиваленции
+          {t().equivalencies.oneToOne}
         </LabeledCheckbox>
         <LabeledCheckbox
           checked={showSimilar()}
           class="gap-2 py-1.5"
           onChange={() => setShowSimilar((current) => !current)}
         >
-          Сродни еквиваленции
+          {t().equivalencies.similar}
         </LabeledCheckbox>
       </div>
 
       <div class="space-y-1">
         <p class="text-muted-foreground text-sm">
-          Прегледајте ги еквиваленциите на предметите помеѓу акредитациите.
+          {t().equivalencies.description}
         </p>
         <div
           aria-live="polite"
           class="flex flex-wrap items-baseline gap-x-4 gap-y-1 text-sm"
         >
           <strong class="text-foreground font-semibold">
-            {selectedRuleCount()} прикажани правила
+            {formatCount(t().equivalencies.ruleCount, {
+              count: selectedRuleCount(),
+              language: language(),
+            })}
           </strong>
           <span class="text-muted-foreground">
             1:1 {showOneToOne() ? filteredRows().length : 0}
           </span>
           <span class="text-muted-foreground">
-            Сродни {showSimilar() ? similarRules().length : 0}
+            {interpolate(t().equivalencies.relatedCount, {
+              count: formatNumber(
+                showSimilar() ? similarRules().length : 0,
+                language(),
+              ),
+            })}
           </span>
         </div>
       </div>
@@ -388,14 +424,14 @@ export const CourseEquivalencies = (props: CourseEquivalenciesProps) => {
           class="text-sm font-medium"
           for="equivalencies-search"
         >
-          Пребарувај предмет или код
+          {t().equivalencies.search}
         </label>
         <SearchInput
           id="equivalencies-search"
           onInput={(event) => {
             setSearch(event.currentTarget.value);
           }}
-          placeholder="Пребарувај на кирилица или латиница..."
+          placeholder={t().equivalencies.searchPlaceholder}
           value={search()}
         />
       </div>
@@ -411,19 +447,14 @@ export const CourseEquivalencies = (props: CourseEquivalenciesProps) => {
           >
             ⓘ
           </span>
-          <p>
-            Комбинациските правила: условот за положување и слушање важи само за
-            изворните предмети. Најмалку еден изворен предмет мора да е положен,
-            а сите останати мора да се слушани/запишани; целните предмети се
-            признатиот исход на правилото.
-          </p>
+          <p>{t().equivalencies.combinationInfo}</p>
         </div>
       </Show>
 
       <Show
         fallback={
           <div class="rounded-md border p-8 text-center text-sm">
-            Нема резултати.
+            {t().common.noResults}
           </div>
         }
         when={unifiedRules().length > 0}
@@ -436,13 +467,13 @@ export const CourseEquivalencies = (props: CourseEquivalenciesProps) => {
                   class="w-28 border-r pr-2 whitespace-normal break-words leading-tight sm:w-36"
                   scope="col"
                 >
-                  Вид
+                  {t().equivalencies.type}
                 </TableHead>
                 <TableHead
                   class="pl-2 whitespace-normal break-words leading-tight"
                   scope="col"
                 >
-                  Однос помеѓу предметите
+                  {t().equivalencies.relationship}
                 </TableHead>
               </TableRow>
             </TableHeader>

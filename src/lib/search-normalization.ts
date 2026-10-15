@@ -81,7 +81,7 @@ export const normalizeSearchText = (value: string) =>
 
 export const matchesNormalizedSearch = (value: string, searchTerm: string) => {
   const normalizedSearch = normalizeSearchText(searchTerm);
-  if (!normalizedSearch) return true;
-
-  return normalizeSearchText(value).includes(normalizedSearch);
+  return (
+    !normalizedSearch || normalizeSearchText(value).includes(normalizedSearch)
+  );
 };

@@ -17,6 +17,7 @@ import {
   type SortDirection,
   sortIndicator,
 } from '@/lib/course-filters';
+import { useLanguage } from '@/lib/LanguageProvider';
 import {
   type Accreditation,
   type CourseLevelFilter,
@@ -56,6 +57,8 @@ type CourseTableProps = {
 };
 
 export const CourseTable = (props: CourseTableProps) => {
+  const { t } = useLanguage();
+
   const [selectedCourse, setSelectedCourse] = createSignal<CourseRaw | null>(
     null,
   );
@@ -149,7 +152,7 @@ export const CourseTable = (props: CourseTableProps) => {
         <Show
           fallback={
             <div class="text-muted-foreground py-12 text-center text-sm">
-              Нема резултати.
+              {t().common.noResults}
             </div>
           }
           when={filteredCourses().length > 0}
@@ -179,7 +182,8 @@ export const CourseTable = (props: CourseTableProps) => {
                   toggleSort('name');
                 }}
               >
-                Предмет{sortIndicator(sortColumn(), sortDirection(), 'name')}
+                {t().common.course}
+                {sortIndicator(sortColumn(), sortDirection(), 'name')}
               </SortableTableHead>
               <SortableTableHead
                 class="hidden md:table-cell"
@@ -187,7 +191,7 @@ export const CourseTable = (props: CourseTableProps) => {
                   toggleSort('accreditation');
                 }}
               >
-                Акредитација
+                {t().common.accreditation}
                 {sortIndicator(sortColumn(), sortDirection(), 'accreditation')}
               </SortableTableHead>
               <SortableTableHead
@@ -197,7 +201,7 @@ export const CourseTable = (props: CourseTableProps) => {
                   toggleSort('channel');
                 }}
               >
-                Канал (Дискорд)
+                {t().common.discordChannel}
                 {sortIndicator(sortColumn(), sortDirection(), 'channel')}
               </SortableTableHead>
               <SortableTableHead
@@ -206,7 +210,8 @@ export const CourseTable = (props: CourseTableProps) => {
                   toggleSort('tags');
                 }}
               >
-                Тагови{sortIndicator(sortColumn(), sortDirection(), 'tags')}
+                {t().common.tags}
+                {sortIndicator(sortColumn(), sortDirection(), 'tags')}
               </SortableTableHead>
             </TableRow>
           </TableHeader>
@@ -218,7 +223,7 @@ export const CourseTable = (props: CourseTableProps) => {
                     class="h-24 text-center"
                     colSpan={4}
                   >
-                    Нема резултати.
+                    {t().common.noResults}
                   </TableCell>
                 </TableRow>
               }

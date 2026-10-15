@@ -1,10 +1,8 @@
 import { Show } from 'solid-js';
 
 import { Badge } from '@/components/ui/badge';
-import {
-  getProgramStateKind,
-  PROGRAM_STATE_SHORT_LABELS,
-} from '@/lib/simulator';
+import { useLanguage } from '@/lib/LanguageProvider';
+import { getProgramStateKind } from '@/lib/simulator';
 
 import { getStatusClass, PROGRAM_STATE_BADGE_CLASSES } from './course-styles';
 import { InfoPopover } from './info-popover';
@@ -28,6 +26,8 @@ type CourseCardRowProps = {
 };
 
 export const CourseCardRow = (props: CourseCardRowProps) => {
+  const { t } = useLanguage();
+
   const kind = () =>
     props.course.programState
       ? getProgramStateKind(props.course.programState)
@@ -57,7 +57,7 @@ export const CourseCardRow = (props: CourseCardRowProps) => {
                 class={`px-1.5 py-0 text-[10px] leading-4 font-normal ${PROGRAM_STATE_BADGE_CLASSES[k()]}`}
                 variant="outline"
               >
-                {PROGRAM_STATE_SHORT_LABELS[k()]}
+                {t().programStateShort[k()]}
               </Badge>
             )}
           </Show>
@@ -74,7 +74,9 @@ export const CourseCardRow = (props: CourseCardRowProps) => {
               props.onToggleListened();
             }}
           />
-          <span class="text-muted-foreground text-[9px] leading-none">С</span>
+          <span class="text-muted-foreground text-[9px] leading-none">
+            {t().simulator.attendedShort}
+          </span>
         </div>
         <div class="flex flex-col items-center gap-0.5">
           <Checkbox
@@ -84,7 +86,9 @@ export const CourseCardRow = (props: CourseCardRowProps) => {
               props.onTogglePassed();
             }}
           />
-          <span class="text-muted-foreground text-[9px] leading-none">П</span>
+          <span class="text-muted-foreground text-[9px] leading-none">
+            {t().simulator.passedShort}
+          </span>
         </div>
       </div>
     </div>

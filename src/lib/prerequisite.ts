@@ -1,3 +1,5 @@
+import { interpolate, type Translations } from '@/lib/i18n';
+
 export type CourseInfo = {
   credits: number;
   name: string;
@@ -136,19 +138,22 @@ export const parsePrerequisite = (
 
   for (const name of sorted) {
     const lowerIdx = tokenised.toLowerCase().indexOf(name.toLowerCase());
-    if (lowerIdx !== -1) {
-      found.push(name);
-      tokenised = `${tokenised.slice(
-        0,
-        lowerIdx,
-      )}%%${String(found.length - 1)}%%${tokenised.slice(
-        lowerIdx + name.length,
-      )}`;
+    if (lowerIdx === -1) {
+      continue;
     }
+
+    found.push(name);
+    tokenised = `${tokenised.slice(
+      0,
+      lowerIdx,
+    )}%%${String(found.length - 1)}%%${tokenised.slice(
+      lowerIdx + name.length,
+    )}`;
   }
 
-  if (found.length === 0) return { text, type: 'unknown' };
-  return parseLevel(tokenised, found, 'expr');
+  return found.length === 0
+    ? { text, type: 'unknown' }
+    : parseLevel(tokenised, found, 'expr');
 };
 
 // ---------------------------------------------------------------------------
@@ -215,10 +220,7 @@ const evaluateNode = (node: PrereqNode, ctx: EvalContext): boolean => {
 export const isPrerequisiteMet = (
   node: PrereqNode,
   ctx: EvalContext,
-): boolean => {
-  if (ctx.totalCredits >= OVERRIDE_CREDITS) return true;
-  return evaluateNode(node, ctx);
-};
+): boolean => ctx.totalCredits >= OVERRIDE_CREDITS || evaluateNode(node, ctx);
 
 const collectCourseNames = (node: PrereqNode): string[] => {
   switch (node.type) {
@@ -275,40 +277,56 @@ export const buildReverseDependencyMap = <
  *
  * @param node - The prerequisite node to describe
  * @param ctx - The evaluation context
- * @param electives - Set of elective course names to skip
+ * @param options - Prerequisite description options
+ * @param options.electives - Elective course names to skip
+ * @param options.t - The active translations
  * @returns A list of description lines
  */
 export const describePrereqNode = (
   node: PrereqNode,
   ctx: EvalContext,
-  electives: Set<string>,
+  { electives, t }: { electives: Set<string>; t: Translations },
 ): string[] => {
   switch (node.type) {
     case 'and':
       return node.children.flatMap((c) =>
-        describePrereqNode(c, ctx, electives),
+        describePrereqNode(c, ctx, { electives, t }),
       );
     case 'course': {
       if (electives.has(node.name)) {
-        return [`  \u{2796} ${node.name} (изборен \u{2014} не е предуслов)`];
+        return [
+          interpolate(t.prereqDescription.elective, { course: node.name }),
+        ];
       }
       const st = ctx.statuses[node.name];
       const info = ctx.courseInfoMap.get(node.name);
       const diff = info ? ctx.courseSemester - info.semester : 2;
-      const needed = diff === 1 ? 'слушан' : 'положен';
+      const needed =
+        diff === 1 ? t.prereqDescription.attended : t.prereqDescription.passed;
       const met = diff === 1 ? (st?.listened ?? false) : (st?.passed ?? false);
       return [
         met
-          ? `  \u{2705} ${node.name} (${needed})`
-          : `  \u{274C} ${node.name} (потребно: ${needed})`,
+          ? interpolate(t.prereqDescription.met, {
+              course: node.name,
+              status: needed,
+            })
+          : interpolate(t.prereqDescription.unmet, {
+              course: node.name,
+              status: needed,
+            }),
       ];
     }
     case 'credits': {
       const met = ctx.totalCredits >= node.amount;
       return [
         met
-          ? `  \u{2705} ${String(node.amount)} кредити`
-          : `  \u{274C} ${String(node.amount)} кредити (имате ${String(ctx.totalCredits)})`,
+          ? interpolate(t.prereqDescription.creditsMet, {
+              credits: node.amount,
+            })
+          : interpolate(t.prereqDescription.creditsUnmet, {
+              credits: node.amount,
+              total: ctx.totalCredits,
+            }),
       ];
     }
     case 'none':
@@ -316,7 +334,7 @@ export const describePrereqNode = (
       return [];
     case 'or': {
       const descs = node.children.map((c) =>
-        describePrereqNode(c, ctx, electives),
+        describePrereqNode(c, ctx, { electives, t }),
       );
       const metIdx = descs.findIndex((d) =>
         d.every((line) => line.includes('\u{2705}')),

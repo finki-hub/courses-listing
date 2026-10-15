@@ -1,6 +1,7 @@
 import { AccreditationSwitch } from '@/components/accreditation-switch';
 import { CourseLevelFilter } from '@/components/course-level-filter';
 import { ButtonGroup } from '@/components/ui/button-group';
+import { useLanguage } from '@/lib/LanguageProvider';
 import {
   type Accreditation,
   type CourseLevelFilter as CourseLevelFilterValue,
@@ -8,11 +9,6 @@ import {
   type SeasonFilter,
   STUDY_PROGRAM_LABELS,
 } from '@/types/course';
-
-const SEASON_ITEMS = [
-  { label: 'Зимски', value: 'winter' },
-  { label: 'Летен', value: 'summer' },
-] as const;
 
 const isSeasonFilter = (value: string): value is 'summer' | 'winter' =>
   value === 'summer' || value === 'winter';
@@ -29,6 +25,13 @@ type CourseFilterRowProps = {
 };
 
 export const CourseFilterRow = (props: CourseFilterRowProps) => {
+  const { t } = useLanguage();
+
+  const seasonItems = () =>
+    [
+      { label: t().common.winter, value: 'winter' },
+      { label: t().common.summer, value: 'summer' },
+    ] as const;
   const programItems = () =>
     props.accreditation === null
       ? []
@@ -60,7 +63,7 @@ export const CourseFilterRow = (props: CourseFilterRowProps) => {
       <div>
         <ButtonGroup
           class="w-full sm:w-auto"
-          items={SEASON_ITEMS}
+          items={seasonItems()}
           onSelect={(season) => {
             props.onSetSeason(
               props.seasonFilter === season || !isSeasonFilter(season)

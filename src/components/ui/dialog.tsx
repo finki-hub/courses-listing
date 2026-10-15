@@ -7,6 +7,7 @@ import {
   type ValidComponent,
 } from 'solid-js';
 
+import { useLanguage } from '@/lib/LanguageProvider';
 import { cn } from '@/lib/utils';
 
 export const DialogPortal = DialogPrimitive.Portal;
@@ -24,6 +25,7 @@ type DialogContentProps<T extends ValidComponent = 'div'> = ComponentProps<
 export const DialogContent = <T extends ValidComponent = 'div'>(
   props: DialogContentProps<T>,
 ) => {
+  const { t } = useLanguage();
   const defaults: Partial<DialogContentProps> = {
     showCloseButton: true,
   };
@@ -43,7 +45,7 @@ export const DialogContent = <T extends ValidComponent = 'div'>(
         {merge.children}
         <Show when={merge.showCloseButton}>
           <DialogPrimitive.CloseButton
-            aria-label="Close"
+            aria-label={t().common.close}
             class="focus-visible:ring-ring absolute top-4 right-4 rounded-xs opacity-70 transition-[opacity,box-shadow] duration-200 hover:opacity-100 focus-visible:ring-2 focus-visible:outline-none [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4"
           >
             <svg

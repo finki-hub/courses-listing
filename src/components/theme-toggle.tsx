@@ -2,6 +2,7 @@ import { Moon, Sun } from 'lucide-solid';
 import { createSignal, onMount, Show } from 'solid-js';
 
 import { IconButton } from '@/components/ui/icon-controls';
+import { useLanguage } from '@/lib/LanguageProvider';
 
 type Theme = 'dark' | 'light';
 
@@ -16,11 +17,13 @@ const getInitialTheme = (): Theme => {
 };
 
 export const ThemeToggle = () => {
+  const { t } = useLanguage();
+
   const [theme, setTheme] = createSignal<Theme>(getInitialTheme());
 
-  const applyTheme = (t: Theme) => {
-    document.documentElement.dataset['kbTheme'] = t;
-    localStorage.setItem(STORAGE_KEY_THEME, t);
+  const applyTheme = (nextTheme: Theme) => {
+    document.documentElement.dataset['kbTheme'] = nextTheme;
+    localStorage.setItem(STORAGE_KEY_THEME, nextTheme);
   };
 
   onMount(() => {
@@ -35,7 +38,7 @@ export const ThemeToggle = () => {
 
   return (
     <IconButton
-      aria-label="Промени тема"
+      aria-label={t().common.toggleTheme}
       onClick={toggle}
     >
       <Show

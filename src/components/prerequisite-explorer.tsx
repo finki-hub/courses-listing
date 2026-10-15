@@ -11,6 +11,8 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
+import { formatCount } from '@/lib/i18n';
+import { useLanguage } from '@/lib/LanguageProvider';
 import { buildReverseDependencyMap } from '@/lib/prerequisite';
 import {
   matchesNormalizedSearch,
@@ -38,6 +40,8 @@ type PrerequisiteExplorerProps = {
 const NAME_COLLATOR = new Intl.Collator('mk');
 
 export const PrerequisiteExplorer = (props: PrerequisiteExplorerProps) => {
+  const { language, t } = useLanguage();
+
   const [accreditation, setAccreditation] = usePersistedSignal<Accreditation>(
     STORAGE_KEY_ACC,
     '2023',
@@ -87,10 +91,9 @@ export const PrerequisiteExplorer = (props: PrerequisiteExplorerProps) => {
 
   const filteredPickerCourses = createMemo(() => {
     const term = normalizeSearchText(search());
-    if (!term) return coursesWithDependents();
-    return coursesWithDependents().filter((n) =>
-      matchesNormalizedSearch(n, term),
-    );
+    return term
+      ? coursesWithDependents().filter((n) => matchesNormalizedSearch(n, term))
+      : coursesWithDependents();
   });
 
   const dependents = createMemo<AccCourse[]>(() => {
@@ -116,8 +119,7 @@ export const PrerequisiteExplorer = (props: PrerequisiteExplorerProps) => {
   return (
     <div class="space-y-4">
       <p class="text-muted-foreground text-sm">
-        Изберете акредитација и предмет за да ги видите сите предмети кои го
-        имаат како предуслов.
+        {t().prerequisites.description}
       </p>
 
       <AccreditationSwitch
@@ -130,7 +132,7 @@ export const PrerequisiteExplorer = (props: PrerequisiteExplorerProps) => {
           class="text-sm font-medium"
           id="course-search-label"
         >
-          Изберете предмет
+          {t().prerequisites.chooseCourse}
         </span>
         <SearchInput
           aria-labelledby="course-search-label"
@@ -139,7 +141,7 @@ export const PrerequisiteExplorer = (props: PrerequisiteExplorerProps) => {
             setSearch(e.currentTarget.value);
             setSelectedCourse('');
           }}
-          placeholder="Пребарувај предмети..."
+          placeholder={t().common.searchPlaceholder}
           value={search()}
         />
         <Show when={!selectedCourse()}>
@@ -160,7 +162,7 @@ export const PrerequisiteExplorer = (props: PrerequisiteExplorerProps) => {
             </For>
             <Show when={search() && filteredPickerCourses().length === 0}>
               <div class="text-muted-foreground px-3 py-2 text-sm">
-                Нема резултати
+                {t().common.noResults}
               </div>
             </Show>
           </div>
@@ -169,18 +171,22 @@ export const PrerequisiteExplorer = (props: PrerequisiteExplorerProps) => {
 
       <Show when={selectedCourse()}>
         <div class="text-muted-foreground text-sm">
-          {dependents().length} предмети го имаат{' '}
-          <span class="text-foreground font-medium">{selectedCourse()}</span>{' '}
-          како предуслов
+          {formatCount(t().prerequisites.dependentCount, {
+            count: dependents().length,
+            language: language(),
+            values: { course: selectedCourse() },
+          })}
         </div>
 
         <div class="rounded-md border">
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead class="w-15">Сем.</TableHead>
-                <TableHead>Предмет</TableHead>
-                <TableHead class="hidden sm:table-cell">Предуслов</TableHead>
+                <TableHead class="w-15">{t().common.semesterShort}</TableHead>
+                <TableHead>{t().common.course}</TableHead>
+                <TableHead class="hidden sm:table-cell">
+                  {t().common.prerequisite}
+                </TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
