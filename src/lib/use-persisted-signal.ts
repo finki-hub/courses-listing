@@ -14,7 +14,7 @@ export const usePersistedSignal = <T extends string>(
   validate?: (value: string) => value is T,
 ): [Accessor<T>, (value: T) => void] => {
   const stored = localStorage.getItem(key);
-  const isValid = stored !== null && (validate ? validate(stored) : true);
+  const isValid = stored !== null && (validate?.(stored) ?? true);
   const initial = isValid ? (stored as T) : defaultValue;
 
   const [value, setValue] = createSignal(initial);

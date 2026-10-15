@@ -1,5 +1,6 @@
 import { type Accessor, createMemo } from 'solid-js';
 
+import { useLanguage } from '@/lib/LanguageProvider';
 import { type CourseInfo, type CourseStatus } from '@/lib/prerequisite';
 import {
   computeEnabledMap,
@@ -25,6 +26,7 @@ type UseSimulatorStateParams = {
 };
 
 export const useSimulatorState = (params: UseSimulatorStateParams) => {
+  const { t } = useLanguage();
   const {
     courseInfoMap,
     electiveCourses,
@@ -73,9 +75,12 @@ export const useSimulatorState = (params: UseSimulatorStateParams) => {
     for (const c of parsedCourses()) {
       const state = c.programState;
       const required = isRequired(state);
-      if (!required) continue;
-      if (c.name === DIPLOMA_THESIS_COURSE_NAME) continue;
-      if (s[c.name]?.passed) continue;
+      if (
+        !required ||
+        c.name === DIPLOMA_THESIS_COURSE_NAME ||
+        s[c.name]?.passed
+      )
+        continue;
       const fourYearOnly = state ? isFourYearOnly(state) : false;
       if (!fourYearOnly) {
         missing3yr.push(c.name);
@@ -118,16 +123,19 @@ export const useSimulatorState = (params: UseSimulatorStateParams) => {
   );
 
   const reasonMap = createMemo(() =>
-    computeReasonMap({
-      courseInfoMap: courseInfoMap(),
-      courses: parsedCourses(),
-      electiveCourses: electiveCourses(),
-      enabledMap: enabledMap(),
-      fullLevels: fullLevels(),
-      overLimitSet: overLimitSet(),
-      statuses: statuses(),
-      totalCredits: totalCredits(),
-    }),
+    computeReasonMap(
+      {
+        courseInfoMap: courseInfoMap(),
+        courses: parsedCourses(),
+        electiveCourses: electiveCourses(),
+        enabledMap: enabledMap(),
+        fullLevels: fullLevels(),
+        overLimitSet: overLimitSet(),
+        statuses: statuses(),
+        totalCredits: totalCredits(),
+      },
+      t(),
+    ),
   );
 
   return {

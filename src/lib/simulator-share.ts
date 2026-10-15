@@ -131,8 +131,7 @@ const decodeSettings = (
 
 const encodeCourseStatus = (status: CourseStatus | undefined): number => {
   if (status?.passed) return 2;
-  if (status?.listened) return 1;
-  return 0;
+  return status?.listened ? 1 : 0;
 };
 
 const decodeCourseStatus = (value: number): CourseStatus | undefined => {
@@ -205,7 +204,7 @@ export const readSimulatorShareState = (): SimulatorShareState | undefined => {
     settings,
     uniListCredits,
     encodedStatuses = '',
-  ] = raw.split('.');
+  ] = raw.split('.', 6);
 
   if (
     version !== SHARE_STATE_VERSION ||

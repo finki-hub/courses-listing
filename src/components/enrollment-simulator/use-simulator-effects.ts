@@ -56,13 +56,14 @@ export const useSimulatorEffects = (params: SimulatorEffectsParams): void => {
         const st = s[c.name];
         if (!st) continue;
         if (
-          (st.listened || st.passed) &&
-          enabled[c.name] === false &&
-          !getExclusiveProjectBlocker(s, c.name)
+          !((st.listened || st.passed) && enabled[c.name] === false) ||
+          getExclusiveProjectBlocker(s, c.name)
         ) {
-          updates[c.name] = { listened: false, passed: false };
-          changed = true;
+          continue;
         }
+
+        updates[c.name] = { listened: false, passed: false };
+        changed = true;
       }
       if (changed) {
         setStatuses((prev) => ({ ...prev, ...updates }));

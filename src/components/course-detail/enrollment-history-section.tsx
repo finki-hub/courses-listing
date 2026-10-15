@@ -3,6 +3,7 @@ import { Show } from 'solid-js';
 import type { CourseRaw } from '@/types/course';
 
 import { buildEnrollmentMetrics } from '@/lib/course-enrollment';
+import { useLanguage } from '@/lib/LanguageProvider';
 
 import { EnrollmentHistoryTable } from './enrollment-history-table';
 import { EnrollmentSummary } from './enrollment-summary';
@@ -15,17 +16,19 @@ type EnrollmentHistorySectionProps = {
 export const EnrollmentHistorySection = (
   props: EnrollmentHistorySectionProps,
 ) => {
-  const metrics = () => buildEnrollmentMetrics(props.course);
+  const { t } = useLanguage();
+
+  const metrics = () => buildEnrollmentMetrics(props.course, t());
 
   return (
     <div>
-      <h4 class={`${SECTION_HEADING_CLASS} mb-2`}>Број на запишани студенти</h4>
+      <h4 class={`${SECTION_HEADING_CLASS} mb-2`}>{t().enrollment.heading}</h4>
       <Show
         fallback={
           <div class="rounded-lg border border-dashed bg-muted/20 p-4">
-            <div class="font-medium">Нема достапни историски податоци</div>
+            <div class="font-medium">{t().enrollment.noHistory}</div>
             <div class="text-muted-foreground mt-1 text-sm">
-              За овој предмет моментално нема години со внесен број на слушачи.
+              {t().enrollment.noHistoryDescription}
             </div>
           </div>
         }

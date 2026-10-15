@@ -7,6 +7,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
+import { useLanguage } from '@/lib/LanguageProvider';
 import { type CourseStatus } from '@/lib/prerequisite';
 import {
   getExclusiveProjectBlocker,
@@ -35,6 +36,8 @@ type SimulatorTableProps = {
 };
 
 export const SimulatorTable = (props: SimulatorTableProps) => {
+  const { t } = useLanguage();
+
   const visibleCourses = () =>
     props.courses.filter((course) => {
       const enabled = props.enabledMap[course.name] ?? true;
@@ -83,11 +86,19 @@ export const SimulatorTable = (props: SimulatorTableProps) => {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead class="w-12 text-center sm:w-16">Сем.</TableHead>
-              <TableHead>Предмет</TableHead>
-              <TableHead class="w-16 text-center sm:w-24">Слушан</TableHead>
-              <TableHead class="w-16 text-center sm:w-24">Положен</TableHead>
-              <TableHead class="hidden md:table-cell">Предуслов</TableHead>
+              <TableHead class="w-12 text-center sm:w-16">
+                {t().common.semesterShort}
+              </TableHead>
+              <TableHead>{t().common.course}</TableHead>
+              <TableHead class="w-16 text-center sm:w-24">
+                {t().simulator.attended}
+              </TableHead>
+              <TableHead class="w-16 text-center sm:w-24">
+                {t().simulator.passed}
+              </TableHead>
+              <TableHead class="hidden md:table-cell">
+                {t().common.prerequisite}
+              </TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>

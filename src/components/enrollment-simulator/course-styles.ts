@@ -21,6 +21,7 @@ export const getStatusClass = (status: {
   if (status.overLimit) return 'bg-red-500/10 border-l-red-500';
   if (status.passed) return 'bg-green-500/10 border-l-green-500';
   if (status.listened) return 'bg-blue-500/10 border-l-blue-500';
-  if (status.atLimit) return 'bg-orange-500/10 border-l-orange-400';
-  return 'border-l-transparent';
+  return status.atLimit
+    ? 'bg-orange-500/10 border-l-orange-400'
+    : 'border-l-transparent';
 };

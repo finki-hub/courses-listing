@@ -77,9 +77,9 @@ export const useCourseSearchAnalytics = (
   });
 
   // A click during debounce is deliberately unlinked, never linked to history.
-  return () => {
-    if (attempt?.state !== state()) return {};
-    // eslint-disable-next-line camelcase -- PostHog event props are snake_case
-    return { search_attempt_id: attempt.id };
-  };
+  return () =>
+    attempt?.state === state()
+      ? // eslint-disable-next-line camelcase -- PostHog event props are snake_case
+        { search_attempt_id: attempt.id }
+      : {};
 };

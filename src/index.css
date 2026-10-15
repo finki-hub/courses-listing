@@ -8,6 +8,9 @@
   --color-background: hsl(var(--background));
   --color-foreground: hsl(var(--foreground));
 
+  --color-popover: hsl(var(--popover));
+  --color-popover-foreground: hsl(var(--popover-foreground));
+
   --color-card: hsl(var(--card));
   --color-card-foreground: hsl(var(--card-foreground));
 
@@ -62,6 +65,8 @@
   :root {
     --background: 0 0% 100%;
     --foreground: 0 0% 5%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 0% 5%;
     --card: 0 0% 99%;
     --card-foreground: 0 0% 5%;
     --primary: 142 70% 31%;
@@ -83,6 +88,8 @@
   [data-kb-theme="dark"] {
     --background: 0 0% 4%;
     --foreground: 0 0% 95%;
+    --popover: 0 0% 7%;
+    --popover-foreground: 0 0% 95%;
     --card: 0 0% 7%;
     --card-foreground: 0 0% 95%;
     --primary: 142 70% 45%;

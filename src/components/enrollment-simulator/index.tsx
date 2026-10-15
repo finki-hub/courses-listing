@@ -1,7 +1,7 @@
-/* eslint-disable no-alert -- allow confirm/alert for reset confirmation */
 import { createSignal, Show } from 'solid-js';
 
 import { ALERT_STYLES } from '@/lib/alert-styles';
+import { useLanguage } from '@/lib/LanguageProvider';
 import { OVERRIDE_CREDITS } from '@/lib/prerequisite';
 import {
   DEFAULT_PROGRAM,
@@ -32,6 +32,8 @@ type EnrollmentSimulatorProps = {
 };
 
 export const EnrollmentSimulator = (props: EnrollmentSimulatorProps) => {
+  const { t } = useLanguage();
+
   const initialState = getInitialSimulatorState();
 
   const [accreditation, setAccreditation] = createSignal<Accreditation>(
@@ -120,9 +122,8 @@ export const EnrollmentSimulator = (props: EnrollmentSimulatorProps) => {
 
   const resetStatuses = () => {
     if (
-      !confirm(
-        'Дали сте сигурни дека сакате да ги ресетирате сите избрани предмети?',
-      )
+      // eslint-disable-next-line no-alert -- Keep the existing reset confirmation.
+      !confirm(t().simulator.resetConfirm)
     )
       return;
     setStatuses({});
@@ -132,10 +133,7 @@ export const EnrollmentSimulator = (props: EnrollmentSimulatorProps) => {
 
   return (
     <div class="space-y-4">
-      <p class="text-muted-foreground text-sm">
-        Означете ги предметите кои сте ги слушале или положиле. Предметите за
-        кои не се исполнети предусловите се оневозможени.
-      </p>
+      <p class="text-muted-foreground text-sm">{t().simulator.description}</p>
 
       <SimulatorToolbar
         accreditation={accreditation()}
@@ -168,9 +166,7 @@ export const EnrollmentSimulator = (props: EnrollmentSimulatorProps) => {
       />
 
       <Show when={totalCredits() >= OVERRIDE_CREDITS}>
-        <div class={ALERT_STYLES.info}>
-          🔓 Имате ≥ 180 кредити — сите предмети се отклучени
-        </div>
+        <div class={ALERT_STYLES.info}>{t().simulator.allUnlocked}</div>
       </Show>
 
       <GraduationAlert

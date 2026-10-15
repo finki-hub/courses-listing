@@ -62,27 +62,19 @@ export type CourseRaw = z.infer<typeof courseSchema>;
 
 export const FEATURED_TAG = 'delemangi';
 
-const TAG_TRANSLATIONS: Record<string, string> = {
-  ai: 'Вештачка интелигенција',
-  coding: 'Кодирање',
-  databases: 'Бази на податоци',
-  delemangi: "⭐ Stefan's picks",
-  devops: 'DevOps',
-  filler: 'Филер',
-  math: 'Математика',
-  mobile: 'Мобилни',
-  networking: 'Мрежи',
-  security: 'Безбедност',
-  web: 'Веб',
-};
-
 export const ALL_TAGS = [
   FEATURED_TAG,
-  ...Object.keys(TAG_TRANSLATIONS).filter((tag) => tag !== FEATURED_TAG),
+  'ai',
+  'coding',
+  'databases',
+  'devops',
+  'filler',
+  'math',
+  'mobile',
+  'networking',
+  'security',
+  'web',
 ];
-
-export const getTagLabel = (tag: string): string =>
-  TAG_TRANSLATIONS[tag] ?? tag;
 
 export const getCourseTags = (course: CourseRaw): string[] =>
   course.tags?.split(',').filter(Boolean) ?? [];
