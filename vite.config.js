@@ -5,8 +5,24 @@ import solid from 'vite-plugin-solid';
 
 import { localizeHtml } from './src/lib/page-metadata.ts';
 
+const posthogModulePattern = /node_modules[\\/]posthog-js[\\/]/u;
+
 export default function config() {
   return {
+    build: {
+      rolldownOptions: {
+        output: {
+          codeSplitting: {
+            groups: [
+              {
+                name: 'posthog',
+                test: posthogModulePattern,
+              },
+            ],
+          },
+        },
+      },
+    },
     define: {
       // The deployment workflow checks out the triggering commit before this build.
       // Local/non-GitHub builds intentionally have no trusted revision.
