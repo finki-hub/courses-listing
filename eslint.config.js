@@ -8,7 +8,8 @@ import {
 } from 'eslint-config-imperium';
 
 const config = [
-  { ignores: ['dist'] },
+  // Local agent worktrees contain duplicate sources and generated build output.
+  { ignores: ['dist', '.slim/'] },
   ...base,
   browser,
   solid,
