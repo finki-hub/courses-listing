@@ -27,12 +27,6 @@ import {
   isAccreditation,
 } from '@/types/course';
 
-type AccCourse = {
-  name: string;
-  prerequisite: string | undefined;
-  semester: number;
-};
-
 type PrerequisiteExplorerProps = {
   courses: CourseRaw[];
 };
@@ -40,6 +34,12 @@ type PrerequisiteExplorerProps = {
 const NAME_COLLATOR = new Intl.Collator('mk');
 
 export const PrerequisiteExplorer = (props: PrerequisiteExplorerProps) => {
+  type AccCourse = {
+    name: string;
+    prerequisite: string | undefined;
+    semester: number;
+  };
+
   const { language, t } = useLanguage();
 
   const [accreditation, setAccreditation] = usePersistedSignal<Accreditation>(

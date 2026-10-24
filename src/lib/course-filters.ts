@@ -75,14 +75,14 @@ export const filterCourses = (
     ? courses.filter(
         (c) =>
           matchesNormalizedSearch(c.name, term) ||
-          (c['2023-name']
-            ? matchesNormalizedSearch(c['2023-name'], term)
-            : false) ||
-          (c['2018-name']
-            ? matchesNormalizedSearch(c['2018-name'], term)
-            : false) ||
+          Boolean(
+            c['2023-name'] && matchesNormalizedSearch(c['2023-name'], term),
+          ) ||
+          Boolean(
+            c['2018-name'] && matchesNormalizedSearch(c['2018-name'], term),
+          ) ||
           matchesNormalizedSearch(c.professors, term) ||
-          (c.assistants ? matchesNormalizedSearch(c.assistants, term) : false),
+          Boolean(c.assistants && matchesNormalizedSearch(c.assistants, term)),
       )
     : [...courses];
 

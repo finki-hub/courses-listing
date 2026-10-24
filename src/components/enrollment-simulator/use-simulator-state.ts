@@ -81,7 +81,7 @@ export const useSimulatorState = (params: UseSimulatorStateParams) => {
         s[c.name]?.passed
       )
         continue;
-      const fourYearOnly = state ? isFourYearOnly(state) : false;
+      const fourYearOnly = Boolean(state && isFourYearOnly(state));
       if (!fourYearOnly) {
         missing3yr.push(c.name);
       }
