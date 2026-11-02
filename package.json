@@ -14,7 +14,7 @@
   "devDependencies": {
     "@tailwindcss/vite": "^4.3.3",
     "@types/node": "^26.6.6",
-    "eslint": "^10.13.0",
+    "eslint": "^10.14.0",
     "eslint-config-imperium": "^5.0.0",
     "tailwindcss": "^4.3.3",
     "typescript": "^6.0.3",
