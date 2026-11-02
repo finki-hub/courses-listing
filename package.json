@@ -19,7 +19,7 @@
     "tailwindcss": "^4.3.3",
     "typescript": "^6.0.3",
     "vite": "^8.3.5",
-    "vite-plugin-solid": "^2.11.14"
+    "vite-plugin-solid": "^2.11.15"
   },
   "license": "MIT",
   "name": "finki-hub-courses-listing",
