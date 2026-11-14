@@ -2,7 +2,7 @@ import { createResource } from 'solid-js';
 
 import { type CourseRaw, coursesSchema } from '@/types/course';
 
-const COURSES_URL = 'https://assets.finki-hub.com/courses.json';
+const COURSES_URL = 'https://data.finki-hub.com/legacy/courses.json';
 
 const fetchCourses = async (): Promise<CourseRaw[]> => {
   const response = await fetch(COURSES_URL);
