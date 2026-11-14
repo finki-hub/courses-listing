@@ -20,7 +20,7 @@ type CourseCardProps = {
 };
 
 export const CourseCard = (props: CourseCardProps) => {
-  const { t } = useLanguage();
+  const { language, t } = useLanguage();
   return (
     <button
       class="hover:bg-muted/50 w-full rounded-lg border p-3 text-left transition-colors"
@@ -30,7 +30,7 @@ export const CourseCard = (props: CourseCardProps) => {
       type="button"
     >
       <div class="mb-1.5 font-medium">
-        {getCourseName(props.course, props.accreditation)}
+        {getCourseName(props.course, props.accreditation, language())}
       </div>
 
       <div class="text-muted-foreground flex flex-wrap items-center gap-x-3 gap-y-1 text-xs">

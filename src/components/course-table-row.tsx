@@ -21,7 +21,7 @@ type CourseTableRowProps = {
 };
 
 export const CourseTableRow = (props: CourseTableRowProps) => {
-  const { t } = useLanguage();
+  const { language, t } = useLanguage();
   return (
     <TableRow
       class="cursor-pointer"
@@ -38,7 +38,7 @@ export const CourseTableRow = (props: CourseTableRowProps) => {
       tabIndex={0}
     >
       <TableCell class="font-medium">
-        {getCourseName(props.course, props.accreditation)}
+        {getCourseName(props.course, props.accreditation, language())}
       </TableCell>
       <TableCell class="hidden whitespace-nowrap md:table-cell">
         {getAccLabel(props.course)}
