@@ -1,5 +1,7 @@
 import { z } from 'zod/v4';
 
+import type { Language } from '@/lib/i18n';
+
 const optionalString = z.string().optional();
 
 const courseSchema = z.object({
@@ -52,6 +54,7 @@ const courseSchema = z.object({
   assistants: optionalString,
   channel: optionalString,
   name: z.string(),
+  'name-en': optionalString,
   professors: z.string(),
   tags: optionalString,
 });
@@ -228,13 +231,19 @@ export const getAccLabel = (course: CourseRaw): string => {
   return labels.join(', ');
 };
 
+// The official English name in English; otherwise the catalog name, the
+// accreditation's own when one is selected.
 export const getCourseName = (
   course: CourseRaw,
   accreditation: Accreditation | null,
-): string =>
-  accreditation === null
+  language: Language = 'mk',
+): string => {
+  const english = course['name-en'];
+  if (language === 'en' && english) return english;
+  return accreditation === null
     ? course.name
     : (getAccreditationInfo(course, accreditation)?.name ?? course.name);
+};
 
 export const hasChannel = (course: CourseRaw): boolean =>
   course['2023-channel'] === '1' ||

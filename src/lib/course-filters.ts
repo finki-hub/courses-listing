@@ -1,3 +1,5 @@
+import type { Language } from '@/lib/i18n';
+
 import {
   matchesNormalizedSearch,
   normalizeSearchText,
@@ -76,6 +78,9 @@ export const filterCourses = (
         (c) =>
           matchesNormalizedSearch(c.name, term) ||
           Boolean(
+            c['name-en'] && matchesNormalizedSearch(c['name-en'], term),
+          ) ||
+          Boolean(
             c['2023-name'] && matchesNormalizedSearch(c['2023-name'], term),
           ) ||
           Boolean(
@@ -108,6 +113,7 @@ export const sortCourses = (
     readonly accreditation: Accreditation | null;
     readonly column: SortColumn;
     readonly direction: SortDirection;
+    readonly language: Language;
   },
 ): CourseRaw[] => {
   const dir = config.direction === 'asc' ? 1 : -1;
@@ -121,8 +127,8 @@ export const sortCourses = (
       case 'name':
         return (
           SORT_COLLATOR.compare(
-            getCourseName(a, config.accreditation),
-            getCourseName(b, config.accreditation),
+            getCourseName(a, config.accreditation, config.language),
+            getCourseName(b, config.accreditation, config.language),
           ) * dir
         );
       case 'tags':

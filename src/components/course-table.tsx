@@ -57,7 +57,7 @@ type CourseTableProps = {
 };
 
 export const CourseTable = (props: CourseTableProps) => {
-  const { t } = useLanguage();
+  const { language, t } = useLanguage();
 
   const [selectedCourse, setSelectedCourse] = createSignal<CourseRaw | null>(
     null,
@@ -105,6 +105,7 @@ export const CourseTable = (props: CourseTableProps) => {
       accreditation: accreditation(),
       column: sortColumn(),
       direction: sortDirection(),
+      language: language(),
     }),
   );
 

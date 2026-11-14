@@ -27,7 +27,7 @@ type CourseDetailDialogProps = {
 };
 
 export const CourseDetailDialog = (props: CourseDetailDialogProps) => {
-  const { t } = useLanguage();
+  const { language, t } = useLanguage();
   return (
     <Dialog
       onOpenChange={props.onOpenChange}
@@ -38,7 +38,7 @@ export const CourseDetailDialog = (props: CourseDetailDialogProps) => {
           <Show when={props.course}>
             {(course) => {
               const primaryName = () =>
-                getCourseName(course(), props.accreditation);
+                getCourseName(course(), props.accreditation, language());
               const alternateName = () =>
                 [
                   course().name,
