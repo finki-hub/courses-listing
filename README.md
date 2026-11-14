@@ -40,3 +40,7 @@ simulator state use the original values; translate their display messages only.
 Run `npm test`, `npm run check`, `npm run lint` and `npm run build` to validate
 changes. Localization tests check dictionary and placeholder coverage, formatting,
 metadata, prerequisite explanations and simulator share compatibility.
+
+## License
+
+This project is licensed under the terms of the MIT license.
