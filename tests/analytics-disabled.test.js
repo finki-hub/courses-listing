@@ -1,11 +1,11 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
-import { posthog } from 'posthog-js';
 import { createRoot, createSignal } from 'solid-js';
 
 import { useCourseSearchAnalytics } from '../src/components/use-course-search-analytics.ts';
+import { capture } from '../src/lib/analytics-client.ts';
 
-test('search state and click handling remain usable with the real uninitialized SDK', (t) => {
+test('search state and click handling remain usable when analytics never starts', (t) => {
   t.mock.timers.enable({ apis: ['setTimeout'] });
   let change;
   let query;
@@ -31,7 +31,7 @@ test('search state and click handling remain usable with the real uninitialized 
   t.mock.timers.tick(500);
   assert.equal(query(), 'alpha');
   assert.equal(
-    posthog.capture('result_clicked', { ...linkage(), position: 0 }),
+    capture('result_clicked', { ...linkage(), position: 0 }),
     undefined,
   );
   change('');

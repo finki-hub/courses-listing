@@ -1,4 +1,3 @@
-import { posthog } from 'posthog-js';
 import { createMemo, createSignal, For, type JSX, Show } from 'solid-js';
 
 import {
@@ -9,6 +8,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
+import { capture } from '@/lib/analytics-client';
 import {
   type CourseFilterCriteria,
   filterCourses,
@@ -120,7 +120,7 @@ export const CourseTable = (props: CourseTableProps) => {
     tags: selectedTags(),
   }));
   const openDetail = (course: CourseRaw, position: number) => {
-    posthog.capture('result_clicked', {
+    capture('result_clicked', {
       ...searchLinkage(),
       position,
       // eslint-disable-next-line camelcase -- PostHog event props are snake_case
