@@ -50,26 +50,30 @@ const search = (searchTerm) =>
     tags: new Set(),
   }).map((course) => course.abbreviation);
 
-test('course search matches abbreviations in Cyrillic and Latin', () => {
-  assert.deepEqual(search('ООП'), ['ООП']);
-  assert.deepEqual(search('oop'), ['ООП']);
-  assert.deepEqual(search('aps'), ['АПС']);
-});
+const CASES = [
+  [
+    'abbreviations in Cyrillic and Latin',
+    { aps: 'АПС', oop: 'ООП', ООП: 'ООП' },
+  ],
+  [
+    '2018 and 2023 course codes',
+    { f18l1s008: 'ООП', F23L1S008: 'ООП', F23L2W016: 'АПС' },
+  ],
+  [
+    'professors and assistants',
+    { Kostadin: 'ООП', sasanski: 'ООП', Граматиков: 'АПС' },
+  ],
+  ['names', { 'object-oriented': 'ООП', podatochni: 'АПС' }],
+];
 
-test('course search matches 2018 and 2023 course codes', () => {
-  assert.deepEqual(search('F23L1S008'), ['ООП']);
-  assert.deepEqual(search('f18l1s008'), ['ООП']);
-  assert.deepEqual(search('F23L2W016'), ['АПС']);
-});
+for (const [label, expectations] of CASES) {
+  test(`course search matches ${label}`, () => {
+    for (const [term, abbreviation] of Object.entries(expectations)) {
+      assert.deepEqual(search(term), [abbreviation], term);
+    }
+  });
+}
 
-test('course search matches professors and assistants', () => {
-  assert.deepEqual(search('Kostadin'), ['ООП']);
-  assert.deepEqual(search('Граматиков'), ['АПС']);
-  assert.deepEqual(search('sasanski'), ['ООП']);
-});
-
-test('course search keeps matching names and returns nothing for unknown terms', () => {
-  assert.deepEqual(search('object-oriented'), ['ООП']);
-  assert.deepEqual(search('podatochni'), ['АПС']);
+test('course search returns nothing for unknown terms', () => {
   assert.deepEqual(search('nonexistent'), []);
 });
