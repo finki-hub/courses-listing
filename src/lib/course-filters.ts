@@ -68,27 +68,36 @@ const matchesCurriculumFilters = (
   });
 };
 
+// Every value a course can be found by: its names, abbreviation, codes and
+// teaching staff.
+export const getCourseSearchFields = (course: CourseRaw): string[] =>
+  [
+    course.name,
+    course['name-en'],
+    course['2023-name'],
+    course['2018-name'],
+    course.abbreviation,
+    course['2023-code'],
+    course['2018-code'],
+    course.professors,
+    course.assistants,
+  ].filter((value): value is string => Boolean(value));
+
+export const courseMatchesSearch = (
+  course: CourseRaw,
+  searchTerm: string,
+): boolean =>
+  getCourseSearchFields(course).some((value) =>
+    matchesNormalizedSearch(value, searchTerm),
+  );
+
 export const filterCourses = (
   courses: CourseRaw[],
   criteria: CourseFilterCriteria,
 ): CourseRaw[] => {
   const term = normalizeSearchText(criteria.searchTerm);
   let filtered = term
-    ? courses.filter(
-        (c) =>
-          matchesNormalizedSearch(c.name, term) ||
-          Boolean(
-            c['name-en'] && matchesNormalizedSearch(c['name-en'], term),
-          ) ||
-          Boolean(
-            c['2023-name'] && matchesNormalizedSearch(c['2023-name'], term),
-          ) ||
-          Boolean(
-            c['2018-name'] && matchesNormalizedSearch(c['2018-name'], term),
-          ) ||
-          matchesNormalizedSearch(c.professors, term) ||
-          Boolean(c.assistants && matchesNormalizedSearch(c.assistants, term)),
-      )
+    ? courses.filter((c) => courseMatchesSearch(c, term))
     : [...courses];
 
   filtered = filtered.filter((course) =>

@@ -97,6 +97,7 @@ export const tr = {
       one: '{count} ders',
       other: '{count} ders',
     },
+    searchPlaceholder: 'Ad, kısaltma, kod veya personele göre ara...',
     sort: 'Sırala:',
     tagsLabel: 'Etiketler:',
   },

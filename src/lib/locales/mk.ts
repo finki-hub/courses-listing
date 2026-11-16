@@ -98,6 +98,7 @@ export const mk = {
       one: '{count} предмет',
       other: '{count} предмети',
     },
+    searchPlaceholder: 'Пребарувај по име, кратенка, код или кадар...',
     sort: 'Сортирај:',
     tagsLabel: 'Тагови:',
   },

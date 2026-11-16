@@ -33,6 +33,22 @@ type PrerequisiteExplorerProps = {
 
 const NAME_COLLATOR = new Intl.Collator('mk');
 
+// The picker finds a course by its name, abbreviation or code.
+const createPickerMatcher = (
+  rawCourses: ReadonlyMap<string, CourseRaw>,
+  accreditation: Accreditation,
+  searchTerm: string,
+): ((name: string) => boolean) => {
+  const term = normalizeSearchText(searchTerm);
+  if (!term) return () => true;
+  return (name) => {
+    const raw = rawCourses.get(name);
+    return [name, raw?.abbreviation, raw?.[`${accreditation}-code`]].some(
+      (value) => value !== undefined && matchesNormalizedSearch(value, term),
+    );
+  };
+};
+
 export const PrerequisiteExplorer = (props: PrerequisiteExplorerProps) => {
   type AccCourse = {
     name: string;
@@ -89,12 +105,11 @@ export const PrerequisiteExplorer = (props: PrerequisiteExplorerProps) => {
     return courseNames().filter((n) => (map.get(n)?.length ?? 0) > 0);
   });
 
-  const filteredPickerCourses = createMemo(() => {
-    const term = normalizeSearchText(search());
-    return term
-      ? coursesWithDependents().filter((n) => matchesNormalizedSearch(n, term))
-      : coursesWithDependents();
-  });
+  const filteredPickerCourses = createMemo(() =>
+    coursesWithDependents().filter(
+      createPickerMatcher(rawCourseMap(), accreditation(), search()),
+    ),
+  );
 
   const dependents = createMemo<AccCourse[]>(() => {
     const sel = selectedCourse();

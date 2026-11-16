@@ -52,6 +52,7 @@ const courseSchema = z.object({
   '2024/2025': optionalString,
   '2025/2026': optionalString,
   '2026/2027': optionalString,
+  abbreviation: optionalString,
   assistants: optionalString,
   channel: optionalString,
   name: z.string(),
