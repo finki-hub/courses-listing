@@ -126,6 +126,7 @@ export const sq = {
     },
     description:
       'Zgjidhni një akreditim dhe një lëndë për të parë të gjitha lëndët që e kanë si parakusht.',
+    searchPlaceholder: 'Kërko sipas emrit, shkurtesës ose kodit...',
   },
   programState: {
     elective: 'Zgjedhore',

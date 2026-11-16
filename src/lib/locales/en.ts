@@ -126,6 +126,7 @@ export const en = {
     },
     description:
       'Choose an accreditation and a course to see all courses that require it.',
+    searchPlaceholder: 'Search by name, abbreviation or code...',
   },
   programState: {
     elective: 'Elective',

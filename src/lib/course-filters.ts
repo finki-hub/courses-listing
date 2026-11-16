@@ -1,7 +1,7 @@
 import type { Language } from '@/lib/i18n';
 
 import {
-  matchesNormalizedSearch,
+  matchesNormalizedTerm,
   normalizeSearchText,
 } from '@/lib/search-normalization';
 import {
@@ -68,9 +68,8 @@ const matchesCurriculumFilters = (
   });
 };
 
-// Every value a course can be found by: its names, abbreviation, codes and
-// teaching staff.
-export const getCourseSearchFields = (course: CourseRaw): string[] =>
+// The values that identify a course: its names, abbreviation and codes.
+export const getCourseIdentityFields = (course: CourseRaw): string[] =>
   [
     course.name,
     course['name-en'],
@@ -79,16 +78,23 @@ export const getCourseSearchFields = (course: CourseRaw): string[] =>
     course.abbreviation,
     course['2023-code'],
     course['2018-code'],
-    course.professors,
-    course.assistants,
   ].filter((value): value is string => Boolean(value));
 
+// Every value a course can be found by: its identity and teaching staff.
+export const getCourseSearchFields = (course: CourseRaw): string[] => [
+  ...getCourseIdentityFields(course),
+  ...[course.professors, course.assistants].filter((value): value is string =>
+    Boolean(value),
+  ),
+];
+
+// `normalizedTerm` must come from normalizeSearchText.
 export const courseMatchesSearch = (
   course: CourseRaw,
-  searchTerm: string,
+  normalizedTerm: string,
 ): boolean =>
   getCourseSearchFields(course).some((value) =>
-    matchesNormalizedSearch(value, searchTerm),
+    matchesNormalizedTerm(value, normalizedTerm),
   );
 
 export const filterCourses = (

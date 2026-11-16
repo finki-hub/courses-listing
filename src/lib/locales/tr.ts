@@ -126,6 +126,7 @@ export const tr = {
     },
     description:
       'Bir akreditasyon ve ders seçerek bu dersi ön koşul olarak gerektiren tüm dersleri görün.',
+    searchPlaceholder: 'Ad, kısaltma veya koda göre ara...',
   },
   programState: {
     elective: 'Seçmeli',
