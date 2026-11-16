@@ -196,6 +196,7 @@ export const sq = {
     delemangi: '⭐ Zgjedhjet e Stefan',
     devops: 'DevOps',
     filler: 'Plotësuese',
+    hardware: 'Hardueri',
     math: 'Matematikë',
     mobile: 'Aplikacione mobile',
     networking: 'Rrjetet',

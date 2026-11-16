@@ -196,6 +196,7 @@ export const tr = {
     delemangi: "⭐ Stefan'ın seçtikleri",
     devops: 'DevOps',
     filler: 'Tamamlayıcı',
+    hardware: 'Donanım',
     math: 'Matematik',
     mobile: 'Mobil',
     networking: 'Ağlar',

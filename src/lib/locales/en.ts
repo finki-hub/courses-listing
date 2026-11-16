@@ -195,6 +195,7 @@ export const en = {
     delemangi: "⭐ Stefan's picks",
     devops: 'DevOps',
     filler: 'Filler',
+    hardware: 'Hardware',
     math: 'Mathematics',
     mobile: 'Mobile',
     networking: 'Networking',

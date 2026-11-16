@@ -197,6 +197,7 @@ export const mk = {
     delemangi: '⭐ Изборот на Stefan',
     devops: 'DevOps',
     filler: 'Филер',
+    hardware: 'Хардвер',
     math: 'Математика',
     mobile: 'Мобилни',
     networking: 'Мрежи',

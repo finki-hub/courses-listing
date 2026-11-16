@@ -72,6 +72,7 @@ export const ALL_TAGS = [
   'databases',
   'devops',
   'filler',
+  'hardware',
   'math',
   'mobile',
   'networking',
