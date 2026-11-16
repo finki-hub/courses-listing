@@ -185,6 +185,7 @@ export const en = {
     reset: 'Reset',
     resetConfirm: 'Are you sure you want to reset all selected courses?',
     share: 'Share',
+    statusToggle: '{status}: {course}',
     universityList: 'Uni list',
     universityListInfo:
       'There is no formal limit on credits from the university list.\nIn practice, you can take at most 4 courses worth 9 credits each, totaling 36 credits.',
