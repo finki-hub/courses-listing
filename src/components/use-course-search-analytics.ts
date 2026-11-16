@@ -1,4 +1,3 @@
-import { posthog } from 'posthog-js';
 import { createEffect, createMemo, onCleanup, untrack } from 'solid-js';
 
 import type { SortColumn, SortDirection } from '@/lib/course-filters';
@@ -7,6 +6,8 @@ import type {
   CourseLevelFilter,
   SeasonFilter,
 } from '@/types/course';
+
+import { capture } from '../lib/analytics-client.ts';
 
 type SearchContext = {
   accreditation: Accreditation | null;
@@ -61,13 +62,13 @@ export const useCourseSearchAnalytics = (
       settled = { ...attempt, query };
       // eslint-disable-next-line camelcase -- PostHog event props are snake_case
       const linkage = { search_attempt_id: id };
-      posthog.capture(event, {
+      capture(event, {
         ...linkage,
         // eslint-disable-next-line camelcase -- PostHog event props are snake_case
         result_count: resultCount,
       });
       if (resultCount === 0) {
-        posthog.capture('search_zero_results', linkage);
+        capture('search_zero_results', linkage);
       }
     }, 500);
     onCleanup(() => {

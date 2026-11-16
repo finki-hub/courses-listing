@@ -177,6 +177,13 @@ test('malformed nested business/technical fields cannot carry URL metadata', () 
 const exerciseSearchPayloads = async (t, sdk, requests) => {
   const { useCourseSearchAnalytics } =
     await import('../src/components/use-course-search-analytics.ts');
+  const { startAnalytics } = await import('../src/lib/analytics-client.ts');
+  await startAnalytics(
+    () => Promise.resolve(sdk),
+    (run) => {
+      run();
+    },
+  );
   // Exercise the real search function and Solid hook through SDK serialization.
   const aliases = registerHooks({
     resolve(specifier, context, nextResolve) {

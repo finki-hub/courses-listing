@@ -1,18 +1,21 @@
 import assert from 'node:assert/strict';
-import { mock, test } from 'node:test';
+import { test } from 'node:test';
 import { createRoot, createSignal } from 'solid-js';
 
 const events = [];
 const UUID_PATTERN = /^[\da-f-]{36}$/u;
-mock.module('posthog-js', {
-  namedExports: {
-    posthog: {
+const { startAnalytics } = await import('../src/lib/analytics-client.ts');
+await startAnalytics(
+  () =>
+    Promise.resolve({
       capture: (event, properties) => {
         events.push({ event, properties });
       },
-    },
+    }),
+  (run) => {
+    run();
   },
-});
+);
 const { useCourseSearchAnalytics } =
   await import('../src/components/use-course-search-analytics.ts');
 
