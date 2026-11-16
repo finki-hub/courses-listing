@@ -10,6 +10,9 @@ const root = document.querySelector('#root');
 
 if (!root) throw new Error('Root element not found');
 
+// Start queueing before the first render; the SDK itself loads once idle.
+initAnalytics();
+
 render(
   () => (
     <LanguageProvider>
@@ -18,6 +21,3 @@ render(
   ),
   root,
 );
-
-// After the first render: the SDK loads lazily and never delays the page.
-initAnalytics();

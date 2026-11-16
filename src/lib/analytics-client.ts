@@ -37,9 +37,11 @@ export const capture = (
     return;
   }
 
-  if (state.pending && state.queue.length < MAX_QUEUED_EVENTS) {
-    state.queue.push({ event, properties });
-  }
+  if (!state.pending) return;
+
+  // Keep the newest events: later clicks matter more than early refinements.
+  if (state.queue.length >= MAX_QUEUED_EVENTS) state.queue.shift();
+  state.queue.push({ event, properties });
 };
 
 const flush = (client: AnalyticsClient): void => {
@@ -66,8 +68,17 @@ export const startAnalytics = async (
     schedule(resolve);
   });
 
+  let client: AnalyticsClient;
   try {
-    flush(await load());
+    client = await load();
+  } catch {
+    discard();
+    return;
+  }
+
+  // A throwing capture must not drop the rest of the queue.
+  try {
+    flush(client);
   } catch {
     discard();
   }

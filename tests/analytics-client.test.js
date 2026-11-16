@@ -89,7 +89,8 @@ test('the startup queue is bounded', async () => {
   runScheduled();
   await started;
   assert.equal(events.length, 50);
-  assert.equal(events.at(-1).properties.result_count, 49);
+  assert.equal(events[0].properties.result_count, 10);
+  assert.equal(events.at(-1).properties.result_count, 59);
 });
 
 test('without requestIdleCallback the load falls back to a timer', async (t) => {
