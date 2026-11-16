@@ -1,4 +1,4 @@
-import { createMemo, createSignal, For, type JSX, Show } from 'solid-js';
+import { createMemo, For, type JSX, Show } from 'solid-js';
 
 import {
   Table,
@@ -12,24 +12,19 @@ import { capture } from '@/lib/analytics-client';
 import {
   type CourseFilterCriteria,
   filterCourses,
-  type SortColumn,
   sortCourses,
-  type SortDirection,
   sortIndicator,
 } from '@/lib/course-filters';
 import { useLanguage } from '@/lib/LanguageProvider';
-import {
-  type Accreditation,
-  type CourseLevelFilter,
-  type CourseRaw,
-  type SeasonFilter,
-} from '@/types/course';
+import { type CourseRaw } from '@/types/course';
 
 import { CourseCard } from './course-card';
 import { CourseDetailDialog } from './course-detail-dialog';
 import { CourseListingControls } from './course-listing-controls';
 import { CourseTableRow } from './course-table-row';
 import { useCourseSearchAnalytics } from './use-course-search-analytics';
+import { useLinkedCourseDialog } from './use-linked-course-dialog';
+import { useListingState } from './use-listing-state';
 
 type SortableTableHeadProps = {
   buttonClass?: string;
@@ -59,38 +54,22 @@ type CourseTableProps = {
 export const CourseTable = (props: CourseTableProps) => {
   const { language, t } = useLanguage();
 
-  const [selectedCourse, setSelectedCourse] = createSignal<CourseRaw | null>(
-    null,
-  );
-  const [dialogOpen, setDialogOpen] = createSignal(false);
-  const [search, setSearch] = createSignal('');
-  const [accreditation, setAccreditation] = createSignal<Accreditation | null>(
-    null,
-  );
-  const [seasonFilter, setSeasonFilter] = createSignal<SeasonFilter>(null);
-  const [levelFilter, setLevelFilter] = createSignal<CourseLevelFilter>(null);
-  const [sortColumn, setSortColumn] = createSignal<SortColumn>('name');
-  const [sortDirection, setSortDirection] = createSignal<SortDirection>('asc');
-  const [selectedTags, setSelectedTags] = createSignal(new Set<string>());
-
-  const toggleTag = (tag: string) => {
-    const current = new Set(selectedTags());
-    current[current.has(tag) ? 'delete' : 'add'](tag);
-    setSelectedTags(current);
-  };
-
-  const toggleSort = (column: SortColumn) => {
-    if (sortColumn() === column) {
-      setSortDirection((d) => (d === 'asc' ? 'desc' : 'asc'));
-    } else {
-      setSortColumn(column);
-      setSortDirection('asc');
-    }
-  };
-
-  const switchAccreditation = (value: Accreditation) => {
-    setAccreditation((current) => (current === value ? null : value));
-  };
+  const {
+    accreditation,
+    levelFilter,
+    search,
+    seasonFilter,
+    selectedTags,
+    setLevelFilter,
+    setSearch,
+    setSeasonFilter,
+    sortColumn,
+    sortDirection,
+    switchAccreditation,
+    toggleSort,
+    toggleTag,
+  } = useListingState();
+  const courseDialog = useLinkedCourseDialog(() => props.courses);
 
   const filterCriteria = (): CourseFilterCriteria => ({
     accreditation: accreditation(),
@@ -126,8 +105,7 @@ export const CourseTable = (props: CourseTableProps) => {
       // eslint-disable-next-line camelcase -- PostHog event props are snake_case
       result_id: course.name,
     });
-    setSelectedCourse(course);
-    setDialogOpen(true);
+    courseDialog.openCourse(course);
   };
 
   return (
@@ -248,9 +226,9 @@ export const CourseTable = (props: CourseTableProps) => {
 
       <CourseDetailDialog
         accreditation={accreditation()}
-        course={selectedCourse()}
-        onOpenChange={setDialogOpen}
-        open={dialogOpen()}
+        course={courseDialog.course()}
+        onOpenChange={courseDialog.setOpen}
+        open={courseDialog.open()}
       />
     </div>
   );

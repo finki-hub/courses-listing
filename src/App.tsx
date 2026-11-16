@@ -18,6 +18,10 @@ import { IconLink } from '@/components/ui/icon-controls';
 import { useCourses } from '@/data/use-courses';
 import { ALERT_STYLES } from '@/lib/alert-styles';
 import { useLanguage } from '@/lib/LanguageProvider';
+import {
+  COURSE_QUERY_PARAM,
+  LISTING_FILTER_PARAMS,
+} from '@/lib/listing-url-state';
 import { PAGE_QUERY_PARAM, SIMULATOR_SHARE_PARAM } from '@/lib/simulator-share';
 
 type Page = 'equivalencies' | 'listing' | 'prerequisites' | 'simulator';
@@ -38,6 +42,7 @@ const getInitialPage = (): Page => {
   const queryPage = url.searchParams.get(PAGE_QUERY_PARAM);
   if (queryPage && isPage(queryPage)) return queryPage;
   if (url.searchParams.has(SIMULATOR_SHARE_PARAM)) return 'simulator';
+  if (url.searchParams.has(COURSE_QUERY_PARAM)) return 'listing';
   const storedPage = localStorage.getItem('active-page') ?? '';
   return isPage(storedPage) ? storedPage : 'listing';
 };
@@ -53,6 +58,7 @@ const App = () => {
   const [courses] = useCourses();
   const [page, setPage] = createSignal<Page>(getInitialPage());
   let navigationElement: HTMLElement | undefined;
+  let previousPage: Page | undefined;
 
   createEffect(() => {
     const staticActivePage = page();
@@ -64,6 +70,14 @@ const App = () => {
     if (staticActivePage !== 'simulator') {
       url.searchParams.delete(SIMULATOR_SHARE_PARAM);
     }
+    if (staticActivePage !== 'listing') {
+      for (const param of LISTING_FILTER_PARAMS) url.searchParams.delete(param);
+    }
+    // A course link belongs to the tab it was opened on.
+    if (previousPage !== undefined && previousPage !== staticActivePage) {
+      url.searchParams.delete(COURSE_QUERY_PARAM);
+    }
+    previousPage = staticActivePage;
     history.replaceState({}, '', url);
 
     const scrollActivePageIntoView = () => {

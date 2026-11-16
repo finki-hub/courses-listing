@@ -11,6 +11,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
+import { useLinkedCourseDialog } from '@/components/use-linked-course-dialog';
 import { getCourseIdentityFields } from '@/lib/course-filters';
 import { formatCount } from '@/lib/i18n';
 import { useLanguage } from '@/lib/LanguageProvider';
@@ -66,9 +67,7 @@ export const PrerequisiteExplorer = (props: PrerequisiteExplorerProps) => {
     isAccreditation,
   );
   const [selectedCourse, setSelectedCourse] = createSignal('');
-  const [selectedModalCourse, setSelectedModalCourse] =
-    createSignal<CourseRaw | null>(null);
-  const [dialogOpen, setDialogOpen] = createSignal(false);
+  const courseDialog = useLinkedCourseDialog(() => props.courses);
   const [search, setSearch] = createSignal('');
 
   const accCourses = createMemo<AccCourse[]>(() => {
@@ -129,8 +128,7 @@ export const PrerequisiteExplorer = (props: PrerequisiteExplorerProps) => {
   const openDetail = (name: string) => {
     const course = rawCourseMap().get(name);
     if (!course) return;
-    setSelectedModalCourse(course);
-    setDialogOpen(true);
+    courseDialog.openCourse(course);
   };
 
   return (
@@ -242,9 +240,9 @@ export const PrerequisiteExplorer = (props: PrerequisiteExplorerProps) => {
 
       <CourseDetailDialog
         accreditation={accreditation()}
-        course={selectedModalCourse()}
-        onOpenChange={setDialogOpen}
-        open={dialogOpen()}
+        course={courseDialog.course()}
+        onOpenChange={courseDialog.setOpen}
+        open={courseDialog.open()}
       />
     </div>
   );
