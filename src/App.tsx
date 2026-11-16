@@ -21,6 +21,7 @@ import { useLanguage } from '@/lib/LanguageProvider';
 import {
   COURSE_QUERY_PARAM,
   LISTING_FILTER_PARAMS,
+  replaceUrlParams,
 } from '@/lib/listing-url-state';
 import { PAGE_QUERY_PARAM, SIMULATOR_SHARE_PARAM } from '@/lib/simulator-share';
 
@@ -35,6 +36,12 @@ const PAGE_VALUES: ReadonlySet<string> = new Set([
 
 const isPage = (value: string): value is Page => PAGE_VALUES.has(value);
 
+// Tabs whose course detail dialog is linked through `?course=`.
+const COURSE_LINK_PAGES: ReadonlySet<Page> = new Set([
+  'listing',
+  'prerequisites',
+]);
+
 const githubPath = siGithub.path;
 
 const getInitialPage = (): Page => {
@@ -42,7 +49,10 @@ const getInitialPage = (): Page => {
   const queryPage = url.searchParams.get(PAGE_QUERY_PARAM);
   if (queryPage && isPage(queryPage)) return queryPage;
   if (url.searchParams.has(SIMULATOR_SHARE_PARAM)) return 'simulator';
-  if (url.searchParams.has(COURSE_QUERY_PARAM)) return 'listing';
+  const linksListing = [COURSE_QUERY_PARAM, ...LISTING_FILTER_PARAMS].some(
+    (param) => url.searchParams.has(param),
+  );
+  if (linksListing) return 'listing';
   const storedPage = localStorage.getItem('active-page') ?? '';
   return isPage(storedPage) ? storedPage : 'listing';
 };
@@ -65,20 +75,22 @@ const App = () => {
     language();
     localStorage.setItem('active-page', staticActivePage);
 
-    const url = new URL(location.href);
-    url.searchParams.set(PAGE_QUERY_PARAM, staticActivePage);
-    if (staticActivePage !== 'simulator') {
-      url.searchParams.delete(SIMULATOR_SHARE_PARAM);
-    }
-    if (staticActivePage !== 'listing') {
-      for (const param of LISTING_FILTER_PARAMS) url.searchParams.delete(param);
-    }
-    // A course link belongs to the tab it was opened on.
-    if (previousPage !== undefined && previousPage !== staticActivePage) {
-      url.searchParams.delete(COURSE_QUERY_PARAM);
-    }
+    const pageChanged =
+      previousPage !== undefined && previousPage !== staticActivePage;
     previousPage = staticActivePage;
-    history.replaceState({}, '', url);
+    replaceUrlParams((params) => {
+      params.set(PAGE_QUERY_PARAM, staticActivePage);
+      if (staticActivePage !== 'simulator') {
+        params.delete(SIMULATOR_SHARE_PARAM);
+      }
+      if (staticActivePage !== 'listing') {
+        for (const param of LISTING_FILTER_PARAMS) params.delete(param);
+      }
+      // A course link belongs to the tab it was opened on, if that tab has one.
+      if (pageChanged || !COURSE_LINK_PAGES.has(staticActivePage)) {
+        params.delete(COURSE_QUERY_PARAM);
+      }
+    });
 
     const scrollActivePageIntoView = () => {
       const navigation = navigationElement;

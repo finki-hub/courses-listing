@@ -1,4 +1,4 @@
-import { createEffect, createSignal } from 'solid-js';
+import { createEffect, createSignal, on, onCleanup } from 'solid-js';
 
 import {
   SORT_COLUMNS,
@@ -16,6 +16,8 @@ import {
   type CourseLevelFilter,
   type SeasonFilter,
 } from '@/types/course';
+
+const SEARCH_URL_DELAY_MS = 300;
 
 // Listing filters and sort, restored from and mirrored to the URL.
 export const useListingState = () => {
@@ -46,11 +48,26 @@ export const useListingState = () => {
     new Set<string>(initialState.tags),
   );
 
+  // Typing updates the URL once it pauses, not on every keystroke.
+  const [urlQuery, setUrlQuery] = createSignal(initialState.query);
+  createEffect(
+    on(
+      search,
+      (query) => {
+        const timer = setTimeout(setUrlQuery, SEARCH_URL_DELAY_MS, query);
+        onCleanup(() => {
+          clearTimeout(timer);
+        });
+      },
+      { defer: true },
+    ),
+  );
+
   createEffect(() => {
     const state = {
       accreditation: accreditation(),
       level: levelFilter(),
-      query: search(),
+      query: urlQuery(),
       season: seasonFilter(),
       sortColumn: sortColumn(),
       sortDirection: sortDirection(),

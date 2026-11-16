@@ -160,12 +160,17 @@ export const findCourseByLinkValue = (
 };
 
 // Applies an update to the current URL's params without a history entry.
+// Browsers throttle replaceState (Safari throws past ~100 calls in a short
+// window); a skipped URL update must never break the UI.
 export const replaceUrlParams = (
   update: (params: URLSearchParams) => void,
 ): void => {
   const url = new URL(location.href);
   update(url.searchParams);
-  if (url.href !== location.href) {
+  if (url.href === location.href) return;
+  try {
     history.replaceState(history.state, '', url);
+  } catch {
+    // The next successful update writes the full current state anyway.
   }
 };
