@@ -201,6 +201,7 @@ export const sq = {
     mobile: 'Aplikacione mobile',
     networking: 'Rrjetet',
     security: 'Siguria',
+    software: 'Inxhinieri softuerike',
     web: 'Ueb',
   },
 } as const;
