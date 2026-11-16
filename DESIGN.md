@@ -15,10 +15,12 @@ FINKI Hub is a compact academic utility: direct, information-dense, and calm. It
 | Text/primary | `foreground` | `0 0% 5%` | `0 0% 95%` | Headings and body |
 | Text/muted | `muted-foreground` | `0 0% 40%` | `0 0% 60%` | Descriptions, codes, empty values |
 | Surface/muted | `muted` | `0 0% 94%` | `0 0% 15%` | Hover and secondary surfaces |
-| Accent | `primary` | `142 70% 31%` | `142 70% 45%` | Active tabs, controls, focus |
+| Accent | `primary` | `142 70% 29%` | `142 70% 45%` | Active tabs, controls, focus |
 | Border | `border` | `0 0% 88%` | `0 0% 15%` | Dividers and containers |
 | Input border | `input` | `0 0% 58%` | `0 0% 37%` | Form-control boundaries |
-| Error | `destructive` | `0 84% 60%` | `0 84% 60%` | Destructive and error states |
+| Error | `destructive` | `0 74% 45%` | `0 84% 60%` | Destructive and error states |
+
+Text and control tokens meet WCAG AA (at least 4.5:1 for normal text) on their surfaces in both themes. Disabled rows keep full-contrast text and signal their state with a lock icon and dashed controls instead of reduced opacity.
 
 All UI colors use the semantic Tailwind tokens declared in `src/index.css`; feature components do not introduce raw colors.
 

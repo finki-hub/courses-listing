@@ -186,6 +186,7 @@ export const tr = {
     resetConfirm:
       'Seçilen tüm dersleri sıfırlamak istediğinizden emin misiniz?',
     share: 'Paylaş',
+    statusToggle: '{status}: {course}',
     universityList: 'Üniv. listesi',
     universityListInfo:
       'Üniversite listesinden kazanılan krediler için resmî bir üst sınır yoktur.\nUygulamada, her biri 9 kredilik en fazla 4 ders, yani toplam 36 kredi alabilirsiniz.',

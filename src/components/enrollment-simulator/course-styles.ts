@@ -5,7 +5,7 @@ const REQUIRED_BADGE_CLASS =
 
 export const PROGRAM_STATE_BADGE_CLASSES: Record<ProgramStateKind, string> = {
   elective:
-    'bg-amber-500/15 text-amber-700 dark:text-amber-400 border-amber-500/25',
+    'bg-amber-500/15 text-amber-800 dark:text-amber-400 border-amber-500/25',
   'faculty-list':
     'bg-zinc-500/15 text-zinc-700 dark:text-zinc-400 border-zinc-500/25',
   required: REQUIRED_BADGE_CLASS,

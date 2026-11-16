@@ -1,6 +1,8 @@
+import { Lock } from 'lucide-solid';
 import { Show } from 'solid-js';
 
 import { Badge } from '@/components/ui/badge';
+import { interpolate } from '@/lib/i18n';
 import { useLanguage } from '@/lib/LanguageProvider';
 import { getProgramStateKind } from '@/lib/simulator';
 
@@ -27,6 +29,11 @@ type CourseCardRowProps = {
 
 export const CourseCardRow = (props: CourseCardRowProps) => {
   const { t } = useLanguage();
+  const statusLabel = (status: string) =>
+    interpolate(t().simulator.statusToggle, {
+      course: props.course.name,
+      status,
+    });
 
   const kind = () =>
     props.course.programState
@@ -35,21 +42,31 @@ export const CourseCardRow = (props: CourseCardRowProps) => {
 
   return (
     <div
-      class={`flex items-center gap-2 rounded-lg border border-l-[3px] px-2.5 py-2 ${
-        props.enabled ? '' : 'opacity-40'
-      } ${getStatusClass({
-        atLimit: props.atLimit,
-        listened: props.listened,
-        overLimit: props.overLimit,
-        passed: props.passed,
-      })}`}
+      class={`flex items-center gap-2 rounded-lg border border-l-[3px] px-2.5 py-2 ${getStatusClass(
+        {
+          atLimit: props.atLimit,
+          listened: props.listened,
+          overLimit: props.overLimit,
+          passed: props.passed,
+        },
+      )}`}
     >
       <span class="text-muted-foreground w-6 shrink-0 text-center text-xs">
         {props.course.semester}
       </span>
 
       <div class="min-w-0 flex-1">
-        <div class="text-sm font-medium leading-snug">{props.course.name}</div>
+        <div
+          class={`flex items-center gap-1 text-sm font-medium leading-snug ${props.enabled ? '' : 'text-muted-foreground'}`}
+        >
+          <Show when={!props.enabled}>
+            <Lock
+              aria-hidden="true"
+              class="h-3.5 w-3.5 shrink-0"
+            />
+          </Show>
+          {props.course.name}
+        </div>
         <div class="mt-0.5 flex items-center gap-1">
           <Show when={kind()}>
             {(k) => (
@@ -70,6 +87,7 @@ export const CourseCardRow = (props: CourseCardRowProps) => {
           <Checkbox
             checked={props.listened}
             disabled={!props.enabled || props.exclusiveBlocker !== undefined}
+            label={statusLabel(t().simulator.attended)}
             onToggle={() => {
               props.onToggleListened();
             }}
@@ -82,6 +100,7 @@ export const CourseCardRow = (props: CourseCardRowProps) => {
           <Checkbox
             checked={props.passed}
             disabled={!props.enabled || props.exclusiveBlocker !== undefined}
+            label={statusLabel(t().simulator.passed)}
             onToggle={() => {
               props.onTogglePassed();
             }}

@@ -186,6 +186,7 @@ export const sq = {
     resetConfirm:
       'Jeni të sigurt që dëshironi të rivendosni të gjitha lëndët e zgjedhura?',
     share: 'Ndaj',
+    statusToggle: '{status}: {course}',
     universityList: 'Lista univ.',
     universityListInfo:
       'Nuk ka kufi formal për kreditet nga lista universitare.\nNë praktikë, mund të merrni më së shumti 4 lëndë me nga 9 kredite, gjithsej 36 kredite.',
