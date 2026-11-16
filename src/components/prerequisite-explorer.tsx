@@ -11,11 +11,12 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
+import { getCourseIdentityFields } from '@/lib/course-filters';
 import { formatCount } from '@/lib/i18n';
 import { useLanguage } from '@/lib/LanguageProvider';
 import { buildReverseDependencyMap } from '@/lib/prerequisite';
 import {
-  matchesNormalizedSearch,
+  matchesNormalizedTerm,
   normalizeSearchText,
 } from '@/lib/search-normalization';
 import { compareBySemesterAndName, STORAGE_KEY_ACC } from '@/lib/simulator';
@@ -33,18 +34,19 @@ type PrerequisiteExplorerProps = {
 
 const NAME_COLLATOR = new Intl.Collator('mk');
 
-// The picker finds a course by its name, abbreviation or code.
+// The picker finds a course by its names, abbreviation or codes, like the
+// listing search without the staff.
 const createPickerMatcher = (
   rawCourses: ReadonlyMap<string, CourseRaw>,
-  accreditation: Accreditation,
   searchTerm: string,
 ): ((name: string) => boolean) => {
   const term = normalizeSearchText(searchTerm);
   if (!term) return () => true;
   return (name) => {
     const raw = rawCourses.get(name);
-    return [name, raw?.abbreviation, raw?.[`${accreditation}-code`]].some(
-      (value) => value !== undefined && matchesNormalizedSearch(value, term),
+    const fields = raw ? getCourseIdentityFields(raw) : [];
+    return [name, ...fields].some((value) =>
+      matchesNormalizedTerm(value, term),
     );
   };
 };
@@ -107,7 +109,7 @@ export const PrerequisiteExplorer = (props: PrerequisiteExplorerProps) => {
 
   const filteredPickerCourses = createMemo(() =>
     coursesWithDependents().filter(
-      createPickerMatcher(rawCourseMap(), accreditation(), search()),
+      createPickerMatcher(rawCourseMap(), search()),
     ),
   );
 
@@ -156,7 +158,7 @@ export const PrerequisiteExplorer = (props: PrerequisiteExplorerProps) => {
             setSearch(e.currentTarget.value);
             setSelectedCourse('');
           }}
-          placeholder={t().common.searchPlaceholder}
+          placeholder={t().prerequisites.searchPlaceholder}
           value={search()}
         />
         <Show when={!selectedCourse()}>

@@ -13,7 +13,8 @@ registerHooks({
   },
 });
 
-const { filterCourses } = await import('../src/lib/course-filters.ts');
+const { filterCourses, getCourseIdentityFields } =
+  await import('../src/lib/course-filters.ts');
 
 const makeCourse = (overrides) => ({
   '2018-available': 'FALSE',
@@ -76,4 +77,17 @@ for (const [label, expectations] of CASES) {
 
 test('course search returns nothing for unknown terms', () => {
   assert.deepEqual(search('nonexistent'), []);
+});
+
+test('course identity fields cover names, abbreviation and codes but not staff', () => {
+  const fields = getCourseIdentityFields(COURSES[0]);
+  for (const value of [
+    'Object-oriented programming',
+    'ООП',
+    'F18L1S008',
+    'F23L1S008',
+  ]) {
+    assert.ok(fields.includes(value), value);
+  }
+  assert.ok(fields.every((value) => !value.includes('Мишев')));
 });

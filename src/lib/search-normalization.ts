@@ -79,9 +79,10 @@ export const normalizeSearchText = (value: string) =>
     .trim()
     .replaceAll(/\s+/gu, ' ');
 
-export const matchesNormalizedSearch = (value: string, searchTerm: string) => {
-  const normalizedSearch = normalizeSearchText(searchTerm);
-  return (
-    !normalizedSearch || normalizeSearchText(value).includes(normalizedSearch)
-  );
-};
+// For a term already passed through normalizeSearchText, so loops over many
+// values normalize the term once.
+export const matchesNormalizedTerm = (value: string, normalizedTerm: string) =>
+  !normalizedTerm || normalizeSearchText(value).includes(normalizedTerm);
+
+export const matchesNormalizedSearch = (value: string, searchTerm: string) =>
+  matchesNormalizedTerm(value, normalizeSearchText(searchTerm));
