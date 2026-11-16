@@ -77,6 +77,7 @@ export const ALL_TAGS = [
   'mobile',
   'networking',
   'security',
+  'software',
   'web',
 ];
 

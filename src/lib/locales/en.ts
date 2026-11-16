@@ -200,6 +200,7 @@ export const en = {
     mobile: 'Mobile',
     networking: 'Networking',
     security: 'Security',
+    software: 'Software engineering',
     web: 'Web',
   },
 } as const;

@@ -202,6 +202,7 @@ export const mk = {
     mobile: 'Мобилни',
     networking: 'Мрежи',
     security: 'Безбедност',
+    software: 'Софтверско инженерство',
     web: 'Веб',
   },
 } as const;

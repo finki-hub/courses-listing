@@ -201,6 +201,7 @@ export const tr = {
     mobile: 'Mobil',
     networking: 'Ağlar',
     security: 'Güvenlik',
+    software: 'Yazılım mühendisliği',
     web: 'Web',
   },
 } as const;
