@@ -97,6 +97,7 @@ export const en = {
       one: '{count} course',
       other: '{count} courses',
     },
+    searchPlaceholder: 'Search by name, abbreviation, code or staff...',
     sort: 'Sort:',
     tagsLabel: 'Tags:',
   },

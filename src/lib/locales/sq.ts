@@ -97,6 +97,7 @@ export const sq = {
       one: '{count} lëndë',
       other: '{count} lëndë',
     },
+    searchPlaceholder: 'Kërko sipas emrit, shkurtesës, kodit ose stafit...',
     sort: 'Rendit:',
     tagsLabel: 'Etiketat:',
   },

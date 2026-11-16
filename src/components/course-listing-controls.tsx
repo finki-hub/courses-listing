@@ -45,7 +45,7 @@ export const CourseListingControls = (props: CourseListingControlsProps) => {
         onInput={(event) => {
           props.onSearchInput(event.currentTarget.value);
         }}
-        placeholder={t().common.searchPlaceholder}
+        placeholder={t().listing.searchPlaceholder}
         value={props.search}
       />
 
