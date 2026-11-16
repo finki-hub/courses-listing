@@ -51,6 +51,7 @@ const courseSchema = z.object({
   '2023/2024': optionalString,
   '2024/2025': optionalString,
   '2025/2026': optionalString,
+  '2026/2027': optionalString,
   assistants: optionalString,
   channel: optionalString,
   name: z.string(),
@@ -85,6 +86,7 @@ export const getCourseTags = (course: CourseRaw): string[] =>
   course.tags?.split(',').filter(Boolean) ?? [];
 
 export const ACADEMIC_YEARS = [
+  '2026/2027',
   '2025/2026',
   '2024/2025',
   '2023/2024',
