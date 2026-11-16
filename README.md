@@ -4,9 +4,13 @@ A course browser and enrollment simulator for FCSE.
 
 ## Features
 
-- **Course listing** — searchable, sortable table of all FINKI courses with tag filtering
-- **Enrollment simulator** — plan your semester with prerequisite validation, credit tracking, and per-level credit limits (2018 & 2023 accreditations)
-- **Persistent state** — enrollment selections saved to localStorage per accreditation
+- **Course listing**: a searchable, sortable table of all FINKI courses, found by name, abbreviation, code or staff, with accreditation, season, level and tag filters
+- **Course details**: staff, accreditation details and enrollment history per course
+- **Enrollment simulator**: plan your studies with prerequisite validation, credit tracking and per-level credit limits (2018 and 2023 accreditations)
+- **Prerequisite explorer**: see which courses require a given course
+- **Equivalencies**: course equivalencies between the 2018 and 2023 accreditations
+- **Shareable links**: listing filters and the open course (`?course=<code>`) live in the URL, and simulator progress can be shared as a link
+- **Persistent state**: simulator selections are saved to localStorage per accreditation
 
 ## Getting Started
 
@@ -14,10 +18,6 @@ A course browser and enrollment simulator for FCSE.
 npm install
 npm run dev
 ```
-
-## License
-
-This project is licensed under the terms of the MIT license.
 
 ## Translations
 
