@@ -27,8 +27,29 @@ export type CourseRowFacts = {
   readonly credits: number | undefined;
   /** The accreditations, or the programs that list a master's course. */
   readonly label: string;
+  /** Master's figures: 0 means not offered or not counted that year. */
+  readonly noStudentsAsUnknown?: boolean;
   readonly semester: number | undefined;
   readonly students: number;
+};
+
+export const UNKNOWN_STUDENTS = '\u{2013}';
+
+export const hasUnknownStudents = (facts: CourseRowFacts): boolean =>
+  facts.noStudentsAsUnknown === true && facts.students === 0;
+
+// The student count, or a dash read aloud as "not offered or no data".
+export const StudentCount = (props: { facts: CourseRowFacts }) => {
+  const { language, t } = useLanguage();
+  return (
+    <Show
+      fallback={formatNumber(props.facts.students, language())}
+      when={hasUnknownStudents(props.facts)}
+    >
+      <span aria-hidden="true">{UNKNOWN_STUDENTS}</span>
+      <span class="sr-only">{t().masters.noEnrollment}</span>
+    </Show>
+  );
 };
 
 type CourseTableRowProps = {
@@ -54,7 +75,7 @@ export const CourseTableRow = (props: CourseTableRowProps) => {
       <>{getCourseName(props.course, props.accreditation, language())}</>
     ),
     semester: () => <>{props.facts.semester ?? ''}</>,
-    students: () => <>{formatNumber(props.facts.students, language())}</>,
+    students: () => <StudentCount facts={props.facts} />,
     tags: () => (
       <div class="flex flex-wrap gap-1">
         <For each={getCourseTags(props.course)}>

@@ -20,6 +20,7 @@ import { type Accreditation, ALL_TAGS, FEATURED_TAG } from '@/types/course';
 export type MasterControls = {
   readonly error: boolean;
   readonly loading: boolean;
+  readonly programLabel: (program: string) => string;
   readonly programOptions: ReadonlyArray<{ label: string; value: string }>;
 };
 
@@ -195,6 +196,7 @@ export const CourseListingControls = (props: CourseListingControlsProps) => {
         filters={props.filters}
         onClear={props.onClearFilters}
         onRemove={props.onRemoveChip}
+        programLabel={props.master?.programLabel}
         resultCount={props.resultCount}
       />
     </>

@@ -142,13 +142,24 @@ export const getMasterSeason = (
   );
 };
 
-// The credits most programs give the course.
-export const getMasterCredits = (
+const mostCommonCredits = (
   entries: readonly ProgramCourse[],
 ): number | undefined =>
   mostCommon(
     entries.map((entry) => entry.credits).filter((credits) => credits !== null),
   );
+
+// The credits a program gives the course; without a program (or when that
+// program doesn't list it), the credits most programs give it.
+export const getMasterCredits = (
+  entries: readonly ProgramCourse[],
+  program: null | string = null,
+): number | undefined =>
+  (program === null
+    ? undefined
+    : mostCommonCredits(
+        entries.filter((entry) => entry.program === program),
+      )) ?? mostCommonCredits(entries);
 
 export type ProgramSummary = {
   readonly electiveCount: number;
@@ -197,8 +208,12 @@ export const matchesMasterCriteria = (
   const seasonMatches =
     season === null ||
     kindMatches.some((entry) => getEntrySeason(entry) === season);
+  // Within a program, the credits of its own (kind-matching) placement.
   const creditsMatch =
-    criteria.credits === null || getMasterCredits(entries) === criteria.credits;
+    criteria.credits === null ||
+    (criteria.program === null
+      ? getMasterCredits(entries)
+      : mostCommonCredits(kindMatches)) === criteria.credits;
   return seasonMatches && creditsMatch;
 };
 

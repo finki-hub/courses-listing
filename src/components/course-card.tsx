@@ -12,7 +12,11 @@ import {
   hasChannel,
 } from '@/types/course';
 
-import { type CourseRowFacts } from './course-table-row';
+import {
+  type CourseRowFacts,
+  hasUnknownStudents,
+  UNKNOWN_STUDENTS,
+} from './course-table-row';
 
 type CourseCardProps = {
   accreditation: Accreditation | null;
@@ -56,11 +60,25 @@ export const CourseCard = (props: CourseCardProps) => {
           )}
         </Show>
 
-        <span>
-          {interpolate(t().listing.studentsValue, {
-            value: formatNumber(props.facts.students, language()),
-          })}
-        </span>
+        <Show
+          fallback={
+            <span>
+              {interpolate(t().listing.studentsValue, {
+                value: formatNumber(props.facts.students, language()),
+              })}
+            </span>
+          }
+          when={hasUnknownStudents(props.facts)}
+        >
+          <span>
+            <span aria-hidden="true">
+              {interpolate(t().listing.studentsValue, {
+                value: UNKNOWN_STUDENTS,
+              })}
+            </span>
+            <span class="sr-only">{t().masters.noEnrollment}</span>
+          </span>
+        </Show>
 
         <Show when={hasChannel(props.course)}>
           <span class="text-primary inline-flex items-center gap-0.5">

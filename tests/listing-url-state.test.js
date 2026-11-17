@@ -3,6 +3,7 @@ import { test } from 'node:test';
 
 import {
   findCourseByLinkValue,
+  findPreferredCourseByLinkValue,
   getCourseLinkValue,
   LISTING_FILTER_PARAMS,
   parseListingUrlState,
@@ -176,4 +177,24 @@ test("master's program codes are kept until the data can check them", () => {
 
 test('the cycle param is a listing param', () => {
   assert.ok(LISTING_FILTER_PARAMS.includes('cycle'));
+});
+
+const isMaster = (course) => course.cycle === 'second';
+
+test('a course link resolves within the preferred cycle first', () => {
+  const undergraduate = { cycle: 'first', name: 'Shared', professors: '' };
+  const master = { cycle: 'second', name: 'Shared', professors: '' };
+  const courses = [undergraduate, master];
+  assert.equal(
+    findPreferredCourseByLinkValue(courses, 'Shared', isMaster),
+    master,
+  );
+  assert.equal(
+    findPreferredCourseByLinkValue(courses, 'Shared', (c) => !isMaster(c)),
+    undergraduate,
+  );
+  assert.equal(
+    findPreferredCourseByLinkValue([undergraduate], 'Shared', isMaster),
+    undergraduate,
+  );
 });

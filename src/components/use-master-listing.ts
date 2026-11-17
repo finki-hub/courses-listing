@@ -21,6 +21,13 @@ import {
 } from '@/lib/master-programs';
 import { type CourseRaw } from '@/types/course';
 
+// Filters that need the programs to decide.
+export const hasProgramFilters = (filters: ListingFilters): boolean =>
+  filters.program !== null ||
+  filters.programState !== null ||
+  filters.season !== null ||
+  filters.credits !== null;
+
 // The courses of each cycle, and for master's courses the programs that
 // list them, loaded the first time the master's view is shown.
 export const useMasterListing = (
@@ -34,55 +41,65 @@ export const useMasterListing = (
     if (isMaster()) masterData.request();
   });
 
+  // Reading an errored resource throws: only use it once it is ready.
+  const loadedData = () =>
+    masterData.data.state === 'ready' ? masterData.data() : undefined;
+  const loaded = () => loadedData() !== undefined;
+
   const masterCourses = createMemo(() => courses().filter(isMasterCourse));
   const undergraduateCourses = createMemo(() =>
     courses().filter((course) => !isMasterCourse(course)),
   );
 
   const index = createMemo(() =>
-    buildProgramIndex(masterData.data()?.programCourses ?? []),
+    buildProgramIndex(loadedData()?.programCourses ?? []),
   );
   const programs = createMemo(
     () =>
       new Map<string, DegreeProgram>(
-        (masterData.data()?.programs ?? []).map((program) => [
+        (loadedData()?.programs ?? []).map((program) => [
           program.code,
           program,
         ]),
       ),
   );
   const masterPrograms = createMemo(() =>
-    getMasterPrograms(masterData.data()?.programs ?? []),
+    getMasterPrograms(loadedData()?.programs ?? []),
   );
 
   const entries = (course: CourseRaw): readonly ProgramCourse[] =>
     getProgramEntries(index(), course);
   const getSeason: SeasonResolver = (course) =>
     getMasterSeason(entries(course));
-  const getCredits = (course: CourseRaw): number | undefined =>
-    getMasterCredits(entries(course));
+  // A selected program's own credits, else the credits most programs give.
+  const getCredits = (
+    course: CourseRaw,
+    program: null | string = null,
+  ): number | undefined => getMasterCredits(entries(course), program);
   const programTitle = (code: string): string =>
     getProgramTitle(programs().get(code), code, language());
 
-  // Until the programs load, the program-based filters let everything through.
+  // Program-based filters need the programs: until they load (or when they
+  // failed), they match nothing and the results show why.
   const matches = (course: CourseRaw, filters: ListingFilters): boolean =>
-    masterData.data() === undefined ||
-    matchesMasterCriteria(entries(course), {
-      credits: filters.credits,
-      kind: filters.programState,
-      program: filters.program,
-      season: filters.season,
-    });
+    loaded()
+      ? matchesMasterCriteria(entries(course), {
+          credits: filters.credits,
+          kind: filters.programState,
+          program: filters.program,
+          season: filters.season,
+        })
+      : !hasProgramFilters(filters);
 
   return {
     creditOptions: createMemo(() =>
       getMasterCreditOptions(masterCourses(), index()),
     ),
     entries,
-    error: () => masterData.data.error !== undefined,
+    error: () => masterData.data.state === 'errored',
     getCredits,
     getSeason,
-    loaded: () => masterData.data() !== undefined,
+    loaded,
     loading: () => masterData.data.loading,
     masterCourses,
     matches,
@@ -96,13 +113,13 @@ export const useMasterListing = (
     programTitle,
     request: masterData.request,
     summary: (course: CourseRaw): string =>
-      masterData.data() === undefined
-        ? ''
-        : formatProgramSummary(
+      loaded()
+        ? formatProgramSummary(
             summarizePrograms(entries(course)),
             t(),
             language(),
-          ),
+          )
+        : '',
     undergraduateCourses,
   };
 };

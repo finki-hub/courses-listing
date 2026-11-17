@@ -13,6 +13,7 @@ import { SECTION_HEADING_CLASS } from './styles';
 type MasterProgramsSectionProps = {
   credits: number | undefined;
   entries: readonly ProgramCourse[];
+  error: boolean;
   loading: boolean;
   programTitle: (code: string) => string;
 };
@@ -56,7 +57,15 @@ export const MasterProgramsSection = (props: MasterProgramsSectionProps) => {
       <Show when={props.loading}>
         <p class="text-muted-foreground text-sm">{t().masters.loading}</p>
       </Show>
-      <Show when={!props.loading && props.entries.length === 0}>
+      <Show when={props.error}>
+        <p
+          class="text-destructive text-sm"
+          role="alert"
+        >
+          {t().masters.loadError}
+        </p>
+      </Show>
+      <Show when={!props.loading && !props.error && props.entries.length === 0}>
         <p class="text-muted-foreground text-sm">{t().masters.noPrograms}</p>
       </Show>
 

@@ -287,6 +287,19 @@ export const findCourseByLinkValue = (
   );
 };
 
+// Resolves a link among the preferred courses first (the cycle the URL
+// shows), then among the rest, so a name in both cycles opens the right one.
+export const findPreferredCourseByLinkValue = (
+  courses: readonly CourseRaw[],
+  value: null | string,
+  isPreferred: (course: CourseRaw) => boolean,
+): CourseRaw | undefined =>
+  findCourseByLinkValue(courses.filter(isPreferred), value) ??
+  findCourseByLinkValue(
+    courses.filter((course) => !isPreferred(course)),
+    value,
+  );
+
 // Applies an update to the current URL's params without a history entry.
 // Browsers throttle replaceState (Safari throws past ~100 calls in a short
 // window); a skipped URL update must never break the UI.

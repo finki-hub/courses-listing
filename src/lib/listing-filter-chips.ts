@@ -23,7 +23,15 @@ export type FilterChipKind =
   | 'staff'
   | 'tag';
 
-export const getFilterChips = (filters: ListingFilters): FilterChip[] => {
+// Filters the master's view doesn't have.
+const UNDERGRADUATE_ONLY: ReadonlySet<FilterChipKind> = new Set([
+  'accreditation',
+  'level',
+  'semester',
+  'tag',
+]);
+
+const getAllFilterChips = (filters: ListingFilters): FilterChip[] => {
   type ChipSource = [
     Exclude<FilterChipKind, 'tag'>,
     boolean | null | number | string,
@@ -51,6 +59,11 @@ export const getFilterChips = (filters: ListingFilters): FilterChip[] => {
     ...filters.tags.map((tag) => ({ kind: 'tag' as const, value: tag })),
   ];
 };
+
+export const getFilterChips = (filters: ListingFilters): FilterChip[] =>
+  getAllFilterChips(filters).filter(
+    (chip) => filters.cycle !== 'master' || !UNDERGRADUATE_ONLY.has(chip.kind),
+  );
 
 const CHIP_RESETS: Record<
   Exclude<FilterChipKind, 'tag'>,

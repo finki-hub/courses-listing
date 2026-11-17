@@ -173,3 +173,19 @@ test('chips list active filters and remove them one by one', () => {
     tagMode: 'all',
   });
 });
+
+test("the master's view never shows undergraduate-only chips", () => {
+  const filters = {
+    ...DEFAULT_LISTING_FILTERS,
+    accreditation: '2023',
+    cycle: 'master',
+    level: 2,
+    semester: 3,
+    staff: 'Ана',
+    tags: ['ai'],
+  };
+  assert.deepEqual(
+    getFilterChips(filters).map((chip) => chip.kind),
+    ['staff'],
+  );
+});

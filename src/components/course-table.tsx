@@ -1,5 +1,12 @@
-import { createEffect, createMemo, createSignal, untrack } from 'solid-js';
+import {
+  createEffect,
+  createMemo,
+  createSignal,
+  Show,
+  untrack,
+} from 'solid-js';
 
+import { ALERT_STYLES } from '@/lib/alert-styles';
 import { capture } from '@/lib/analytics-client';
 import {
   getAllStaff,
@@ -22,6 +29,7 @@ import {
   hasMoreFilters,
   removeFilterChip,
 } from '@/lib/listing-filter-chips';
+import { findPreferredCourseByLinkValue } from '@/lib/listing-url-state';
 import { isMasterCourse } from '@/lib/master-programs';
 import { type CourseRaw, getAccLabel } from '@/types/course';
 
@@ -32,7 +40,48 @@ import { type CourseRowFacts } from './course-table-row';
 import { useCourseSearchAnalytics } from './use-course-search-analytics';
 import { useLinkedCourseDialog } from './use-linked-course-dialog';
 import { useListingState } from './use-listing-state';
-import { useMasterListing } from './use-master-listing';
+import { hasProgramFilters, useMasterListing } from './use-master-listing';
+
+// In place of results that need the master's programs to be filtered.
+const ProgramsPending = (props: { error: boolean }) => {
+  const { t } = useLanguage();
+  return (
+    <Show
+      fallback={
+        <p
+          class="text-muted-foreground py-12 text-center text-sm"
+          role="status"
+        >
+          {t().masters.loading}
+        </p>
+      }
+      when={props.error}
+    >
+      <div class={ALERT_STYLES.error}>{t().masters.loadError}</div>
+    </Show>
+  );
+};
+
+// A course name can exist in both cycles: a link resolves within the cycle
+// the URL shows first, then within the other one, whose view it then opens.
+const useCycleLinkedCourseDialog = (
+  courses: () => readonly CourseRaw[],
+  listing: ReturnType<typeof useListingState>,
+) => {
+  const linkedMaster = untrack(listing.filters).cycle === 'master';
+  const courseDialog = useLinkedCourseDialog(courses, (list, value) =>
+    findPreferredCourseByLinkValue(
+      list,
+      value,
+      (course) => isMasterCourse(course) === linkedMaster,
+    ),
+  );
+  const linked = untrack(courseDialog.course);
+  if (linked && isMasterCourse(linked) !== linkedMaster) {
+    listing.showLinkedCycle(linkedMaster ? 'undergraduate' : 'master');
+  }
+  return courseDialog;
+};
 
 type CourseTableProps = {
   courses: CourseRaw[];
@@ -46,20 +95,13 @@ export const CourseTable = (props: CourseTableProps) => {
   const master = () => filters().cycle === 'master';
   const masters = useMasterListing(() => props.courses, master);
 
-  // A course name can exist in both cycles: links prefer the shown cycle.
-  const linkedCourses = () =>
-    untrack(master)
-      ? [...masters.masterCourses(), ...masters.undergraduateCourses()]
-      : props.courses;
-  const courseDialog = useLinkedCourseDialog(linkedCourses);
-  // A link to a master's course opens the master's view.
-  const linked = untrack(courseDialog.course);
-  if (linked && isMasterCourse(linked) && !untrack(master)) {
-    listing.updateFilters({ cycle: 'master' });
-  }
+  const courseDialog = useCycleLinkedCourseDialog(() => props.courses, listing);
 
   const courses = () =>
     master() ? masters.masterCourses() : masters.undergraduateCourses();
+  // Program-based filters can't be applied before the programs load.
+  const awaitingPrograms = () =>
+    master() && !masters.loaded() && hasProgramFilters(filters());
   const getSeason = () => (master() ? masters.getSeason : undefined);
 
   const enrollmentYears = createMemo(() =>
@@ -106,7 +148,9 @@ export const CourseTable = (props: CourseTableProps) => {
       column: sortColumn(),
       direction: sortDirection(),
       enrollmentYears: enrollmentYears(),
-      getCredits: master() ? masters.getCredits : undefined,
+      getCredits: master()
+        ? (course) => masters.getCredits(course, filters().program)
+        : undefined,
       getSeason: getSeason(),
       language: language(),
     }),
@@ -120,8 +164,9 @@ export const CourseTable = (props: CourseTableProps) => {
     );
     return master()
       ? {
-          credits: masters.getCredits(course),
+          credits: masters.getCredits(course, filters().program),
           label: masters.summary(course),
+          noStudentsAsUnknown: true,
           semester: undefined,
           students,
         }
@@ -173,8 +218,11 @@ export const CourseTable = (props: CourseTableProps) => {
         master={
           master()
             ? {
-                error: masters.error(),
+                // The results say it instead while they wait on programs.
+                error: masters.error() && !awaitingPrograms(),
                 loading: masters.loading(),
+                programLabel: (code: string) =>
+                  `${code}: ${masters.programTitle(code)}`,
                 programOptions: masters.programOptions(),
               }
             : undefined
@@ -199,16 +247,21 @@ export const CourseTable = (props: CourseTableProps) => {
         staff={staff()}
       />
 
-      <CourseResults
-        accreditation={filters().accreditation}
-        courses={filteredCourses()}
-        getFacts={getFacts}
-        master={master()}
-        onOpen={openDetail}
-        onToggleSort={toggleSort}
-        sortColumn={sortColumn()}
-        sortDirection={sortDirection()}
-      />
+      <Show
+        fallback={<ProgramsPending error={masters.error()} />}
+        when={!awaitingPrograms()}
+      >
+        <CourseResults
+          accreditation={filters().accreditation}
+          courses={filteredCourses()}
+          getFacts={getFacts}
+          master={master()}
+          onOpen={openDetail}
+          onToggleSort={toggleSort}
+          sortColumn={sortColumn()}
+          sortDirection={sortDirection()}
+        />
+      </Show>
 
       <CourseDetailDialog
         accreditation={filters().accreditation}

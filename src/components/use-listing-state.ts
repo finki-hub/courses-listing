@@ -128,6 +128,12 @@ export const useListingState = () => {
 
   // The other cycle has its own filters: start it from a clean slate,
   // keeping the search and how tags combine.
+  const keepSortValid = (cycle: StudyCycle) => {
+    if (sortColumnsFor(cycle).includes(sortColumn())) return;
+    setSortColumn('name');
+    setSortDirection('asc');
+  };
+
   const switchCycle = (cycle: StudyCycle) => {
     if (filters().cycle === cycle) return;
     setFilters((current) => ({
@@ -136,12 +142,23 @@ export const useListingState = () => {
       query: current.query,
       tagMode: current.tagMode,
     }));
-    if (sortColumnsFor(cycle).includes(sortColumn())) {
-      return;
-    }
+    keepSortValid(cycle);
+  };
 
-    setSortColumn('name');
-    setSortDirection('asc');
+  // A course link can switch the view: keep only the linked filters that
+  // apply to the other cycle, as for a link that names the cycle itself.
+  // A program belongs to one cycle, so it never carries over.
+  const showLinkedCycle = (cycle: StudyCycle) => {
+    if (filters().cycle === cycle) return;
+    setFilters((current) =>
+      sanitizeLinkedFilters({
+        ...current,
+        cycle,
+        program: null,
+        programState: null,
+      }),
+    );
+    keepSortValid(cycle);
   };
 
   return {
@@ -151,6 +168,7 @@ export const useListingState = () => {
     setSearch: (query: string) => {
       updateFilters({ query });
     },
+    showLinkedCycle,
     sortColumn,
     sortDirection,
     switchAccreditation,

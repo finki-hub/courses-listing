@@ -161,6 +161,7 @@ export const sq = {
     mandatory: 'I detyrueshëm',
     mandatoryIn: 'I detyrueshëm në {programs}',
     master: 'Master',
+    noEnrollment: 'Nuk ofrohet ose pa të dhëna',
     noPrograms: 'Nuk është në asnjë program',
     programs: 'Programet',
     undergraduate: 'Bachelor',

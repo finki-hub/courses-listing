@@ -126,6 +126,7 @@ export const CourseDetailDialog = (props: CourseDetailDialogProps) => {
                         <MasterProgramsSection
                           credits={masters().getCredits(course())}
                           entries={masters().entries(course())}
+                          error={masters().error()}
                           loading={masters().loading()}
                           programTitle={masters().programTitle}
                         />

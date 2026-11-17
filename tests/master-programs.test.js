@@ -125,3 +125,22 @@ test('program titles fall back to English, then to the code', () => {
   );
   assert.equal(getProgramTitle(undefined, 'DS23_1', 'mk'), 'DS23_1');
 });
+
+test('a selected program decides the credits shown and filtered', () => {
+  const rows = [
+    row({ credits: 6, program: 'BI23_1' }),
+    row({ credits: 6, program: 'BI23_2' }),
+    row({ credits: 18, kind: 'mandatory', program: 'DS23_1' }),
+  ];
+  assert.equal(getMasterCredits(rows), 6);
+  assert.equal(getMasterCredits(rows, 'DS23_1'), 18);
+  assert.equal(getMasterCredits(rows, 'XX23_1'), 6);
+  const criteria = {
+    credits: 18,
+    kind: 'required',
+    program: 'DS23_1',
+    season: null,
+  };
+  assert.ok(matchesMasterCriteria(rows, criteria));
+  assert.ok(!matchesMasterCriteria(rows, { ...criteria, credits: 6 }));
+});

@@ -161,6 +161,7 @@ export const en = {
     mandatory: 'Mandatory',
     mandatoryIn: 'Mandatory in {programs}',
     master: "Master's",
+    noEnrollment: 'Not offered or no data',
     noPrograms: 'Not listed in any program',
     programs: 'Programs',
     undergraduate: 'Undergraduate',

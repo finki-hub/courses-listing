@@ -12,18 +12,32 @@ import { type FilterChip, getFilterChips } from '@/lib/listing-filter-chips';
 import { type ListingFilters } from '@/lib/listing-url-state';
 import { STUDY_PROGRAM_LABELS } from '@/types/course';
 
-const getProgramChipLabel = (filters: ListingFilters, t: Translations) => {
+// Master's programs read "code: title" like their dropdown, so their kind
+// follows after a dot instead of another colon.
+const getProgramChipLabel = (
+  filters: ListingFilters,
+  t: Translations,
+  programLabel: ProgramLabel | undefined,
+) => {
   const program = filters.program ?? '';
-  const label = STUDY_PROGRAM_LABELS[program] ?? program;
-  return filters.programState === null
-    ? label
-    : `${label}: ${t.filters[filters.programState]}`;
+  const label =
+    programLabel?.(program) ?? STUDY_PROGRAM_LABELS[program] ?? program;
+  if (filters.programState === null) return label;
+  const separator = programLabel === undefined ? ': ' : ' \u{B7} ';
+  return `${label}${separator}${t.filters[filters.programState]}`;
 };
+
+type ChipContext = {
+  readonly filters: ListingFilters;
+  readonly programLabel?: ProgramLabel;
+  readonly t: Translations;
+};
+
+type ProgramLabel = (program: string) => string;
 
 const getChipLabel = (
   chip: FilterChip,
-  filters: ListingFilters,
-  t: Translations,
+  { filters, programLabel, t }: ChipContext,
 ): string => {
   switch (chip.kind) {
     case 'accreditation':
@@ -39,7 +53,7 @@ const getChipLabel = (
     case 'offered':
       return t.filters.offeredOnly;
     case 'program':
-      return getProgramChipLabel(filters, t);
+      return getProgramChipLabel(filters, t, programLabel);
     case 'query':
       return interpolate(t.listing.searchChip, { value: chip.value });
     case 'season':
@@ -59,6 +73,8 @@ type ActiveFilterChipsProps = {
   readonly filters: ListingFilters;
   readonly onClear: () => void;
   readonly onRemove: (chip: FilterChip) => void;
+  /** How the master's view names its programs. */
+  readonly programLabel?: ProgramLabel;
   readonly resultCount: number;
 };
 
@@ -92,7 +108,12 @@ export const ActiveFilterChips = (props: ActiveFilterChipsProps) => {
         >
           <For each={chips()}>
             {(chip) => {
-              const label = () => getChipLabel(chip, props.filters, t());
+              const label = () =>
+                getChipLabel(chip, {
+                  filters: props.filters,
+                  programLabel: props.programLabel,
+                  t: t(),
+                });
               return (
                 <li>
                   <button

@@ -162,6 +162,7 @@ export const mk = {
     mandatory: 'Задолжителен',
     mandatoryIn: 'Задолжителен во {programs}',
     master: 'Магистерски',
+    noEnrollment: 'Не се нуди или нема податоци',
     noPrograms: 'Не е во ниту една програма',
     programs: 'Програми',
     undergraduate: 'Додипломски',

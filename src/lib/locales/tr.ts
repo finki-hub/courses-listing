@@ -161,6 +161,7 @@ export const tr = {
     mandatory: 'Zorunlu',
     mandatoryIn: '{programs} programında zorunlu',
     master: 'Yüksek lisans',
+    noEnrollment: 'Açılmadı veya veri yok',
     noPrograms: 'Hiçbir programda yok',
     programs: 'Programlar',
     undergraduate: 'Lisans',
