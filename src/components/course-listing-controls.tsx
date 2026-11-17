@@ -1,6 +1,9 @@
 import { For } from 'solid-js';
 
+import { ActiveFilterChips } from '@/components/active-filter-chips';
 import { CourseFilterRow } from '@/components/course-filter-row';
+import { ListingMoreFilters } from '@/components/listing-more-filters';
+import { ButtonGroup } from '@/components/ui/button-group';
 import { LabeledCheckbox } from '@/components/ui/labeled-checkbox';
 import { SearchInput } from '@/components/ui/search-input';
 import {
@@ -8,54 +11,70 @@ import {
   type SortColumn,
   type SortDirection,
 } from '@/lib/course-filters';
-import { formatCount, getTagLabel } from '@/lib/i18n';
+import { getTagLabel } from '@/lib/i18n';
 import { useLanguage } from '@/lib/LanguageProvider';
+import { type FilterChip } from '@/lib/listing-filter-chips';
+import { type ListingFilters } from '@/lib/listing-url-state';
 import { cn } from '@/lib/utils';
-import {
-  type Accreditation,
-  ALL_TAGS,
-  type CourseLevelFilter,
-  FEATURED_TAG,
-  type SeasonFilter,
-} from '@/types/course';
+import { type Accreditation, ALL_TAGS, FEATURED_TAG } from '@/types/course';
 
 type CourseListingControlsProps = {
-  readonly accreditation: Accreditation | null;
-  readonly levelFilter: CourseLevelFilter;
-  readonly onSearchInput: (value: string) => void;
-  readonly onSetLevel: (level: CourseLevelFilter) => void;
-  readonly onSetSeason: (season: SeasonFilter) => void;
+  readonly credits: readonly number[];
+  readonly filters: ListingFilters;
+  readonly moreExpanded: boolean;
+  readonly onClearFilters: () => void;
+  readonly onMoreExpandedChange: (expanded: boolean) => void;
+  readonly onRemoveChip: (chip: FilterChip) => void;
   readonly onSwitchAccreditation: (accreditation: Accreditation) => void;
   readonly onToggleSort: (column: SortColumn) => void;
   readonly onToggleTag: (tag: string) => void;
+  readonly onUpdate: (patch: Partial<ListingFilters>) => void;
   readonly resultCount: number;
-  readonly search: string;
-  readonly seasonFilter: SeasonFilter;
-  readonly selectedTags: ReadonlySet<string>;
   readonly sortColumn: SortColumn;
   readonly sortDirection: SortDirection;
+  readonly staff: readonly string[];
 };
 
+const SORT_LABEL_KEYS = {
+  accreditation: 'accreditation',
+  channel: 'channel',
+  credits: 'credits',
+  name: 'course',
+  popularity: 'popularity',
+  semester: 'semester',
+  tags: 'tags',
+} as const;
+
 export const CourseListingControls = (props: CourseListingControlsProps) => {
-  const { language, t } = useLanguage();
+  const { t } = useLanguage();
+  const tagModeItems = () =>
+    [
+      { label: t().filters.tagModeAny, value: 'any' },
+      { label: t().filters.tagModeAll, value: 'all' },
+    ] as const;
+
   return (
     <>
       <SearchInput
         aria-label={t().common.searchCourses}
         onInput={(event) => {
-          props.onSearchInput(event.currentTarget.value);
+          props.onUpdate({ query: event.currentTarget.value });
         }}
         placeholder={t().listing.searchPlaceholder}
-        value={props.search}
+        value={props.filters.query}
       />
 
       <CourseFilterRow
-        accreditation={props.accreditation}
-        levelFilter={props.levelFilter}
-        onSetLevel={props.onSetLevel}
-        onSetSeason={props.onSetSeason}
+        accreditation={props.filters.accreditation}
+        levelFilter={props.filters.level}
+        onSetLevel={(level) => {
+          props.onUpdate({ level });
+        }}
+        onSetSeason={(season) => {
+          props.onUpdate({ season });
+        }}
         onSwitchAccreditation={props.onSwitchAccreditation}
-        seasonFilter={props.seasonFilter}
+        seasonFilter={props.filters.season}
       />
 
       <div class="flex flex-wrap items-center gap-3">
@@ -65,12 +84,12 @@ export const CourseListingControls = (props: CourseListingControlsProps) => {
         <For each={ALL_TAGS}>
           {(tag) => (
             <LabeledCheckbox
-              checked={props.selectedTags.has(tag)}
+              checked={props.filters.tags.includes(tag)}
               class={cn(
                 'gap-1.5',
                 tag === FEATURED_TAG &&
                   'rounded-md border px-2 py-1 transition-colors [&>input]:accent-amber-500',
-                tag === FEATURED_TAG && props.selectedTags.has(tag)
+                tag === FEATURED_TAG && props.filters.tags.includes(tag)
                   ? 'border-amber-300 bg-amber-50 text-amber-700 dark:border-amber-500/30 dark:bg-amber-500/10 dark:text-amber-400'
                   : tag === FEATURED_TAG &&
                       'border-border bg-background hover:bg-muted/50',
@@ -83,7 +102,25 @@ export const CourseListingControls = (props: CourseListingControlsProps) => {
             </LabeledCheckbox>
           )}
         </For>
+        <ButtonGroup
+          aria-label={t().filters.tagMode}
+          class="w-full sm:w-auto"
+          items={tagModeItems()}
+          onSelect={(tagMode) => {
+            props.onUpdate({ tagMode });
+          }}
+          value={props.filters.tagMode}
+        />
       </div>
+
+      <ListingMoreFilters
+        credits={props.credits}
+        expanded={props.moreExpanded}
+        filters={props.filters}
+        onExpandedChange={props.onMoreExpandedChange}
+        onUpdate={props.onUpdate}
+        staff={props.staff}
+      />
 
       <div class="flex flex-wrap items-center gap-2 sm:hidden">
         <span class="text-muted-foreground text-sm">{t().listing.sort}</span>
@@ -92,6 +129,7 @@ export const CourseListingControls = (props: CourseListingControlsProps) => {
             const isActive = () => props.sortColumn === column;
             return (
               <button
+                aria-pressed={isActive()}
                 class={`inline-flex items-center gap-1 rounded-full border px-2.5 py-0.5 text-xs font-medium transition-colors ${
                   isActive()
                     ? 'bg-primary text-primary-foreground border-primary'
@@ -102,7 +140,7 @@ export const CourseListingControls = (props: CourseListingControlsProps) => {
                 }}
                 type="button"
               >
-                {t().common[column === 'name' ? 'course' : column]}
+                {t().common[SORT_LABEL_KEYS[column]]}
                 {isActive() && (
                   <span class="text-[10px] leading-none">
                     {props.sortDirection === 'asc' ? '\u{2191}' : '\u{2193}'}
@@ -114,12 +152,12 @@ export const CourseListingControls = (props: CourseListingControlsProps) => {
         </For>
       </div>
 
-      <div class="text-muted-foreground text-sm">
-        {formatCount(t().listing.resultCount, {
-          count: props.resultCount,
-          language: language(),
-        })}
-      </div>
+      <ActiveFilterChips
+        filters={props.filters}
+        onClear={props.onClearFilters}
+        onRemove={props.onRemoveChip}
+        resultCount={props.resultCount}
+      />
     </>
   );
 };

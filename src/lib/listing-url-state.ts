@@ -1,4 +1,9 @@
-import type { SortColumn, SortDirection } from '@/lib/course-filters';
+import type {
+  ProgramStateFilter,
+  SortColumn,
+  SortDirection,
+  TagMode,
+} from '@/lib/course-filters';
 import type {
   Accreditation,
   CourseLevelFilter,
@@ -13,10 +18,23 @@ const ACCREDITATION_PARAM = 'acc';
 const SEASON_PARAM = 'season';
 const LEVEL_PARAM = 'level';
 const TAGS_PARAM = 'tags';
+const TAG_MODE_PARAM = 'tagmode';
+const PROGRAM_PARAM = 'prog';
+const PROGRAM_STATE_PARAM = 'pstate';
+const SEMESTER_PARAM = 'sem';
+const CREDITS_PARAM = 'credits';
+const STAFF_PARAM = 'staff';
+const HIDE_INACTIVE_PARAM = 'active';
+const OFFERED_PARAM = 'offered';
+const CHANNEL_PARAM = 'channel';
 const SORT_PARAM = 'sort';
 const DIRECTION_PARAM = 'dir';
 
 const TAG_SEPARATOR = ',';
+const FLAG_VALUE = '1';
+const MAX_SEMESTER = 8;
+const POSITIVE_INTEGER = /^[1-9]\d*$/u;
+const MAX_CREDITS = 60;
 const DEFAULT_SORT_COLUMN: SortColumn = 'name';
 const DEFAULT_SORT_DIRECTION: SortDirection = 'asc';
 
@@ -27,23 +45,65 @@ export const LISTING_FILTER_PARAMS: readonly string[] = [
   SEASON_PARAM,
   LEVEL_PARAM,
   TAGS_PARAM,
+  TAG_MODE_PARAM,
+  PROGRAM_PARAM,
+  PROGRAM_STATE_PARAM,
+  SEMESTER_PARAM,
+  CREDITS_PARAM,
+  STAFF_PARAM,
+  HIDE_INACTIVE_PARAM,
+  OFFERED_PARAM,
+  CHANNEL_PARAM,
   SORT_PARAM,
   DIRECTION_PARAM,
 ];
 
+// Everything the listing filters by. Sorting is kept apart.
+export type ListingFilters = {
+  accreditation: Accreditation | null;
+  channelOnly: boolean;
+  credits: null | number;
+  hideInactive: boolean;
+  level: CourseLevelFilter;
+  offeredOnly: boolean;
+  program: null | string;
+  programState: ProgramStateFilter;
+  query: string;
+  season: SeasonFilter;
+  semester: null | number;
+  staff: string;
+  tagMode: TagMode;
+  tags: string[];
+};
+
 export type ListingUrlOptions = {
+  readonly programs: readonly string[];
   readonly sortColumns: readonly SortColumn[];
+  /** Known staff names; without it any name is accepted. */
+  readonly staff?: readonly string[];
   readonly tags: readonly string[];
 };
 
-export type ListingUrlState = {
-  accreditation: Accreditation | null;
-  level: CourseLevelFilter;
-  query: string;
-  season: SeasonFilter;
+export type ListingUrlState = ListingFilters & {
   sortColumn: SortColumn;
   sortDirection: SortDirection;
-  tags: string[];
+};
+
+export const DEFAULT_LISTING_FILTERS: Readonly<ListingFilters> = {
+  accreditation: null,
+  channelOnly: false,
+  credits: null,
+  hideInactive: false,
+  level: null,
+  offeredOnly: false,
+  program: null,
+  programState: null,
+  query: '',
+  season: null,
+  semester: null,
+  staff: '',
+  tagMode: 'any',
+  tags: [],
 };
 
 const parseAccreditation = (value: null | string): Accreditation | null =>
@@ -58,6 +118,19 @@ const parseLevel = (value: null | string): CourseLevelFilter => {
   if (value === '3') return 3;
   return null;
 };
+
+// A whole number from 1 to max, written without extra characters.
+const parseBoundedInteger = (
+  value: null | string,
+  max: number,
+): null | number => {
+  if (value === null || !POSITIVE_INTEGER.test(value)) return null;
+  const parsed = Number(value);
+  return parsed <= max ? parsed : null;
+};
+
+const parseProgramState = (value: null | string): ProgramStateFilter =>
+  value === 'elective' || value === 'required' ? value : null;
 
 const parseSortColumn = (
   value: null | string,
@@ -75,27 +148,58 @@ const parseTags = (value: null | string, tags: readonly string[]): string[] => {
   return tags.filter((tag) => requested.has(tag));
 };
 
+const parseStaff = (
+  value: null | string,
+  staff: readonly string[] | undefined,
+): string => {
+  const name = value?.trim() ?? '';
+  return staff === undefined || staff.includes(name) ? name : '';
+};
+
+const parseProgram = (
+  value: null | string,
+  programs: readonly string[],
+): null | string => programs.find((program) => program === value) ?? null;
+
 export const parseListingUrlState = (
   params: URLSearchParams,
   options: ListingUrlOptions,
-): ListingUrlState => ({
-  accreditation: parseAccreditation(params.get(ACCREDITATION_PARAM)),
-  level: parseLevel(params.get(LEVEL_PARAM)),
-  query: params.get(QUERY_PARAM) ?? '',
-  season: parseSeason(params.get(SEASON_PARAM)),
-  sortColumn: parseSortColumn(params.get(SORT_PARAM), options.sortColumns),
-  sortDirection: parseSortDirection(params.get(DIRECTION_PARAM)),
-  tags: parseTags(params.get(TAGS_PARAM), options.tags),
-});
+): ListingUrlState => {
+  const program = parseProgram(params.get(PROGRAM_PARAM), options.programs);
+  return {
+    accreditation: parseAccreditation(params.get(ACCREDITATION_PARAM)),
+    channelOnly: params.get(CHANNEL_PARAM) === FLAG_VALUE,
+    credits: parseBoundedInteger(params.get(CREDITS_PARAM), MAX_CREDITS),
+    hideInactive: params.get(HIDE_INACTIVE_PARAM) === FLAG_VALUE,
+    level: parseLevel(params.get(LEVEL_PARAM)),
+    offeredOnly: params.get(OFFERED_PARAM) === FLAG_VALUE,
+    program,
+    // A program state means nothing without its program.
+    programState:
+      program === null
+        ? null
+        : parseProgramState(params.get(PROGRAM_STATE_PARAM)),
+    query: params.get(QUERY_PARAM) ?? '',
+    season: parseSeason(params.get(SEASON_PARAM)),
+    semester: parseBoundedInteger(params.get(SEMESTER_PARAM), MAX_SEMESTER),
+    sortColumn: parseSortColumn(params.get(SORT_PARAM), options.sortColumns),
+    sortDirection: parseSortDirection(params.get(DIRECTION_PARAM)),
+    staff: parseStaff(params.get(STAFF_PARAM), options.staff),
+    tagMode: params.get(TAG_MODE_PARAM) === 'all' ? 'all' : 'any',
+    tags: parseTags(params.get(TAGS_PARAM), options.tags),
+  };
+};
 
 const setOrDelete = (
   params: URLSearchParams,
   key: string,
-  value: null | string,
+  value: null | number | string,
 ): void => {
   if (value === null || value === '') params.delete(key);
-  else params.set(key, value);
+  else params.set(key, String(value));
 };
+
+const flag = (value: boolean): null | string => (value ? FLAG_VALUE : null);
 
 // Writes the state into params, omitting every value left at its default.
 export const writeListingUrlState = (
@@ -104,29 +208,36 @@ export const writeListingUrlState = (
   options: Pick<ListingUrlOptions, 'tags'>,
 ): void => {
   const selected = new Set(state.tags);
-  setOrDelete(params, QUERY_PARAM, state.query);
-  setOrDelete(params, ACCREDITATION_PARAM, state.accreditation);
-  setOrDelete(params, SEASON_PARAM, state.season);
-  setOrDelete(
-    params,
-    LEVEL_PARAM,
-    state.level === null ? null : String(state.level),
-  );
-  setOrDelete(
-    params,
-    TAGS_PARAM,
-    options.tags.filter((tag) => selected.has(tag)).join(TAG_SEPARATOR),
-  );
-  setOrDelete(
-    params,
-    SORT_PARAM,
-    state.sortColumn === DEFAULT_SORT_COLUMN ? null : state.sortColumn,
-  );
-  setOrDelete(
-    params,
-    DIRECTION_PARAM,
-    state.sortDirection === DEFAULT_SORT_DIRECTION ? null : state.sortDirection,
-  );
+  const entries: Array<[string, null | number | string]> = [
+    [QUERY_PARAM, state.query],
+    [ACCREDITATION_PARAM, state.accreditation],
+    [SEASON_PARAM, state.season],
+    [LEVEL_PARAM, state.level],
+    [
+      TAGS_PARAM,
+      options.tags.filter((tag) => selected.has(tag)).join(TAG_SEPARATOR),
+    ],
+    [TAG_MODE_PARAM, state.tagMode === 'all' ? 'all' : null],
+    [PROGRAM_PARAM, state.program],
+    [PROGRAM_STATE_PARAM, state.program === null ? null : state.programState],
+    [SEMESTER_PARAM, state.semester],
+    [CREDITS_PARAM, state.credits],
+    [STAFF_PARAM, state.staff],
+    [HIDE_INACTIVE_PARAM, flag(state.hideInactive)],
+    [OFFERED_PARAM, flag(state.offeredOnly)],
+    [CHANNEL_PARAM, flag(state.channelOnly)],
+    [
+      SORT_PARAM,
+      state.sortColumn === DEFAULT_SORT_COLUMN ? null : state.sortColumn,
+    ],
+    [
+      DIRECTION_PARAM,
+      state.sortDirection === DEFAULT_SORT_DIRECTION
+        ? null
+        : state.sortDirection,
+    ],
+  ];
+  for (const [key, value] of entries) setOrDelete(params, key, value);
 };
 
 // The stable identifier for a course link: its newest code, else its name.
