@@ -176,6 +176,8 @@ export const tr = {
       past: 'Geçmiş bir yarıyıla planlandı.',
       prerequisites:
         'Ön koşullar, öncesinde alınan veya planlanan derslerle sağlanmıyor.',
+      season:
+        'Ders o dönemde verilmiyor: tek yarıyıllar güz, çift yarıyıllar bahar dönemidir.',
     },
     notPlanned: 'Planlanmadı',
     notReached: '8. yarıyıla kadar ulaşılamıyor',

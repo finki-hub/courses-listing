@@ -3,17 +3,19 @@ import { For } from 'solid-js';
 import { interpolate } from '@/lib/i18n';
 import { useLanguage } from '@/lib/LanguageProvider';
 import { type CourseStatus } from '@/lib/prerequisite';
+import { type SimulatorCourse } from '@/lib/simulator';
 import {
   type BulkStatus,
   getBulkTargets,
-  type SemesterGroup,
   summarizeSemester,
 } from '@/lib/simulator-view';
 
 type SemesterHeaderProps = {
+  /** All of the semester's courses, whatever the filters show. */
+  courses: SimulatorCourse[];
   enabledMap: Record<string, boolean>;
-  group: SemesterGroup;
   onBulkMark: (target: BulkStatus) => void;
+  semester: number;
   statuses: Record<string, CourseStatus>;
 };
 
@@ -23,11 +25,11 @@ const BULK_TARGETS: readonly BulkStatus[] = ['listened', 'passed'];
 // courses.
 export const SemesterHeader = (props: SemesterHeaderProps) => {
   const { t } = useLanguage();
-  const values = () => ({ semester: props.group.semester });
-  const summary = () => summarizeSemester(props.group.courses, props.statuses);
+  const values = () => ({ semester: props.semester });
+  const summary = () => summarizeSemester(props.courses, props.statuses);
   const targetCount = (target: BulkStatus) =>
     getBulkTargets(
-      props.group.courses,
+      props.courses,
       { enabledMap: props.enabledMap, statuses: props.statuses },
       target,
     ).length;

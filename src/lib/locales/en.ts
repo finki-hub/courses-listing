@@ -178,6 +178,8 @@ export const en = {
       past: 'Planned for a semester that has already passed.',
       prerequisites:
         'Prerequisites are not met by the courses taken or planned before it.',
+      season:
+        'The course is not offered in that season: odd semesters are winter, even ones summer.',
     },
     notPlanned: 'Not planned',
     notReached: 'not reached by semester 8',

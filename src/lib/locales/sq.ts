@@ -179,6 +179,8 @@ export const sq = {
       past: 'E planifikuar për një semestër që ka kaluar.',
       prerequisites:
         'Parakushtet nuk plotësohen nga lëndët e marra ose të planifikuara para saj.',
+      season:
+        'Lënda nuk ofrohet në atë sezon: semestrat tek janë dimërorë, ata çift verorë.',
     },
     notPlanned: 'E paplanifikuar',
     notReached: 'nuk arrihet deri në semestrin 8',

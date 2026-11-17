@@ -103,8 +103,11 @@ export const useEnrollmentSimulator = (courses: () => CourseRaw[]) => {
     showOnlyEnabled,
   });
   const actions = useSimulatorActions({
+    accreditation,
+    courses: parsedCourses,
     enabledMap: state.enabledMap,
     hpcCompleted,
+    program,
     setHpcCompleted,
     setStatuses,
     setUniListCredits,
@@ -146,6 +149,7 @@ export const useEnrollmentSimulator = (courses: () => CourseRaw[]) => {
     accreditation,
     actions,
     copyShareUrl,
+    courses: parsedCourses,
     hpcCompleted,
     levelFilter,
     mode,

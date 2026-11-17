@@ -54,5 +54,5 @@ export const useUndoableAction = () => {
     );
   };
 
-  return { Notice, offer };
+  return { dismiss: clear, Notice, offer };
 };

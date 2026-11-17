@@ -122,6 +122,7 @@ export const EnrollmentSimulator = (props: EnrollmentSimulatorProps) => {
       <Switch>
         <Match when={sim.mode() === 'checklist'}>
           <SimulatorTable
+            courses={sim.courses()}
             enabledMap={sim.state.enabledMap()}
             fullLevels={sim.state.fullLevels()}
             groups={sim.view.groups()}

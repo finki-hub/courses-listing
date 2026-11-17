@@ -1,19 +1,25 @@
-import { type Accessor, type Setter } from 'solid-js';
+import { type Accessor, createEffect, on, type Setter } from 'solid-js';
 
 import { type CourseStatus } from '@/lib/prerequisite';
-import { toggleListenedStatus, togglePassedStatus } from '@/lib/simulator';
+import {
+  type SimulatorCourse,
+  toggleListenedStatus,
+  togglePassedStatus,
+} from '@/lib/simulator';
 import {
   type BulkStatus,
   getBulkTargets,
   markCourses,
-  type SemesterGroup,
 } from '@/lib/simulator-view';
 
 import { useUndoableAction } from './undo-notice';
 
 type SimulatorActionsParams = {
+  accreditation: Accessor<string>;
+  courses: Accessor<SimulatorCourse[]>;
   enabledMap: Accessor<Record<string, boolean>>;
   hpcCompleted: Accessor<boolean>;
+  program: Accessor<string>;
   setHpcCompleted: Setter<boolean>;
   setStatuses: Setter<Record<string, CourseStatus>>;
   setUniListCredits: Setter<number>;
@@ -25,6 +31,13 @@ type SimulatorActionsParams = {
 export const useSimulatorActions = (params: SimulatorActionsParams) => {
   const undoable = useUndoableAction();
 
+  // A reset's snapshot belongs to the accreditation and program it was made in.
+  createEffect(
+    on([params.accreditation, params.program], undoable.dismiss, {
+      defer: true,
+    }),
+  );
+
   const toggleListened = (name: string) => {
     params.setStatuses((prev) => toggleListenedStatus(prev, name));
   };
@@ -33,9 +46,10 @@ export const useSimulatorActions = (params: SimulatorActionsParams) => {
     params.setStatuses((prev) => togglePassedStatus(prev, name));
   };
 
-  const bulkMark = (group: SemesterGroup, target: BulkStatus) => {
+  // Acts on the whole semester, not only the courses the filters show.
+  const bulkMark = (semester: number, target: BulkStatus) => {
     const names = getBulkTargets(
-      group.courses,
+      params.courses().filter((course) => course.semester === semester),
       { enabledMap: params.enabledMap(), statuses: params.statuses() },
       target,
     );

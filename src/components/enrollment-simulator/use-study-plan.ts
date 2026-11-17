@@ -46,9 +46,15 @@ export const useStudyPlan = (params: StudyPlanParams) => {
   );
 
   createEffect(
-    on(plan, (value) => {
-      savePlan(params.accreditation(), value);
-    }),
+    // Deferred, so opening a shared link does not overwrite the saved plan
+    // until the student changes it.
+    on(
+      plan,
+      (value) => {
+        savePlan(params.accreditation(), value);
+      },
+      { defer: true },
+    ),
   );
 
   const setSemester = (name: string, semester: number | undefined) => {

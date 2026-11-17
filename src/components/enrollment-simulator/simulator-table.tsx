@@ -22,10 +22,12 @@ import { CourseRow } from './course-row';
 import { SemesterHeader } from './semester-header';
 
 type SimulatorTableProps = {
+  /** Every course, for the semester headers' totals and bulk actions. */
+  courses: SimulatorCourse[];
   enabledMap: Record<string, boolean>;
   fullLevels: Set<number>;
   groups: SemesterGroup[];
-  onBulkMark: (group: SemesterGroup, target: BulkStatus) => void;
+  onBulkMark: (semester: number, target: BulkStatus) => void;
   onToggleListened: (name: string) => void;
   onTogglePassed: (name: string) => void;
   overLimitSet: Set<string>;
@@ -77,11 +79,14 @@ export const SimulatorTable = (props: SimulatorTableProps) => {
 
   const header = (group: SemesterGroup) => (
     <SemesterHeader
+      courses={props.courses.filter(
+        (course) => course.semester === group.semester,
+      )}
       enabledMap={props.enabledMap}
-      group={group}
       onBulkMark={(target) => {
-        props.onBulkMark(group, target);
+        props.onBulkMark(group.semester, target);
       }}
+      semester={group.semester}
       statuses={props.statuses}
     />
   );

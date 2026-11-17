@@ -1,15 +1,20 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
 
-import './support/register-alias.js';
+import './alias-hooks.js';
 import {
   ELECTIVE,
   makeCourse,
   passedAll,
 } from './support/simulator-fixtures.js';
 
-const { evaluatePlan, getPlanOptions, getPlanStart, setPlannedSemester } =
-  await import('../src/lib/study-plan.ts');
+const {
+  evaluatePlan,
+  getPlanOptions,
+  getPlanStart,
+  loadPlan,
+  setPlannedSemester,
+} = await import('../src/lib/study-plan.ts');
 const {
   getSimulatorShareUrl,
   readSimulatorShareState,
@@ -66,7 +71,7 @@ test('the plan starts after the latest taken semester, in the course season', ()
   assert.deepEqual(setPlannedSemester(plan, 'Б', undefined), {});
 });
 
-test('plan issues cover prerequisites, credit thresholds, level limits and the past', () => {
+test('plan issues cover prerequisites, credit thresholds, level limits, season and the past', () => {
   const { issues, semesters, unplannedRequired } = evaluate({
     Б: 3,
     В: 3,
@@ -79,14 +84,16 @@ test('plan issues cover prerequisites, credit thresholds, level limits and the p
   assert.deepEqual(issues['В'], ['prerequisites']);
   assert.deepEqual(issues['Изборна 2'], ['levelLimit']);
   assert.deepEqual(issues['Кредити'], ['prerequisites']);
-  assert.deepEqual(issues['Минато'], ['past']);
+  assert.deepEqual(issues['Минато'], ['past', 'season']);
+  assert.deepEqual(evaluate({ Б: 4 }).issues['Б'], ['season']);
   assert.deepEqual(
     unplannedRequired.map((course) => course.name),
     ['Непланиран'],
   );
   const third = semesters.find((entry) => entry.semester === 3);
   assert.equal(third.credits, 42);
-  assert.equal(third.cumulativeCredits, 48);
+  // 6 earned, 6 for Минато planned in a past semester, 42 in semester 3.
+  assert.equal(third.cumulativeCredits, 54);
   assert.equal(evaluate({ Б: 3, В: 5 }).issues['В'], undefined);
 });
 
@@ -154,4 +161,41 @@ test('share links carry the plan, and version 1 links still open without one', (
     restoreStatusesFromShareState(COURSES, legacyState),
     statuses,
   );
+});
+
+test('a plan past the last semester has no semesters left', () => {
+  const courses = [makeCourse({ name: 'Последен', semester: 8 })];
+  const evaluation = evaluatePlan({
+    baseCredits: 6,
+    courseInfoMap: new Map(),
+    courses,
+    plan: {},
+    statuses: passedAll(['Последен']),
+  });
+  assert.deepEqual(evaluation.semesters, []);
+  assert.deepEqual(evaluation.graduation, {
+    fourYear: undefined,
+    threeYear: undefined,
+  });
+});
+
+test('a stored plan must be an object of semesters', (t) => {
+  const descriptor = Object.getOwnPropertyDescriptor(
+    globalThis,
+    'localStorage',
+  );
+  let stored = '[3, 5]';
+  Object.defineProperty(globalThis, 'localStorage', {
+    configurable: true,
+    value: { getItem: () => stored },
+    writable: true,
+  });
+  t.after(() => {
+    if (descriptor)
+      Object.defineProperty(globalThis, 'localStorage', descriptor);
+    else Reflect.deleteProperty(globalThis, 'localStorage');
+  });
+  assert.deepEqual(loadPlan('2023'), {});
+  stored = JSON.stringify({ Б: 3, В: 9, Г: 'x' });
+  assert.deepEqual(loadPlan('2023'), { Б: 3 });
 });

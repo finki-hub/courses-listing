@@ -34,7 +34,8 @@ export type PlanEvaluation = {
   unplannedRequired: SimulatorCourse[];
 };
 
-export type PlanIssue = 'exclusive' | 'levelLimit' | 'past' | 'prerequisites';
+export type PlanIssue =
+  'exclusive' | 'levelLimit' | 'past' | 'prerequisites' | 'season';
 
 export type PlannedSemester = {
   courses: SimulatorCourse[];
@@ -182,6 +183,8 @@ const findIssues = (
   const semester = context.plan[course.name] ?? 0;
   const issues: PlanIssue[] = [];
   if (semester < extra.start) issues.push('past');
+  // Odd semesters are winter; a stale or shared plan can bypass the select.
+  if (semester % 2 !== course.semester % 2) issues.push('season');
   const before = getStateBefore(semester, context, extra.projection);
   const facultyList =
     getProgramStateKind(course.programState) === 'faculty-list';
@@ -257,20 +260,25 @@ export const evaluatePlan = (context: PlanContext): PlanEvaluation => {
     if (found.length > 0) issues[course.name] = found;
   }
 
-  let cumulative = projection.credits;
+  const countedCredits = (courses: SimulatorCourse[]) =>
+    courses
+      .filter((course) => !overLimit.has(course.name))
+      .reduce((sum, course) => sum + course.credits, 0);
+  // Courses planned for semesters already behind count, as they do for the
+  // prerequisites of later ones.
+  let cumulative =
+    projection.credits +
+    countedCredits(
+      planned.filter((course) => (context.plan[course.name] ?? 0) < start),
+    );
   const semesters: PlannedSemester[] = [];
-  for (
-    let semester = Math.min(start, LAST_SEMESTER);
-    semester <= LAST_SEMESTER;
-    semester++
-  ) {
+  // From a start after the last semester, nothing is left to plan.
+  for (let semester = start; semester <= LAST_SEMESTER; semester++) {
     const courses = planned.filter(
       (course) => context.plan[course.name] === semester,
     );
     const credits = courses.reduce((sum, course) => sum + course.credits, 0);
-    cumulative += courses
-      .filter((course) => !overLimit.has(course.name))
-      .reduce((sum, course) => sum + course.credits, 0);
+    cumulative += countedCredits(courses);
     semesters.push({
       courses,
       credits,
@@ -328,7 +336,9 @@ export const loadPlan = (accreditation: Accreditation): StudyPlan => {
     const parsed: unknown = JSON.parse(
       readBrowserStorage(`${STORAGE_KEY_PREFIX}${accreditation}`) ?? '{}',
     );
-    return typeof parsed !== 'object' || parsed === null
+    return typeof parsed !== 'object' ||
+      parsed === null ||
+      Array.isArray(parsed)
       ? {}
       : Object.fromEntries(
           Object.entries(parsed).filter((entry): entry is [string, number] =>
