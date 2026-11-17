@@ -7,7 +7,6 @@ export const en = {
     close: 'Close',
     code: 'Code',
     course: 'Course',
-    courseLevel: 'Course level',
     discordChannel: 'Channel (Discord)',
     level: 'Level',
     link: 'Link',
@@ -91,6 +90,14 @@ export const en = {
     sourceToTarget: 'source course to target course',
     type: 'Type',
   },
+  filters: {
+    accreditation: 'Accreditation:',
+    level: 'Level:',
+    levelInfo:
+      'Each course belongs to one of three levels: L1 introductory, L2 intermediate and L3 advanced.\nAmong electives, the simulator counts at most {l1} credits from L1 and {l2} credits from L2; L3 has no limit.',
+    program: 'Program:',
+    season: 'Semester:',
+  },
   language: 'Language',
   listing: {
     resultCount: {
@@ -173,6 +180,8 @@ export const en = {
     eligible4yr:
       '🎓 You meet the requirements for a 4-year degree (≥ 234 credits and all required courses passed, except the diploma thesis)',
     graduated: '🎉 Congratulations on graduating!',
+    hpcInfo:
+      'Tick this if you passed the HPC course, which is not in the course catalog. It adds {credits} credits to your total.',
     missing3yr:
       'ℹ️ You have ≥ 174 credits, but these required courses are missing for a 3-year degree: {courses}',
     missing4yr:
@@ -189,7 +198,18 @@ export const en = {
     statusToggle: '{status}: {course}',
     universityList: 'Uni list',
     universityListInfo:
-      'There is no formal limit on credits from the university list.\nIn practice, you can take at most 4 courses worth 9 credits each, totaling 36 credits.',
+      'Credits from courses on the UKIM university-wide list of electives.\nThere is no formal limit on credits from the university list.\nIn practice, you can take at most 4 courses worth 9 credits each, totaling 36 credits.',
+  },
+  studyPrograms: {
+    ie: 'Computer Education',
+    imb: 'Internet, Networks and Security',
+    ke: 'Computer Education',
+    ki: 'Computer Engineering',
+    kn: 'Computer Science',
+    pit: 'Application of Information Technologies',
+    seis: 'Software Engineering and Information Systems (in English)',
+    siis: 'Software Engineering and Information Systems',
+    ssp: 'Professional Studies in Programming',
   },
   tagLabels: {
     ai: 'Artificial intelligence',

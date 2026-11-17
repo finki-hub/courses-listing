@@ -7,7 +7,6 @@ export const sq = {
     close: 'Mbyll',
     code: 'Kodi',
     course: 'Lënda',
-    courseLevel: 'Niveli i lëndës',
     discordChannel: 'Kanali (Discord)',
     level: 'Niveli',
     link: 'Lidhja',
@@ -91,6 +90,14 @@ export const sq = {
     sourceToTarget: 'lënda burimore drejt lëndës së synuar',
     type: 'Lloji',
   },
+  filters: {
+    accreditation: 'Akreditimi:',
+    level: 'Niveli:',
+    levelInfo:
+      'Çdo lëndë i përket njërit prej tre niveleve: L1 hyrëse, L2 të mesme dhe L3 të avancuara.\nNga lëndët zgjedhore, simulatori numëron më së shumti {l1} kredite nga L1 dhe {l2} kredite nga L2; për L3 nuk ka kufi.',
+    program: 'Programi:',
+    season: 'Semestri:',
+  },
   language: 'Gjuha',
   listing: {
     resultCount: {
@@ -173,6 +180,8 @@ export const sq = {
     eligible4yr:
       '🎓 I plotësoni kushtet për diplomim në studimet 4-vjeçare (≥ 234 kredite dhe të gjitha lëndët e detyrueshme të kaluara, përveç punimit të diplomës)',
     graduated: '🎉 Urime diplomimin!',
+    hpcInfo:
+      'Shënojeni nëse e keni kaluar kursin HPC, i cili nuk është në katalogun e lëndëve. Shton {credits} kredite në totalin tuaj.',
     missing3yr:
       'ℹ️ Keni ≥ 174 kredite, por për studimet 3-vjeçare ju mungojnë këto lëndë të detyrueshme: {courses}',
     missing4yr:
@@ -190,7 +199,18 @@ export const sq = {
     statusToggle: '{status}: {course}',
     universityList: 'Lista univ.',
     universityListInfo:
-      'Nuk ka kufi formal për kreditet nga lista universitare.\nNë praktikë, mund të merrni më së shumti 4 lëndë me nga 9 kredite, gjithsej 36 kredite.',
+      'Kredite nga lëndët e listës universitare të lëndëve zgjedhore të UKIM.\nNuk ka kufi formal për kreditet nga lista universitare.\nNë praktikë, mund të merrni më së shumti 4 lëndë me nga 9 kredite, gjithsej 36 kredite.',
+  },
+  studyPrograms: {
+    ie: 'Computer Education',
+    imb: 'Internet, Networks and Security',
+    ke: 'Computer Education',
+    ki: 'Computer Engineering',
+    kn: 'Computer Science',
+    pit: 'Application of Information Technologies',
+    seis: 'Software Engineering and Information Systems (në anglisht)',
+    siis: 'Software Engineering and Information Systems',
+    ssp: 'Professional Studies in Programming',
   },
   tagLabels: {
     ai: 'Inteligjenca artificiale',

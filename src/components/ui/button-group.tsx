@@ -1,6 +1,8 @@
 import { createMemo, For } from 'solid-js';
 
 type ButtonGroupItem<T extends number | string> = {
+  /** Spelled-out meaning of a short label, shown as a tooltip and read aloud. */
+  description?: string;
   label: string;
   value: T;
 };
@@ -32,6 +34,11 @@ export const ButtonGroup = <T extends number | string>(
       <For each={items()}>
         {(item, i) => (
           <button
+            aria-label={
+              item.description === undefined
+                ? undefined
+                : `${item.label}: ${item.description}`
+            }
             aria-pressed={props.value === item.value}
             class={`min-h-9 rounded-md border px-2 py-2 text-center text-xs font-medium transition-colors sm:min-h-0 sm:rounded-none sm:border-0 sm:px-3 sm:py-2 sm:text-sm ${
               i() === items().length - 1 ? '' : 'sm:border-r'
@@ -43,6 +50,7 @@ export const ButtonGroup = <T extends number | string>(
             onClick={() => {
               props.onSelect(item.value);
             }}
+            title={item.description}
             type="button"
           >
             {item.label}

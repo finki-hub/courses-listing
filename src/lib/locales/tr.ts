@@ -7,7 +7,6 @@ export const tr = {
     close: 'Kapat',
     code: 'Kod',
     course: 'Ders',
-    courseLevel: 'Ders seviyesi',
     discordChannel: 'Kanal (Discord)',
     level: 'Seviye',
     link: 'Bağlantı',
@@ -91,6 +90,14 @@ export const tr = {
     sourceToTarget: 'kaynak dersten hedef derse',
     type: 'Tür',
   },
+  filters: {
+    accreditation: 'Akreditasyon:',
+    level: 'Seviye:',
+    levelInfo:
+      'Her ders üç seviyeden birine aittir: L1 giriş, L2 orta ve L3 ileri düzey.\nSeçmeli derslerden simülatör L1 için en fazla {l1}, L2 için en fazla {l2} kredi sayar; L3 için sınır yoktur.',
+    program: 'Program:',
+    season: 'Yarıyıl:',
+  },
   language: 'Dil',
   listing: {
     resultCount: {
@@ -173,6 +180,8 @@ export const tr = {
     eligible4yr:
       '🎓 4 yıllık programdan mezuniyet koşullarını sağlıyorsunuz (≥ 234 kredi ve bitirme tezi dışında tüm zorunlu dersler geçilmiş)',
     graduated: '🎉 Mezuniyetiniz kutlu olsun!',
+    hpcInfo:
+      'Ders kataloğunda yer almayan HPC dersini geçtiyseniz işaretleyin. Toplamınıza {credits} kredi ekler.',
     missing3yr:
       'ℹ️ ≥ 174 krediniz var, ancak 3 yıllık program için şu zorunlu dersler eksik: {courses}',
     missing4yr:
@@ -190,7 +199,18 @@ export const tr = {
     statusToggle: '{status}: {course}',
     universityList: 'Üniv. listesi',
     universityListInfo:
-      'Üniversite listesinden kazanılan krediler için resmî bir üst sınır yoktur.\nUygulamada, her biri 9 kredilik en fazla 4 ders, yani toplam 36 kredi alabilirsiniz.',
+      'UKIM üniversite geneli seçmeli ders listesindeki derslerden alınan krediler.\nÜniversite listesinden kazanılan krediler için resmî bir üst sınır yoktur.\nUygulamada, her biri 9 kredilik en fazla 4 ders, yani toplam 36 kredi alabilirsiniz.',
+  },
+  studyPrograms: {
+    ie: 'Computer Education',
+    imb: 'Internet, Networks and Security',
+    ke: 'Computer Education',
+    ki: 'Computer Engineering',
+    kn: 'Computer Science',
+    pit: 'Application of Information Technologies',
+    seis: 'Software Engineering and Information Systems (İngilizce)',
+    siis: 'Software Engineering and Information Systems',
+    ssp: 'Professional Studies in Programming',
   },
   tagLabels: {
     ai: 'Yapay zekâ',

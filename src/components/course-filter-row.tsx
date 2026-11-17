@@ -1,7 +1,10 @@
 import { AccreditationSwitch } from '@/components/accreditation-switch';
 import { CourseLevelFilter } from '@/components/course-level-filter';
+import { FilterGroup } from '@/components/filter-group';
 import { ButtonGroup } from '@/components/ui/button-group';
+import { getStudyProgramName, interpolate } from '@/lib/i18n';
 import { useLanguage } from '@/lib/LanguageProvider';
+import { LEVEL_CREDIT_LIMITS } from '@/lib/simulator';
 import {
   type Accreditation,
   type CourseLevelFilter as CourseLevelFilterValue,
@@ -36,31 +39,37 @@ export const CourseFilterRow = (props: CourseFilterRowProps) => {
     props.accreditation === null
       ? []
       : Array.from(getStudyPrograms(props.accreditation), (program) => ({
+          description: getStudyProgramName(program, t()),
           label: STUDY_PROGRAM_LABELS[program] ?? program,
           value: program,
         }));
+  const levelInfo = () =>
+    interpolate(t().filters.levelInfo, {
+      l1: LEVEL_CREDIT_LIMITS[1] ?? 0,
+      l2: LEVEL_CREDIT_LIMITS[2] ?? 0,
+    });
 
   return (
-    <div class="grid gap-3 sm:flex sm:flex-wrap sm:items-center sm:gap-4">
-      <div>
+    <div class="grid gap-3 sm:flex sm:flex-wrap sm:items-center sm:gap-x-6 sm:gap-y-3">
+      <FilterGroup label={t().filters.accreditation}>
         <AccreditationSwitch
           accreditation={props.accreditation}
           onSelect={props.onSwitchAccreditation}
         />
-      </div>
+      </FilterGroup>
 
       {props.onSwitchProgram ? (
-        <div>
+        <FilterGroup label={t().filters.program}>
           <ButtonGroup
             class="w-full sm:w-auto"
             items={programItems()}
             onSelect={props.onSwitchProgram}
             value={props.program ?? undefined}
           />
-        </div>
+        </FilterGroup>
       ) : null}
 
-      <div>
+      <FilterGroup label={t().filters.season}>
         <ButtonGroup
           class="w-full sm:w-auto"
           items={seasonItems()}
@@ -73,12 +82,17 @@ export const CourseFilterRow = (props: CourseFilterRowProps) => {
           }}
           value={props.seasonFilter ?? ''}
         />
-      </div>
+      </FilterGroup>
 
-      <CourseLevelFilter
-        onSelect={props.onSetLevel}
-        value={props.levelFilter}
-      />
+      <FilterGroup
+        info={levelInfo()}
+        label={t().filters.level}
+      >
+        <CourseLevelFilter
+          onSelect={props.onSetLevel}
+          value={props.levelFilter}
+        />
+      </FilterGroup>
     </div>
   );
 };
