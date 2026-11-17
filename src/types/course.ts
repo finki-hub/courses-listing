@@ -59,7 +59,8 @@ const courseSchema = z.object({
   cycle: optionalString,
   name: z.string(),
   'name-en': optionalString,
-  professors: z.string(),
+  // Left out for a master's course without known professors.
+  professors: z.string().default(''),
   tags: optionalString,
 });
 
