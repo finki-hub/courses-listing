@@ -21,26 +21,32 @@ type PageSkeletonProps = {
 
 const ROW_INDEXES = Array.from({ length: 8 }, (_, index) => index);
 
-// The outline of the course listing: search, filters and table rows.
+// The outline of the course listing: the toolbar, then the filter sidebar
+// (desktop) beside the result rows.
 const ListingRows = () => (
   <>
-    <Skeleton class="h-10 w-full" />
-    <div class="flex flex-wrap gap-2">
-      <Skeleton class="h-9 w-40" />
-      <Skeleton class="h-9 w-48" />
-      <Skeleton class="h-9 w-36" />
+    <div class="flex flex-col gap-3 sm:flex-row">
+      <Skeleton class="h-10 w-full sm:w-64" />
+      <Skeleton class="h-10 w-full sm:flex-1" />
     </div>
-    <div class="bg-card space-y-px overflow-hidden rounded-lg border">
-      <For each={ROW_INDEXES}>
-        {(index) => (
-          <div class="flex items-center gap-4 px-4 py-3">
-            <Skeleton class={cn('h-4', index % 3 === 0 ? 'w-1/3' : 'w-1/4')} />
-            <Skeleton class="ml-auto hidden h-4 w-16 sm:block" />
-            <Skeleton class="hidden h-4 w-10 sm:block" />
-            <Skeleton class="h-5 w-20 rounded-full" />
-          </div>
-        )}
-      </For>
+    <div class="lg:grid lg:grid-cols-[16.5rem_minmax(0,1fr)] lg:gap-6">
+      <Skeleton class="hidden h-96 rounded-lg lg:block" />
+      <div class="bg-card space-y-px overflow-hidden rounded-lg border">
+        <For each={ROW_INDEXES}>
+          {(index) => (
+            <div class="flex items-center gap-4 px-4 py-3.5">
+              <div class="flex-1 space-y-1.5">
+                <Skeleton
+                  class={cn('h-4', index % 3 === 0 ? 'w-1/2' : 'w-1/3')}
+                />
+                <Skeleton class="h-3 w-24" />
+              </div>
+              <Skeleton class="hidden h-4 w-10 sm:block" />
+              <Skeleton class="hidden h-4 w-14 sm:block" />
+            </div>
+          )}
+        </For>
+      </div>
     </div>
   </>
 );

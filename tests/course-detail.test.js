@@ -17,6 +17,7 @@ const {
   canMergeAccreditationDetails,
   getAccreditationDetails,
   getProgramStateGroups,
+  groupDetailValues,
   indexCoursesByName,
   linkPrerequisiteText,
 } = await import('../src/lib/course-detail.ts');
@@ -121,5 +122,28 @@ test('courses are indexed by the name their accreditation uses', () => {
   assert.equal(
     indexCoursesByName([renamed], '2018').get('Веб програмирање'),
     renamed,
+  );
+});
+
+test('detail values show once when the accreditations agree', () => {
+  const first = getAccreditationDetails(COURSE, '2023');
+  const second = {
+    ...getAccreditationDetails(COURSE, '2018'),
+    prerequisite: 'Структурно програмирање',
+  };
+  assert.deepEqual(
+    groupDetailValues([first, second], (entry) => entry.semester),
+    [{ accreditations: ['2023', '2018'], value: '5' }],
+  );
+  assert.deepEqual(
+    groupDetailValues([first, second], (entry) => entry.prerequisite),
+    [
+      { accreditations: ['2023'], value: 'Алгоритми и податочни структури' },
+      { accreditations: ['2018'], value: 'Структурно програмирање' },
+    ],
+  );
+  assert.deepEqual(
+    groupDetailValues([first], () => ' '),
+    [],
   );
 });

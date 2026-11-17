@@ -5,6 +5,7 @@ import './alias-hooks.js';
 
 const {
   getAllStaff,
+  getCourseCode,
   getCurrentEnrollment,
   getDistinctCredits,
   getLatestEnrollmentYears,
@@ -12,8 +13,13 @@ const {
 } = await import('../src/lib/course-facts.ts');
 const { filterCourses, sortCourses } =
   await import('../src/lib/course-filters.ts');
-const { clearFilters, getFilterChips, hasMoreFilters, removeFilterChip } =
-  await import('../src/lib/listing-filter-chips.ts');
+const {
+  clearFilters,
+  countActiveFilters,
+  getActiveFilterSections,
+  getFilterChips,
+  removeFilterChip,
+} = await import('../src/lib/listing-filter-chips.ts');
 const { DEFAULT_LISTING_FILTERS } =
   await import('../src/lib/listing-url-state.ts');
 
@@ -166,8 +172,14 @@ test('chips list active filters and remove them one by one', () => {
   assert.equal(withoutProgram.program, null);
   assert.equal(withoutProgram.programState, null);
   assert.deepEqual(removeFilterChip(filters, chips[3]).tags, []);
-  assert.equal(hasMoreFilters(filters), true);
-  assert.equal(hasMoreFilters(DEFAULT_LISTING_FILTERS), false);
+  assert.equal(countActiveFilters(filters), 3);
+  assert.equal(countActiveFilters(DEFAULT_LISTING_FILTERS), 0);
+  const sections = getActiveFilterSections(filters);
+  assert.equal(sections.size, 3);
+  for (const section of ['program', 'status', 'topics']) {
+    assert.ok(sections.has(section), section);
+  }
+  assert.equal(getActiveFilterSections(DEFAULT_LISTING_FILTERS).size, 0);
   assert.deepEqual(clearFilters({ ...filters, tagMode: 'all' }), {
     ...DEFAULT_LISTING_FILTERS,
     tagMode: 'all',
@@ -188,4 +200,15 @@ test("the master's view never shows undergraduate-only chips", () => {
     getFilterChips(filters).map((chip) => chip.kind),
     ['staff'],
   );
+});
+
+test('a course code follows the accreditation it is shown by', () => {
+  const both = makeCourse({
+    '2018-available': 'TRUE',
+    '2018-code': 'F18L2W001',
+    '2023-code': 'F23L2W001',
+  });
+  assert.equal(getCourseCode(both, null), 'F23L2W001');
+  assert.equal(getCourseCode(both, '2018'), 'F18L2W001');
+  assert.equal(getCourseCode(RETIRED, null), undefined);
 });

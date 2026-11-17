@@ -128,3 +128,24 @@ export const indexCoursesByName = (
   }
   return index;
 };
+
+// One field's values across accreditations, with the accreditations that
+// share each, so a value both agree on is shown once.
+export type DetailValue = { accreditations: Accreditation[]; value: string };
+
+export const groupDetailValues = (
+  details: readonly AccreditationDetails[],
+  pick: (entry: AccreditationDetails) => number | string | undefined,
+): DetailValue[] => {
+  const groups = new Map<string, Accreditation[]>();
+  for (const entry of details) {
+    const raw = pick(entry);
+    const value = raw === undefined ? '' : String(raw).trim();
+    if (value === '') continue;
+    groups.set(value, [...(groups.get(value) ?? []), entry.accreditation]);
+  }
+  return [...groups].map(([value, accreditations]) => ({
+    accreditations,
+    value,
+  }));
+};
