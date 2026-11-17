@@ -1,4 +1,3 @@
-import { InfoTip } from '@/components/ui/info-tip';
 import { SegmentedControl } from '@/components/ui/segmented-control';
 import { useLanguage } from '@/lib/LanguageProvider';
 
@@ -17,8 +16,7 @@ type SimulatorModeSwitchProps = {
   onSelect: (mode: SimulatorMode) => void;
 };
 
-// Switches between the simulator's views. On narrow screens the view's
-// description sits behind an info button to keep the toolbar short.
+// The simulator's three views, with one line on what the current one is for.
 export const SimulatorModeSwitch = (props: SimulatorModeSwitchProps) => {
   const { t } = useLanguage();
   const items = () =>
@@ -28,20 +26,14 @@ export const SimulatorModeSwitch = (props: SimulatorModeSwitchProps) => {
     }));
   return (
     <div class="space-y-2">
-      <div class="flex items-center gap-2">
-        <SegmentedControl
-          aria-label={t().simulator.modeLabel}
-          class="flex-1 sm:flex-none"
-          items={items()}
-          onSelect={props.onSelect}
-          value={props.mode}
-        />
-        <InfoTip
-          class="sm:hidden"
-          text={props.description}
-        />
-      </div>
-      <p class="text-muted-foreground hidden text-sm sm:block">
+      <SegmentedControl
+        aria-label={t().simulator.modeLabel}
+        class="w-full sm:w-auto"
+        items={items()}
+        onSelect={props.onSelect}
+        value={props.mode}
+      />
+      <p class="text-muted-foreground max-w-prose text-sm">
         {props.description}
       </p>
     </div>

@@ -15,7 +15,7 @@ export const UniListCreditsField = (props: UniListCreditsFieldProps) => {
   const inputValue = createMemo(() => String(props.value));
 
   return (
-    <div class="ml-auto inline-flex items-center gap-2">
+    <div class="inline-flex items-center gap-2">
       <span
         class="text-muted-foreground whitespace-nowrap text-xs sm:text-sm"
         id="uni-list-credits-label"

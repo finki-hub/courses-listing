@@ -291,6 +291,11 @@ export const sq = {
       passed:
         'Shëno lëndët e detyrueshme të disponueshme të semestrit {semester} si të kaluara',
     },
+    checklistOnly: {
+      one: '{count} filtër vlen vetëm për listën',
+      other: '{count} filtra vlejnë vetëm për listën',
+    },
+    clearChecklistFilters: 'Pastroji',
     copyLink: 'Kopjo lidhjen me gjendjen aktuale',
     courseType: {
       all: 'Të gjitha',
@@ -309,6 +314,11 @@ export const sq = {
     graduated: '🎉 Urime diplomimin!',
     hpcInfo:
       'Shënojeni nëse e keni kaluar kursin HPC, i cili nuk është në katalogun e lëndëve. Shton {credits} kredite në totalin tuaj.',
+    locked: {
+      limit: 'U arrit kufiri i zgjedhoreve L{level}',
+      prerequisites: 'Parakushtet nuk plotësohen',
+      project: 'Në vend të saj: {course}',
+    },
     missing3yr:
       'ℹ️ Keni ≥ 174 kredite, por për studimet 3-vjeçare ju mungojnë këto lëndë të detyrueshme: {courses}',
     missing4yr:
@@ -321,12 +331,45 @@ export const sq = {
     passed: 'E kaluar',
     passedPlural: 'Të kaluara',
     passedShort: 'K',
+    progress: {
+      credits: '{credits} kredite',
+      degree3: 'Diplomë 3-vjeçare',
+      degree3Short: '3 vj.',
+      degree4: 'Diplomë 4-vjeçare',
+      degree4Short: '4 vj.',
+      details: 'Detaje',
+      label: 'Përparimi juaj',
+      levelMeter: 'Zgjedhore L{level}',
+      limitValue: '{credits} nga {limit}',
+    },
     reset: 'Rivendos',
     resetDone: 'Të gjitha zgjedhjet u rivendosën.',
     search: 'Kërko lëndët e simulatorit',
+    semesterProgress: '{passed} nga {total} kredite të kaluara',
     semesterSummary: 'Kredite: {listened} të regjistruara, {passed} të kaluara',
     semesterTitle: 'Semestri {semester}',
+    settings: {
+      description:
+        'Akreditimi, programi i studimit dhe kreditet e fituara jashtë listës së lëndëve.',
+      edit: 'Ndrysho programin dhe kreditet shtesë',
+      extras: 'Kredite shtesë',
+      title: 'Studimet tuaja',
+    },
+    setup: {
+      choose: 'Zgjidhni një program',
+      description:
+        'Zgjidhni akreditimin dhe programin e studimit ku jeni regjistruar. Mund t’i ndryshoni më vonë.',
+      program: 'Programi i studimit',
+      start: 'Fillo',
+      title: 'Konfiguro simulatorin',
+    },
     share: 'Ndaj',
+    status: {
+      label: 'Gjendja e {course}',
+      listened: 'E regjistruar',
+      none: 'Jo',
+      passed: 'E kaluar',
+    },
     statusToggle: '{status}: {course}',
     undo: 'Zhbëj',
     universityList: 'Lista univ.',

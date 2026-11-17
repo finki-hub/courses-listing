@@ -287,6 +287,11 @@ export const en = {
       passed:
         'Mark the available required courses of semester {semester} as passed',
     },
+    checklistOnly: {
+      one: '{count} filter applies to the checklist only',
+      other: '{count} filters apply to the checklist only',
+    },
+    clearChecklistFilters: 'Clear them',
     copyLink: 'Copy a link to the current state',
     courseType: { all: 'All', elective: 'Elective', required: 'Required' },
     courseTypeLabel: 'Type:',
@@ -301,6 +306,11 @@ export const en = {
     graduated: '🎉 Congratulations on graduating!',
     hpcInfo:
       'Tick this if you passed the HPC course, which is not in the course catalog. It adds {credits} credits to your total.',
+    locked: {
+      limit: 'L{level} elective limit reached',
+      prerequisites: 'Prerequisites not met',
+      project: 'Taken instead: {course}',
+    },
     missing3yr:
       'ℹ️ You have ≥ 174 credits, but these required courses are missing for a 3-year degree: {courses}',
     missing4yr:
@@ -313,12 +323,45 @@ export const en = {
     passed: 'Passed',
     passedPlural: 'Passed',
     passedShort: 'P',
+    progress: {
+      credits: '{credits} credits',
+      degree3: '3-year degree',
+      degree3Short: '3 yr',
+      degree4: '4-year degree',
+      degree4Short: '4 yr',
+      details: 'Details',
+      label: 'Your progress',
+      levelMeter: 'L{level} electives',
+      limitValue: '{credits} of {limit}',
+    },
     reset: 'Reset',
     resetDone: 'All selections were reset.',
     search: 'Search the simulator courses',
+    semesterProgress: '{passed} of {total} credits passed',
     semesterSummary: 'Credits: {listened} enrolled, {passed} passed',
     semesterTitle: 'Semester {semester}',
+    settings: {
+      description:
+        'Your accreditation, study program and credits earned outside the course list.',
+      edit: 'Change the program and extra credits',
+      extras: 'Extra credits',
+      title: 'Your studies',
+    },
+    setup: {
+      choose: 'Choose a program',
+      description:
+        'Choose the accreditation and study program you are enrolled in. You can change them later.',
+      program: 'Study program',
+      start: 'Start',
+      title: 'Set up the simulator',
+    },
     share: 'Share',
+    status: {
+      label: 'Status of {course}',
+      listened: 'Enrolled',
+      none: 'Not taken',
+      passed: 'Passed',
+    },
     statusToggle: '{status}: {course}',
     undo: 'Undo',
     universityList: 'Uni list',

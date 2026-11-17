@@ -45,15 +45,21 @@ export const useSimulatorView = (params: SimulatorViewParams) => {
     ),
   );
 
-  // Hidden filters, counted on the disclosure button.
-  const activeFilterCount = () =>
+  // Filters that only narrow the checklist and the plan, not "What next".
+  const listFilterCount = () =>
+    (search().trim() === '' ? 0 : 1) +
     (typeFilter() === 'all' ? 0 : 1) +
-    tagFilter().size +
-    (params.showOnlyEnabled() ? 1 : 0);
+    tagFilter().size;
+  const clearListFilters = () => {
+    setSearch('');
+    setTypeFilter('all');
+    setTagFilter(new Set<string>());
+  };
 
   return {
-    activeFilterCount,
+    clearListFilters,
     groups,
+    listFilterCount,
     search,
     setSearch,
     setTypeFilter,

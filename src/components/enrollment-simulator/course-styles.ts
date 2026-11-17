@@ -22,3 +22,10 @@ export const getStatusClass = (status: {
     ? 'bg-warning-soft border-l-warning'
     : 'border-l-transparent';
 };
+
+/** A bordered action in the simulator toolbars. */
+export const SIMULATOR_ACTION_CLASS =
+  'inline-flex min-h-9 items-center justify-center gap-1.5 rounded-md border px-2.5 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring sm:px-3';
+
+/** The quiet button style shared by per-course and per-semester actions. */
+export const ROW_ACTION_CLASS = `${SIMULATOR_ACTION_CLASS} bg-card hover:bg-muted min-h-8 text-xs sm:text-xs disabled:cursor-not-allowed disabled:text-muted-foreground disabled:hover:bg-card`;

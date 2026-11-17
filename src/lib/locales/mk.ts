@@ -289,6 +289,11 @@ export const mk = {
       passed:
         'Означи ги достапните задолжителни предмети од семестар {semester} како положени',
     },
+    checklistOnly: {
+      one: '{count} филтер важи само за листата',
+      other: '{count} филтри важат само за листата',
+    },
+    clearChecklistFilters: 'Исчисти ги',
     copyLink: 'Копирај линк со тековната состојба',
     courseType: { all: 'Сите', elective: 'Изборни', required: 'Задолжителни' },
     courseTypeLabel: 'Тип:',
@@ -303,6 +308,11 @@ export const mk = {
     graduated: '🎉 Честитки дипломирање!',
     hpcInfo:
       'Означете ако сте го положиле курсот HPC, кој не е дел од каталогот на предмети. Додава {credits} кредити на вкупниот збир.',
+    locked: {
+      limit: 'Исполнет лимит за изборни L{level}',
+      prerequisites: 'Неисполнети предуслови',
+      project: 'Наместо него: {course}',
+    },
     missing3yr:
       'ℹ️ Имате ≥ 174 кредити, но за 3 годишни студии ви недостасуваат следните задолжителни предмети: {courses}',
     missing4yr:
@@ -315,12 +325,45 @@ export const mk = {
     passed: 'Положен',
     passedPlural: 'Положени',
     passedShort: 'П',
+    progress: {
+      credits: '{credits} кредити',
+      degree3: 'Тригодишни студии',
+      degree3Short: '3 год.',
+      degree4: 'Четиригодишни студии',
+      degree4Short: '4 год.',
+      details: 'Детали',
+      label: 'Вашиот напредок',
+      levelMeter: 'Изборни L{level}',
+      limitValue: '{credits} од {limit}',
+    },
     reset: 'Ресетирај',
     resetDone: 'Сите избори се ресетирани.',
     search: 'Пребарувај предмети во симулаторот',
+    semesterProgress: 'Положени {passed} од {total} кредити',
     semesterSummary: 'Кредити: {listened} слушани, {passed} положени',
     semesterTitle: 'Семестар {semester}',
+    settings: {
+      description:
+        'Акредитацијата, студиската програма и кредитите добиени надвор од листата на предмети.',
+      edit: 'Промени ја програмата и дополнителните кредити',
+      extras: 'Дополнителни кредити',
+      title: 'Вашите студии',
+    },
+    setup: {
+      choose: 'Изберете програма',
+      description:
+        'Изберете ја акредитацијата и студиската програма на која студирате. Можете да ги промените подоцна.',
+      program: 'Студиска програма',
+      start: 'Започни',
+      title: 'Поставете го симулаторот',
+    },
     share: 'Сподели',
+    status: {
+      label: 'Статус на {course}',
+      listened: 'Слушан',
+      none: 'Не',
+      passed: 'Положен',
+    },
     statusToggle: '{status}: {course}',
     undo: 'Врати',
     universityList: 'Уни. листа',

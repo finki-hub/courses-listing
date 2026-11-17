@@ -5,9 +5,11 @@ import {
   normalizeSearchText,
 } from '@/lib/search-normalization';
 import {
+  getExclusiveProjectPair,
   isExclusiveProjectCourse,
   isRequired,
   matchesSeasonFilter,
+  normalizeExclusiveProjectStatuses,
   type SimulatorCourse,
 } from '@/lib/simulator';
 import {
@@ -150,4 +152,48 @@ export const markCourses = (
     };
   }
   return next;
+};
+
+/** Where a course stands: not taken, enrolled in, or passed. */
+export type CourseStatusValue = 'listened' | 'none' | 'passed';
+
+export const COURSE_STATUS_VALUES: readonly CourseStatusValue[] = [
+  'none',
+  'listened',
+  'passed',
+];
+
+export const getCourseStatusValue = (
+  status: CourseStatus | undefined,
+): CourseStatusValue => {
+  if (status?.passed) return 'passed';
+  return status?.listened ? 'listened' : 'none';
+};
+
+const STATUS_VALUES: Record<CourseStatusValue, CourseStatus> = {
+  listened: { listened: true, passed: false },
+  none: { listened: false, passed: false },
+  passed: { listened: true, passed: true },
+};
+
+/**
+ * Sets a course to a status: the status itself, the other project of an
+ * exclusive pair cleared when the course is taken, then the usual
+ * normalization. The course always ends on the chosen value.
+ *
+ * @param statuses - The current statuses
+ * @param name - The course to change
+ * @param target - The status to set
+ * @returns The updated statuses, or the same object when nothing changes
+ */
+export const setCourseStatus = (
+  statuses: Record<string, CourseStatus>,
+  name: string,
+  target: CourseStatusValue,
+): Record<string, CourseStatus> => {
+  if (getCourseStatusValue(statuses[name]) === target) return statuses;
+  const next = { ...statuses, [name]: STATUS_VALUES[target] };
+  const pair = getExclusiveProjectPair(name);
+  if (pair && target !== 'none') next[pair] = STATUS_VALUES.none;
+  return normalizeExclusiveProjectStatuses(next);
 };
