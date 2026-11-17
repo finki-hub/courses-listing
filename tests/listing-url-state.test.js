@@ -83,7 +83,7 @@ test('invalid values fall back to defaults', () => {
   );
   assert.deepEqual(
     parse(
-      'prog=xx&pstate=required&sem=9&credits=06&staff=Nobody&active=yes&offered=0&channel=true&tagmode=none',
+      'prog=xx&pstate=required&sem=9&credits=06&hideinactive=yes&offered=0&channel=true&tagmode=none',
     ),
     DEFAULT_STATE,
   );

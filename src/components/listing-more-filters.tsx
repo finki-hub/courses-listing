@@ -47,12 +47,9 @@ export const ListingMoreFilters = (props: ListingMoreFiltersProps) => {
       { label: t().filters.elective, value: 'elective' },
     ] as const;
 
-  // Filters once the text names a known person, or when it is cleared.
+  // Filters as you type; the list only suggests full names.
   const applyStaff = (value: string) => {
-    const name = value.trim();
-    if (name === '' || props.staff.includes(name)) {
-      props.onUpdate({ staff: name });
-    }
+    props.onUpdate({ staff: value });
   };
 
   return (

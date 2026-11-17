@@ -1,6 +1,6 @@
-import { createEffect, createSignal, on, onCleanup, untrack } from 'solid-js';
+import { createEffect, createSignal, on, onCleanup } from 'solid-js';
 
-import { getAllStaff, getListingPrograms } from '@/lib/course-facts';
+import { getListingPrograms } from '@/lib/course-facts';
 import {
   getDefaultSortDirection,
   SORT_COLUMNS,
@@ -13,22 +13,29 @@ import {
   replaceUrlParams,
   writeListingUrlState,
 } from '@/lib/listing-url-state';
-import { type Accreditation, ALL_TAGS, type CourseRaw } from '@/types/course';
+import { type Accreditation, ALL_TAGS } from '@/types/course';
 
 const SEARCH_URL_DELAY_MS = 300;
 
 // Listing filters and sort, restored from and mirrored to the URL.
-export const useListingState = (courses: () => CourseRaw[]) => {
+export const useListingState = () => {
   const {
     sortColumn: initialSortColumn,
     sortDirection: initialDirection,
-    ...initialFilters
+    ...parsedFilters
   } = parseListingUrlState(new URL(location.href).searchParams, {
     programs: getListingPrograms(null),
     sortColumns: SORT_COLUMNS,
-    staff: getAllStaff(untrack(courses)),
     tags: ALL_TAGS,
   });
+  // A linked program must belong to the linked accreditation.
+  const initialFilters: ListingFilters =
+    parsedFilters.program === null ||
+    getListingPrograms(parsedFilters.accreditation).includes(
+      parsedFilters.program,
+    )
+      ? parsedFilters
+      : { ...parsedFilters, program: null, programState: null };
   const [filters, setFilters] = createSignal<ListingFilters>(initialFilters);
   const [sortColumn, setSortColumn] =
     createSignal<SortColumn>(initialSortColumn);

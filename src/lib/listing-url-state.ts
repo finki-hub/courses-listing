@@ -24,7 +24,7 @@ const PROGRAM_STATE_PARAM = 'pstate';
 const SEMESTER_PARAM = 'sem';
 const CREDITS_PARAM = 'credits';
 const STAFF_PARAM = 'staff';
-const HIDE_INACTIVE_PARAM = 'active';
+const HIDE_INACTIVE_PARAM = 'hideinactive';
 const OFFERED_PARAM = 'offered';
 const CHANNEL_PARAM = 'channel';
 const SORT_PARAM = 'sort';
@@ -79,8 +79,6 @@ export type ListingFilters = {
 export type ListingUrlOptions = {
   readonly programs: readonly string[];
   readonly sortColumns: readonly SortColumn[];
-  /** Known staff names; without it any name is accepted. */
-  readonly staff?: readonly string[];
   readonly tags: readonly string[];
 };
 
@@ -148,13 +146,8 @@ const parseTags = (value: null | string, tags: readonly string[]): string[] => {
   return tags.filter((tag) => requested.has(tag));
 };
 
-const parseStaff = (
-  value: null | string,
-  staff: readonly string[] | undefined,
-): string => {
-  const name = value?.trim() ?? '';
-  return staff === undefined || staff.includes(name) ? name : '';
-};
+// Any text: the staff filter matches parts of names, like search.
+const parseStaff = (value: null | string): string => value?.trim() ?? '';
 
 const parseProgram = (
   value: null | string,
@@ -184,7 +177,7 @@ export const parseListingUrlState = (
     semester: parseBoundedInteger(params.get(SEMESTER_PARAM), MAX_SEMESTER),
     sortColumn: parseSortColumn(params.get(SORT_PARAM), options.sortColumns),
     sortDirection: parseSortDirection(params.get(DIRECTION_PARAM)),
-    staff: parseStaff(params.get(STAFF_PARAM), options.staff),
+    staff: parseStaff(params.get(STAFF_PARAM)),
     tagMode: params.get(TAG_MODE_PARAM) === 'all' ? 'all' : 'any',
     tags: parseTags(params.get(TAGS_PARAM), options.tags),
   };

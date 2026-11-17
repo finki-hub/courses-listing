@@ -12,6 +12,8 @@ import { capture } from '../lib/analytics-client.ts';
 type SearchContext = {
   accreditation: Accreditation | null;
   level: CourseLevelFilter;
+  /** Any further filters, serialized; only compared locally, never sent. */
+  otherFilters?: string;
   query: string;
   resultCount: number;
   season: SeasonFilter;

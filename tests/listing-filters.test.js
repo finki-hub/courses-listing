@@ -111,6 +111,7 @@ test('status filters hide inactive, unoffered and channel-less courses', () => {
   assert.deepEqual(filter({ offeredOnly: true }), ['Winter', 'Summer']);
   assert.deepEqual(filter({ channelOnly: true }), ['Winter']);
   assert.deepEqual(filter({ staff: 'Ана Тодоровска' }), ['Summer']);
+  assert.deepEqual(filter({ staff: 'todorov' }), ['Summer']);
 });
 
 test('tags match any or all of the selected ones', () => {

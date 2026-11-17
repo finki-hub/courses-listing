@@ -115,7 +115,10 @@ const matchesAccreditation = (
 
   return (
     (level === null || info.level === String(level)) &&
-    (season === null || (season === 'winter') === (semester % 2 === 1)) &&
+    // An unknown semester (NaN) belongs to neither season.
+    (season === null ||
+      (!Number.isNaN(semester) &&
+        (season === 'winter') === (semester % 2 === 1))) &&
     (wantedSemester === null || semester === wantedSemester) &&
     (credits === null || getCourseCredits(course, accreditation) === credits) &&
     (program === null ||
@@ -154,6 +157,15 @@ const matchesTags = (
     : selected.some((tag) => courseTags.includes(tag));
 };
 
+// Staff match like search: any part of a name, in Cyrillic or Latin.
+const matchesStaff = (course: CourseRaw, staff: string): boolean => {
+  const term = normalizeSearchText(staff);
+  return (
+    term === '' ||
+    getCourseStaff(course).some((name) => matchesNormalizedTerm(name, term))
+  );
+};
+
 const matchesCourseFacts = (
   course: CourseRaw,
   criteria: CourseFilterCriteria,
@@ -164,7 +176,7 @@ const matchesCourseFacts = (
     getCurrentEnrollment(course, criteria.enrollmentYears ?? {}) === 0
   ) &&
   (criteria.channelOnly !== true || hasChannel(course)) &&
-  (!criteria.staff || getCourseStaff(course).includes(criteria.staff));
+  matchesStaff(course, criteria.staff ?? '');
 
 // The values that identify a course: its names, abbreviation and codes.
 export const getCourseIdentityFields = (course: CourseRaw): string[] =>

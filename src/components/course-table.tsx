@@ -37,7 +37,7 @@ type CourseTableProps = {
 export const CourseTable = (props: CourseTableProps) => {
   const { language } = useLanguage();
 
-  const listing = useListingState(() => props.courses);
+  const listing = useListingState();
   const { filters, sortColumn, sortDirection, toggleSort } = listing;
   const courseDialog = useLinkedCourseDialog(() => props.courses);
 
@@ -79,6 +79,17 @@ export const CourseTable = (props: CourseTableProps) => {
   const searchLinkage = useCourseSearchAnalytics(() => ({
     accreditation: filters().accreditation,
     level: filters().level,
+    otherFilters: JSON.stringify([
+      filters().program,
+      filters().programState,
+      filters().semester,
+      filters().credits,
+      filters().staff,
+      filters().hideInactive,
+      filters().offeredOnly,
+      filters().channelOnly,
+      filters().tagMode,
+    ]),
     query: filters().query,
     resultCount: filteredCourses().length,
     season: filters().season,
