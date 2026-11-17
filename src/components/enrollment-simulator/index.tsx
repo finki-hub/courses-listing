@@ -62,10 +62,11 @@ export const EnrollmentSimulator = (props: EnrollmentSimulatorProps) => {
       fallback={
         <SimulatorSetup
           accreditation={sim.accreditation()}
-          onStart={sim.completeSetup}
+          onStart={(program) => {
+            sim.setProgram(program);
+            sim.completeSetup();
+          }}
           onSwitchAccreditation={sim.switchAccreditation}
-          onSwitchProgram={sim.setProgram}
-          program={sim.program()}
         />
       }
       when={!sim.setupPending()}
@@ -101,8 +102,15 @@ export const EnrollmentSimulator = (props: EnrollmentSimulatorProps) => {
         />
 
         <SimulatorFilters
+          checklistOnlyCount={
+            sim.view.listFilterCount() + (sim.showOnlyEnabled() ? 1 : 0)
+          }
           courseFilters={sim.mode() !== 'next'}
           level={sim.levelFilter()}
+          onClearChecklistFilters={() => {
+            sim.view.clearListFilters();
+            sim.setShowOnlyEnabled(false);
+          }}
           onSearch={sim.view.setSearch}
           onSetLevel={sim.setLevelFilter}
           onSetSeason={sim.setSeasonFilter}

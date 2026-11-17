@@ -287,6 +287,11 @@ export const en = {
       passed:
         'Mark the available required courses of semester {semester} as passed',
     },
+    checklistOnly: {
+      one: '{count} filter applies to the checklist only',
+      other: '{count} filters apply to the checklist only',
+    },
+    clearChecklistFilters: 'Clear them',
     copyLink: 'Copy a link to the current state',
     courseType: { all: 'All', elective: 'Elective', required: 'Required' },
     courseTypeLabel: 'Type:',
@@ -343,6 +348,7 @@ export const en = {
       title: 'Your studies',
     },
     setup: {
+      choose: 'Choose a program',
       description:
         'Choose the accreditation and study program you are enrolled in. You can change them later.',
       program: 'Study program',

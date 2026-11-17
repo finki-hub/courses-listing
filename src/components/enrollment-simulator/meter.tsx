@@ -1,5 +1,6 @@
 import { For } from 'solid-js';
 
+import { toPercent } from '@/lib/simulator-setup';
 import { cn } from '@/lib/utils';
 
 export type MeterMarker = {
@@ -23,10 +24,7 @@ type MeterProps = {
 // A horizontal bar for credits against a target. The fill is the only
 // colored part, so the number it stands for stays the thing to read.
 export const Meter = (props: MeterProps) => {
-  const percent = () =>
-    props.max <= 0
-      ? 0
-      : Math.min(100, Math.max(0, (props.value / props.max) * 100));
+  const percent = () => toPercent(props.value, props.max);
   const over = () => props.overflow === true && props.value > props.max;
 
   return (

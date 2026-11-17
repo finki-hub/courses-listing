@@ -285,6 +285,11 @@ export const tr = {
       passed:
         '{semester}. yarıyılın alınabilir zorunlu derslerini geçildi olarak işaretle',
     },
+    checklistOnly: {
+      one: '{count} filtre yalnızca listeye uygulanır',
+      other: '{count} filtre yalnızca listeye uygulanır',
+    },
+    clearChecklistFilters: 'Temizle',
     copyLink: 'Mevcut duruma ait bağlantıyı kopyala',
     courseType: { all: 'Tümü', elective: 'Seçmeli', required: 'Zorunlu' },
     courseTypeLabel: 'Tür:',
@@ -341,6 +346,7 @@ export const tr = {
       title: 'Öğreniminiz',
     },
     setup: {
+      choose: 'Bir program seçin',
       description:
         'Kayıtlı olduğunuz akreditasyonu ve öğrenim programını seçin. Daha sonra değiştirebilirsiniz.',
       program: 'Öğrenim programı',

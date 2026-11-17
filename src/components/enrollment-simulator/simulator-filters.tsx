@@ -8,7 +8,7 @@ import { LabeledCheckbox } from '@/components/ui/labeled-checkbox';
 import { SearchInput } from '@/components/ui/search-input';
 import { SegmentedControl } from '@/components/ui/segmented-control';
 import { Sheet } from '@/components/ui/sheet';
-import { interpolate } from '@/lib/i18n';
+import { formatCount, interpolate } from '@/lib/i18n';
 import { useLanguage } from '@/lib/LanguageProvider';
 import { LEVEL_CREDIT_LIMITS } from '@/lib/simulator';
 import {
@@ -22,9 +22,12 @@ import {
 } from '@/types/course';
 
 type SimulatorFiltersProps = {
+  /** Active filters that only apply to the checklist and the plan. */
+  checklistOnlyCount: number;
   /** "What next" only narrows by semester and level. */
   courseFilters: boolean;
   level: LevelValue;
+  onClearChecklistFilters: () => void;
   onSearch: (value: string) => void;
   onSetLevel: (level: LevelValue) => void;
   onSetSeason: (season: SeasonFilter) => void;
@@ -58,7 +61,7 @@ const FilterCount = (props: { class: string; count: number }) => (
 // and type sit inline next to the search and the panel holds the rest; on
 // phones everything but the search moves into the panel.
 export const SimulatorFilters = (props: SimulatorFiltersProps) => {
-  const { t } = useLanguage();
+  const { language, t } = useLanguage();
   const [open, setOpen] = createSignal(false);
 
   const levelInfo = () =>
@@ -167,6 +170,24 @@ export const SimulatorFilters = (props: SimulatorFiltersProps) => {
           count={panelCount()}
         />
       </button>
+
+      <Show when={!props.courseFilters && props.checklistOnlyCount > 0}>
+        <p class="text-muted-foreground flex w-full flex-wrap items-center gap-x-2 text-xs">
+          {formatCount(t().simulator.checklistOnly, {
+            count: props.checklistOnlyCount,
+            language: language(),
+          })}
+          <button
+            class="text-foreground hover:bg-muted focus-visible:ring-ring rounded px-1 font-medium underline underline-offset-2 focus-visible:ring-2 focus-visible:outline-none"
+            onClick={() => {
+              props.onClearChecklistFilters();
+            }}
+            type="button"
+          >
+            {t().simulator.clearChecklistFilters}
+          </button>
+        </p>
+      </Show>
 
       <Sheet
         onOpenChange={setOpen}

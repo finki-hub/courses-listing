@@ -4,7 +4,7 @@ import { Show } from 'solid-js';
 import { InfoTip } from '@/components/ui/info-tip';
 import { SegmentedControl } from '@/components/ui/segmented-control';
 import { StatusBadge } from '@/components/ui/status-badge';
-import { interpolate } from '@/lib/i18n';
+import { interpolate, type Translations } from '@/lib/i18n';
 import { useLanguage } from '@/lib/LanguageProvider';
 import { getProgramStateKind, type SimulatorCourse } from '@/lib/simulator';
 import {
@@ -14,6 +14,15 @@ import {
 import { cn } from '@/lib/utils';
 
 import { getStatusClass, PROGRAM_STATE_TONES } from './course-styles';
+
+const SHORT_STATUS_LABELS: Record<
+  CourseStatusValue,
+  (t: Translations) => string
+> = {
+  listened: (t) => t.simulator.attendedShort,
+  none: () => '–',
+  passed: (t) => t.simulator.passedShort,
+};
 
 export type CourseStatusRowProps = {
   atLimit: boolean;
@@ -41,6 +50,16 @@ export const CourseStatusRow = (props: CourseStatusRowProps) => {
           course: props.exclusiveBlocker,
         });
 
+  const statusLabel = () =>
+    interpolate(t().simulator.status.label, { course: props.course.name });
+  // Phones get one-letter options on the course's own line; the full label
+  // is the option's accessible name and tooltip.
+  const shortStatusItems = () =>
+    COURSE_STATUS_VALUES.map((value) => ({
+      description: t().simulator.status[value],
+      label: SHORT_STATUS_LABELS[value](t()),
+      value,
+    }));
   const statusItems = () =>
     COURSE_STATUS_VALUES.map((value) => ({
       label: t().simulator.status[value],
@@ -50,7 +69,7 @@ export const CourseStatusRow = (props: CourseStatusRowProps) => {
   return (
     <li
       class={cn(
-        'grid gap-x-4 gap-y-2 border-l-[3px] px-3 py-2.5 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center sm:px-4',
+        'grid grid-cols-[minmax(0,1fr)_auto] items-center gap-x-3 gap-y-2 border-l-[3px] px-3 py-2 sm:gap-x-4 sm:px-4 sm:py-2.5',
         getStatusClass({
           atLimit: props.atLimit,
           listened: props.status !== 'none',
@@ -96,7 +115,7 @@ export const CourseStatusRow = (props: CourseStatusRowProps) => {
 
       <Show
         fallback={
-          <p class="text-locked inline-flex items-center gap-1.5 text-xs font-medium sm:justify-end">
+          <p class="text-locked flex max-w-36 items-center justify-end gap-1.5 text-right text-xs font-medium sm:max-w-none">
             <Lock
               aria-hidden="true"
               class="h-3.5 w-3.5 shrink-0"
@@ -107,10 +126,16 @@ export const CourseStatusRow = (props: CourseStatusRowProps) => {
         when={!locked()}
       >
         <SegmentedControl
-          aria-label={interpolate(t().simulator.status.label, {
-            course: props.course.name,
-          })}
-          class="w-full sm:w-auto"
+          aria-label={statusLabel()}
+          class="sm:hidden"
+          items={shortStatusItems()}
+          onSelect={props.onSetStatus}
+          size="sm"
+          value={props.status}
+        />
+        <SegmentedControl
+          aria-label={statusLabel()}
+          class="hidden sm:inline-flex"
           items={statusItems()}
           onSelect={props.onSetStatus}
           size="sm"

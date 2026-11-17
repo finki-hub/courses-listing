@@ -114,6 +114,15 @@ const EXCLUSIVE_PROJECT_PAIRS: Record<string, string> = {
 export const isExclusiveProjectCourse = (name: string): boolean =>
   Object.hasOwn(EXCLUSIVE_PROJECT_PAIRS, name);
 
+/**
+ * The other project of a mutually exclusive pair, if the course is one.
+ *
+ * @param name - The course name
+ * @returns The paired project, or undefined for any other course
+ */
+export const getExclusiveProjectPair = (name: string): string | undefined =>
+  EXCLUSIVE_PROJECT_PAIRS[name];
+
 export const getExclusiveProjectBlocker = (
   statuses: Record<string, CourseStatus>,
   name: string,

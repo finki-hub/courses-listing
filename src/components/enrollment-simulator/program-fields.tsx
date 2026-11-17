@@ -14,7 +14,9 @@ type ProgramFieldsProps = {
   accreditation: Accreditation;
   onSwitchAccreditation: (accreditation: Accreditation) => void;
   onSwitchProgram: (program: string) => void;
-  program: string;
+  /** Shown while no program is chosen yet, as in the first setup. */
+  placeholder?: string;
+  program: null | string;
 };
 
 /**
@@ -69,8 +71,11 @@ export const ProgramFields = (props: ProgramFieldsProps) => {
           {t().simulator.setup.program}
         </label>
         <Select
+          emptyLabel={props.placeholder}
           id={programId}
-          onChange={props.onSwitchProgram}
+          onChange={(value) => {
+            if (value !== '') props.onSwitchProgram(value);
+          }}
           options={options()}
           value={props.program}
         />

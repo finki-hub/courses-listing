@@ -1,5 +1,5 @@
 import { Check, Link2, LoaderCircle, TriangleAlert } from 'lucide-solid';
-import { createSignal, Match, Switch } from 'solid-js';
+import { createSignal, Match, onCleanup, Switch } from 'solid-js';
 
 import { useLanguage } from '@/lib/LanguageProvider';
 import { cn } from '@/lib/utils';
@@ -22,6 +22,10 @@ export const ShareButton = (props: { onShare: () => Promise<boolean> }) => {
   const { t } = useLanguage();
 
   const [state, setState] = createSignal<ShareState>('idle');
+  let resetTimer: ReturnType<typeof setTimeout> | undefined;
+  onCleanup(() => {
+    clearTimeout(resetTimer);
+  });
 
   const handle = async () => {
     if (state() !== 'idle') return;
@@ -32,7 +36,7 @@ export const ShareButton = (props: { onShare: () => Promise<boolean> }) => {
     } catch {
       setState('error');
     }
-    setTimeout(() => {
+    resetTimer = setTimeout(() => {
       setState('idle');
     }, STATUS_RESET_DELAY_MS);
   };

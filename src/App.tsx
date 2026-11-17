@@ -13,6 +13,7 @@ import {
   For,
   type JSX,
   Match,
+  onCleanup,
   Switch,
 } from 'solid-js';
 import { Dynamic } from 'solid-js/web';
@@ -74,6 +75,22 @@ const getInitialPage = (): Page => {
   if (linksListing) return 'listing';
   const storedPage = localStorage.getItem('active-page') ?? '';
   return isPage(storedPage) ? storedPage : 'listing';
+};
+
+// Publishes the sticky tab bar's height as --tabbar-h, so content that sticks
+// below it (such as the simulator's progress header) can sit right under it.
+const trackTabBarHeight = (element: HTMLElement) => {
+  const update = () => {
+    document.documentElement.style.setProperty(
+      '--tabbar-h',
+      `${String(element.getBoundingClientRect().height)}px`,
+    );
+  };
+  const observer = new ResizeObserver(update);
+  observer.observe(element);
+  onCleanup(() => {
+    observer.disconnect();
+  });
 };
 
 const App = () => {
@@ -176,6 +193,8 @@ const App = () => {
       <nav
         aria-label={t().nav.label}
         class="bg-background/90 supports-[backdrop-filter]:bg-background/75 sticky top-0 z-40 border-b backdrop-blur"
+        data-app-tabbar
+        ref={trackTabBarHeight}
       >
         <div class="container mx-auto grid grid-cols-4 sm:flex sm:gap-1">
           <For each={tabs()}>

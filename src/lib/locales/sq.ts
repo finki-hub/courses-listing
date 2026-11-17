@@ -291,6 +291,11 @@ export const sq = {
       passed:
         'Shëno lëndët e detyrueshme të disponueshme të semestrit {semester} si të kaluara',
     },
+    checklistOnly: {
+      one: '{count} filtër vlen vetëm për listën',
+      other: '{count} filtra vlejnë vetëm për listën',
+    },
+    clearChecklistFilters: 'Pastroji',
     copyLink: 'Kopjo lidhjen me gjendjen aktuale',
     courseType: {
       all: 'Të gjitha',
@@ -351,6 +356,7 @@ export const sq = {
       title: 'Studimet tuaja',
     },
     setup: {
+      choose: 'Zgjidhni një program',
       description:
         'Zgjidhni akreditimin dhe programin e studimit ku jeni regjistruar. Mund t’i ndryshoni më vonë.',
       program: 'Programi i studimit',

@@ -1,12 +1,5 @@
 import { ChevronDown, RotateCcw } from 'lucide-solid';
-import {
-  createSignal,
-  createUniqueId,
-  For,
-  type JSX,
-  onCleanup,
-  onMount,
-} from 'solid-js';
+import { createSignal, createUniqueId, For, type JSX } from 'solid-js';
 
 import { interpolate } from '@/lib/i18n';
 import { useLanguage } from '@/lib/LanguageProvider';
@@ -30,29 +23,11 @@ type ProgressHeaderProps = {
   settings: JSX.Element;
 };
 
-// Keeps the header just under the app's sticky tab bar, whatever its height.
-const useStickyOffset = () => {
-  const [offset, setOffset] = createSignal(0);
-  onMount(() => {
-    const nav = document.querySelector('nav');
-    if (!nav) return;
-    const update = () => setOffset(nav.getBoundingClientRect().height);
-    update();
-    const observer = new ResizeObserver(update);
-    observer.observe(nav);
-    onCleanup(() => {
-      observer.disconnect();
-    });
-  });
-  return offset;
-};
-
 // The student's standing at a glance, kept in view while scrolling: credits
 // toward both degrees, enrolled and passed counts and the elective limits.
 // On phones the counts and limits fold behind "Details".
 export const ProgressHeader = (props: ProgressHeaderProps) => {
   const { t } = useLanguage();
-  const offset = useStickyOffset();
   const [expanded, setExpanded] = createSignal(false);
   const detailsId = createUniqueId();
 
@@ -66,8 +41,7 @@ export const ProgressHeader = (props: ProgressHeaderProps) => {
   return (
     <section
       aria-label={t().simulator.progress.label}
-      class="bg-card sticky z-30 space-y-3 rounded-xl border p-3 shadow-md sm:px-4"
-      style={{ top: `${String(offset() + 4)}px` }}
+      class="bg-card sticky top-[calc(var(--tabbar-h,0px)+4px)] z-30 space-y-3 rounded-xl border p-3 shadow-md sm:px-4"
     >
       <div class="flex flex-wrap items-center gap-x-4 gap-y-3">
         <div class="min-w-0 flex-1 lg:max-w-sm lg:flex-none">

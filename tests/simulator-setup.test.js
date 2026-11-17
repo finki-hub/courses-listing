@@ -4,49 +4,50 @@ import { test } from 'node:test';
 import './alias-hooks.js';
 import { ELECTIVE, makeCourse } from './support/simulator-fixtures.js';
 
-const { getSimulatorProgress, needsSimulatorSetup, STORAGE_KEY_SETUP } =
-  await import('../src/lib/simulator-setup.ts');
+const {
+  getSimulatorProgress,
+  needsSimulatorSetup,
+  STORAGE_KEY_SETUP,
+  toPercent,
+} = await import('../src/lib/simulator-setup.ts');
 const { getCourseStatusValue, setCourseStatus } =
   await import('../src/lib/simulator-view.ts');
 const { getElectiveCreditsPerLevel } = await import('../src/lib/simulator.ts');
 
 const storage = (entries) => (key) => entries[key] ?? null;
 
-test('setup is asked for only on a first visit without a shared link', () => {
+const visit = (entries, overrides = {}) =>
+  needsSimulatorSetup({
+    hasShareLink: false,
+    read: storage(entries),
+    storageAvailable: true,
+    ...overrides,
+  });
+
+test('setup is asked for only on a first visit', () => {
+  assert.equal(visit({}), true);
+  assert.equal(visit({ 'enrollment-2023': '{}' }), true);
+  assert.equal(visit({ 'enrollment-program': 'kn' }), true);
+  assert.equal(visit({}, { hasShareLink: true }), false);
+  assert.equal(visit({}, { storageAvailable: false }), false);
+  assert.equal(visit({ [STORAGE_KEY_SETUP]: 'true' }), false);
   assert.equal(
-    needsSimulatorSetup({ hasShareLink: false, read: storage({}) }),
-    true,
-  );
-  assert.equal(
-    needsSimulatorSetup({ hasShareLink: true, read: storage({}) }),
+    visit({ 'enrollment-2018': '{"А":{"listened":true,"passed":false}}' }),
     false,
   );
-  for (const key of [
-    STORAGE_KEY_SETUP,
-    'enrollment-program',
-    'enrollment-2023',
-  ]) {
-    assert.equal(
-      needsSimulatorSetup({
-        hasShareLink: false,
-        read: storage({ [key]: '1' }),
-      }),
-      false,
-      key,
-    );
-  }
 });
 
 test('progress places credits and the 3-year total on the 4-year bar', () => {
   const progress = getSimulatorProgress(117, { 1: 6, 2: 12 });
   assert.equal(progress.credits, 117);
-  assert.equal(progress.percent, 50);
+  assert.equal(toPercent(117, 234), 50);
   assert.equal(Math.round(progress.threeYearMark), 74);
   assert.deepEqual(progress.levels, [
     { credits: 6, level: 1, limit: 6 },
     { credits: 12, level: 2, limit: 36 },
   ]);
-  assert.equal(getSimulatorProgress(400, {}).percent, 100);
+  assert.equal(toPercent(400, 234), 100);
+  assert.equal(toPercent(5, 0), 0);
   assert.equal(getSimulatorProgress(0, {}).levels[1].credits, 0);
 });
 
@@ -91,4 +92,21 @@ test('choosing one project clears the other', () => {
   );
   assert.equal(getCourseStatusValue(statuses[individual]), 'listened');
   assert.equal(getCourseStatusValue(statuses[team]), 'none');
+});
+
+test('a status is set directly and ends on the chosen value', () => {
+  const passed = { X: { listened: true, passed: true } };
+  assert.deepEqual(setCourseStatus(passed, 'X', 'none').X, {
+    listened: false,
+    passed: false,
+  });
+  const team = 'Тимски проект';
+  const individual = 'Самостоен проект';
+  const both = setCourseStatus(
+    { [team]: { listened: true, passed: true } },
+    individual,
+    'passed',
+  );
+  assert.equal(getCourseStatusValue(both[individual]), 'passed');
+  assert.equal(getCourseStatusValue(both[team]), 'none');
 });

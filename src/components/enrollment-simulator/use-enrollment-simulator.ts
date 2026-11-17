@@ -1,6 +1,10 @@
 import { createMemo, createSignal } from 'solid-js';
 
-import { readBrowserStorage, writeBrowserStorage } from '@/lib/safe-storage';
+import {
+  isBrowserStorageAvailable,
+  readBrowserStorage,
+  writeBrowserStorage,
+} from '@/lib/safe-storage';
 import {
   DEFAULT_PROGRAM,
   getElectiveCreditsPerLevel,
@@ -38,6 +42,7 @@ export const useEnrollmentSimulator = (courses: () => CourseRaw[]) => {
     needsSimulatorSetup({
       hasShareLink: readSimulatorShareState() !== undefined,
       read: readBrowserStorage,
+      storageAvailable: isBrowserStorageAvailable(),
     }),
   );
   const completeSetup = () => {

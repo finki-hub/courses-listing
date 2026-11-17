@@ -5,12 +5,12 @@ import {
   normalizeSearchText,
 } from '@/lib/search-normalization';
 import {
+  getExclusiveProjectPair,
   isExclusiveProjectCourse,
   isRequired,
   matchesSeasonFilter,
+  normalizeExclusiveProjectStatuses,
   type SimulatorCourse,
-  toggleListenedStatus,
-  togglePassedStatus,
 } from '@/lib/simulator';
 import {
   type CourseLevelFilter,
@@ -170,27 +170,30 @@ export const getCourseStatusValue = (
   return status?.listened ? 'listened' : 'none';
 };
 
+const STATUS_VALUES: Record<CourseStatusValue, CourseStatus> = {
+  listened: { listened: true, passed: false },
+  none: { listened: false, passed: false },
+  passed: { listened: true, passed: true },
+};
+
 /**
- * Moves a course to a status through the existing toggles, so the exclusive
- * project pair and the passed-implies-enrolled rule keep applying.
+ * Sets a course to a status: the status itself, the other project of an
+ * exclusive pair cleared when the course is taken, then the usual
+ * normalization. The course always ends on the chosen value.
  *
  * @param statuses - The current statuses
  * @param name - The course to change
- * @param target - The status to reach
- * @returns The updated statuses
+ * @param target - The status to set
+ * @returns The updated statuses, or the same object when nothing changes
  */
 export const setCourseStatus = (
   statuses: Record<string, CourseStatus>,
   name: string,
   target: CourseStatusValue,
 ): Record<string, CourseStatus> => {
-  const current = getCourseStatusValue(statuses[name]);
-  if (current === target) return statuses;
-  if (target === 'passed') return togglePassedStatus(statuses, name);
-  if (target === 'listened') {
-    return current === 'passed'
-      ? togglePassedStatus(statuses, name)
-      : toggleListenedStatus(statuses, name);
-  }
-  return toggleListenedStatus(statuses, name);
+  if (getCourseStatusValue(statuses[name]) === target) return statuses;
+  const next = { ...statuses, [name]: STATUS_VALUES[target] };
+  const pair = getExclusiveProjectPair(name);
+  if (pair && target !== 'none') next[pair] = STATUS_VALUES.none;
+  return normalizeExclusiveProjectStatuses(next);
 };
