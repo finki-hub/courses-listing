@@ -1,5 +1,4 @@
 import { ButtonGroup } from '@/components/ui/button-group';
-import { useLanguage } from '@/lib/LanguageProvider';
 import {
   COURSE_LEVELS,
   type CourseLevelFilter as CourseLevelFilterValue,
@@ -16,17 +15,14 @@ type CourseLevelFilterProps = {
   readonly value: CourseLevelFilterValue;
 };
 
-export const CourseLevelFilter = (props: CourseLevelFilterProps) => {
-  const { t } = useLanguage();
-  return (
-    <ButtonGroup
-      aria-label={t().common.courseLevel}
-      class={`w-full sm:w-auto ${props.class ?? ''}`}
-      items={LEVEL_ITEMS}
-      onSelect={(level) => {
-        props.onSelect(props.value === level ? null : level);
-      }}
-      value={props.value ?? undefined}
-    />
-  );
-};
+// Labelled by the surrounding FilterGroup.
+export const CourseLevelFilter = (props: CourseLevelFilterProps) => (
+  <ButtonGroup
+    class={`w-full sm:w-auto ${props.class ?? ''}`}
+    items={LEVEL_ITEMS}
+    onSelect={(level) => {
+      props.onSelect(props.value === level ? null : level);
+    }}
+    value={props.value ?? undefined}
+  />
+);
