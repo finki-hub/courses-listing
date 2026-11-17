@@ -45,6 +45,17 @@ export const getCourseSemester = (
   return Number.isNaN(semester) ? undefined : semester;
 };
 
+// The code of the accreditation a course is shown by.
+export const getCourseCode = (
+  course: CourseRaw,
+  preferred: Accreditation | null,
+): string | undefined => {
+  const accreditation = getPrimaryAccreditation(course, preferred);
+  return accreditation === undefined
+    ? undefined
+    : getAccreditationInfo(course, accreditation)?.code;
+};
+
 export const getPrimaryCredits = (
   course: CourseRaw,
   preferred: Accreditation | null,

@@ -8,10 +8,7 @@ import {
   type ProgramCourse,
 } from '@/lib/master-programs';
 
-import { SECTION_HEADING_CLASS } from './styles';
-
 type MasterProgramsSectionProps = {
-  credits: number | undefined;
   entries: readonly ProgramCourse[];
   error: boolean;
   loading: boolean;
@@ -42,18 +39,7 @@ export const MasterProgramsSection = (props: MasterProgramsSectionProps) => {
       .join(' · ');
 
   return (
-    <section class="space-y-3 rounded-lg border p-4">
-      <div class="flex flex-wrap items-baseline justify-between gap-2">
-        <h4 class={SECTION_HEADING_CLASS}>{t().masters.programs}</h4>
-        <Show when={props.credits}>
-          {(credits) => (
-            <span class="text-sm tabular-nums">
-              {interpolate(t().listing.creditsValue, { value: credits() })}
-            </span>
-          )}
-        </Show>
-      </div>
-
+    <div class="space-y-3">
       <Show when={props.loading}>
         <p class="text-muted-foreground text-sm">{t().masters.loading}</p>
       </Show>
@@ -107,6 +93,6 @@ export const MasterProgramsSection = (props: MasterProgramsSectionProps) => {
           </div>
         )}
       </For>
-    </section>
+    </div>
   );
 };

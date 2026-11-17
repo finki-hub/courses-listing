@@ -6,6 +6,8 @@ import { useLanguage } from '@/lib/LanguageProvider';
 import { cn } from '@/lib/utils';
 
 type SheetProps = {
+  /** The scrolling body, for callers that reset its scroll position. */
+  bodyRef?: (element: HTMLDivElement) => void;
   children: JSX.Element;
   class?: string;
   description?: string;
@@ -69,7 +71,14 @@ export const Sheet = (props: SheetProps) => {
               />
             </DialogPrimitive.CloseButton>
           </div>
-          <div class="min-h-0 flex-1 overflow-y-auto px-4 py-4 sm:px-5">
+          {/* Focusable so keyboards can scroll a body with no controls. */}
+          <div
+            class="focus-visible:ring-ring min-h-0 flex-1 overflow-y-auto px-4 py-4 focus-visible:ring-2 focus-visible:outline-none focus-visible:ring-inset sm:px-5"
+            ref={(element) => {
+              props.bodyRef?.(element);
+            }}
+            tabIndex={0}
+          >
             {props.children}
           </div>
           <Show when={props.footer}>

@@ -7,7 +7,6 @@ import { useLanguage } from '@/lib/LanguageProvider';
 
 import { EnrollmentHistoryTable } from './enrollment-history-table';
 import { EnrollmentSummary } from './enrollment-summary';
-import { SECTION_HEADING_CLASS } from './styles';
 
 type EnrollmentHistorySectionProps = {
   course: CourseRaw;
@@ -22,7 +21,6 @@ export const EnrollmentHistorySection = (
 
   return (
     <div>
-      <h4 class={`${SECTION_HEADING_CLASS} mb-2`}>{t().enrollment.heading}</h4>
       <Show
         fallback={
           <div class="rounded-lg border border-dashed bg-muted/20 p-4">

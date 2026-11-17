@@ -9,38 +9,53 @@ import {
 import { ALERT_STYLES } from '@/lib/alert-styles';
 import { capture } from '@/lib/analytics-client';
 import {
+  type EnrollmentYears,
   getAllStaff,
+  getCourseCode,
   getCourseSemester,
   getCurrentEnrollment,
   getDistinctCredits,
   getLatestEnrollmentYears,
   getPrimaryCredits,
+  type SeasonResolver,
 } from '@/lib/course-facts';
 import {
   type CourseFilterCriteria,
   filterCourses,
   MASTER_SORT_COLUMNS,
   SORT_COLUMNS,
+  type SortColumn,
   sortCourses,
+  type SortDirection,
 } from '@/lib/course-filters';
 import { useLanguage } from '@/lib/LanguageProvider';
 import {
   clearFilters,
-  hasMoreFilters,
+  countActiveFilters,
   removeFilterChip,
 } from '@/lib/listing-filter-chips';
-import { findPreferredCourseByLinkValue } from '@/lib/listing-url-state';
+import {
+  findPreferredCourseByLinkValue,
+  type ListingFilters,
+} from '@/lib/listing-url-state';
 import { isMasterCourse } from '@/lib/master-programs';
 import { type CourseRaw, getAccLabel } from '@/types/course';
 
+import { ActiveFilterChips } from './active-filter-chips';
 import { CourseDetailDialog } from './course-detail-dialog';
-import { CourseListingControls } from './course-listing-controls';
 import { CourseResults } from './course-results';
 import { type CourseRowFacts } from './course-table-row';
+import { FiltersFrame, NoResults } from './listing-filter-frames';
+import { ListingFilterPanel } from './listing-filter-panel';
+import { ListingToolbar } from './listing-toolbar';
 import { useCourseSearchAnalytics } from './use-course-search-analytics';
 import { useLinkedCourseDialog } from './use-linked-course-dialog';
 import { useListingState } from './use-listing-state';
-import { hasProgramFilters, useMasterListing } from './use-master-listing';
+import {
+  hasProgramFilters,
+  type MasterListing,
+  useMasterListing,
+} from './use-master-listing';
 
 // In place of results that need the master's programs to be filtered.
 const ProgramsPending = (props: { error: boolean }) => {
@@ -83,6 +98,124 @@ const useCycleLinkedCourseDialog = (
   return courseDialog;
 };
 
+type FactsDeps = {
+  readonly enrollmentYears: () => EnrollmentYears;
+  readonly filters: () => ListingFilters;
+  readonly getSeason: () => SeasonResolver | undefined;
+  readonly master: () => boolean;
+  readonly masters: MasterListing;
+  /** The courses shown, against whose most popular one bars are drawn. */
+  readonly shown: () => readonly CourseRaw[];
+};
+
+// What a result row shows beside a course's name.
+const createFactsResolver = (deps: FactsDeps) => {
+  const getStudents = (course: CourseRaw) =>
+    getCurrentEnrollment(course, deps.enrollmentYears(), deps.getSeason());
+  const maxStudents = createMemo(() =>
+    Math.max(1, ...deps.shown().map((course) => getStudents(course))),
+  );
+
+  return (course: CourseRaw): CourseRowFacts => {
+    const students = getStudents(course);
+    const share = students / maxStudents();
+    const { accreditation, program } = deps.filters();
+    return deps.master()
+      ? {
+          credits: deps.masters.getCredits(course, program),
+          label: deps.masters.summary(course),
+          noStudentsAsUnknown: true,
+          semester: undefined,
+          share,
+          students,
+        }
+      : {
+          code: getCourseCode(course, accreditation),
+          credits: getPrimaryCredits(course, accreditation),
+          label: getAccLabel(course),
+          noStudentsAsUnknown: true,
+          semester: getCourseSemester(course, accreditation),
+          share,
+          students,
+        };
+  };
+};
+
+type AnalyticsDeps = {
+  readonly filters: () => ListingFilters;
+  readonly resultCount: () => number;
+  readonly selectedTags: () => ReadonlySet<string>;
+  readonly sortColumn: () => SortColumn;
+  readonly sortDirection: () => SortDirection;
+};
+
+// Search attempts for analytics; filter values only key them locally.
+const useListingSearchAnalytics = (deps: AnalyticsDeps) =>
+  useCourseSearchAnalytics(() => {
+    const filters = deps.filters();
+    return {
+      accreditation: filters.accreditation,
+      level: filters.level,
+      otherFilters: JSON.stringify([
+        filters.cycle,
+        filters.program,
+        filters.programState,
+        filters.semester,
+        filters.credits,
+        filters.staff,
+        filters.hideInactive,
+        filters.offeredOnly,
+        filters.channelOnly,
+        filters.tagMode,
+      ]),
+      query: filters.query,
+      resultCount: deps.resultCount(),
+      season: filters.season,
+      sortColumn: deps.sortColumn(),
+      sortDirection: deps.sortDirection(),
+      tags: deps.selectedTags(),
+    };
+  });
+
+// A linked master's program that the data doesn't know matches nothing.
+const useDropUnknownProgram = (
+  listing: ReturnType<typeof useListingState>,
+  masters: MasterListing,
+  master: () => boolean,
+) => {
+  createEffect(() => {
+    const program = listing.filters().program;
+    if (
+      program !== null &&
+      master() &&
+      masters.loaded() &&
+      !masters.programCodes().includes(program)
+    ) {
+      listing.updateFilters({ program: null, programState: null });
+    }
+  });
+};
+
+// Whether the master's programs are still loading or failed to.
+const MasterStatus = (props: { error: boolean; loading: boolean }) => {
+  const { t } = useLanguage();
+  return (
+    <>
+      <Show when={props.loading}>
+        <p
+          class="text-muted-foreground text-sm"
+          role="status"
+        >
+          {t().masters.loading}
+        </p>
+      </Show>
+      <Show when={props.error}>
+        <div class={ALERT_STYLES.error}>{t().masters.loadError}</div>
+      </Show>
+    </>
+  );
+};
+
 type CourseTableProps = {
   courses: CourseRaw[];
 };
@@ -113,23 +246,11 @@ export const CourseTable = (props: CourseTableProps) => {
   );
   const selectedTags = createMemo(() => new Set(filters().tags));
 
-  // A linked master's program that the data doesn't know matches nothing.
-  createEffect(() => {
-    const program = filters().program;
-    if (
-      program !== null &&
-      master() &&
-      masters.loaded() &&
-      !masters.programCodes().includes(program)
-    ) {
-      listing.updateFilters({ program: null, programState: null });
-    }
-  });
+  useDropUnknownProgram(listing, masters, master);
 
-  // Opens by itself when a link arrives with one of its filters set.
-  const [moreExpanded, setMoreExpanded] = createSignal(
-    hasMoreFilters(untrack(filters)),
-  );
+  // Below the desktop width the filters open in a sheet.
+  const [filtersOpen, setFiltersOpen] = createSignal(false);
+  const activeFilters = () => countActiveFilters(filters());
 
   const filterCriteria = (): CourseFilterCriteria => ({
     ...filters(),
@@ -156,50 +277,22 @@ export const CourseTable = (props: CourseTableProps) => {
     }),
   );
 
-  const getFacts = (course: CourseRaw): CourseRowFacts => {
-    const students = getCurrentEnrollment(
-      course,
-      enrollmentYears(),
-      getSeason(),
-    );
-    return master()
-      ? {
-          credits: masters.getCredits(course, filters().program),
-          label: masters.summary(course),
-          noStudentsAsUnknown: true,
-          semester: undefined,
-          students,
-        }
-      : {
-          credits: getPrimaryCredits(course, filters().accreditation),
-          label: getAccLabel(course),
-          semester: getCourseSemester(course, filters().accreditation),
-          students,
-        };
-  };
+  const getFacts = createFactsResolver({
+    enrollmentYears,
+    filters,
+    getSeason,
+    master,
+    masters,
+    shown: filteredCourses,
+  });
 
-  const searchLinkage = useCourseSearchAnalytics(() => ({
-    accreditation: filters().accreditation,
-    level: filters().level,
-    otherFilters: JSON.stringify([
-      filters().cycle,
-      filters().program,
-      filters().programState,
-      filters().semester,
-      filters().credits,
-      filters().staff,
-      filters().hideInactive,
-      filters().offeredOnly,
-      filters().channelOnly,
-      filters().tagMode,
-    ]),
-    query: filters().query,
-    resultCount: filteredCourses().length,
-    season: filters().season,
-    sortColumn: sortColumn(),
-    sortDirection: sortDirection(),
-    tags: selectedTags(),
-  }));
+  const searchLinkage = useListingSearchAnalytics({
+    filters,
+    resultCount: () => filteredCourses().length,
+    selectedTags,
+    sortColumn,
+    sortDirection,
+  });
   const openDetail = (course: CourseRaw, position: number) => {
     capture('result_clicked', {
       ...searchLinkage(),
@@ -210,58 +303,103 @@ export const CourseTable = (props: CourseTableProps) => {
     courseDialog.openCourse(course);
   };
 
+  const clearAll = () => {
+    listing.setFilters(clearFilters(filters()));
+  };
+
+  const filterPanel = () => (
+    <ListingFilterPanel
+      credits={credits()}
+      filters={filters()}
+      masterPrograms={master() ? masters.programOptions() : undefined}
+      onSwitchAccreditation={listing.switchAccreditation}
+      onToggleTag={listing.toggleTag}
+      onUpdate={listing.updateFilters}
+      staff={staff()}
+    />
+  );
+
   return (
     <div class="space-y-4">
-      <CourseListingControls
-        credits={credits()}
-        filters={filters()}
-        master={
-          master()
-            ? {
-                // The results say it instead while they wait on programs.
-                error: masters.error() && !awaitingPrograms(),
-                loading: masters.loading(),
-                programLabel: (code: string) =>
-                  `${code}: ${masters.programTitle(code)}`,
-                programOptions: masters.programOptions(),
-              }
-            : undefined
-        }
-        moreExpanded={moreExpanded()}
-        onClearFilters={() => {
-          listing.setFilters(clearFilters(filters()));
+      <ListingToolbar
+        activeFilters={activeFilters()}
+        cycle={filters().cycle}
+        onOpenFilters={() => {
+          setFiltersOpen(true);
         }}
-        onMoreExpandedChange={setMoreExpanded}
-        onRemoveChip={(chip) => {
-          listing.setFilters(removeFilterChip(filters(), chip));
+        onSearch={(query) => {
+          listing.updateFilters({ query });
         }}
-        onSwitchAccreditation={listing.switchAccreditation}
         onSwitchCycle={listing.switchCycle}
         onToggleSort={toggleSort}
-        onToggleTag={listing.toggleTag}
-        onUpdate={listing.updateFilters}
-        resultCount={filteredCourses().length}
+        query={filters().query}
         sortColumn={sortColumn()}
         sortColumns={master() ? MASTER_SORT_COLUMNS : SORT_COLUMNS}
         sortDirection={sortDirection()}
-        staff={staff()}
       />
 
-      <Show
-        fallback={<ProgramsPending error={masters.error()} />}
-        when={!awaitingPrograms()}
-      >
-        <CourseResults
-          accreditation={filters().accreditation}
-          courses={filteredCourses()}
-          getFacts={getFacts}
-          master={master()}
-          onOpen={openDetail}
-          onToggleSort={toggleSort}
-          sortColumn={sortColumn()}
-          sortDirection={sortDirection()}
+      <Show when={master()}>
+        <MasterStatus
+          error={masters.error() && !awaitingPrograms()}
+          loading={masters.loading()}
         />
       </Show>
+
+      <div class="lg:grid lg:grid-cols-[16.5rem_minmax(0,1fr)] lg:items-start lg:gap-6">
+        <FiltersFrame
+          activeFilters={activeFilters()}
+          onClear={clearAll}
+          onOpenChange={setFiltersOpen}
+          open={filtersOpen()}
+          resultCount={
+            awaitingPrograms() ? undefined : filteredCourses().length
+          }
+        >
+          {filterPanel()}
+        </FiltersFrame>
+
+        <div class="min-w-0 space-y-3">
+          <ActiveFilterChips
+            filters={filters()}
+            onClear={clearAll}
+            onRemove={(chip) => {
+              listing.setFilters(removeFilterChip(filters(), chip));
+            }}
+            programLabel={
+              master()
+                ? (code: string) => `${code}: ${masters.programTitle(code)}`
+                : undefined
+            }
+            resultCount={filteredCourses().length}
+          />
+
+          <Show
+            fallback={<ProgramsPending error={masters.error()} />}
+            when={!awaitingPrograms()}
+          >
+            <Show
+              fallback={
+                <NoResults
+                  canClear={activeFilters() > 0 || filters().query !== ''}
+                  onClear={clearAll}
+                />
+              }
+              when={filteredCourses().length > 0}
+            >
+              <CourseResults
+                accreditation={filters().accreditation}
+                courses={filteredCourses()}
+                getFacts={getFacts}
+                master={master()}
+                onOpen={openDetail}
+                onToggleSort={toggleSort}
+                sortColumn={sortColumn()}
+                sortDirection={sortDirection()}
+              />
+            </Show>
+          </Show>
+        </div>
+      </div>
 
       <CourseDetailDialog
         accreditation={filters().accreditation}

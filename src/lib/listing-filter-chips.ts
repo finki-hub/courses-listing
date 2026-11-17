@@ -97,12 +97,35 @@ export const clearFilters = (filters: ListingFilters): ListingFilters => ({
   tagMode: filters.tagMode,
 });
 
-// Whether a filter behind the "More filters" disclosure is in use.
-export const hasMoreFilters = (filters: ListingFilters): boolean =>
-  filters.program !== null ||
-  filters.semester !== null ||
-  filters.credits !== null ||
-  filters.staff !== '' ||
-  filters.hideInactive ||
-  filters.offeredOnly ||
-  filters.channelOnly;
+// The groups the filter panel is organized in.
+export type FilterSection =
+  'curriculum' | 'people' | 'program' | 'status' | 'topics';
+
+const CHIP_SECTIONS: Record<FilterChipKind, FilterSection | null> = {
+  accreditation: 'curriculum',
+  channel: 'status',
+  credits: 'curriculum',
+  inactive: 'status',
+  level: 'curriculum',
+  offered: 'status',
+  program: 'program',
+  query: null,
+  season: 'curriculum',
+  semester: 'curriculum',
+  staff: 'people',
+  tag: 'topics',
+};
+
+// The panel sections that hold an active filter, so they start expanded.
+export const getActiveFilterSections = (
+  filters: ListingFilters,
+): Set<FilterSection> =>
+  new Set(
+    getFilterChips(filters)
+      .map((chip) => CHIP_SECTIONS[chip.kind])
+      .filter((section): section is FilterSection => section !== null),
+  );
+
+// Active filters other than the search, as counted on the Filters button.
+export const countActiveFilters = (filters: ListingFilters): number =>
+  getFilterChips(filters).filter((chip) => chip.kind !== 'query').length;
