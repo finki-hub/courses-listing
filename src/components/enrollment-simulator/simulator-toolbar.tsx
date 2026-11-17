@@ -18,12 +18,10 @@ type SimulatorToolbarProps = {
   onShare: () => Promise<boolean>;
   onSwitchAccreditation: (acc: Accreditation) => void;
   onSwitchProgram: (p: string) => void;
-  onToggleFilter: () => void;
   onToggleHpc: () => void;
   onUniListCreditsChange: (credits: number) => void;
   program: string;
   seasonFilter: SeasonFilter;
-  showOnlyEnabled: boolean;
   totalCourses: { enrolled: number; passed: number };
   totalCredits: number;
   uniListCredits: number;
@@ -52,10 +50,8 @@ export const SimulatorToolbar = (props: SimulatorToolbarProps) => (
         hpcCompleted={props.hpcCompleted}
         onReset={props.onReset}
         onShare={props.onShare}
-        onToggleFilter={props.onToggleFilter}
         onToggleHpc={props.onToggleHpc}
         onUniListCreditsChange={props.onUniListCreditsChange}
-        showOnlyEnabled={props.showOnlyEnabled}
         uniListCredits={props.uniListCredits}
       />
     </div>

@@ -206,7 +206,23 @@ export const sq = {
     attended: 'E regjistruar',
     attendedPlural: 'Të regjistruara',
     attendedShort: 'R',
+    bulk: {
+      listened: 'Regjistro të detyrueshmet',
+      passed: 'Kalo të detyrueshmet',
+    },
+    bulkLabel: {
+      listened:
+        'Shëno lëndët e detyrueshme të disponueshme të semestrit {semester} si të regjistruara',
+      passed:
+        'Shëno lëndët e detyrueshme të disponueshme të semestrit {semester} si të kaluara',
+    },
     copyLink: 'Kopjo lidhjen me gjendjen aktuale',
+    courseType: {
+      all: 'Të gjitha',
+      elective: 'Zgjedhore',
+      required: 'Të detyrueshme',
+    },
+    courseTypeLabel: 'Lloji:',
     credits: 'Kredite',
     description:
       'Shënoni lëndët që keni regjistruar ose kaluar. Lëndët me parakushte të paplotësuara janë të çaktivizuara.',
@@ -214,6 +230,7 @@ export const sq = {
       '🎓 I plotësoni kushtet për diplomim në studimet 3-vjeçare (≥ 174 kredite dhe të gjitha lëndët e detyrueshme të kaluara, përveç punimit të diplomës)',
     eligible4yr:
       '🎓 I plotësoni kushtet për diplomim në studimet 4-vjeçare (≥ 234 kredite dhe të gjitha lëndët e detyrueshme të kaluara, përveç punimit të diplomës)',
+    filters: 'Filtrat',
     graduated: '🎉 Urime diplomimin!',
     hpcInfo:
       'Shënojeni nëse e keni kaluar kursin HPC, i cili nuk është në katalogun e lëndëve. Shton {credits} kredite në totalin tuaj.',
@@ -228,10 +245,13 @@ export const sq = {
     passedPlural: 'Të kaluara',
     passedShort: 'K',
     reset: 'Rivendos',
-    resetConfirm:
-      'Jeni të sigurt që dëshironi të rivendosni të gjitha lëndët e zgjedhura?',
+    resetDone: 'Të gjitha zgjedhjet u rivendosën.',
+    search: 'Kërko lëndët e simulatorit',
+    semesterSummary: 'Kredite: {listened} të regjistruara, {passed} të kaluara',
+    semesterTitle: 'Semestri {semester}',
     share: 'Ndaj',
     statusToggle: '{status}: {course}',
+    undo: 'Zhbëj',
     universityList: 'Lista univ.',
     universityListInfo:
       'Kredite nga lëndët e listës universitare të lëndëve zgjedhore të UKIM.\nNuk ka kufi formal për kreditet nga lista universitare.\nNë praktikë, mund të merrni më së shumti 4 lëndë me nga 9 kredite, gjithsej 36 kredite.',

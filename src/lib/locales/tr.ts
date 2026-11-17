@@ -206,7 +206,16 @@ export const tr = {
     attended: 'Kayıtlı',
     attendedPlural: 'Kayıtlı',
     attendedShort: 'K',
+    bulk: { listened: 'Tümü kayıtlı', passed: 'Tümü geçildi' },
+    bulkLabel: {
+      listened:
+        '{semester}. yarıyılın alınabilir zorunlu derslerini kayıtlı olarak işaretle',
+      passed:
+        '{semester}. yarıyılın alınabilir zorunlu derslerini geçildi olarak işaretle',
+    },
     copyLink: 'Mevcut duruma ait bağlantıyı kopyala',
+    courseType: { all: 'Tümü', elective: 'Seçmeli', required: 'Zorunlu' },
+    courseTypeLabel: 'Tür:',
     credits: 'Kredi',
     description:
       'Kayıt yaptırdığınız veya geçtiğiniz dersleri işaretleyin. Ön koşulları sağlanmayan dersler devre dışıdır.',
@@ -214,6 +223,7 @@ export const tr = {
       '🎓 3 yıllık programdan mezuniyet koşullarını sağlıyorsunuz (≥ 174 kredi ve bitirme tezi dışında tüm zorunlu dersler geçilmiş)',
     eligible4yr:
       '🎓 4 yıllık programdan mezuniyet koşullarını sağlıyorsunuz (≥ 234 kredi ve bitirme tezi dışında tüm zorunlu dersler geçilmiş)',
+    filters: 'Filtreler',
     graduated: '🎉 Mezuniyetiniz kutlu olsun!',
     hpcInfo:
       'Ders kataloğunda yer almayan HPC dersini geçtiyseniz işaretleyin. Toplamınıza {credits} kredi ekler.',
@@ -228,10 +238,13 @@ export const tr = {
     passedPlural: 'Geçilen',
     passedShort: 'G',
     reset: 'Sıfırla',
-    resetConfirm:
-      'Seçilen tüm dersleri sıfırlamak istediğinizden emin misiniz?',
+    resetDone: 'Tüm seçimler sıfırlandı.',
+    search: 'Simülatördeki dersleri ara',
+    semesterSummary: 'Kredi: {listened} kayıtlı, {passed} geçilen',
+    semesterTitle: '{semester}. yarıyıl',
     share: 'Paylaş',
     statusToggle: '{status}: {course}',
+    undo: 'Geri al',
     universityList: 'Üniv. listesi',
     universityListInfo:
       'UKIM üniversite geneli seçmeli ders listesindeki derslerden alınan krediler.\nÜniversite listesinden kazanılan krediler için resmî bir üst sınır yoktur.\nUygulamada, her biri 9 kredilik en fazla 4 ders, yani toplam 36 kredi alabilirsiniz.',

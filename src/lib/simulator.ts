@@ -111,6 +111,9 @@ const EXCLUSIVE_PROJECT_PAIRS: Record<string, string> = {
   [TEAM_PROJECT_COURSE_NAME]: INDIVIDUAL_PROJECT_COURSE_NAME,
 };
 
+export const isExclusiveProjectCourse = (name: string): boolean =>
+  Object.hasOwn(EXCLUSIVE_PROJECT_PAIRS, name);
+
 export const getExclusiveProjectBlocker = (
   statuses: Record<string, CourseStatus>,
   name: string,

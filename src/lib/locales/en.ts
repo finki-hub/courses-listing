@@ -206,7 +206,16 @@ export const en = {
     attended: 'Enrolled',
     attendedPlural: 'Enrolled',
     attendedShort: 'E',
+    bulk: { listened: 'All enrolled', passed: 'All passed' },
+    bulkLabel: {
+      listened:
+        'Mark the available required courses of semester {semester} as enrolled',
+      passed:
+        'Mark the available required courses of semester {semester} as passed',
+    },
     copyLink: 'Copy a link to the current state',
+    courseType: { all: 'All', elective: 'Elective', required: 'Required' },
+    courseTypeLabel: 'Type:',
     credits: 'Credits',
     description:
       'Mark the courses you have enrolled in or passed. Courses with unmet prerequisites are disabled.',
@@ -214,6 +223,7 @@ export const en = {
       '🎓 You meet the requirements for a 3-year degree (≥ 174 credits and all required courses passed, except the diploma thesis)',
     eligible4yr:
       '🎓 You meet the requirements for a 4-year degree (≥ 234 credits and all required courses passed, except the diploma thesis)',
+    filters: 'Filters',
     graduated: '🎉 Congratulations on graduating!',
     hpcInfo:
       'Tick this if you passed the HPC course, which is not in the course catalog. It adds {credits} credits to your total.',
@@ -228,9 +238,13 @@ export const en = {
     passedPlural: 'Passed',
     passedShort: 'P',
     reset: 'Reset',
-    resetConfirm: 'Are you sure you want to reset all selected courses?',
+    resetDone: 'All selections were reset.',
+    search: 'Search the simulator courses',
+    semesterSummary: 'Credits: {listened} enrolled, {passed} passed',
+    semesterTitle: 'Semester {semester}',
     share: 'Share',
     statusToggle: '{status}: {course}',
+    undo: 'Undo',
     universityList: 'Uni list',
     universityListInfo:
       'Credits from courses on the UKIM university-wide list of electives.\nThere is no formal limit on credits from the university list.\nIn practice, you can take at most 4 courses worth 9 credits each, totaling 36 credits.',

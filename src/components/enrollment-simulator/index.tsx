@@ -11,6 +11,12 @@ import {
   togglePassedStatus,
 } from '@/lib/simulator';
 import {
+  type BulkStatus,
+  getBulkTargets,
+  markCourses,
+  type SemesterGroup,
+} from '@/lib/simulator-view';
+import {
   type Accreditation,
   type CourseLevelFilter,
   type CourseRaw,
@@ -19,13 +25,16 @@ import {
 } from '@/types/course';
 
 import { CreditLimitWarning, GraduationAlert } from './alerts';
+import { SimulatorFilters } from './simulator-filters';
 import { SimulatorTable } from './simulator-table';
 import { SimulatorToolbar } from './simulator-toolbar';
+import { useUndoableAction } from './undo-notice';
 import { useSimulatorCourses } from './use-simulator-courses';
 import { useSimulatorEffects } from './use-simulator-effects';
 import { getInitialSimulatorState } from './use-simulator-initial-state';
 import { useSimulatorShare } from './use-simulator-share';
 import { useSimulatorState } from './use-simulator-state';
+import { useSimulatorView } from './use-simulator-view';
 
 type EnrollmentSimulatorProps = {
   courses: CourseRaw[];
@@ -64,17 +73,7 @@ export const EnrollmentSimulator = (props: EnrollmentSimulatorProps) => {
     initialState.resolveStatuses(parsedCourses()),
   );
 
-  const {
-    enabledMap,
-    fullLevels,
-    graduationEligibility,
-    graduationInfo,
-    overLimitLevels,
-    overLimitSet,
-    reasonMap,
-    totalCourses,
-    totalCredits,
-  } = useSimulatorState({
+  const state = useSimulatorState({
     courseInfoMap,
     electiveCourses,
     hpcCompleted,
@@ -85,7 +84,7 @@ export const EnrollmentSimulator = (props: EnrollmentSimulatorProps) => {
 
   useSimulatorEffects({
     accreditation,
-    enabledMap,
+    enabledMap: state.enabledMap,
     hpcCompleted,
     parsedCourses,
     program,
@@ -106,6 +105,15 @@ export const EnrollmentSimulator = (props: EnrollmentSimulatorProps) => {
     uniListCredits,
   });
 
+  const view = useSimulatorView({
+    courses: parsedCourses,
+    enabledMap: state.enabledMap,
+    levelFilter,
+    seasonFilter,
+    showOnlyEnabled,
+  });
+  const undoable = useUndoableAction();
+
   const switchAccreditation = (acc: Accreditation) => {
     setAccreditation(acc);
     setProgram(getStudyPrograms(acc)[0] ?? DEFAULT_PROGRAM);
@@ -120,72 +128,99 @@ export const EnrollmentSimulator = (props: EnrollmentSimulatorProps) => {
     setStatuses((prev) => togglePassedStatus(prev, name));
   };
 
+  const bulkMark = (group: SemesterGroup, target: BulkStatus) => {
+    const names = getBulkTargets(
+      group.courses,
+      { enabledMap: state.enabledMap(), statuses: statuses() },
+      target,
+    );
+    setStatuses((prev) => markCourses(prev, names, target));
+  };
+
   const resetStatuses = () => {
-    if (
-      // eslint-disable-next-line no-alert -- Keep the existing reset confirmation.
-      !confirm(t().simulator.resetConfirm)
-    )
-      return;
+    const staticSnapshot = {
+      hpc: hpcCompleted(),
+      statuses: statuses(),
+      uniList: uniListCredits(),
+    };
     setStatuses({});
     setHpcCompleted(false);
     setUniListCredits(0);
+    undoable.offer(() => {
+      setStatuses(staticSnapshot.statuses);
+      setHpcCompleted(staticSnapshot.hpc);
+      setUniListCredits(staticSnapshot.uniList);
+    });
   };
 
   return (
     <div class="space-y-4">
       <p class="text-muted-foreground text-sm">{t().simulator.description}</p>
 
-      <SimulatorToolbar
-        accreditation={accreditation()}
-        hpcCompleted={hpcCompleted()}
-        levelFilter={levelFilter()}
-        onReset={resetStatuses}
-        onSetLevel={setLevelFilter}
-        onSetSeason={setSeasonFilter}
-        onShare={copyShareUrl}
-        onSwitchAccreditation={switchAccreditation}
-        onSwitchProgram={setProgram}
-        onToggleFilter={() => {
-          setShowOnlyEnabled((v) => !v);
-        }}
-        onToggleHpc={() => {
-          setHpcCompleted((v) => !v);
-        }}
-        onUniListCreditsChange={setUniListCredits}
-        program={program()}
-        seasonFilter={seasonFilter()}
-        showOnlyEnabled={showOnlyEnabled()}
-        totalCourses={totalCourses()}
-        totalCredits={totalCredits()}
-        uniListCredits={uniListCredits()}
-      />
+      <div class="space-y-2 sm:space-y-3">
+        <SimulatorToolbar
+          accreditation={accreditation()}
+          hpcCompleted={hpcCompleted()}
+          levelFilter={levelFilter()}
+          onReset={resetStatuses}
+          onSetLevel={setLevelFilter}
+          onSetSeason={setSeasonFilter}
+          onShare={copyShareUrl}
+          onSwitchAccreditation={switchAccreditation}
+          onSwitchProgram={setProgram}
+          onToggleHpc={() => {
+            setHpcCompleted((v) => !v);
+          }}
+          onUniListCreditsChange={setUniListCredits}
+          program={program()}
+          seasonFilter={seasonFilter()}
+          totalCourses={state.totalCourses()}
+          totalCredits={state.totalCredits()}
+          uniListCredits={uniListCredits()}
+        />
+
+        <SimulatorFilters
+          activeFilterCount={view.activeFilterCount()}
+          onReset={resetStatuses}
+          onSearch={view.setSearch}
+          onSetType={view.setTypeFilter}
+          onToggleOnlyEnabled={() => {
+            setShowOnlyEnabled((v) => !v);
+          }}
+          onToggleTag={view.toggleTag}
+          search={view.search()}
+          showOnlyEnabled={showOnlyEnabled()}
+          tags={view.tagFilter()}
+          type={view.typeFilter()}
+        />
+      </div>
+
+      <undoable.Notice message={t().simulator.resetDone} />
 
       <CreditLimitWarning
         levelLimits={LEVEL_CREDIT_LIMITS}
-        levels={overLimitLevels()}
+        levels={state.overLimitLevels()}
       />
 
-      <Show when={totalCredits() >= OVERRIDE_CREDITS}>
+      <Show when={state.totalCredits() >= OVERRIDE_CREDITS}>
         <div class={ALERT_STYLES.info}>{t().simulator.allUnlocked}</div>
       </Show>
 
       <GraduationAlert
-        eligibility={graduationEligibility()}
-        missingMandatory3yr={graduationInfo().missing3yr}
-        missingMandatory4yr={graduationInfo().missing4yr}
+        eligibility={state.graduationEligibility()}
+        missingMandatory3yr={state.graduationInfo().missing3yr}
+        missingMandatory4yr={state.graduationInfo().missing4yr}
       />
 
       <SimulatorTable
-        courses={parsedCourses()}
-        enabledMap={enabledMap()}
-        fullLevels={fullLevels()}
-        levelFilter={levelFilter()}
+        enabledMap={state.enabledMap()}
+        fullLevels={state.fullLevels()}
+        groups={view.groups()}
+        onBulkMark={bulkMark}
         onToggleListened={toggleListened}
         onTogglePassed={togglePassed}
-        overLimitSet={overLimitSet()}
-        reasonMap={reasonMap()}
-        seasonFilter={seasonFilter()}
-        showOnlyEnabled={showOnlyEnabled()}
+        overLimitSet={state.overLimitSet()}
+        reasonMap={state.reasonMap()}
         statuses={statuses()}
       />
     </div>

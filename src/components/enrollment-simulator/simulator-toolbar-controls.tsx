@@ -11,10 +11,8 @@ type SimulatorToolbarControlsProps = {
   hpcCompleted: boolean;
   onReset: () => void;
   onShare: () => Promise<boolean>;
-  onToggleFilter: () => void;
   onToggleHpc: () => void;
   onUniListCreditsChange: (credits: number) => void;
-  showOnlyEnabled: boolean;
   uniListCredits: number;
 };
 
@@ -43,16 +41,8 @@ export const SimulatorToolbarControls = (
         />
       </div>
 
-      <LabeledCheckbox
-        checked={props.showOnlyEnabled}
-        class="min-h-9 rounded-md border px-3 sm:border-0 sm:px-0"
-        onChange={props.onToggleFilter}
-      >
-        {t().simulator.onlyAvailable}
-      </LabeledCheckbox>
-
       <button
-        class="text-destructive hover:bg-destructive/10 min-h-9 rounded-md border px-3 py-1.5 text-sm font-medium transition-colors"
+        class="text-destructive hover:bg-destructive/10 hidden min-h-9 rounded-md border px-3 py-1.5 text-sm font-medium transition-colors sm:inline-flex sm:items-center"
         onClick={() => {
           props.onReset();
         }}
