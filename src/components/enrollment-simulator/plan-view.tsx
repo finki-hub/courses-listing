@@ -1,6 +1,8 @@
-import { For, Show } from 'solid-js';
+import { CalendarRange } from 'lucide-solid';
+import { For, type JSX, Show } from 'solid-js';
 
-import { ALERT_STYLES } from '@/lib/alert-styles';
+import { EmptyState } from '@/components/ui/empty-state';
+import { SectionHeader } from '@/components/ui/page-header';
 import { interpolate } from '@/lib/i18n';
 import { useLanguage } from '@/lib/LanguageProvider';
 import { type SimulatorCourse } from '@/lib/simulator';
@@ -11,6 +13,7 @@ import {
   type StudyPlan,
 } from '@/lib/study-plan';
 
+import { Meter } from './meter';
 import { PlanCourseRow } from './plan-course-row';
 
 type PlanViewProps = {
@@ -22,8 +25,15 @@ type PlanViewProps = {
   start: number;
 };
 
-// The study plan: projected graduation, the planned semesters and the
-// courses still to place.
+const PlanCard = (props: { children: JSX.Element; header: JSX.Element }) => (
+  <section class="bg-card overflow-hidden rounded-xl border">
+    <div class="space-y-2 border-b px-3 py-3 sm:px-4">{props.header}</div>
+    {props.children}
+  </section>
+);
+
+// The study plan: projected graduation, one card per remaining semester with
+// its load against the standard 30 credits, and the courses still to place.
 export const PlanView = (props: PlanViewProps) => {
   const { t } = useLanguage();
 
@@ -48,77 +58,92 @@ export const PlanView = (props: PlanViewProps) => {
 
   return (
     <div class="space-y-4">
-      <div class={`${ALERT_STYLES.info} space-y-1`}>
-        <div>
-          {t().planner.graduation3yr}{' '}
+      <section class="bg-card grid gap-3 rounded-xl border p-3 text-sm sm:grid-cols-2 sm:p-4">
+        <p>
+          <span class="text-muted-foreground">{t().planner.graduation3yr}</span>{' '}
           <span class="font-semibold">{graduationText('threeYear')}</span>
-        </div>
-        <div>
-          {t().planner.graduation4yr}{' '}
+        </p>
+        <p>
+          <span class="text-muted-foreground">{t().planner.graduation4yr}</span>{' '}
           <span class="font-semibold">{graduationText('fourYear')}</span>
-        </div>
+        </p>
         <Show when={props.evaluation.unplannedRequired.length > 0}>
-          <details>
-            <summary class="cursor-pointer">
+          <details class="text-warning sm:col-span-2">
+            <summary class="cursor-pointer font-medium">
               {interpolate(t().planner.unplannedRequired, {
                 count: props.evaluation.unplannedRequired.length,
               })}
             </summary>
-            <p class="mt-1">
+            <p class="text-foreground mt-1">
               {props.evaluation.unplannedRequired
                 .map((course) => course.name)
                 .join(', ')}
             </p>
           </details>
         </Show>
-      </div>
+      </section>
 
       <For each={props.evaluation.semesters}>
-        {(entry) => (
-          <section class="space-y-1.5">
-            <div class="flex flex-wrap items-baseline gap-x-3">
-              <h3 class="text-sm font-semibold">
-                {interpolate(t().simulator.semesterTitle, {
-                  semester: entry.semester,
-                })}
-              </h3>
-              <span class="text-muted-foreground text-xs">
-                {interpolate(t().planner.semesterCredits, {
-                  credits: entry.credits,
-                  standard: STANDARD_SEMESTER_CREDITS,
-                  total: entry.cumulativeCredits,
-                })}
-              </span>
-            </div>
-            <Show
-              fallback={
-                <p class="text-muted-foreground text-xs">
-                  {t().planner.emptySemester}
-                </p>
+        {(entry) => {
+          const load = () =>
+            interpolate(t().planner.semesterCredits, {
+              credits: entry.credits,
+              standard: STANDARD_SEMESTER_CREDITS,
+              total: entry.cumulativeCredits,
+            });
+          return (
+            <PlanCard
+              header={
+                <>
+                  <SectionHeader
+                    meta={load()}
+                    title={interpolate(t().simulator.semesterTitle, {
+                      semester: entry.semester,
+                    })}
+                  />
+                  <Meter
+                    label={load()}
+                    max={STANDARD_SEMESTER_CREDITS}
+                    overflow
+                    size="sm"
+                    value={entry.credits}
+                  />
+                </>
               }
-              when={entry.courses.length > 0}
             >
-              <ul class="space-y-1.5">
-                <For each={entry.courses}>{row}</For>
-              </ul>
-            </Show>
-          </section>
-        )}
+              <Show
+                fallback={
+                  <p class="text-muted-foreground px-3 py-3 text-sm sm:px-4">
+                    {t().planner.emptySemester}
+                  </p>
+                }
+                when={entry.courses.length > 0}
+              >
+                <ul class="divide-y">
+                  <For each={entry.courses}>{row}</For>
+                </ul>
+              </Show>
+            </PlanCard>
+          );
+        }}
       </For>
 
-      <section class="space-y-1.5">
-        <h3 class="text-sm font-semibold">{t().planner.toPlan}</h3>
+      <PlanCard header={<SectionHeader title={t().planner.toPlan} />}>
         <Show
           fallback={
-            <p class="text-muted-foreground text-xs">{t().common.noResults}</p>
+            <EmptyState
+              class="m-3 border-0"
+              icon={<CalendarRange />}
+              title={t().common.noResults}
+            />
           }
           when={props.candidates.length > 0}
         >
-          <ul class="space-y-1.5">
+          <ul class="divide-y">
             <For each={props.candidates}>{row}</For>
           </ul>
         </Show>
-      </section>
+      </PlanCard>
     </div>
   );
 };

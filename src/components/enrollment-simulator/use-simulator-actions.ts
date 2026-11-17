@@ -1,15 +1,13 @@
 import { type Accessor, createEffect, on, type Setter } from 'solid-js';
 
 import { type CourseStatus } from '@/lib/prerequisite';
-import {
-  type SimulatorCourse,
-  toggleListenedStatus,
-  togglePassedStatus,
-} from '@/lib/simulator';
+import { type SimulatorCourse, toggleListenedStatus } from '@/lib/simulator';
 import {
   type BulkStatus,
+  type CourseStatusValue,
   getBulkTargets,
   markCourses,
+  setCourseStatus,
 } from '@/lib/simulator-view';
 
 import { useUndoableAction } from './undo-notice';
@@ -42,8 +40,8 @@ export const useSimulatorActions = (params: SimulatorActionsParams) => {
     params.setStatuses((prev) => toggleListenedStatus(prev, name));
   };
 
-  const togglePassed = (name: string) => {
-    params.setStatuses((prev) => togglePassedStatus(prev, name));
+  const setStatus = (name: string, status: CourseStatusValue) => {
+    params.setStatuses((prev) => setCourseStatus(prev, name, status));
   };
 
   // Acts on the whole semester, not only the courses the filters show.
@@ -75,8 +73,8 @@ export const useSimulatorActions = (params: SimulatorActionsParams) => {
   return {
     bulkMark,
     reset,
+    setStatus,
     toggleListened,
-    togglePassed,
     UndoNotice: undoable.Notice,
   };
 };

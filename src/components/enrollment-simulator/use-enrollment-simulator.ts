@@ -1,6 +1,17 @@
 import { createMemo, createSignal } from 'solid-js';
 
-import { DEFAULT_PROGRAM, loadStatuses } from '@/lib/simulator';
+import { readBrowserStorage, writeBrowserStorage } from '@/lib/safe-storage';
+import {
+  DEFAULT_PROGRAM,
+  getElectiveCreditsPerLevel,
+  loadStatuses,
+} from '@/lib/simulator';
+import {
+  getSimulatorProgress,
+  needsSimulatorSetup,
+  STORAGE_KEY_SETUP,
+} from '@/lib/simulator-setup';
+import { readSimulatorShareState } from '@/lib/simulator-share';
 import {
   type Accreditation,
   type CourseLevelFilter,
@@ -23,6 +34,16 @@ import { useStudyPlan } from './use-study-plan';
 // All of the simulator's state, derived data and actions.
 export const useEnrollmentSimulator = (courses: () => CourseRaw[]) => {
   const initialState = getInitialSimulatorState();
+  const [setupPending, setSetupPending] = createSignal(
+    needsSimulatorSetup({
+      hasShareLink: readSimulatorShareState() !== undefined,
+      read: readBrowserStorage,
+    }),
+  );
+  const completeSetup = () => {
+    writeBrowserStorage(STORAGE_KEY_SETUP, 'true');
+    setSetupPending(false);
+  };
 
   const [accreditation, setAccreditation] = createSignal<Accreditation>(
     initialState.accreditation,
@@ -138,6 +159,13 @@ export const useEnrollmentSimulator = (courses: () => CourseRaw[]) => {
       }),
   );
 
+  const progress = createMemo(() =>
+    getSimulatorProgress(
+      state.totalCredits(),
+      getElectiveCreditsPerLevel(parsedCourses(), statuses()),
+    ),
+  );
+
   const switchAccreditation = (acc: Accreditation) => {
     setAccreditation(acc);
     setProgram(getStudyPrograms(acc)[0] ?? DEFAULT_PROGRAM);
@@ -148,6 +176,7 @@ export const useEnrollmentSimulator = (courses: () => CourseRaw[]) => {
   return {
     accreditation,
     actions,
+    completeSetup,
     copyShareUrl,
     courses: parsedCourses,
     hpcCompleted,
@@ -157,6 +186,7 @@ export const useEnrollmentSimulator = (courses: () => CourseRaw[]) => {
     plan,
     planCandidates,
     program,
+    progress,
     seasonFilter,
     setHpcCompleted,
     setLevelFilter,
@@ -165,6 +195,7 @@ export const useEnrollmentSimulator = (courses: () => CourseRaw[]) => {
     setSeasonFilter,
     setShowOnlyEnabled,
     setUniListCredits,
+    setupPending,
     showOnlyEnabled,
     state,
     statuses,

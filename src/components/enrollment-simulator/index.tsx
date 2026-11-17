@@ -10,12 +10,15 @@ import { getPlanOptions } from '@/lib/study-plan';
 import { type CourseRaw } from '@/types/course';
 
 import { CreditLimitWarning, GraduationAlert } from './alerts';
+import { ROW_ACTION_CLASS } from './course-styles';
 import { NextCoursesPanel } from './next-courses-panel';
 import { PlanView } from './plan-view';
+import { ProgressHeader } from './progress-header';
 import { SimulatorFilters } from './simulator-filters';
 import { SimulatorModeSwitch } from './simulator-mode-switch';
+import { SimulatorSettings } from './simulator-settings';
+import { SimulatorSetup } from './simulator-setup';
 import { SimulatorTable } from './simulator-table';
-import { SimulatorToolbar } from './simulator-toolbar';
 import { useEnrollmentSimulator } from './use-enrollment-simulator';
 
 type EnrollmentSimulatorProps = {
@@ -37,7 +40,7 @@ export const EnrollmentSimulator = (props: EnrollmentSimulatorProps) => {
     const planned = () => sim.plan.plan()[item.course.name];
     return (
       <button
-        class="bg-card hover:bg-muted disabled:text-muted-foreground rounded-md border px-2.5 py-1 text-xs font-medium transition-colors disabled:cursor-not-allowed"
+        class={ROW_ACTION_CLASS}
         disabled={
           planned() !== undefined ||
           getPlanOptions(item.course, sim.plan.start()).length === 0
@@ -55,105 +58,116 @@ export const EnrollmentSimulator = (props: EnrollmentSimulatorProps) => {
   };
 
   return (
-    <div class="space-y-4">
-      <SimulatorModeSwitch
-        description={descriptions()[sim.mode()]}
-        mode={sim.mode()}
-        onSelect={sim.setMode}
-      />
-
-      <div class="space-y-2 sm:space-y-3">
-        <SimulatorToolbar
+    <Show
+      fallback={
+        <SimulatorSetup
           accreditation={sim.accreditation()}
-          hpcCompleted={sim.hpcCompleted()}
-          levelFilter={sim.levelFilter()}
-          onReset={sim.actions.reset}
-          onSetLevel={sim.setLevelFilter}
-          onSetSeason={sim.setSeasonFilter}
-          onShare={sim.copyShareUrl}
+          onStart={sim.completeSetup}
           onSwitchAccreditation={sim.switchAccreditation}
           onSwitchProgram={sim.setProgram}
-          onToggleHpc={() => {
-            sim.setHpcCompleted((v) => !v);
-          }}
-          onUniListCreditsChange={sim.setUniListCredits}
           program={sim.program()}
-          seasonFilter={sim.seasonFilter()}
-          totalCourses={sim.state.totalCourses()}
-          totalCredits={sim.state.totalCredits()}
-          uniListCredits={sim.uniListCredits()}
+        />
+      }
+      when={!sim.setupPending()}
+    >
+      <div class="space-y-4 sm:space-y-5">
+        <ProgressHeader
+          counts={sim.state.totalCourses()}
+          onReset={sim.actions.reset}
+          onShare={sim.copyShareUrl}
+          progress={sim.progress()}
+          settings={
+            <SimulatorSettings
+              accreditation={sim.accreditation()}
+              hpcCompleted={sim.hpcCompleted()}
+              onSwitchAccreditation={sim.switchAccreditation}
+              onSwitchProgram={sim.setProgram}
+              onToggleHpc={() => {
+                sim.setHpcCompleted((value) => !value);
+              }}
+              onUniListCreditsChange={sim.setUniListCredits}
+              program={sim.program()}
+              uniListCredits={sim.uniListCredits()}
+            />
+          }
         />
 
-        <Show when={sim.mode() !== 'next'}>
-          <SimulatorFilters
-            activeFilterCount={sim.view.activeFilterCount()}
-            onReset={sim.actions.reset}
-            onSearch={sim.view.setSearch}
-            onSetType={sim.view.setTypeFilter}
-            onToggleOnlyEnabled={() => {
-              sim.setShowOnlyEnabled((v) => !v);
-            }}
-            onToggleTag={sim.view.toggleTag}
-            search={sim.view.search()}
-            showOnlyEnabled={sim.showOnlyEnabled()}
-            tags={sim.view.tagFilter()}
-            type={sim.view.typeFilter()}
-          />
+        <sim.actions.UndoNotice message={t().simulator.resetDone} />
+
+        <SimulatorModeSwitch
+          description={descriptions()[sim.mode()]}
+          mode={sim.mode()}
+          onSelect={sim.setMode}
+        />
+
+        <SimulatorFilters
+          courseFilters={sim.mode() !== 'next'}
+          level={sim.levelFilter()}
+          onSearch={sim.view.setSearch}
+          onSetLevel={sim.setLevelFilter}
+          onSetSeason={sim.setSeasonFilter}
+          onSetType={sim.view.setTypeFilter}
+          onToggleOnlyEnabled={() => {
+            sim.setShowOnlyEnabled((value) => !value);
+          }}
+          onToggleTag={sim.view.toggleTag}
+          search={sim.view.search()}
+          season={sim.seasonFilter()}
+          showOnlyEnabled={sim.showOnlyEnabled()}
+          tags={sim.view.tagFilter()}
+          type={sim.view.typeFilter()}
+        />
+
+        <CreditLimitWarning
+          levelLimits={LEVEL_CREDIT_LIMITS}
+          levels={sim.state.overLimitLevels()}
+        />
+
+        <Show when={sim.state.totalCredits() >= OVERRIDE_CREDITS}>
+          <div class={ALERT_STYLES.info}>{t().simulator.allUnlocked}</div>
         </Show>
+
+        <GraduationAlert
+          eligibility={sim.state.graduationEligibility()}
+          missingMandatory3yr={sim.state.graduationInfo().missing3yr}
+          missingMandatory4yr={sim.state.graduationInfo().missing4yr}
+        />
+
+        <Switch>
+          <Match when={sim.mode() === 'checklist'}>
+            <SimulatorTable
+              courses={sim.courses()}
+              enabledMap={sim.state.enabledMap()}
+              fullLevels={sim.state.fullLevels()}
+              groups={sim.view.groups()}
+              onBulkMark={sim.actions.bulkMark}
+              onSetStatus={sim.actions.setStatus}
+              overLimitSet={sim.state.overLimitSet()}
+              reasonMap={sim.state.reasonMap()}
+              statuses={sim.statuses()}
+            />
+          </Match>
+          <Match when={sim.mode() === 'next'}>
+            <NextCoursesPanel
+              actions={planAction}
+              isUpcoming={sim.next.isUpcoming()}
+              items={sim.next.ranked().items}
+              onMarkListened={sim.actions.toggleListened}
+              season={sim.next.season()}
+              year={sim.next.ranked().year}
+            />
+          </Match>
+          <Match when={sim.mode() === 'plan'}>
+            <PlanView
+              candidates={sim.planCandidates()}
+              evaluation={sim.plan.evaluation()}
+              onSetSemester={sim.plan.setSemester}
+              plan={sim.plan.plan()}
+              start={sim.plan.start()}
+            />
+          </Match>
+        </Switch>
       </div>
-
-      <sim.actions.UndoNotice message={t().simulator.resetDone} />
-
-      <CreditLimitWarning
-        levelLimits={LEVEL_CREDIT_LIMITS}
-        levels={sim.state.overLimitLevels()}
-      />
-
-      <Show when={sim.state.totalCredits() >= OVERRIDE_CREDITS}>
-        <div class={ALERT_STYLES.info}>{t().simulator.allUnlocked}</div>
-      </Show>
-
-      <GraduationAlert
-        eligibility={sim.state.graduationEligibility()}
-        missingMandatory3yr={sim.state.graduationInfo().missing3yr}
-        missingMandatory4yr={sim.state.graduationInfo().missing4yr}
-      />
-
-      <Switch>
-        <Match when={sim.mode() === 'checklist'}>
-          <SimulatorTable
-            courses={sim.courses()}
-            enabledMap={sim.state.enabledMap()}
-            fullLevels={sim.state.fullLevels()}
-            groups={sim.view.groups()}
-            onBulkMark={sim.actions.bulkMark}
-            onToggleListened={sim.actions.toggleListened}
-            onTogglePassed={sim.actions.togglePassed}
-            overLimitSet={sim.state.overLimitSet()}
-            reasonMap={sim.state.reasonMap()}
-            statuses={sim.statuses()}
-          />
-        </Match>
-        <Match when={sim.mode() === 'next'}>
-          <NextCoursesPanel
-            actions={planAction}
-            isUpcoming={sim.next.isUpcoming()}
-            items={sim.next.ranked().items}
-            onMarkListened={sim.actions.toggleListened}
-            season={sim.next.season()}
-            year={sim.next.ranked().year}
-          />
-        </Match>
-        <Match when={sim.mode() === 'plan'}>
-          <PlanView
-            candidates={sim.planCandidates()}
-            evaluation={sim.plan.evaluation()}
-            onSetSemester={sim.plan.setSemester}
-            plan={sim.plan.plan()}
-            start={sim.plan.start()}
-          />
-        </Match>
-      </Switch>
-    </div>
+    </Show>
   );
 };

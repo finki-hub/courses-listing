@@ -9,6 +9,8 @@ import {
   isRequired,
   matchesSeasonFilter,
   type SimulatorCourse,
+  toggleListenedStatus,
+  togglePassedStatus,
 } from '@/lib/simulator';
 import {
   type CourseLevelFilter,
@@ -150,4 +152,45 @@ export const markCourses = (
     };
   }
   return next;
+};
+
+/** Where a course stands: not taken, enrolled in, or passed. */
+export type CourseStatusValue = 'listened' | 'none' | 'passed';
+
+export const COURSE_STATUS_VALUES: readonly CourseStatusValue[] = [
+  'none',
+  'listened',
+  'passed',
+];
+
+export const getCourseStatusValue = (
+  status: CourseStatus | undefined,
+): CourseStatusValue => {
+  if (status?.passed) return 'passed';
+  return status?.listened ? 'listened' : 'none';
+};
+
+/**
+ * Moves a course to a status through the existing toggles, so the exclusive
+ * project pair and the passed-implies-enrolled rule keep applying.
+ *
+ * @param statuses - The current statuses
+ * @param name - The course to change
+ * @param target - The status to reach
+ * @returns The updated statuses
+ */
+export const setCourseStatus = (
+  statuses: Record<string, CourseStatus>,
+  name: string,
+  target: CourseStatusValue,
+): Record<string, CourseStatus> => {
+  const current = getCourseStatusValue(statuses[name]);
+  if (current === target) return statuses;
+  if (target === 'passed') return togglePassedStatus(statuses, name);
+  if (target === 'listened') {
+    return current === 'passed'
+      ? togglePassedStatus(statuses, name)
+      : toggleListenedStatus(statuses, name);
+  }
+  return toggleListenedStatus(statuses, name);
 };

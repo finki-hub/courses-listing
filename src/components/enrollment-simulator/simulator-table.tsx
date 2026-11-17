@@ -1,13 +1,8 @@
 import { For, Show } from 'solid-js';
 
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
+import { EmptyState } from '@/components/ui/empty-state';
+import { SectionHeader } from '@/components/ui/page-header';
+import { interpolate } from '@/lib/i18n';
 import { useLanguage } from '@/lib/LanguageProvider';
 import { type CourseStatus } from '@/lib/prerequisite';
 import {
@@ -15,33 +10,43 @@ import {
   isRequired,
   type SimulatorCourse,
 } from '@/lib/simulator';
-import { type BulkStatus, type SemesterGroup } from '@/lib/simulator-view';
+import {
+  type BulkStatus,
+  type CourseStatusValue,
+  getBulkTargets,
+  getCourseStatusValue,
+  type SemesterGroup,
+  summarizeSemester,
+} from '@/lib/simulator-view';
+import { STANDARD_SEMESTER_CREDITS } from '@/lib/study-plan';
 
-import { CourseCardRow } from './course-card-row';
-import { CourseRow } from './course-row';
-import { SemesterHeader } from './semester-header';
+import { CourseStatusRow } from './course-status-row';
+import { ROW_ACTION_CLASS } from './course-styles';
+import { Meter } from './meter';
 
 type SimulatorTableProps = {
-  /** Every course, for the semester headers' totals and bulk actions. */
+  /** Every course, for the semester totals and bulk actions. */
   courses: SimulatorCourse[];
   enabledMap: Record<string, boolean>;
   fullLevels: Set<number>;
   groups: SemesterGroup[];
   onBulkMark: (semester: number, target: BulkStatus) => void;
-  onToggleListened: (name: string) => void;
-  onTogglePassed: (name: string) => void;
+  onSetStatus: (name: string, status: CourseStatusValue) => void;
   overLimitSet: Set<string>;
   reasonMap: Record<string, string>;
   statuses: Record<string, CourseStatus>;
 };
 
-const TABLE_COLUMNS = 5;
+const BULK_TARGETS: readonly BulkStatus[] = ['listened', 'passed'];
 
+// The checklist: one card per semester with its passed credits and quick
+// actions for its required courses, then a row per course.
 export const SimulatorTable = (props: SimulatorTableProps) => {
   const { t } = useLanguage();
 
-  // The props shared by the desktop row and the mobile card. Getters keep
-  // them reactive through the spread.
+  const semesterCourses = (semester: number) =>
+    props.courses.filter((course) => course.semester === semester);
+
   const rowProps = (course: SimulatorCourse) => ({
     get atLimit() {
       return (
@@ -57,102 +62,97 @@ export const SimulatorTable = (props: SimulatorTableProps) => {
     get exclusiveBlocker() {
       return getExclusiveProjectBlocker(props.statuses, course.name);
     },
-    get listened() {
-      return props.statuses[course.name]?.listened ?? false;
-    },
-    onToggleListened: () => {
-      props.onToggleListened(course.name);
-    },
-    onTogglePassed: () => {
-      props.onTogglePassed(course.name);
+    onSetStatus: (status: CourseStatusValue) => {
+      props.onSetStatus(course.name, status);
     },
     get overLimit() {
       return props.overLimitSet.has(course.name);
     },
-    get passed() {
-      return props.statuses[course.name]?.passed ?? false;
-    },
     get reason() {
       return props.reasonMap[course.name] ?? '';
     },
+    get status() {
+      return getCourseStatusValue(props.statuses[course.name]);
+    },
   });
 
-  const header = (group: SemesterGroup) => (
-    <SemesterHeader
-      courses={props.courses.filter(
-        (course) => course.semester === group.semester,
-      )}
-      enabledMap={props.enabledMap}
-      onBulkMark={(target) => {
-        props.onBulkMark(group.semester, target);
-      }}
-      semester={group.semester}
-      statuses={props.statuses}
-    />
-  );
+  const SemesterCard = (cardProps: { group: SemesterGroup }) => {
+    const values = () => ({ semester: cardProps.group.semester });
+    const all = () => semesterCourses(cardProps.group.semester);
+    const passed = () => summarizeSemester(all(), props.statuses).passedCredits;
+    const targetCount = (target: BulkStatus) =>
+      getBulkTargets(
+        all(),
+        { enabledMap: props.enabledMap, statuses: props.statuses },
+        target,
+      ).length;
+    const progressText = () =>
+      interpolate(t().simulator.semesterProgress, {
+        passed: passed(),
+        total: STANDARD_SEMESTER_CREDITS,
+      });
+
+    return (
+      <section class="bg-card overflow-hidden rounded-xl border">
+        <div class="space-y-2 border-b px-3 py-3 sm:px-4">
+          <SectionHeader
+            actions={
+              <For each={BULK_TARGETS}>
+                {(target) => (
+                  <button
+                    aria-label={`${t().simulator.bulk[target]}: ${interpolate(t().simulator.bulkLabel[target], values())}`}
+                    class={ROW_ACTION_CLASS}
+                    disabled={targetCount(target) === 0}
+                    onClick={() => {
+                      props.onBulkMark(cardProps.group.semester, target);
+                    }}
+                    title={interpolate(
+                      t().simulator.bulkLabel[target],
+                      values(),
+                    )}
+                    type="button"
+                  >
+                    {t().simulator.bulk[target]}
+                  </button>
+                )}
+              </For>
+            }
+            meta={progressText()}
+            title={interpolate(t().simulator.semesterTitle, values())}
+          />
+          <Meter
+            label={progressText()}
+            max={STANDARD_SEMESTER_CREDITS}
+            size="sm"
+            value={passed()}
+          />
+        </div>
+        <ul class="divide-y">
+          <For each={cardProps.group.courses}>
+            {(course) => {
+              const row = rowProps(course);
+              return <CourseStatusRow {...row} />;
+            }}
+          </For>
+        </ul>
+      </section>
+    );
+  };
 
   return (
     <Show
       fallback={
-        <div class="text-muted-foreground py-12 text-center text-sm">
-          {t().common.noResults}
-        </div>
+        <EmptyState
+          text={t().common.noResults}
+          title={t().common.noResults}
+        />
       }
       when={props.groups.length > 0}
     >
-      {/* Mobile: card layout */}
-      <div class="space-y-1.5 sm:hidden">
+      <div class="space-y-4">
         <For each={props.groups}>
-          {(group) => (
-            <section class="space-y-1.5 [&:not(:first-child)]:pt-2">
-              {header(group)}
-              <For each={group.courses}>
-                {(course) => {
-                  const row = rowProps(course);
-                  return <CourseCardRow {...row} />;
-                }}
-              </For>
-            </section>
-          )}
+          {(group) => <SemesterCard group={group} />}
         </For>
-      </div>
-
-      {/* Desktop: table layout */}
-      <div class="bg-card hidden rounded-lg border sm:block">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead class="w-12 text-center sm:w-16">
-                {t().common.semesterShort}
-              </TableHead>
-              <TableHead>{t().common.course}</TableHead>
-              <TableHead class="w-16 text-center sm:w-24">
-                {t().simulator.attended}
-              </TableHead>
-              <TableHead class="w-16 text-center sm:w-24">
-                {t().simulator.passed}
-              </TableHead>
-              <TableHead class="hidden md:table-cell">
-                {t().common.prerequisite}
-              </TableHead>
-            </TableRow>
-          </TableHeader>
-          <For each={props.groups}>
-            {(group) => (
-              <TableBody>
-                <TableRow class="bg-muted/40 hover:bg-muted/40">
-                  <TableCell colSpan={TABLE_COLUMNS}>{header(group)}</TableCell>
-                </TableRow>
-                <For each={group.courses}>
-                  {(course) => {
-                    const row = rowProps(course);
-                    return <CourseRow {...row} />;
-                  }}
-                </For>
-              </TableBody>
-            )}
-          </For>
-        </Table>
       </div>
     </Show>
   );

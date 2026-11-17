@@ -495,6 +495,19 @@ const collectPassedElectiveCredits = (
   return { coursesByLevel, creditsPerLevel };
 };
 
+/**
+ * Credits from passed electives per level, before the level limits apply.
+ *
+ * @param courses - The program's courses
+ * @param statuses - The current statuses
+ * @returns Elective credits keyed by level
+ */
+export const getElectiveCreditsPerLevel = (
+  courses: SimulatorCourse[],
+  statuses: Record<string, CourseStatus>,
+): Record<number, number> =>
+  collectPassedElectiveCredits(courses, statuses).creditsPerLevel;
+
 const findOverLimitCourses = (
   list: SimulatorCourse[],
   limit: number,

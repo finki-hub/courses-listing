@@ -91,7 +91,8 @@ const App = () => {
   // Each tab's title and what it is for.
   const pageHeader = () => {
     const strings = t();
-    const headers: Record<Page, { description: string; title: string }> = {
+    // The simulator describes each of its views itself, under its view switch.
+    const headers: Record<Page, { description?: string; title: string }> = {
       equivalencies: {
         description: strings.equivalencies.description,
         title: strings.equivalencies.heading,
@@ -105,7 +106,6 @@ const App = () => {
         title: strings.nav.prerequisites,
       },
       simulator: {
-        description: strings.pageIntro.simulator,
         title: strings.nav.simulator,
       },
     };

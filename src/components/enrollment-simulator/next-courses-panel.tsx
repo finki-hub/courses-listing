@@ -1,6 +1,8 @@
+import { Sparkles } from 'lucide-solid';
 import { For, type JSX, Show } from 'solid-js';
 
-import { Badge } from '@/components/ui/badge';
+import { EmptyState } from '@/components/ui/empty-state';
+import { SectionHeader } from '@/components/ui/page-header';
 import { StatusBadge } from '@/components/ui/status-badge';
 import {
   formatCount,
@@ -13,7 +15,7 @@ import { type NextCourse, type Season } from '@/lib/next-courses';
 import { getProgramStateKind } from '@/lib/simulator';
 import { type AcademicYear, getCourseTags } from '@/types/course';
 
-import { PROGRAM_STATE_TONES } from './course-styles';
+import { PROGRAM_STATE_TONES, ROW_ACTION_CLASS } from './course-styles';
 
 type NextCoursesPanelProps = {
   /** Extra actions per course, after "mark as enrolled". */
@@ -32,7 +34,9 @@ export const NextCoursesPanel = (props: NextCoursesPanelProps) => {
 
   const details = (item: NextCourse) =>
     [
-      `${t().common.semesterShort} ${String(item.course.semester)}`,
+      interpolate(t().simulator.semesterTitle, {
+        semester: item.course.semester,
+      }),
       interpolate(t().nextCourses.credits, { credits: item.course.credits }),
       item.enrollment > 0 && props.year
         ? interpolate(t().nextCourses.enrolled, {
@@ -40,50 +44,43 @@ export const NextCoursesPanel = (props: NextCoursesPanelProps) => {
             year: props.year,
           })
         : undefined,
-    ]
-      .filter(Boolean)
-      .join(' · ');
+    ].filter(Boolean);
+
+  const title = () =>
+    props.isUpcoming
+      ? `${t().nextCourses.forSeason[props.season]} ${t().nextCourses.upcoming}`
+      : t().nextCourses.forSeason[props.season];
 
   return (
-    <section class="space-y-3">
-      <div class="text-sm">
-        <span>
-          <span class="font-medium">
-            {t().nextCourses.forSeason[props.season]}
-          </span>
-          <Show when={props.isUpcoming}>
-            <span class="text-muted-foreground">
-              {' '}
-              {t().nextCourses.upcoming}
-            </span>
-          </Show>
-          <span class="text-muted-foreground">
-            {': '}
-            {formatCount(t().listing.resultCount, {
-              count: props.items.length,
-              language: language(),
-            })}
-          </span>
-        </span>
-      </div>
-
-      <Show
-        fallback={
-          <div class="text-muted-foreground py-12 text-center text-sm">
-            {t().nextCourses.empty}
-          </div>
-        }
-        when={props.items.length > 0}
-      >
-        <ul class="space-y-1.5">
+    <Show
+      fallback={
+        <EmptyState
+          icon={<Sparkles />}
+          title={t().nextCourses.empty}
+        />
+      }
+      when={props.items.length > 0}
+    >
+      <section class="bg-card overflow-hidden rounded-xl border">
+        <SectionHeader
+          class="border-b px-3 py-3 sm:px-4"
+          meta={formatCount(t().listing.resultCount, {
+            count: props.items.length,
+            language: language(),
+          })}
+          title={title()}
+        />
+        <ul class="divide-y">
           <For each={props.items}>
             {(item) => {
               const kind = () => getProgramStateKind(item.course.programState);
               return (
-                <li class="flex flex-wrap items-center gap-x-3 gap-y-2 rounded-lg border bg-card px-3 py-2">
-                  <div class="min-w-0 flex-1 space-y-1">
-                    <div class="flex flex-wrap items-center gap-1.5 text-sm font-medium">
+                <li class="grid gap-x-4 gap-y-2 px-3 py-2.5 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center sm:px-4">
+                  <div class="min-w-0 space-y-1">
+                    <div class="text-sm font-medium leading-snug">
                       {item.course.name}
+                    </div>
+                    <div class="text-muted-foreground flex flex-wrap items-center gap-x-3 gap-y-1 text-xs">
                       <Show when={kind()}>
                         {(k) => (
                           <StatusBadge tone={PROGRAM_STATE_TONES[k()]}>
@@ -91,22 +88,22 @@ export const NextCoursesPanel = (props: NextCoursesPanelProps) => {
                           </StatusBadge>
                         )}
                       </Show>
+                      <For each={details(item)}>
+                        {(detail) => <span>{detail}</span>}
+                      </For>
                       <For each={getCourseTags(item.course.raw)}>
                         {(tag) => (
-                          <Badge class="px-1.5 py-0 text-[10px] leading-4 font-normal">
+                          <StatusBadge tone="neutral">
                             {getTagLabel(tag, t())}
-                          </Badge>
+                          </StatusBadge>
                         )}
                       </For>
-                    </div>
-                    <div class="text-muted-foreground text-xs">
-                      {details(item)}
                     </div>
                   </div>
                   <div class="flex gap-1.5">
                     <button
                       aria-label={`${t().nextCourses.markListened}: ${item.course.name}`}
-                      class="bg-card hover:bg-muted rounded-md border px-2.5 py-1 text-xs font-medium transition-colors"
+                      class={ROW_ACTION_CLASS}
                       onClick={() => {
                         props.onMarkListened(item.course.name);
                       }}
@@ -121,7 +118,7 @@ export const NextCoursesPanel = (props: NextCoursesPanelProps) => {
             }}
           </For>
         </ul>
-      </Show>
-    </section>
+      </section>
+    </Show>
   );
 };

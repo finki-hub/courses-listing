@@ -299,6 +299,11 @@ export const tr = {
     graduated: '🎉 Mezuniyetiniz kutlu olsun!',
     hpcInfo:
       'Ders kataloğunda yer almayan HPC dersini geçtiyseniz işaretleyin. Toplamınıza {credits} kredi ekler.',
+    locked: {
+      limit: 'L{level} seçmeli sınırına ulaşıldı',
+      prerequisites: 'Ön koşullar karşılanmadı',
+      project: 'Bunun yerine: {course}',
+    },
     missing3yr:
       'ℹ️ ≥ 174 krediniz var, ancak 3 yıllık program için şu zorunlu dersler eksik: {courses}',
     missing4yr:
@@ -311,12 +316,44 @@ export const tr = {
     passed: 'Geçildi',
     passedPlural: 'Geçilen',
     passedShort: 'G',
+    progress: {
+      credits: '{credits} kredi',
+      degree3: '3 yıllık derece',
+      degree3Short: '3 yıl',
+      degree4: '4 yıllık derece',
+      degree4Short: '4 yıl',
+      details: 'Ayrıntılar',
+      label: 'İlerlemeniz',
+      levelMeter: 'L{level} seçmeli',
+      limitValue: '{credits} / {limit}',
+    },
     reset: 'Sıfırla',
     resetDone: 'Tüm seçimler sıfırlandı.',
     search: 'Simülatördeki dersleri ara',
+    semesterProgress: '{total} krediden {passed} geçildi',
     semesterSummary: 'Kredi: {listened} kayıtlı, {passed} geçilen',
     semesterTitle: '{semester}. yarıyıl',
+    settings: {
+      description:
+        'Akreditasyonunuz, öğrenim programınız ve ders listesi dışında kazanılan krediler.',
+      edit: 'Programı ve ek kredileri değiştir',
+      extras: 'Ek krediler',
+      title: 'Öğreniminiz',
+    },
+    setup: {
+      description:
+        'Kayıtlı olduğunuz akreditasyonu ve öğrenim programını seçin. Daha sonra değiştirebilirsiniz.',
+      program: 'Öğrenim programı',
+      start: 'Başla',
+      title: 'Simülatörü ayarlayın',
+    },
     share: 'Paylaş',
+    status: {
+      label: '{course} durumu',
+      listened: 'Kayıtlı',
+      none: 'Yok',
+      passed: 'Geçildi',
+    },
     statusToggle: '{status}: {course}',
     undo: 'Geri al',
     universityList: 'Üniv. listesi',
