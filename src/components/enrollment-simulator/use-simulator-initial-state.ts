@@ -9,9 +9,11 @@ import {
 } from '@/lib/simulator';
 import {
   readSimulatorShareState,
+  restorePlanFromShareState,
   restoreStatusesFromShareState,
   type SharedSimulatorConfig,
 } from '@/lib/simulator-share';
+import { loadPlan, type StudyPlan } from '@/lib/study-plan';
 import {
   type Accreditation,
   getStudyPrograms,
@@ -23,6 +25,7 @@ export type InitialSimulatorState = {
   accreditation: Accreditation;
   hpcCompleted: boolean;
   program: string;
+  resolvePlan: (courses: SharedSimulatorConfig['courses']) => StudyPlan;
   resolveStatuses: (
     courses: SharedSimulatorConfig['courses'],
   ) => SharedSimulatorConfig['statuses'];
@@ -52,12 +55,18 @@ export const getInitialSimulatorState = (): InitialSimulatorState => {
       ? restoreStatusesFromShareState(courses, sharedState)
       : loadStatuses(accreditation);
 
+  const resolvePlan = (courses: SharedSimulatorConfig['courses']) =>
+    sharedState
+      ? restorePlanFromShareState(courses, sharedState)
+      : loadPlan(accreditation);
+
   return {
     accreditation,
     hpcCompleted:
       sharedState?.hpcCompleted ??
       localStorage.getItem(STORAGE_KEY_HPC) === 'true',
     program,
+    resolvePlan,
     resolveStatuses,
     seasonFilter: sharedState?.seasonFilter ?? null,
     showOnlyEnabled: sharedState?.showOnlyEnabled ?? false,

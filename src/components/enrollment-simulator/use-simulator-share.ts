@@ -10,6 +10,7 @@ type SimulatorShareParams = {
   accreditation: Accessor<SharedSimulatorConfig['accreditation']>;
   courses: Accessor<SharedSimulatorConfig['courses']>;
   hpcCompleted: Accessor<SharedSimulatorConfig['hpcCompleted']>;
+  plan: Accessor<SharedSimulatorConfig['plan']>;
   program: Accessor<SharedSimulatorConfig['program']>;
   seasonFilter: Accessor<SharedSimulatorConfig['seasonFilter']>;
   showOnlyEnabled: Accessor<SharedSimulatorConfig['showOnlyEnabled']>;
@@ -22,6 +23,7 @@ export const useSimulatorShare = (params: SimulatorShareParams) => {
     accreditation: params.accreditation(),
     courses: params.courses(),
     hpcCompleted: params.hpcCompleted(),
+    plan: params.plan(),
     program: params.program(),
     seasonFilter: params.seasonFilter(),
     showOnlyEnabled: params.showOnlyEnabled(),

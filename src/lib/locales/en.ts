@@ -164,6 +164,31 @@ export const en = {
     markListened: 'Mark enrolled',
     upcoming: '(the next one; choose a semester above to change it)',
   },
+  planner: {
+    addToPlan: 'Add to plan',
+    description:
+      'Plan the courses you have not taken yet across your remaining semesters. Courses planned earlier count as passed for the later ones; each course can go only in semesters of its season.',
+    emptySemester: 'Nothing planned yet.',
+    graduation3yr: 'With this plan, the 3-year degree is complete in:',
+    graduation4yr: 'With this plan, the 4-year degree is complete in:',
+    issues: {
+      exclusive: 'Only one of Тимски проект and Самостоен проект counts.',
+      levelLimit:
+        'Over the elective limit of its level; its credits will not count.',
+      past: 'Planned for a semester that has already passed.',
+      prerequisites:
+        'Prerequisites are not met by the courses taken or planned before it.',
+    },
+    notPlanned: 'Not planned',
+    notReached: 'not reached by semester 8',
+    planFor: 'Semester for',
+    plannedFor: 'In plan: semester {semester}',
+    recommended: 'Recommended: semester {semester}',
+    semesterCredits:
+      '{credits} credits planned (a standard load is {standard}), {total} in total',
+    toPlan: 'Courses to plan',
+    unplannedRequired: 'Required courses not planned yet: {count}',
+  },
   prereqDescription: {
     attended: 'enrolled',
     creditsMet: '  ✅ {credits} credits',
@@ -245,7 +270,7 @@ export const en = {
     missing4yr:
       'ℹ️ You have ≥ 234 credits, but these required courses are missing for a 4-year degree: {courses}',
     modeLabel: 'Simulator view',
-    modes: { checklist: 'Checklist', next: 'What next' },
+    modes: { checklist: 'Checklist', next: 'What next', plan: 'Plan' },
     onlyAvailable: 'Available only',
     overLimit:
       '⛔ The maximum earned credits for {levels} have been exceeded. Excess credits are not counted.',

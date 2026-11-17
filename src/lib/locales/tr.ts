@@ -161,6 +161,32 @@ export const tr = {
     markListened: 'Kayıtlı işaretle',
     upcoming: '(bir sonraki; değiştirmek için yukarıdan bir yarıyıl seçin)',
   },
+  planner: {
+    addToPlan: 'Plana ekle',
+    description:
+      'Henüz almadığınız dersleri kalan yarıyıllarınıza planlayın. Daha önce planlanan dersler sonrakiler için geçilmiş sayılır; her ders yalnızca kendi dönemindeki yarıyıllara konabilir.',
+    emptySemester: 'Henüz bir şey planlanmadı.',
+    graduation3yr: 'Bu planla 3 yıllık derece şu yarıyılda tamamlanır:',
+    graduation4yr: 'Bu planla 4 yıllık derece şu yarıyılda tamamlanır:',
+    issues: {
+      exclusive:
+        'Тимски проект ve Самостоен проект derslerinden yalnızca biri sayılır.',
+      levelLimit:
+        'Seviyesinin seçmeli ders sınırını aşıyor; kredileri sayılmayacak.',
+      past: 'Geçmiş bir yarıyıla planlandı.',
+      prerequisites:
+        'Ön koşullar, öncesinde alınan veya planlanan derslerle sağlanmıyor.',
+    },
+    notPlanned: 'Planlanmadı',
+    notReached: '8. yarıyıla kadar ulaşılamıyor',
+    planFor: 'Yarıyıl',
+    plannedFor: 'Planda: {semester}. yarıyıl',
+    recommended: 'Önerilen: {semester}. yarıyıl',
+    semesterCredits:
+      '{credits} kredi planlandı (standart yük {standard}), toplam {total}',
+    toPlan: 'Planlanacak dersler',
+    unplannedRequired: 'Henüz planlanmamış zorunlu dersler: {count}',
+  },
   prereqDescription: {
     attended: 'kayıtlı',
     creditsMet: '  ✅ {credits} kredi',
@@ -242,7 +268,7 @@ export const tr = {
     missing4yr:
       'ℹ️ ≥ 234 krediniz var, ancak 4 yıllık program için şu zorunlu dersler eksik: {courses}',
     modeLabel: 'Simülatör görünümü',
-    modes: { checklist: 'Liste', next: 'Sırada ne var' },
+    modes: { checklist: 'Liste', next: 'Sırada ne var', plan: 'Plan' },
     onlyAvailable: 'Yalnızca alınabilir dersler',
     overLimit:
       '⛔ {levels} için kazanılabilecek azami kredi aşıldı. Fazla krediler sayılmadı.',

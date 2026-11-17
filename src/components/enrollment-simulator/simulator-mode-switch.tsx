@@ -3,9 +3,13 @@ import { useLanguage } from '@/lib/LanguageProvider';
 
 import { InfoPopover } from './info-popover';
 
-export type SimulatorMode = 'checklist' | 'next';
+export type SimulatorMode = 'checklist' | 'next' | 'plan';
 
-export const SIMULATOR_MODES: readonly SimulatorMode[] = ['checklist', 'next'];
+export const SIMULATOR_MODES: readonly SimulatorMode[] = [
+  'checklist',
+  'next',
+  'plan',
+];
 
 type SimulatorModeSwitchProps = {
   /** What the current view shows. */

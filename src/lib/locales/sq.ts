@@ -164,6 +164,32 @@ export const sq = {
     markListened: 'Shëno të regjistruar',
     upcoming: '(i radhës; zgjidhni një semestër më lart për ta ndryshuar)',
   },
+  planner: {
+    addToPlan: 'Shto në plan',
+    description:
+      'Planifikoni lëndët që ende nuk i keni marrë në semestrat e mbetur. Lëndët e planifikuara më herët llogariten si të kaluara për ato më vonë; çdo lëndë mund të vendoset vetëm në semestrat e sezonit të saj.',
+    emptySemester: 'Ende asgjë e planifikuar.',
+    graduation3yr: 'Me këtë plan, studimet trevjeçare përfundojnë në:',
+    graduation4yr: 'Me këtë plan, studimet katërvjeçare përfundojnë në:',
+    issues: {
+      exclusive:
+        'Llogaritet vetëm njëra nga Тимски проект dhe Самостоен проект.',
+      levelLimit:
+        'Mbi kufirin e lëndëve zgjedhore të nivelit të saj; kreditet nuk do të llogariten.',
+      past: 'E planifikuar për një semestër që ka kaluar.',
+      prerequisites:
+        'Parakushtet nuk plotësohen nga lëndët e marra ose të planifikuara para saj.',
+    },
+    notPlanned: 'E paplanifikuar',
+    notReached: 'nuk arrihet deri në semestrin 8',
+    planFor: 'Semestri për',
+    plannedFor: 'Në plan: semestri {semester}',
+    recommended: 'E rekomanduar: semestri {semester}',
+    semesterCredits:
+      '{credits} kredite të planifikuara (ngarkesa standarde është {standard}), {total} gjithsej',
+    toPlan: 'Lëndë për t’u planifikuar',
+    unplannedRequired: 'Lëndë të detyrueshme ende të paplanifikuara: {count}',
+  },
   prereqDescription: {
     attended: 'e regjistruar',
     creditsMet: '  ✅ {credits} kredite',
@@ -252,7 +278,7 @@ export const sq = {
     missing4yr:
       'ℹ️ Keni ≥ 234 kredite, por për studimet 4-vjeçare ju mungojnë këto lëndë të detyrueshme: {courses}',
     modeLabel: 'Pamja e simulatorit',
-    modes: { checklist: 'Lista', next: 'Çfarë më pas' },
+    modes: { checklist: 'Lista', next: 'Çfarë më pas', plan: 'Plani' },
     onlyAvailable: 'Vetëm të disponueshme',
     overLimit:
       '⛔ Është tejkaluar numri maksimal i krediteve për {levels}. Kreditet e tepërta nuk numërohen.',
