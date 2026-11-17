@@ -114,13 +114,20 @@ export const CourseListingControls = (props: CourseListingControlsProps) => {
           >
             {t().listing.tagsLabel}
           </span>
-          <TagChips
-            isSelected={(tag) => props.filters.tags.includes(tag)}
-            onToggle={props.onToggleTag}
-          >
-            <Show when={props.filters.tags.length > 1}>
+          <div class="flex min-w-0 flex-col gap-2">
+            <TagChips
+              isSelected={(tag) => props.filters.tags.includes(tag)}
+              onToggle={props.onToggleTag}
+            />
+            {/* How tags combine matters once there are two, or when "all" is set. */}
+            <Show
+              when={
+                props.filters.tagMode === 'all' || props.filters.tags.length > 1
+              }
+            >
               <SegmentedControl
                 aria-label={t().filters.tagMode}
+                class="self-start"
                 items={tagModeItems()}
                 onSelect={(tagMode) => {
                   props.onUpdate({ tagMode });
@@ -129,7 +136,7 @@ export const CourseListingControls = (props: CourseListingControlsProps) => {
                 value={props.filters.tagMode}
               />
             </Show>
-          </TagChips>
+          </div>
         </div>
       </Show>
 

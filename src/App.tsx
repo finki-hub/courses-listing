@@ -25,7 +25,7 @@ import { PrerequisiteExplorer } from '@/components/prerequisite-explorer';
 import { ThemeToggle } from '@/components/theme-toggle';
 import { IconLink } from '@/components/ui/icon-controls';
 import { PageHeader } from '@/components/ui/page-header';
-import { ListingSkeleton } from '@/components/ui/skeleton';
+import { PageSkeleton } from '@/components/ui/skeleton';
 import { useCourses } from '@/data/use-courses';
 import { ALERT_STYLES } from '@/lib/alert-styles';
 import { useLanguage } from '@/lib/LanguageProvider';
@@ -149,7 +149,6 @@ const App = () => {
           </h1>
           <div class="flex shrink-0 items-center gap-1.5 sm:gap-2">
             <IconLink
-              class="hidden sm:inline-flex"
               href="https://github.com/finki-hub/courses-listing"
               rel="noopener noreferrer"
               target="_blank"
@@ -217,7 +216,10 @@ const App = () => {
 
         <Switch>
           <Match when={courses.loading}>
-            <ListingSkeleton label={t().common.loading} />
+            <PageSkeleton
+              label={t().common.loading}
+              variant={page() === 'listing' ? 'listing' : 'page'}
+            />
           </Match>
           <Match when={courses.error !== undefined}>
             <div class={ALERT_STYLES.error}>{t().common.loadError}</div>

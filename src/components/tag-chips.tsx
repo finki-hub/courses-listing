@@ -1,4 +1,4 @@
-import { For, type JSX } from 'solid-js';
+import { For } from 'solid-js';
 
 import { ToggleChip } from '@/components/ui/toggle-chip';
 import { getTagLabel } from '@/lib/i18n';
@@ -7,8 +7,6 @@ import { cn } from '@/lib/utils';
 import { ALL_TAGS } from '@/types/course';
 
 type TagChipsProps = {
-  /** Extra controls after the chips, such as how tags combine. */
-  children?: JSX.Element;
   class?: string;
   isSelected: (tag: string) => boolean;
   onToggle: (tag: string) => void;
@@ -21,7 +19,8 @@ export const TagChips = (props: TagChipsProps) => {
   return (
     <div
       class={cn(
-        '-mx-3 flex items-center gap-2 overflow-x-auto px-3 pb-1 sm:mx-0 sm:flex-wrap sm:overflow-visible sm:px-0 sm:pb-0',
+        // The padding keeps focus rings inside the phone scroller.
+        '-mx-3 -my-1 flex min-w-0 items-center gap-2 overflow-x-auto px-3 py-1 sm:m-0 sm:flex-wrap sm:overflow-visible sm:p-0',
         props.class,
       )}
     >
@@ -37,7 +36,6 @@ export const TagChips = (props: TagChipsProps) => {
           </ToggleChip>
         )}
       </For>
-      {props.children}
     </div>
   );
 };

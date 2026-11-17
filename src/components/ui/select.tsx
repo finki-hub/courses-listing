@@ -1,5 +1,12 @@
 import { ChevronDown } from 'lucide-solid';
-import { type ComponentProps, For, splitProps } from 'solid-js';
+import {
+  type ComponentProps,
+  createEffect,
+  For,
+  on,
+  Show,
+  splitProps,
+} from 'solid-js';
 
 import { FIELD_CLASS } from '@/components/ui/field';
 import { cn } from '@/lib/utils';
@@ -15,7 +22,10 @@ type SelectProps = Omit<ComponentProps<'select'>, 'onChange' | 'value'> & {
 };
 
 // A native select styled like the other fields: native keeps mobile pickers
-// and keyboard behavior, the chevron makes it read as a dropdown.
+// and keyboard behavior, the chevron makes it read as a dropdown. The select
+// always shows the state: an empty value shows the empty option, and a value
+// missing from the options gets an option of its own instead of silently
+// showing the first one.
 export const Select = (props: SelectProps) => {
   const [local, rest] = splitProps(props, [
     'class',
@@ -24,6 +34,20 @@ export const Select = (props: SelectProps) => {
     'options',
     'value',
   ]);
+  const current = () => local.value ?? '';
+  const isUnknown = () =>
+    current() !== '' &&
+    local.options.every((option) => option.value !== current());
+
+  let select: HTMLSelectElement | undefined;
+  // Rebuilt options can reset the native selection, so reapply the value
+  // after every change to it or to the options.
+  createEffect(
+    on([current, () => local.options, isUnknown], ([value]) => {
+      if (select) select.value = value;
+    }),
+  );
+
   return (
     <div class={cn('relative w-full', local.class)}>
       <select
@@ -31,25 +55,26 @@ export const Select = (props: SelectProps) => {
         onChange={(event) => {
           local.onChange(event.currentTarget.value);
         }}
+        ref={(element) => {
+          select = element;
+        }}
+        value={current()}
         {...rest}
       >
-        {local.emptyLabel === undefined ? null : (
+        <Show when={local.emptyLabel !== undefined || current() === ''}>
           <option
-            selected={local.value === null || local.value === ''}
+            disabled={local.emptyLabel === undefined}
+            hidden={local.emptyLabel === undefined}
             value=""
           >
-            {local.emptyLabel}
+            {local.emptyLabel ?? ''}
           </option>
-        )}
+        </Show>
+        <Show when={isUnknown()}>
+          <option value={current()}>{current()}</option>
+        </Show>
         <For each={local.options}>
-          {(option) => (
-            <option
-              selected={local.value === option.value}
-              value={option.value}
-            >
-              {option.label}
-            </option>
-          )}
+          {(option) => <option value={option.value}>{option.label}</option>}
         </For>
       </select>
       <ChevronDown
