@@ -29,9 +29,14 @@ export const mk = {
   },
   detail: {
     accreditationYear: 'Акредитација {year}',
+    accreditationYears: 'Акредитации {years}',
     assistants: 'Асистенти',
+    credits: 'Кредити',
     description: 'Детални информации за предметот',
+    discordChannel: 'Канал на Discord серверот на ФИНКИ Хаб',
     professors: 'Професори',
+    programs: 'Студиски програми',
+    subjectPage: 'Страница на предметот на finki.ukim.mk',
   },
   enrollment: {
     academicYear: 'Академска година',

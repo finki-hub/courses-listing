@@ -29,9 +29,14 @@ export const sq = {
   },
   detail: {
     accreditationYear: 'Akreditimi {year}',
+    accreditationYears: 'Akreditimet {years}',
     assistants: 'Asistentët',
+    credits: 'Kredite',
     description: 'Informacion i hollësishëm për lëndën',
+    discordChannel: 'Kanal në Discord-in e FINKI Hub',
     professors: 'Profesorët',
+    programs: 'Programet e studimit',
+    subjectPage: 'Faqja e lëndës në finki.ukim.mk',
   },
   enrollment: {
     academicYear: 'Viti akademik',

@@ -112,6 +112,45 @@ const parseLevel = (
   return { text: trimmed, type: 'unknown' };
 };
 
+export type CourseMention = {
+  end: number;
+  name: string;
+  start: number;
+};
+
+/**
+ * Find known course names in the text: longest first, case-insensitive, the
+ * first non-overlapping occurrence of each name, in discovery order.
+ *
+ * @param text - The raw prerequisite text
+ * @param knownCourseNames - List of known course names
+ * @returns The mentioned courses with their offsets in the text
+ */
+export const findCourseMentions = (
+  text: string,
+  knownCourseNames: string[],
+): CourseMention[] => {
+  const lower = text.toLowerCase();
+  const mentions: CourseMention[] = [];
+  const overlaps = (start: number, end: number) =>
+    mentions.some((mention) => start < mention.end && mention.start < end);
+
+  const longestFirst = knownCourseNames.toSorted((a, b) => b.length - a.length);
+  for (const name of longestFirst) {
+    const target = name.toLowerCase();
+    if (target === '') continue;
+
+    let start = lower.indexOf(target);
+    while (start !== -1 && overlaps(start, start + target.length)) {
+      start = lower.indexOf(target, start + 1);
+    }
+    if (start !== -1)
+      mentions.push({ end: start + target.length, name, start });
+  }
+
+  return mentions;
+};
+
 /**
  * Tokenise known course names out of the text (longest-first, case-insensitive),
  * then recursive-descent-parse the remaining connectors / parentheses.
@@ -132,28 +171,23 @@ export const parsePrerequisite = (
     return { amount: Number.parseInt(creditAmt, 10), type: 'credits' };
   }
 
-  const sorted = knownCourseNames.toSorted((a, b) => b.length - a.length);
-  const found: string[] = [];
+  const mentions = findCourseMentions(text, knownCourseNames);
+  if (mentions.length === 0) return { text, type: 'unknown' };
+
+  // Replace from the end so the earlier offsets stay valid.
   let tokenised = text;
-
-  for (const name of sorted) {
-    const lowerIdx = tokenised.toLowerCase().indexOf(name.toLowerCase());
-    if (lowerIdx === -1) {
-      continue;
-    }
-
-    found.push(name);
-    tokenised = `${tokenised.slice(
-      0,
-      lowerIdx,
-    )}%%${String(found.length - 1)}%%${tokenised.slice(
-      lowerIdx + name.length,
-    )}`;
+  const fromEnd = mentions
+    .map((mention, index) => ({ ...mention, index }))
+    .toSorted((a, b) => b.start - a.start);
+  for (const { end, index, start } of fromEnd) {
+    tokenised = `${tokenised.slice(0, start)}%%${String(index)}%%${tokenised.slice(end)}`;
   }
 
-  return found.length === 0
-    ? { text, type: 'unknown' }
-    : parseLevel(tokenised, found, 'expr');
+  return parseLevel(
+    tokenised,
+    mentions.map((mention) => mention.name),
+    'expr',
+  );
 };
 
 // ---------------------------------------------------------------------------

@@ -29,9 +29,14 @@ export const en = {
   },
   detail: {
     accreditationYear: 'Accreditation {year}',
+    accreditationYears: 'Accreditations {years}',
     assistants: 'Teaching assistants',
+    credits: 'Credits',
     description: 'Detailed course information',
+    discordChannel: 'Channel on the FINKI Hub Discord',
     professors: 'Professors',
+    programs: 'Study programs',
+    subjectPage: 'Subject page on finki.ukim.mk',
   },
   enrollment: {
     academicYear: 'Academic year',

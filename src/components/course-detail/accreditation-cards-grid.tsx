@@ -1,34 +1,65 @@
-import { Show } from 'solid-js';
+import { createMemo, For } from 'solid-js';
 
 import { AccreditationCard } from '@/components/accreditation-card';
-import { type CourseRaw, getAccreditationInfo } from '@/types/course';
+import {
+  type AccreditationDetails,
+  canMergeAccreditationDetails,
+  getAccreditationDetails,
+  indexCoursesByName,
+} from '@/lib/course-detail';
+import { type Accreditation, type CourseRaw } from '@/types/course';
+
+const ACCREDITATIONS: readonly Accreditation[] = ['2023', '2018'];
 
 type AccreditationCardsGridProps = {
   course: CourseRaw;
+  courses?: CourseRaw[];
+  onOpenCourse?: (course: CourseRaw) => void;
 };
 
+// One card per accreditation, or a single card when they are the same.
 export const AccreditationCardsGrid = (props: AccreditationCardsGridProps) => {
-  const acc2023 = () => getAccreditationInfo(props.course, '2023');
-  const acc2018 = () => getAccreditationInfo(props.course, '2018');
+  const cards = createMemo<AccreditationDetails[][]>(() => {
+    const details = ACCREDITATIONS.flatMap((accreditation) => {
+      const entry = getAccreditationDetails(props.course, accreditation);
+      return entry ? [entry] : [];
+    });
+    const [first, second] = details;
+    return first && second && canMergeAccreditationDetails(first, second)
+      ? [details]
+      : details.map((entry) => [entry]);
+  });
+
+  const indexes = createMemo(
+    () =>
+      new Map(
+        ACCREDITATIONS.map((accreditation) => [
+          accreditation,
+          indexCoursesByName(props.courses ?? [], accreditation),
+        ]),
+      ),
+  );
+
+  const getCourseNames = (accreditation: Accreditation) => [
+    ...(indexes().get(accreditation)?.keys() ?? []),
+  ];
+
+  const openCourse = (accreditation: Accreditation, name: string) => {
+    const course = indexes().get(accreditation)?.get(name);
+    if (course) props.onOpenCourse?.(course);
+  };
 
   return (
-    <div class="grid gap-4 sm:grid-cols-2">
-      <Show when={acc2023()}>
-        {(info) => (
+    <div class={`grid gap-4 ${cards().length > 1 ? 'sm:grid-cols-2' : ''}`}>
+      <For each={cards()}>
+        {(details) => (
           <AccreditationCard
-            info={info()}
-            year="2023"
+            details={details}
+            getCourseNames={getCourseNames}
+            onOpenCourse={props.onOpenCourse ? openCourse : undefined}
           />
         )}
-      </Show>
-      <Show when={acc2018()}>
-        {(info) => (
-          <AccreditationCard
-            info={info()}
-            year="2018"
-          />
-        )}
-      </Show>
+      </For>
     </div>
   );
 };

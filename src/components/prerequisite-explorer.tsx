@@ -241,7 +241,9 @@ export const PrerequisiteExplorer = (props: PrerequisiteExplorerProps) => {
       <CourseDetailDialog
         accreditation={accreditation()}
         course={courseDialog.course()}
+        courses={props.courses}
         onOpenChange={courseDialog.setOpen}
+        onOpenCourse={courseDialog.openCourse}
         open={courseDialog.open()}
       />
     </div>
