@@ -75,17 +75,23 @@ const writeOpenSection = (section: FilterSectionKey, open: boolean) => {
 };
 
 type FilterSectionProps = {
+  /** Holds an active filter: open whatever was saved. */
+  active: boolean;
   children: JSX.Element;
-  defaultOpen: boolean;
   section: FilterSectionKey;
   title: string;
 };
 
-// A collapsible group of filters, remembered for the browser session.
+// A collapsible group of filters, remembered for the browser session; a
+// group holding an active filter always starts open.
 const FilterSection = (props: FilterSectionProps) => {
   const bodyId = createUniqueId();
   const [open, setOpen] = createSignal(
-    untrack(() => readOpenSections()[props.section] ?? props.defaultOpen),
+    untrack(
+      () =>
+        props.active ||
+        (readOpenSections()[props.section] ?? DEFAULT_OPEN[props.section]),
+    ),
   );
   return (
     <section class="border-b py-3 last:border-b-0">
@@ -160,7 +166,7 @@ export type ListingFilterPanelProps = {
   readonly staff: readonly string[];
 };
 
-type SectionProps = ListingFilterPanelProps & { readonly open: boolean };
+type SectionProps = ListingFilterPanelProps & { readonly active: boolean };
 
 const CurriculumSection = (props: SectionProps) => {
   const { t } = useLanguage();
@@ -173,7 +179,7 @@ const CurriculumSection = (props: SectionProps) => {
 
   return (
     <FilterSection
-      defaultOpen={props.open}
+      active={props.active}
       section="curriculum"
       title={t().filters.sections.curriculum}
     >
@@ -274,7 +280,7 @@ const ProgramSection = (props: SectionProps) => {
 
   return (
     <FilterSection
-      defaultOpen={props.open}
+      active={props.active}
       section="program"
       title={t().filters.sections.program}
     >
@@ -318,7 +324,7 @@ const TopicsSection = (props: SectionProps) => {
   const { t } = useLanguage();
   return (
     <FilterSection
-      defaultOpen={props.open}
+      active={props.active}
       section="topics"
       title={t().filters.sections.topics}
     >
@@ -372,7 +378,7 @@ const StatusSection = (props: SectionProps) => {
 
   return (
     <FilterSection
-      defaultOpen={props.open}
+      active={props.active}
       section="status"
       title={t().filters.sections.status}
     >
@@ -404,7 +410,7 @@ const PeopleSection = (props: SectionProps) => {
   const staffListId = createUniqueId();
   return (
     <FilterSection
-      defaultOpen={props.open}
+      active={props.active}
       section="people"
       title={t().filters.sections.people}
     >
@@ -430,8 +436,6 @@ const PeopleSection = (props: SectionProps) => {
 // both show this panel. The master's view leads with its programs.
 export const ListingFilterPanel = (props: ListingFilterPanelProps) => {
   const active = untrack(() => getActiveFilterSections(props.filters));
-  const isOpen = (section: FilterSectionKey) =>
-    DEFAULT_OPEN[section] || active.has(section);
   const master = () => props.masterPrograms !== undefined;
 
   return (
@@ -441,15 +445,15 @@ export const ListingFilterPanel = (props: ListingFilterPanelProps) => {
           <>
             <CurriculumSection
               {...props}
-              open={isOpen('curriculum')}
+              active={active.has('curriculum')}
             />
             <ProgramSection
               {...props}
-              open={isOpen('program')}
+              active={active.has('program')}
             />
             <TopicsSection
               {...props}
-              open={isOpen('topics')}
+              active={active.has('topics')}
             />
           </>
         }
@@ -457,20 +461,20 @@ export const ListingFilterPanel = (props: ListingFilterPanelProps) => {
       >
         <ProgramSection
           {...props}
-          open={isOpen('program')}
+          active={active.has('program')}
         />
         <CurriculumSection
           {...props}
-          open={isOpen('curriculum')}
+          active={active.has('curriculum')}
         />
       </Show>
       <StatusSection
         {...props}
-        open={isOpen('status')}
+        active={active.has('status')}
       />
       <PeopleSection
         {...props}
-        open={isOpen('people')}
+        active={active.has('people')}
       />
     </div>
   );

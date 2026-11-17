@@ -45,11 +45,7 @@ import { ActiveFilterChips } from './active-filter-chips';
 import { CourseDetailDialog } from './course-detail-dialog';
 import { CourseResults } from './course-results';
 import { type CourseRowFacts } from './course-table-row';
-import {
-  FiltersSheet,
-  FiltersSidebar,
-  NoResults,
-} from './listing-filter-frames';
+import { FiltersFrame, NoResults } from './listing-filter-frames';
 import { ListingFilterPanel } from './listing-filter-panel';
 import { ListingToolbar } from './listing-toolbar';
 import { useCourseSearchAnalytics } from './use-course-search-analytics';
@@ -350,12 +346,17 @@ export const CourseTable = (props: CourseTableProps) => {
       </Show>
 
       <div class="lg:grid lg:grid-cols-[16.5rem_minmax(0,1fr)] lg:items-start lg:gap-6">
-        <FiltersSidebar
+        <FiltersFrame
           activeFilters={activeFilters()}
           onClear={clearAll}
+          onOpenChange={setFiltersOpen}
+          open={filtersOpen()}
+          resultCount={
+            awaitingPrograms() ? undefined : filteredCourses().length
+          }
         >
           {filterPanel()}
-        </FiltersSidebar>
+        </FiltersFrame>
 
         <div class="min-w-0 space-y-3">
           <ActiveFilterChips
@@ -399,16 +400,6 @@ export const CourseTable = (props: CourseTableProps) => {
           </Show>
         </div>
       </div>
-
-      <FiltersSheet
-        activeFilters={activeFilters()}
-        onClear={clearAll}
-        onOpenChange={setFiltersOpen}
-        open={filtersOpen()}
-        resultCount={filteredCourses().length}
-      >
-        {filterPanel()}
-      </FiltersSheet>
 
       <CourseDetailDialog
         accreditation={filters().accreditation}

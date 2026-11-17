@@ -137,6 +137,7 @@ export const sq = {
       topics: 'Temat',
     },
     semesterNumber: 'Nr. i semestrit:',
+    showCourses: 'Shfaq lëndët',
     showResults: {
       one: 'Shfaq {count} lëndë',
       other: 'Shfaq {count} lëndë',

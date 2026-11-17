@@ -163,28 +163,30 @@ export const AccreditationSections = (props: AccreditationSectionsProps) => {
     <>
       <DetailSection title={t().detail.overview}>
         <dl class="grid grid-cols-2 gap-x-4 gap-y-3 sm:grid-cols-3">
-          <Fact label={t().common.code}>
-            <span class="flex flex-col gap-0.5">
-              <For each={details().filter((entry) => entry.code)}>
-                {(entry) => (
-                  <a
-                    class={`${EXTERNAL_LINK_CLASS} font-mono text-xs`}
-                    href={`${FINKI_SUBJECT_BASE}${entry.code ?? ''}`}
-                    rel="noopener noreferrer"
-                    target="_blank"
-                    title={t().detail.subjectPage}
-                  >
-                    {entry.code}
-                    <span class="sr-only">, {t().detail.subjectPage}</span>
-                    <ExternalLink
-                      aria-hidden="true"
-                      class="h-3 w-3"
-                    />
-                  </a>
-                )}
-              </For>
-            </span>
-          </Fact>
+          <Show when={details().some((entry) => entry.code)}>
+            <Fact label={t().common.code}>
+              <span class="flex flex-col gap-0.5">
+                <For each={details().filter((entry) => entry.code)}>
+                  {(entry) => (
+                    <a
+                      class={`${EXTERNAL_LINK_CLASS} font-mono text-xs`}
+                      href={`${FINKI_SUBJECT_BASE}${entry.code ?? ''}`}
+                      rel="noopener noreferrer"
+                      target="_blank"
+                      title={t().detail.subjectPage}
+                    >
+                      {entry.code}
+                      <span class="sr-only">, {t().detail.subjectPage}</span>
+                      <ExternalLink
+                        aria-hidden="true"
+                        class="h-3 w-3"
+                      />
+                    </a>
+                  )}
+                </For>
+              </span>
+            </Fact>
+          </Show>
           <GroupedFact
             details={details()}
             label={t().detail.credits}

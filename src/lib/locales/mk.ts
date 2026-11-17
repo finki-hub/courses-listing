@@ -138,6 +138,7 @@ export const mk = {
       topics: 'Теми',
     },
     semesterNumber: 'Бр. семестар:',
+    showCourses: 'Прикажи предмети',
     showResults: {
       one: 'Прикажи {count} предмет',
       other: 'Прикажи {count} предмети',

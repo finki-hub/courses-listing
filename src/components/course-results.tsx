@@ -1,4 +1,4 @@
-import { For, Show } from 'solid-js';
+import { createMemo, For, Show } from 'solid-js';
 
 import {
   Table,
@@ -14,6 +14,7 @@ import {
 } from '@/lib/course-filters';
 import { type Translations } from '@/lib/i18n';
 import { useLanguage } from '@/lib/LanguageProvider';
+import { SMALL_SCREEN_QUERY, useMediaQuery } from '@/lib/use-media-query';
 import { type Accreditation, type CourseRaw } from '@/types/course';
 
 import { CourseCard } from './course-card';
@@ -116,6 +117,8 @@ type CourseResultsProps = {
 // The filtered courses: cards on narrow screens, a sortable table otherwise.
 export const CourseResults = (props: CourseResultsProps) => {
   const { t } = useLanguage();
+  // One layout at a time: cards on phones, the table from the sm width.
+  const wide = useMediaQuery(SMALL_SCREEN_QUERY);
   const heads = () => (props.master ? MASTER_HEADS : UNDERGRADUATE_HEADS);
   const ariaSort = (
     sort: SortColumn | undefined,
@@ -125,25 +128,31 @@ export const CourseResults = (props: CourseResultsProps) => {
       : undefined;
 
   return (
-    <>
-      <ul class="space-y-2 sm:hidden">
-        <For each={props.courses}>
-          {(course, index) => (
-            <li>
-              <CourseCard
-                accreditation={props.accreditation}
-                course={course}
-                facts={props.getFacts(course)}
-                onClick={() => {
-                  props.onOpen(course, index());
-                }}
-              />
-            </li>
-          )}
-        </For>
-      </ul>
-
-      <div class="bg-card hidden overflow-hidden rounded-lg border sm:block">
+    <Show
+      fallback={
+        <ul class="space-y-2">
+          <For each={props.courses}>
+            {(course, index) => {
+              const facts = createMemo(() => props.getFacts(course));
+              return (
+                <li>
+                  <CourseCard
+                    accreditation={props.accreditation}
+                    course={course}
+                    facts={facts()}
+                    onClick={() => {
+                      props.onOpen(course, index());
+                    }}
+                  />
+                </li>
+              );
+            }}
+          </For>
+        </ul>
+      }
+      when={wide()}
+    >
+      <div class="bg-card overflow-hidden rounded-lg border">
         <Table>
           <TableHeader class="bg-muted/40">
             <TableRow class="hover:bg-transparent">
@@ -190,21 +199,24 @@ export const CourseResults = (props: CourseResultsProps) => {
           </TableHeader>
           <TableBody>
             <For each={props.courses}>
-              {(course, index) => (
-                <CourseTableRow
-                  accreditation={props.accreditation}
-                  columns={heads()}
-                  course={course}
-                  facts={props.getFacts(course)}
-                  onClick={() => {
-                    props.onOpen(course, index());
-                  }}
-                />
-              )}
+              {(course, index) => {
+                const facts = createMemo(() => props.getFacts(course));
+                return (
+                  <CourseTableRow
+                    accreditation={props.accreditation}
+                    columns={heads()}
+                    course={course}
+                    facts={facts()}
+                    onClick={() => {
+                      props.onOpen(course, index());
+                    }}
+                  />
+                );
+              }}
             </For>
           </TableBody>
         </Table>
       </div>
-    </>
+    </Show>
   );
 };

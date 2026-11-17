@@ -1,5 +1,5 @@
 import { ArrowLeft } from 'lucide-solid';
-import { createEffect, createSignal, For, on, Show } from 'solid-js';
+import { createEffect, createSignal, For, on, Show, untrack } from 'solid-js';
 
 import {
   AccreditationSections,
@@ -52,43 +52,64 @@ const StaffList = (props: { names: string[]; title: string }) => (
 export const CourseDetailDialog = (props: CourseDetailDialogProps) => {
   const { language, t } = useLanguage();
   const [history, setHistory] = createSignal<CourseRaw[]>([]);
-  let top: HTMLDivElement | undefined;
-  // The course the panel itself asked for, as opposed to one from outside.
-  let requested: CourseRaw | null = null;
+  // The last course shown, kept while the panel closes so it always has a
+  // title and content.
+  const [lastCourse, setLastCourse] = createSignal<CourseRaw | null>(null);
+  const shownCourse = () => props.course ?? lastCourse();
+  let body: HTMLDivElement | undefined;
+  // A move the panel itself asked for: forward to a prerequisite, or back.
+  const pending: { move?: { course: CourseRaw; kind: 'back' | 'forward' } } =
+    {};
 
-  const nameOf = (course: CourseRaw) =>
-    getCourseName(course, props.accreditation, language());
+  const nameOf = (value: CourseRaw) =>
+    getCourseName(value, props.accreditation, language());
 
+  createEffect(() => {
+    if (props.course) setLastCourse(props.course);
+  });
+
+  // History changes only once the course has actually changed: forward
+  // pushes the course left, back pops it, and anything else starts over.
+  let lastSeen = untrack(() => props.course);
   createEffect(
     on(
       () => props.course,
-      (course) => {
-        if (course !== requested) setHistory([]);
-        requested = null;
+      (current) => {
+        const left = lastSeen;
+        lastSeen = current;
+        const { move } = pending;
+        pending.move = undefined;
+        const asked = current !== null && move?.course === current;
+        if (asked && move.kind === 'back') {
+          setHistory((list) => list.slice(0, -1));
+        } else if (asked && left) {
+          setHistory((list) => [...list, left]);
+        } else {
+          setHistory([]);
+        }
         // The clicked link is gone: start the new course at the top and keep
         // focus in the panel.
-        top?.scrollIntoView({ block: 'start' });
-        top?.focus({ preventScroll: true });
+        body?.scrollTo({ top: 0 });
+        body?.focus({ preventScroll: true });
       },
       { defer: true },
     ),
   );
   createEffect(() => {
-    if (!props.open) setHistory([]);
+    if (props.open) return;
+    pending.move = undefined;
+    setHistory([]);
   });
 
-  const openFromPanel = (course: CourseRaw) => {
-    const current = props.course;
-    if (current) setHistory((list) => [...list, current]);
-    requested = course;
-    props.onOpenCourse?.(course);
+  const openFromPanel = (next: CourseRaw) => {
+    pending.move = { course: next, kind: 'forward' };
+    props.onOpenCourse?.(next);
   };
 
   const goBack = () => {
     const previous = history().at(-1);
     if (!previous) return;
-    setHistory((list) => list.slice(0, -1));
-    requested = previous;
+    pending.move = { course: previous, kind: 'back' };
     props.onOpenCourse?.(previous);
   };
 
@@ -99,21 +120,24 @@ export const CourseDetailDialog = (props: CourseDetailDialogProps) => {
 
   return (
     <Sheet
+      bodyRef={(element) => {
+        body = element;
+      }}
       class="h-[96dvh] max-h-[96dvh] sm:h-dvh sm:max-h-none sm:w-[min(42rem,96vw)]"
-      description={props.course ? alternateName(props.course) : undefined}
+      description={(() => {
+        const shown = shownCourse();
+        return shown ? alternateName(shown) : undefined;
+      })()}
       onOpenChange={props.onOpenChange}
       open={props.open}
-      title={props.course ? nameOf(props.course) : ''}
+      title={(() => {
+        const shown = shownCourse();
+        return shown ? nameOf(shown) : '';
+      })()}
     >
-      <Show when={props.course}>
+      <Show when={shownCourse()}>
         {(course) => (
-          <div
-            class="space-y-5 outline-none"
-            ref={(element) => {
-              top = element;
-            }}
-            tabIndex={-1}
-          >
+          <div class="space-y-5">
             <Show when={history().at(-1)}>
               {(previous) => (
                 <button
@@ -144,20 +168,27 @@ export const CourseDetailDialog = (props: CourseDetailDialogProps) => {
             >
               {(masters) => (
                 <>
-                  <DetailSection title={t().detail.overview}>
-                    <dl class="grid grid-cols-2 gap-x-4 gap-y-3 sm:grid-cols-3">
-                      <Show when={masters().getCredits(course())}>
-                        {(credits) => (
-                          <Fact label={t().detail.credits}>{credits()}</Fact>
-                        )}
-                      </Show>
-                      <Show when={hasChannel(course())}>
-                        <Fact label={t().common.channel}>
-                          <DiscordLink />
-                        </Fact>
-                      </Show>
-                    </dl>
-                  </DetailSection>
+                  <Show
+                    when={
+                      masters().getCredits(course()) !== undefined ||
+                      hasChannel(course())
+                    }
+                  >
+                    <DetailSection title={t().detail.overview}>
+                      <dl class="grid grid-cols-2 gap-x-4 gap-y-3 sm:grid-cols-3">
+                        <Show when={masters().getCredits(course())}>
+                          {(credits) => (
+                            <Fact label={t().detail.credits}>{credits()}</Fact>
+                          )}
+                        </Show>
+                        <Show when={hasChannel(course())}>
+                          <Fact label={t().common.channel}>
+                            <DiscordLink />
+                          </Fact>
+                        </Show>
+                      </dl>
+                    </DetailSection>
+                  </Show>
                   <DetailSection title={t().masters.programs}>
                     <MasterProgramsSection
                       entries={masters().entries(course())}

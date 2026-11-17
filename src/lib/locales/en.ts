@@ -137,6 +137,7 @@ export const en = {
       topics: 'Topics',
     },
     semesterNumber: 'Semester no.:',
+    showCourses: 'Show courses',
     showResults: {
       one: 'Show {count} course',
       other: 'Show {count} courses',

@@ -137,6 +137,7 @@ export const tr = {
       topics: 'Konular',
     },
     semesterNumber: 'Yarıyıl no.:',
+    showCourses: 'Dersleri göster',
     showResults: {
       one: '{count} dersi göster',
       other: '{count} dersi göster',
