@@ -1,99 +1,98 @@
-import { createMemo, For, type JSX, Show } from 'solid-js';
+import { createMemo, createSignal, untrack } from 'solid-js';
 
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
 import { capture } from '@/lib/analytics-client';
+import {
+  getAllStaff,
+  getCourseSemester,
+  getCurrentEnrollment,
+  getDistinctCredits,
+  getLatestEnrollmentYears,
+  getPrimaryCredits,
+} from '@/lib/course-facts';
 import {
   type CourseFilterCriteria,
   filterCourses,
   sortCourses,
-  sortIndicator,
 } from '@/lib/course-filters';
 import { useLanguage } from '@/lib/LanguageProvider';
+import {
+  clearFilters,
+  hasMoreFilters,
+  removeFilterChip,
+} from '@/lib/listing-filter-chips';
 import { type CourseRaw } from '@/types/course';
 
-import { CourseCard } from './course-card';
 import { CourseDetailDialog } from './course-detail-dialog';
 import { CourseListingControls } from './course-listing-controls';
-import { CourseTableRow } from './course-table-row';
+import { CourseResults } from './course-results';
+import { type CourseRowFacts } from './course-table-row';
 import { useCourseSearchAnalytics } from './use-course-search-analytics';
 import { useLinkedCourseDialog } from './use-linked-course-dialog';
 import { useListingState } from './use-listing-state';
-
-type SortableTableHeadProps = {
-  buttonClass?: string;
-  children: JSX.Element;
-  class?: string;
-  onClick: () => void;
-};
-
-const SortableTableHead = (props: SortableTableHeadProps) => (
-  <TableHead class={props.class}>
-    <button
-      class={`w-full cursor-pointer select-none ${props.buttonClass ?? 'text-left'}`}
-      onClick={() => {
-        props.onClick();
-      }}
-      type="button"
-    >
-      {props.children}
-    </button>
-  </TableHead>
-);
 
 type CourseTableProps = {
   courses: CourseRaw[];
 };
 
 export const CourseTable = (props: CourseTableProps) => {
-  const { language, t } = useLanguage();
+  const { language } = useLanguage();
 
-  const {
-    accreditation,
-    levelFilter,
-    search,
-    seasonFilter,
-    selectedTags,
-    setLevelFilter,
-    setSearch,
-    setSeasonFilter,
-    sortColumn,
-    sortDirection,
-    switchAccreditation,
-    toggleSort,
-    toggleTag,
-  } = useListingState();
+  const listing = useListingState();
+  const { filters, sortColumn, sortDirection, toggleSort } = listing;
   const courseDialog = useLinkedCourseDialog(() => props.courses);
 
+  const enrollmentYears = createMemo(() =>
+    getLatestEnrollmentYears(props.courses),
+  );
+  const staff = createMemo(() => getAllStaff(props.courses));
+  const credits = createMemo(() => getDistinctCredits(props.courses));
+  const selectedTags = createMemo(() => new Set(filters().tags));
+
+  // Opens by itself when a link arrives with one of its filters set.
+  const [moreExpanded, setMoreExpanded] = createSignal(
+    hasMoreFilters(untrack(filters)),
+  );
+
   const filterCriteria = (): CourseFilterCriteria => ({
-    accreditation: accreditation(),
-    level: levelFilter(),
-    searchTerm: search(),
-    season: seasonFilter(),
+    ...filters(),
+    enrollmentYears: enrollmentYears(),
+    searchTerm: filters().query,
     tags: selectedTags(),
   });
 
   const filteredCourses = createMemo(() =>
     sortCourses(filterCourses(props.courses, filterCriteria()), {
-      accreditation: accreditation(),
+      accreditation: filters().accreditation,
       column: sortColumn(),
       direction: sortDirection(),
+      enrollmentYears: enrollmentYears(),
       language: language(),
     }),
   );
 
+  const getFacts = (course: CourseRaw): CourseRowFacts => ({
+    credits: getPrimaryCredits(course, filters().accreditation),
+    semester: getCourseSemester(course, filters().accreditation),
+    students: getCurrentEnrollment(course, enrollmentYears()),
+  });
+
   const searchLinkage = useCourseSearchAnalytics(() => ({
-    accreditation: accreditation(),
-    level: levelFilter(),
-    query: search(),
+    accreditation: filters().accreditation,
+    level: filters().level,
+    otherFilters: JSON.stringify([
+      filters().program,
+      filters().programState,
+      filters().semester,
+      filters().credits,
+      filters().staff,
+      filters().hideInactive,
+      filters().offeredOnly,
+      filters().channelOnly,
+      filters().tagMode,
+    ]),
+    query: filters().query,
     resultCount: filteredCourses().length,
-    season: seasonFilter(),
+    season: filters().season,
     sortColumn: sortColumn(),
     sortDirection: sortDirection(),
     tags: selectedTags(),
@@ -111,121 +110,38 @@ export const CourseTable = (props: CourseTableProps) => {
   return (
     <div class="space-y-4">
       <CourseListingControls
-        accreditation={accreditation()}
-        levelFilter={levelFilter()}
-        onSearchInput={setSearch}
-        onSetLevel={setLevelFilter}
-        onSetSeason={setSeasonFilter}
-        onSwitchAccreditation={switchAccreditation}
+        credits={credits()}
+        filters={filters()}
+        moreExpanded={moreExpanded()}
+        onClearFilters={() => {
+          listing.setFilters(clearFilters(filters()));
+        }}
+        onMoreExpandedChange={setMoreExpanded}
+        onRemoveChip={(chip) => {
+          listing.setFilters(removeFilterChip(filters(), chip));
+        }}
+        onSwitchAccreditation={listing.switchAccreditation}
         onToggleSort={toggleSort}
-        onToggleTag={toggleTag}
+        onToggleTag={listing.toggleTag}
+        onUpdate={listing.updateFilters}
         resultCount={filteredCourses().length}
-        search={search()}
-        seasonFilter={seasonFilter()}
-        selectedTags={selectedTags()}
+        sortColumn={sortColumn()}
+        sortDirection={sortDirection()}
+        staff={staff()}
+      />
+
+      <CourseResults
+        accreditation={filters().accreditation}
+        courses={filteredCourses()}
+        getFacts={getFacts}
+        onOpen={openDetail}
+        onToggleSort={toggleSort}
         sortColumn={sortColumn()}
         sortDirection={sortDirection()}
       />
-      {/* Mobile: card layout */}
-      <div class="space-y-2 sm:hidden">
-        <Show
-          fallback={
-            <div class="text-muted-foreground py-12 text-center text-sm">
-              {t().common.noResults}
-            </div>
-          }
-          when={filteredCourses().length > 0}
-        >
-          <For each={filteredCourses()}>
-            {(course, index) => (
-              <CourseCard
-                accreditation={accreditation()}
-                course={course}
-                onClick={() => {
-                  openDetail(course, index());
-                }}
-              />
-            )}
-          </For>
-        </Show>
-      </div>
-
-      {/* Desktop: table layout */}
-      <div class="hidden rounded-md border sm:block">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <SortableTableHead
-                class="w-75"
-                onClick={() => {
-                  toggleSort('name');
-                }}
-              >
-                {t().common.course}
-                {sortIndicator(sortColumn(), sortDirection(), 'name')}
-              </SortableTableHead>
-              <SortableTableHead
-                class="hidden md:table-cell"
-                onClick={() => {
-                  toggleSort('accreditation');
-                }}
-              >
-                {t().common.accreditation}
-                {sortIndicator(sortColumn(), sortDirection(), 'accreditation')}
-              </SortableTableHead>
-              <SortableTableHead
-                buttonClass="text-center"
-                class="hidden w-20 text-center md:table-cell"
-                onClick={() => {
-                  toggleSort('channel');
-                }}
-              >
-                {t().common.discordChannel}
-                {sortIndicator(sortColumn(), sortDirection(), 'channel')}
-              </SortableTableHead>
-              <SortableTableHead
-                class="hidden lg:table-cell"
-                onClick={() => {
-                  toggleSort('tags');
-                }}
-              >
-                {t().common.tags}
-                {sortIndicator(sortColumn(), sortDirection(), 'tags')}
-              </SortableTableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            <Show
-              fallback={
-                <TableRow>
-                  <TableCell
-                    class="h-24 text-center"
-                    colSpan={4}
-                  >
-                    {t().common.noResults}
-                  </TableCell>
-                </TableRow>
-              }
-              when={filteredCourses().length > 0}
-            >
-              <For each={filteredCourses()}>
-                {(course, index) => (
-                  <CourseTableRow
-                    accreditation={accreditation()}
-                    course={course}
-                    onClick={() => {
-                      openDetail(course, index());
-                    }}
-                  />
-                )}
-              </For>
-            </Show>
-          </TableBody>
-        </Table>
-      </div>
 
       <CourseDetailDialog
-        accreditation={accreditation()}
+        accreditation={filters().accreditation}
         course={courseDialog.course()}
         courses={props.courses}
         onOpenChange={courseDialog.setOpen}

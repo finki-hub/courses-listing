@@ -10,17 +10,28 @@ import {
 } from '../src/lib/listing-url-state.ts';
 
 const OPTIONS = {
-  sortColumns: ['name', 'accreditation', 'channel', 'tags'],
+  programs: ['ie', 'kn', 'siis'],
+  sortColumns: ['name', 'accreditation', 'channel', 'tags', 'popularity'],
+  staff: ['Костадин Мишев', 'Ана Тодоровска'],
   tags: ['delemangi', 'ai', 'coding', 'web'],
 };
 
 const DEFAULT_STATE = {
   accreditation: null,
+  channelOnly: false,
+  credits: null,
+  hideInactive: false,
   level: null,
+  offeredOnly: false,
+  program: null,
+  programState: null,
   query: '',
   season: null,
+  semester: null,
   sortColumn: 'name',
   sortDirection: 'asc',
+  staff: '',
+  tagMode: 'any',
   tags: [],
 };
 
@@ -40,11 +51,20 @@ test('an empty URL parses to the default listing state', () => {
 test('valid listing params round-trip through the URL', () => {
   const state = {
     accreditation: '2018',
+    channelOnly: true,
+    credits: 6,
+    hideInactive: true,
     level: 2,
+    offeredOnly: true,
+    program: 'kn',
+    programState: 'elective',
     query: 'веб прог',
     season: 'winter',
-    sortColumn: 'channel',
+    semester: 5,
+    sortColumn: 'popularity',
     sortDirection: 'desc',
+    staff: 'Костадин Мишев',
+    tagMode: 'all',
     tags: ['ai', 'web'],
   };
   assert.deepEqual(parse(write(state)), state);
@@ -61,6 +81,20 @@ test('invalid values fall back to defaults', () => {
     parse('acc=2013&level=4&season=spring&sort=credits&dir=up&tags=,unknown,'),
     DEFAULT_STATE,
   );
+  assert.deepEqual(
+    parse(
+      'prog=xx&pstate=required&sem=9&credits=06&hideinactive=yes&offered=0&channel=true&tagmode=none',
+    ),
+    DEFAULT_STATE,
+  );
+  assert.equal(parse('sem=0').semester, null);
+  assert.equal(parse('credits=61').credits, null);
+});
+
+test('a program state without its program is dropped', () => {
+  assert.equal(parse('pstate=required').programState, null);
+  assert.equal(parse('prog=kn&pstate=required').programState, 'required');
+  assert.equal(write({ ...DEFAULT_STATE, programState: 'required' }), '');
 });
 
 test('tags are filtered to known ones, deduplicated and kept in canonical order', () => {

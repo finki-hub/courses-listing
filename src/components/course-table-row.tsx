@@ -3,7 +3,7 @@ import { For, Show } from 'solid-js';
 
 import { Badge } from '@/components/ui/badge';
 import { TableCell, TableRow } from '@/components/ui/table';
-import { getTagLabel } from '@/lib/i18n';
+import { formatNumber, getTagLabel } from '@/lib/i18n';
 import { useLanguage } from '@/lib/LanguageProvider';
 import {
   type Accreditation,
@@ -14,14 +14,23 @@ import {
   hasChannel,
 } from '@/types/course';
 
+// Values shown beside a course, for the accreditation it is shown by.
+export type CourseRowFacts = {
+  readonly credits: number | undefined;
+  readonly semester: number | undefined;
+  readonly students: number;
+};
+
 type CourseTableRowProps = {
   accreditation: Accreditation | null;
   course: CourseRaw;
+  facts: CourseRowFacts;
   onClick: () => void;
 };
 
 export const CourseTableRow = (props: CourseTableRowProps) => {
   const { language, t } = useLanguage();
+  const numberCell = 'hidden whitespace-nowrap tabular-nums';
   return (
     <TableRow
       class="cursor-pointer"
@@ -42,6 +51,15 @@ export const CourseTableRow = (props: CourseTableRowProps) => {
       </TableCell>
       <TableCell class="hidden whitespace-nowrap md:table-cell">
         {getAccLabel(props.course)}
+      </TableCell>
+      <TableCell class={`${numberCell} md:table-cell`}>
+        {props.facts.semester ?? ''}
+      </TableCell>
+      <TableCell class={`${numberCell} lg:table-cell`}>
+        {props.facts.credits ?? ''}
+      </TableCell>
+      <TableCell class={`${numberCell} md:table-cell`}>
+        {formatNumber(props.facts.students, language())}
       </TableCell>
       <TableCell class="hidden whitespace-nowrap text-center md:table-cell">
         <Show when={hasChannel(props.course)}>
