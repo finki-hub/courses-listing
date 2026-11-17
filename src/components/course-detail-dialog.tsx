@@ -4,6 +4,7 @@ import { AccreditationCardsGrid } from '@/components/course-detail/accreditation
 import { CourseTagsSection } from '@/components/course-detail/course-tags-section';
 import { DetailBadgeSection } from '@/components/course-detail/detail-badge-section';
 import { EnrollmentHistorySection } from '@/components/course-detail/enrollment-history-section';
+import { MasterProgramsSection } from '@/components/course-detail/master-programs-section';
 import {
   Dialog,
   DialogContent,
@@ -12,7 +13,9 @@ import {
   DialogPortal,
   DialogTitle,
 } from '@/components/ui/dialog';
+import { type MasterListing } from '@/components/use-master-listing';
 import { useLanguage } from '@/lib/LanguageProvider';
+import { isMasterCourse } from '@/lib/master-programs';
 import {
   type Accreditation,
   type CourseRaw,
@@ -24,6 +27,8 @@ type CourseDetailDialogProps = {
   course: CourseRaw | null;
   // All courses, so prerequisites can open the courses they name.
   courses?: CourseRaw[];
+  /** Programs for master's courses, which have no accreditations. */
+  masters?: MasterListing;
   onOpenChange: (open: boolean) => void;
   onOpenCourse?: (course: CourseRaw) => void;
   open: boolean;
@@ -107,11 +112,25 @@ export const CourseDetailDialog = (props: CourseDetailDialogProps) => {
 
                     <CourseTagsSection course={course()} />
 
-                    <AccreditationCardsGrid
-                      course={course()}
-                      courses={props.courses}
-                      onOpenCourse={props.onOpenCourse}
-                    />
+                    <Show
+                      fallback={
+                        <AccreditationCardsGrid
+                          course={course()}
+                          courses={props.courses}
+                          onOpenCourse={props.onOpenCourse}
+                        />
+                      }
+                      when={isMasterCourse(course()) && props.masters}
+                    >
+                      {(masters) => (
+                        <MasterProgramsSection
+                          credits={masters().getCredits(course())}
+                          entries={masters().entries(course())}
+                          loading={masters().loading()}
+                          programTitle={masters().programTitle}
+                        />
+                      )}
+                    </Show>
 
                     <EnrollmentHistorySection course={course()} />
                   </div>

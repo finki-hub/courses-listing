@@ -1,6 +1,7 @@
 import { siGithub } from 'simple-icons';
 import {
   createEffect,
+  createMemo,
   createSignal,
   For,
   Match,
@@ -23,6 +24,7 @@ import {
   LISTING_FILTER_PARAMS,
   replaceUrlParams,
 } from '@/lib/listing-url-state';
+import { isMasterCourse } from '@/lib/master-programs';
 import { PAGE_QUERY_PARAM, SIMULATOR_SHARE_PARAM } from '@/lib/simulator-share';
 
 type Page = 'equivalencies' | 'listing' | 'prerequisites' | 'simulator';
@@ -196,22 +198,29 @@ const App = () => {
             <div class={ALERT_STYLES.error}>{t().common.loadError}</div>
           </Match>
           <Match when={courses()}>
-            {(data) => (
-              <Switch>
-                <Match when={page() === 'listing'}>
-                  <CourseTable courses={data()} />
-                </Match>
-                <Match when={page() === 'simulator'}>
-                  <EnrollmentSimulator courses={data()} />
-                </Match>
-                <Match when={page() === 'prerequisites'}>
-                  <PrerequisiteExplorer courses={data()} />
-                </Match>
-                <Match when={page() === 'equivalencies'}>
-                  <CourseEquivalencies courses={data()} />
-                </Match>
-              </Switch>
-            )}
+            {(data) => {
+              // Only the listing shows master's courses; the other tabs work
+              // on the undergraduate curriculum.
+              const undergraduate = createMemo(() =>
+                data().filter((course) => !isMasterCourse(course)),
+              );
+              return (
+                <Switch>
+                  <Match when={page() === 'listing'}>
+                    <CourseTable courses={data()} />
+                  </Match>
+                  <Match when={page() === 'simulator'}>
+                    <EnrollmentSimulator courses={undergraduate()} />
+                  </Match>
+                  <Match when={page() === 'prerequisites'}>
+                    <PrerequisiteExplorer courses={undergraduate()} />
+                  </Match>
+                  <Match when={page() === 'equivalencies'}>
+                    <CourseEquivalencies courses={undergraduate()} />
+                  </Match>
+                </Switch>
+              );
+            }}
           </Match>
         </Switch>
       </div>

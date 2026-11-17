@@ -7,6 +7,7 @@ import {
   getCurrentEnrollment,
   getPrimaryCredits,
   isInactiveCourse,
+  type SeasonResolver,
 } from '@/lib/course-facts';
 import {
   matchesNormalizedTerm,
@@ -48,6 +49,14 @@ export const SORT_COLUMNS: SortColumn[] = [
   'popularity',
 ];
 
+// Master's courses have no semesters, accreditations or tags to sort by.
+export const MASTER_SORT_COLUMNS: SortColumn[] = [
+  'name',
+  'credits',
+  'popularity',
+  'channel',
+];
+
 // The direction a column sorts in when first chosen: most popular first.
 export const getDefaultSortDirection = (column: SortColumn): SortDirection =>
   column === 'popularity' ? 'desc' : 'asc';
@@ -57,8 +66,11 @@ export type CourseFilterCriteria = {
   readonly channelOnly?: boolean;
   readonly credits?: null | number;
   readonly enrollmentYears?: EnrollmentYears;
+  readonly getSeason?: SeasonResolver;
   readonly hideInactive?: boolean;
   readonly level: CourseLevelFilter;
+  /** Replaces the accreditation-based curriculum filters (master's view). */
+  readonly matchesCurriculum?: (course: CourseRaw) => boolean;
   readonly offeredOnly?: boolean;
   readonly program?: null | string;
   /** Without a program state, a program matches its required and electives. */
@@ -173,7 +185,11 @@ const matchesCourseFacts = (
   !(criteria.hideInactive === true && isInactiveCourse(course)) &&
   !(
     criteria.offeredOnly === true &&
-    getCurrentEnrollment(course, criteria.enrollmentYears ?? {}) === 0
+    getCurrentEnrollment(
+      course,
+      criteria.enrollmentYears ?? {},
+      criteria.getSeason,
+    ) === 0
   ) &&
   (criteria.channelOnly !== true || hasChannel(course)) &&
   matchesStaff(course, criteria.staff ?? '');
@@ -215,7 +231,8 @@ export const filterCourses = (
   return courses.filter(
     (course) =>
       (!term || courseMatchesSearch(course, term)) &&
-      matchesCurriculumFilters(course, criteria) &&
+      (criteria.matchesCurriculum?.(course) ??
+        matchesCurriculumFilters(course, criteria)) &&
       matchesTags(course, criteria) &&
       matchesCourseFacts(course, criteria),
   );
@@ -223,11 +240,19 @@ export const filterCourses = (
 
 const SORT_COLLATOR = new Intl.Collator();
 
+const getPrimaryCreditsOf =
+  (accreditation: Accreditation | null) =>
+  (course: CourseRaw): number | undefined =>
+    getPrimaryCredits(course, accreditation);
+
 type SortConfig = {
   readonly accreditation: Accreditation | null;
   readonly column: SortColumn;
   readonly direction: SortDirection;
   readonly enrollmentYears?: EnrollmentYears;
+  /** Overrides the accreditation's credits (master's courses). */
+  readonly getCredits?: (course: CourseRaw) => number | undefined;
+  readonly getSeason?: SeasonResolver;
   readonly language: Language;
 };
 
@@ -254,8 +279,8 @@ const compareCourses = (
       return (Number(hasChannel(a)) - Number(hasChannel(b))) * dir;
     case 'credits':
       return compareOptionalNumbers(
-        getPrimaryCredits(a, config.accreditation),
-        getPrimaryCredits(b, config.accreditation),
+        (config.getCredits ?? getPrimaryCreditsOf(config.accreditation))(a),
+        (config.getCredits ?? getPrimaryCreditsOf(config.accreditation))(b),
         dir,
       );
     case 'name':
@@ -267,8 +292,16 @@ const compareCourses = (
       );
     case 'popularity':
       return (
-        (getCurrentEnrollment(a, config.enrollmentYears ?? {}) -
-          getCurrentEnrollment(b, config.enrollmentYears ?? {})) *
+        (getCurrentEnrollment(
+          a,
+          config.enrollmentYears ?? {},
+          config.getSeason,
+        ) -
+          getCurrentEnrollment(
+            b,
+            config.enrollmentYears ?? {},
+            config.getSeason,
+          )) *
         dir
       );
     case 'semester':

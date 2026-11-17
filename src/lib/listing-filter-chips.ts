@@ -77,9 +77,10 @@ export const removeFilterChip = (
     ? { ...filters, tags: filters.tags.filter((tag) => tag !== chip.value) }
     : { ...filters, ...CHIP_RESETS[chip.kind] };
 
-// Clears every filter and the search, keeping how tags combine.
+// Clears every filter and the search, keeping the cycle and how tags combine.
 export const clearFilters = (filters: ListingFilters): ListingFilters => ({
   ...DEFAULT_LISTING_FILTERS,
+  cycle: filters.cycle,
   tagMode: filters.tagMode,
 });
 

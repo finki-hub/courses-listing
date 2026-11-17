@@ -23,6 +23,8 @@ type ListingMoreFiltersProps = {
   readonly filters: ListingFilters;
   readonly onExpandedChange: (expanded: boolean) => void;
   readonly onUpdate: (patch: Partial<ListingFilters>) => void;
+  /** Master's programs; without them, the accreditation's study programs. */
+  readonly programOptions?: ReadonlyArray<{ label: string; value: string }>;
   readonly staff: readonly string[];
 };
 
@@ -41,6 +43,12 @@ export const ListingMoreFilters = (props: ListingMoreFiltersProps) => {
     const name = getStudyProgramName(program, t());
     return name === undefined ? label : `${label}: ${name}`;
   };
+  const programOptions = () =>
+    props.programOptions ??
+    getListingPrograms(props.filters.accreditation).map((program) => ({
+      label: programLabel(program),
+      value: program,
+    }));
   const programStateItems = () =>
     [
       { label: t().filters.required, value: 'required' },
@@ -95,13 +103,13 @@ export const ListingMoreFilters = (props: ListingMoreFiltersProps) => {
                 >
                   {t().filters.programAll}
                 </option>
-                <For each={getListingPrograms(props.filters.accreditation)}>
-                  {(program) => (
+                <For each={programOptions()}>
+                  {(option) => (
                     <option
-                      selected={props.filters.program === program}
-                      value={program}
+                      selected={props.filters.program === option.value}
+                      value={option.value}
                     >
-                      {programLabel(program)}
+                      {option.label}
                     </option>
                   )}
                 </For>
@@ -125,21 +133,23 @@ export const ListingMoreFilters = (props: ListingMoreFiltersProps) => {
             </div>
           </FilterGroup>
 
-          <FilterGroup label={t().filters.semesterNumber}>
-            <ButtonGroup
-              class="w-full sm:w-auto"
-              items={SEMESTERS.map((value) => ({
-                label: String(value),
-                value,
-              }))}
-              onSelect={(value) => {
-                props.onUpdate({
-                  semester: toggled(props.filters.semester, value),
-                });
-              }}
-              value={props.filters.semester ?? undefined}
-            />
-          </FilterGroup>
+          <Show when={props.programOptions === undefined}>
+            <FilterGroup label={t().filters.semesterNumber}>
+              <ButtonGroup
+                class="w-full sm:w-auto"
+                items={SEMESTERS.map((value) => ({
+                  label: String(value),
+                  value,
+                }))}
+                onSelect={(value) => {
+                  props.onUpdate({
+                    semester: toggled(props.filters.semester, value),
+                  });
+                }}
+                value={props.filters.semester ?? undefined}
+              />
+            </FilterGroup>
+          </Show>
 
           <FilterGroup label={t().filters.credits}>
             <ButtonGroup

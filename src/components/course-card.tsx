@@ -7,7 +7,6 @@ import { useLanguage } from '@/lib/LanguageProvider';
 import {
   type Accreditation,
   type CourseRaw,
-  getAccLabel,
   getCourseName,
   getCourseTags,
   hasChannel,
@@ -37,7 +36,9 @@ export const CourseCard = (props: CourseCardProps) => {
       </div>
 
       <div class="text-muted-foreground flex flex-wrap items-center gap-x-3 gap-y-1 text-xs">
-        <span>{getAccLabel(props.course)}</span>
+        <Show when={props.facts.label}>
+          <span>{props.facts.label}</span>
+        </Show>
 
         <Show when={props.facts.semester}>
           {(semester) => (

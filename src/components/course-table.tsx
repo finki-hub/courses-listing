@@ -1,4 +1,4 @@
-import { createMemo, createSignal, untrack } from 'solid-js';
+import { createEffect, createMemo, createSignal, untrack } from 'solid-js';
 
 import { capture } from '@/lib/analytics-client';
 import {
@@ -12,6 +12,8 @@ import {
 import {
   type CourseFilterCriteria,
   filterCourses,
+  MASTER_SORT_COLUMNS,
+  SORT_COLUMNS,
   sortCourses,
 } from '@/lib/course-filters';
 import { useLanguage } from '@/lib/LanguageProvider';
@@ -20,7 +22,8 @@ import {
   hasMoreFilters,
   removeFilterChip,
 } from '@/lib/listing-filter-chips';
-import { type CourseRaw } from '@/types/course';
+import { isMasterCourse } from '@/lib/master-programs';
+import { type CourseRaw, getAccLabel } from '@/types/course';
 
 import { CourseDetailDialog } from './course-detail-dialog';
 import { CourseListingControls } from './course-listing-controls';
@@ -29,6 +32,7 @@ import { type CourseRowFacts } from './course-table-row';
 import { useCourseSearchAnalytics } from './use-course-search-analytics';
 import { useLinkedCourseDialog } from './use-linked-course-dialog';
 import { useListingState } from './use-listing-state';
+import { useMasterListing } from './use-master-listing';
 
 type CourseTableProps = {
   courses: CourseRaw[];
@@ -39,14 +43,46 @@ export const CourseTable = (props: CourseTableProps) => {
 
   const listing = useListingState();
   const { filters, sortColumn, sortDirection, toggleSort } = listing;
-  const courseDialog = useLinkedCourseDialog(() => props.courses);
+  const master = () => filters().cycle === 'master';
+  const masters = useMasterListing(() => props.courses, master);
+
+  // A course name can exist in both cycles: links prefer the shown cycle.
+  const linkedCourses = () =>
+    untrack(master)
+      ? [...masters.masterCourses(), ...masters.undergraduateCourses()]
+      : props.courses;
+  const courseDialog = useLinkedCourseDialog(linkedCourses);
+  // A link to a master's course opens the master's view.
+  const linked = untrack(courseDialog.course);
+  if (linked && isMasterCourse(linked) && !untrack(master)) {
+    listing.updateFilters({ cycle: 'master' });
+  }
+
+  const courses = () =>
+    master() ? masters.masterCourses() : masters.undergraduateCourses();
+  const getSeason = () => (master() ? masters.getSeason : undefined);
 
   const enrollmentYears = createMemo(() =>
-    getLatestEnrollmentYears(props.courses),
+    getLatestEnrollmentYears(courses(), getSeason()),
   );
-  const staff = createMemo(() => getAllStaff(props.courses));
-  const credits = createMemo(() => getDistinctCredits(props.courses));
+  const staff = createMemo(() => getAllStaff(courses()));
+  const credits = createMemo(() =>
+    master() ? masters.creditOptions() : getDistinctCredits(courses()),
+  );
   const selectedTags = createMemo(() => new Set(filters().tags));
+
+  // A linked master's program that the data doesn't know matches nothing.
+  createEffect(() => {
+    const program = filters().program;
+    if (
+      program !== null &&
+      master() &&
+      masters.loaded() &&
+      !masters.programCodes().includes(program)
+    ) {
+      listing.updateFilters({ program: null, programState: null });
+    }
+  });
 
   // Opens by itself when a link arrives with one of its filters set.
   const [moreExpanded, setMoreExpanded] = createSignal(
@@ -56,30 +92,52 @@ export const CourseTable = (props: CourseTableProps) => {
   const filterCriteria = (): CourseFilterCriteria => ({
     ...filters(),
     enrollmentYears: enrollmentYears(),
+    getSeason: getSeason(),
+    matchesCurriculum: master()
+      ? (course) => masters.matches(course, filters())
+      : undefined,
     searchTerm: filters().query,
     tags: selectedTags(),
   });
 
   const filteredCourses = createMemo(() =>
-    sortCourses(filterCourses(props.courses, filterCriteria()), {
+    sortCourses(filterCourses(courses(), filterCriteria()), {
       accreditation: filters().accreditation,
       column: sortColumn(),
       direction: sortDirection(),
       enrollmentYears: enrollmentYears(),
+      getCredits: master() ? masters.getCredits : undefined,
+      getSeason: getSeason(),
       language: language(),
     }),
   );
 
-  const getFacts = (course: CourseRaw): CourseRowFacts => ({
-    credits: getPrimaryCredits(course, filters().accreditation),
-    semester: getCourseSemester(course, filters().accreditation),
-    students: getCurrentEnrollment(course, enrollmentYears()),
-  });
+  const getFacts = (course: CourseRaw): CourseRowFacts => {
+    const students = getCurrentEnrollment(
+      course,
+      enrollmentYears(),
+      getSeason(),
+    );
+    return master()
+      ? {
+          credits: masters.getCredits(course),
+          label: masters.summary(course),
+          semester: undefined,
+          students,
+        }
+      : {
+          credits: getPrimaryCredits(course, filters().accreditation),
+          label: getAccLabel(course),
+          semester: getCourseSemester(course, filters().accreditation),
+          students,
+        };
+  };
 
   const searchLinkage = useCourseSearchAnalytics(() => ({
     accreditation: filters().accreditation,
     level: filters().level,
     otherFilters: JSON.stringify([
+      filters().cycle,
       filters().program,
       filters().programState,
       filters().semester,
@@ -112,6 +170,15 @@ export const CourseTable = (props: CourseTableProps) => {
       <CourseListingControls
         credits={credits()}
         filters={filters()}
+        master={
+          master()
+            ? {
+                error: masters.error(),
+                loading: masters.loading(),
+                programOptions: masters.programOptions(),
+              }
+            : undefined
+        }
         moreExpanded={moreExpanded()}
         onClearFilters={() => {
           listing.setFilters(clearFilters(filters()));
@@ -121,11 +188,13 @@ export const CourseTable = (props: CourseTableProps) => {
           listing.setFilters(removeFilterChip(filters(), chip));
         }}
         onSwitchAccreditation={listing.switchAccreditation}
+        onSwitchCycle={listing.switchCycle}
         onToggleSort={toggleSort}
         onToggleTag={listing.toggleTag}
         onUpdate={listing.updateFilters}
         resultCount={filteredCourses().length}
         sortColumn={sortColumn()}
+        sortColumns={master() ? MASTER_SORT_COLUMNS : SORT_COLUMNS}
         sortDirection={sortDirection()}
         staff={staff()}
       />
@@ -134,6 +203,7 @@ export const CourseTable = (props: CourseTableProps) => {
         accreditation={filters().accreditation}
         courses={filteredCourses()}
         getFacts={getFacts}
+        master={master()}
         onOpen={openDetail}
         onToggleSort={toggleSort}
         sortColumn={sortColumn()}
@@ -143,7 +213,8 @@ export const CourseTable = (props: CourseTableProps) => {
       <CourseDetailDialog
         accreditation={filters().accreditation}
         course={courseDialog.course()}
-        courses={props.courses}
+        courses={masters.undergraduateCourses()}
+        masters={masters}
         onOpenChange={courseDialog.setOpen}
         onOpenCourse={courseDialog.openCourse}
         open={courseDialog.open()}
