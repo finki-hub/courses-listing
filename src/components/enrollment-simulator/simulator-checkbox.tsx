@@ -15,7 +15,7 @@ export const Checkbox = (props: CheckboxProps) => (
     class={`ring-offset-background focus-visible:ring-ring relative inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-sm border-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 ${
       props.checked
         ? 'bg-primary text-primary-foreground border-primary'
-        : 'border-foreground/40 bg-background'
+        : 'border-input bg-card'
     } ${
       props.disabled
         ? 'cursor-not-allowed border-dashed'

@@ -50,7 +50,7 @@ export const SemesterHeader = (props: SemesterHeaderProps) => {
           {(target) => (
             <button
               aria-label={`${t().simulator.bulk[target]}: ${interpolate(t().simulator.bulkLabel[target], values())}`}
-              class="hover:bg-muted disabled:text-muted-foreground rounded-md border px-2 py-1 text-xs font-medium transition-colors disabled:cursor-not-allowed"
+              class="bg-card hover:bg-muted disabled:text-muted-foreground rounded-md border px-2 py-1 text-xs font-medium transition-colors disabled:cursor-not-allowed"
               disabled={targetCount(target) === 0}
               onClick={() => {
                 props.onBulkMark(target);

@@ -3,6 +3,7 @@ export const tr = {
   brand: 'FINKI Hub',
   common: {
     accreditation: 'Akreditasyon',
+    all: 'Tümü',
     channel: 'Kanal',
     close: 'Kapat',
     code: 'Kod',
@@ -170,6 +171,7 @@ export const tr = {
     "FINKI'nin tüm derslerini, öğrenim programlarını ve akreditasyonlarını inceleyin.",
   nav: {
     equivalencies: 'Eşdeğerlikler',
+    label: 'Bölümler',
     listing: 'Dersler',
     prerequisites: 'Ön koşullar',
     simulator: 'Simülatör',
@@ -183,6 +185,12 @@ export const tr = {
     forSeason: { summer: 'Bahar yarıyılı için', winter: 'Güz yarıyılı için' },
     markListened: 'Kayıtlı işaretle',
     upcoming: '(bir sonraki; değiştirmek için yukarıdan bir yarıyıl seçin)',
+  },
+  pageIntro: {
+    listing:
+      'Tüm FINKI derslerini arayın ve filtreleyin, ardından personel, programlar ve kayıt sayıları için bir ders açın.',
+    simulator:
+      'Sonra hangi derslere kaydolabileceğinizi görmek, kredilerinizi takip etmek ve gelecek dönemleri planlamak için aldığınız veya geçtiğiniz dersleri işaretleyin.',
   },
   planner: {
     addToPlan: 'Plana ekle',
@@ -229,6 +237,9 @@ export const tr = {
     },
     description:
       'Bir akreditasyon ve ders seçerek bu dersi ön koşul olarak gerektiren tüm dersleri görün.',
+    emptyText:
+      'Onu önkoşul olarak listeleyen dersler burada dönemlerine göre sıralı görünür.',
+    emptyTitle: 'Neyin önünü açtığını görmek için bir ders seçin',
     searchPlaceholder: 'Ad, kısaltma veya koda göre ara...',
   },
   programState: {

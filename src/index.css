@@ -29,15 +29,60 @@
   --color-destructive: hsl(var(--destructive));
   --color-destructive-foreground: hsl(var(--destructive-foreground));
 
+  --color-raised: hsl(var(--raised));
+  --color-overlay: hsl(var(--popover));
+
+  /* Semantic status colors: text, soft background and border per status. */
+  --color-required: hsl(var(--required));
+  --color-required-soft: hsl(var(--required-soft));
+  --color-required-border: hsl(var(--required-border));
+  --color-elective: hsl(var(--elective));
+  --color-elective-soft: hsl(var(--elective-soft));
+  --color-elective-border: hsl(var(--elective-border));
+  --color-faculty: hsl(var(--faculty));
+  --color-faculty-soft: hsl(var(--faculty-soft));
+  --color-faculty-border: hsl(var(--faculty-border));
+  --color-passed: hsl(var(--passed));
+  --color-passed-soft: hsl(var(--passed-soft));
+  --color-passed-border: hsl(var(--passed-border));
+  --color-enrolled: hsl(var(--enrolled));
+  --color-enrolled-soft: hsl(var(--enrolled-soft));
+  --color-enrolled-border: hsl(var(--enrolled-border));
+  --color-locked: hsl(var(--locked));
+  --color-locked-soft: hsl(var(--locked-soft));
+  --color-locked-border: hsl(var(--locked-border));
+  --color-warning: hsl(var(--warning));
+  --color-warning-soft: hsl(var(--warning-soft));
+  --color-warning-border: hsl(var(--warning-border));
+  --color-info: hsl(var(--info));
+  --color-info-soft: hsl(var(--info-soft));
+  --color-info-border: hsl(var(--info-border));
+  --color-danger: hsl(var(--danger));
+  --color-danger-soft: hsl(var(--danger-soft));
+  --color-danger-border: hsl(var(--danger-border));
+
+  --color-scrim: hsl(150 30% 3% / 0.6);
   --color-border: hsl(var(--border));
   --color-input: hsl(var(--input));
   --color-ring: hsl(var(--ring));
   --color-ring-offset-background: hsl(var(--background));
 
-  /* Border radius */
+  /* Border radius: controls md, panels lg, sheets xl, chips full */
+  --radius-xl: calc(var(--radius) + 4px);
   --radius-lg: var(--radius);
   --radius-md: calc(var(--radius) - 2px);
   --radius-sm: calc(var(--radius) - 4px);
+
+  /* Type scale (Inter): page title, section title, body, meta */
+  --text-page: 1.5rem;
+  --text-page--line-height: 2rem;
+  --text-page--letter-spacing: -0.015em;
+  --text-section: 1rem;
+  --text-section--line-height: 1.5rem;
+  --text-body: 0.875rem;
+  --text-body--line-height: 1.375rem;
+  --text-meta: 0.75rem;
+  --text-meta--line-height: 1rem;
 
   /* Font families */
   --font-sans: 'Inter', system-ui, sans-serif;
@@ -62,49 +107,112 @@
 }
 
 @layer base {
+  /*
+   * Surfaces: background (page) < card (panel) < raised (selected segments,
+   * hovered rows) < popover (overlays). The page carries a faint green cast
+   * from the FINKI Hub accent so panels read as panels in both themes.
+   */
   :root {
-    --background: 0 0% 100%;
-    --foreground: 0 0% 5%;
+    --background: 120 12% 97%;
+    --foreground: 150 10% 8%;
     --popover: 0 0% 100%;
-    --popover-foreground: 0 0% 5%;
-    --card: 0 0% 99%;
-    --card-foreground: 0 0% 5%;
+    --popover-foreground: 150 10% 8%;
+    --card: 0 0% 100%;
+    --card-foreground: 150 10% 8%;
+    --raised: 0 0% 100%;
     --primary: 142 70% 29%;
     --primary-foreground: 0 0% 98%;
-    --secondary: 0 0% 93%;
-    --secondary-foreground: 0 0% 9%;
-    --muted: 0 0% 94%;
-    --muted-foreground: 0 0% 40%;
+    --secondary: 140 10% 92%;
+    --secondary-foreground: 150 10% 10%;
+    --muted: 140 10% 93%;
+    --muted-foreground: 150 6% 35%;
     --accent: 142 70% 29%;
     --accent-foreground: 0 0% 98%;
     --destructive: 0 74% 45%;
     --destructive-foreground: 0 0% 98%;
-    --border: 0 0% 88%;
-    --input: 0 0% 58%;
+    --border: 140 8% 86%;
+    --input: 150 5% 55%;
     --ring: 142 70% 29%;
     --radius: 0.75rem;
+
+    --required: 262 52% 45%;
+    --required-soft: 262 70% 96%;
+    --required-border: 262 45% 84%;
+    --elective: 28 85% 30%;
+    --elective-soft: 40 90% 93%;
+    --elective-border: 38 65% 76%;
+    --faculty: 215 16% 34%;
+    --faculty-soft: 215 20% 94%;
+    --faculty-border: 215 15% 82%;
+    --passed: 142 70% 26%;
+    --passed-soft: 142 50% 93%;
+    --passed-border: 142 35% 74%;
+    --enrolled: 214 80% 38%;
+    --enrolled-soft: 214 85% 95%;
+    --enrolled-border: 214 60% 80%;
+    --locked: 150 4% 38%;
+    --locked-soft: 140 6% 93%;
+    --locked-border: 140 5% 82%;
+    --warning: 24 90% 32%;
+    --warning-soft: 32 95% 93%;
+    --warning-border: 30 75% 76%;
+    --info: 214 80% 38%;
+    --info-soft: 214 85% 95%;
+    --info-border: 214 60% 80%;
+    --danger: 0 72% 40%;
+    --danger-soft: 0 85% 96%;
+    --danger-border: 0 65% 82%;
   }
 
   [data-kb-theme="dark"] {
-    --background: 0 0% 4%;
-    --foreground: 0 0% 95%;
-    --popover: 0 0% 7%;
-    --popover-foreground: 0 0% 95%;
-    --card: 0 0% 7%;
-    --card-foreground: 0 0% 95%;
+    --background: 150 10% 6%;
+    --foreground: 140 8% 94%;
+    --popover: 150 8% 12%;
+    --popover-foreground: 140 8% 94%;
+    --card: 150 8% 9%;
+    --card-foreground: 140 8% 94%;
+    --raised: 150 6% 22%;
     --primary: 142 70% 45%;
-    --primary-foreground: 0 0% 2%;
-    --secondary: 0 0% 12%;
-    --secondary-foreground: 0 0% 95%;
-    --muted: 0 0% 15%;
-    --muted-foreground: 0 0% 60%;
+    --primary-foreground: 150 30% 4%;
+    --secondary: 150 7% 14%;
+    --secondary-foreground: 140 8% 94%;
+    --muted: 150 7% 14%;
+    --muted-foreground: 145 6% 68%;
     --accent: 142 70% 45%;
-    --accent-foreground: 0 0% 2%;
+    --accent-foreground: 150 30% 4%;
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 98%;
-    --border: 0 0% 15%;
-    --input: 0 0% 37%;
+    --border: 150 6% 19%;
+    --input: 150 5% 46%;
     --ring: 142 70% 45%;
+
+    --required: 262 90% 80%;
+    --required-soft: 262 30% 18%;
+    --required-border: 262 25% 34%;
+    --elective: 40 90% 66%;
+    --elective-soft: 35 40% 15%;
+    --elective-border: 35 35% 30%;
+    --faculty: 215 18% 74%;
+    --faculty-soft: 215 12% 16%;
+    --faculty-border: 215 10% 30%;
+    --passed: 142 60% 62%;
+    --passed-soft: 142 35% 13%;
+    --passed-border: 142 30% 27%;
+    --enrolled: 212 90% 74%;
+    --enrolled-soft: 214 40% 16%;
+    --enrolled-border: 214 35% 32%;
+    --locked: 145 5% 64%;
+    --locked-soft: 150 5% 13%;
+    --locked-border: 150 5% 24%;
+    --warning: 30 95% 66%;
+    --warning-soft: 28 40% 14%;
+    --warning-border: 28 35% 30%;
+    --info: 212 90% 74%;
+    --info-soft: 214 40% 16%;
+    --info-border: 214 35% 32%;
+    --danger: 0 85% 72%;
+    --danger-soft: 0 40% 15%;
+    --danger-border: 0 35% 32%;
   }
 }
 

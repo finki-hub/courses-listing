@@ -22,7 +22,7 @@ export const PlanCourseRow = (props: PlanCourseRowProps) => {
     interpolate(t().simulator.semesterTitle, { semester });
 
   return (
-    <li class="flex flex-wrap items-center gap-x-3 gap-y-2 rounded-md border px-3 py-2">
+    <li class="flex flex-wrap items-center gap-x-3 gap-y-2 rounded-lg border bg-card px-3 py-2">
       <div class="min-w-0 flex-1 space-y-0.5">
         <div class="text-sm font-medium">{props.course.name}</div>
         <div class="text-muted-foreground text-xs">
@@ -40,15 +40,13 @@ export const PlanCourseRow = (props: PlanCourseRowProps) => {
         </div>
         <For each={props.issues}>
           {(issue) => (
-            <div class="text-xs text-amber-800 dark:text-amber-400">
-              {t().planner.issues[issue]}
-            </div>
+            <div class="text-xs text-warning">{t().planner.issues[issue]}</div>
           )}
         </For>
       </div>
       <select
         aria-label={`${t().planner.planFor}: ${props.course.name}`}
-        class="bg-background border-input min-h-9 rounded-md border px-2 text-sm"
+        class="bg-card border-input min-h-9 rounded-md border px-2 text-sm"
         onChange={(event) => {
           const value = Number.parseInt(event.currentTarget.value, 10);
           props.onSetSemester(Number.isNaN(value) ? undefined : value);

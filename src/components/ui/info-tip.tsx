@@ -1,4 +1,4 @@
-import { CircleAlert } from 'lucide-solid';
+import { Info } from 'lucide-solid';
 import { For, Show } from 'solid-js';
 
 import {
@@ -10,7 +10,7 @@ import {
 import { useLanguage } from '@/lib/LanguageProvider';
 import { cn } from '@/lib/utils';
 
-type InfoPopoverProps = {
+type InfoTipProps = {
   /** Additional CSS classes for the trigger button */
   class?: string;
   /** Preferred placement (default: "bottom") */
@@ -19,7 +19,7 @@ type InfoPopoverProps = {
   text: string;
 };
 
-export const InfoPopover = (props: InfoPopoverProps) => {
+export const InfoTip = (props: InfoTipProps) => {
   const { t } = useLanguage();
   return (
     <Show when={props.text}>
@@ -28,13 +28,16 @@ export const InfoPopover = (props: InfoPopoverProps) => {
           aria-label={t().common.moreInfo}
           as="button"
           class={cn(
-            'ring-offset-background inline-flex h-6 w-6 cursor-pointer items-center justify-center rounded-full border border-primary/25 bg-primary/10 text-primary shadow-sm transition-[transform,colors,box-shadow] hover:scale-105 hover:border-primary/45 hover:bg-primary/15 hover:shadow-md focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:outline-none',
+            'text-muted-foreground hover:text-foreground hover:bg-muted data-[expanded]:text-foreground data-[expanded]:bg-muted ring-offset-background inline-flex h-6 w-6 shrink-0 cursor-pointer items-center justify-center rounded-full transition-colors focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1 focus-visible:outline-none',
             props.class,
           )}
           title={t().common.moreInfo}
           type="button"
         >
-          <CircleAlert class="h-4 w-4" />
+          <Info
+            aria-hidden="true"
+            class="h-4 w-4"
+          />
         </PopoverTrigger>
         <PopoverPortal>
           <PopoverContent>

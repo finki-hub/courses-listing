@@ -37,7 +37,7 @@ export const EnrollmentSimulator = (props: EnrollmentSimulatorProps) => {
     const planned = () => sim.plan.plan()[item.course.name];
     return (
       <button
-        class="hover:bg-muted disabled:text-muted-foreground rounded-md border px-2.5 py-1 text-xs font-medium transition-colors disabled:cursor-not-allowed"
+        class="bg-card hover:bg-muted disabled:text-muted-foreground rounded-md border px-2.5 py-1 text-xs font-medium transition-colors disabled:cursor-not-allowed"
         disabled={
           planned() !== undefined ||
           getPlanOptions(item.course, sim.plan.start()).length === 0

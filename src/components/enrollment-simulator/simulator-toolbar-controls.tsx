@@ -1,9 +1,9 @@
+import { InfoTip } from '@/components/ui/info-tip';
 import { LabeledCheckbox } from '@/components/ui/labeled-checkbox';
 import { interpolate } from '@/lib/i18n';
 import { useLanguage } from '@/lib/LanguageProvider';
 import { HPC_CREDITS } from '@/lib/simulator';
 
-import { InfoPopover } from './info-popover';
 import { ShareButton } from './share-button';
 import { UniListCreditsField } from './uni-list-credits-field';
 
@@ -30,7 +30,7 @@ export const SimulatorToolbarControls = (
           >
             HPC (+{HPC_CREDITS})
           </LabeledCheckbox>
-          <InfoPopover
+          <InfoTip
             text={interpolate(t().simulator.hpcInfo, { credits: HPC_CREDITS })}
           />
         </span>
@@ -42,7 +42,7 @@ export const SimulatorToolbarControls = (
       </div>
 
       <button
-        class="text-destructive hover:bg-destructive/10 hidden min-h-9 rounded-md border px-3 py-1.5 text-sm font-medium transition-colors sm:inline-flex sm:items-center"
+        class="bg-card text-destructive hover:bg-destructive/10 hidden min-h-9 rounded-md border px-3 py-1.5 text-sm font-medium transition-colors sm:inline-flex sm:items-center"
         onClick={() => {
           props.onReset();
         }}

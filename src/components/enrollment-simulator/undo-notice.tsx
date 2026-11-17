@@ -39,7 +39,7 @@ export const useUndoableAction = () => {
           >
             <span>{props.message}</span>
             <button
-              class="hover:bg-background/60 rounded-md border px-3 py-1 text-sm font-medium transition-colors"
+              class="bg-card hover:bg-muted rounded-md border px-3 py-1 text-sm font-medium transition-colors"
               onClick={() => {
                 restore()();
                 clear();

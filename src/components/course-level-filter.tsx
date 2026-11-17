@@ -1,4 +1,5 @@
-import { ButtonGroup } from '@/components/ui/button-group';
+import { SegmentedControl } from '@/components/ui/segmented-control';
+import { useLanguage } from '@/lib/LanguageProvider';
 import {
   COURSE_LEVELS,
   type CourseLevelFilter as CourseLevelFilterValue,
@@ -16,13 +17,18 @@ type CourseLevelFilterProps = {
 };
 
 // Labelled by the surrounding FilterGroup.
-export const CourseLevelFilter = (props: CourseLevelFilterProps) => (
-  <ButtonGroup
-    class={`w-full sm:w-auto ${props.class ?? ''}`}
-    items={LEVEL_ITEMS}
-    onSelect={(level) => {
-      props.onSelect(props.value === level ? null : level);
-    }}
-    value={props.value ?? undefined}
-  />
-);
+export const CourseLevelFilter = (props: CourseLevelFilterProps) => {
+  const { t } = useLanguage();
+  return (
+    <SegmentedControl
+      allLabel={t().common.all}
+      class={`w-full sm:w-auto ${props.class ?? ''}`}
+      items={LEVEL_ITEMS}
+      onClear={() => {
+        props.onSelect(null);
+      }}
+      onSelect={props.onSelect}
+      value={props.value}
+    />
+  );
+};

@@ -36,7 +36,7 @@ type EnrollmentHistoryTableProps = {
 export const EnrollmentHistoryTable = (props: EnrollmentHistoryTableProps) => {
   const { language, t } = useLanguage();
   return (
-    <div class="rounded-md border">
+    <div class="bg-card rounded-lg border">
       <Table>
         <TableHeader>
           <TableRow>

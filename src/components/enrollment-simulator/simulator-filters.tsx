@@ -1,17 +1,16 @@
 import { RotateCcw, SlidersHorizontal } from 'lucide-solid';
-import { createSignal, createUniqueId, For, Show } from 'solid-js';
+import { createSignal, createUniqueId, Show } from 'solid-js';
 
 import { FilterGroup } from '@/components/filter-group';
-import { ButtonGroup } from '@/components/ui/button-group';
+import { TagChips } from '@/components/tag-chips';
 import { LabeledCheckbox } from '@/components/ui/labeled-checkbox';
 import { SearchInput } from '@/components/ui/search-input';
-import { getTagLabel } from '@/lib/i18n';
+import { SegmentedControl } from '@/components/ui/segmented-control';
 import { useLanguage } from '@/lib/LanguageProvider';
 import {
   COURSE_TYPE_FILTERS,
   type CourseTypeFilter,
 } from '@/lib/simulator-view';
-import { ALL_TAGS } from '@/types/course';
 
 type SimulatorFiltersProps = {
   activeFilterCount: number;
@@ -54,7 +53,7 @@ export const SimulatorFilters = (props: SimulatorFiltersProps) => {
         <button
           aria-controls={panelId}
           aria-expanded={open()}
-          class="hover:bg-muted inline-flex min-h-9 shrink-0 items-center gap-1.5 rounded-md border px-3 text-sm font-medium transition-colors"
+          class="bg-card hover:bg-muted inline-flex min-h-9 shrink-0 items-center gap-1.5 rounded-md border px-3 text-sm font-medium transition-colors"
           onClick={() => setOpen((value) => !value)}
           type="button"
         >
@@ -72,7 +71,7 @@ export const SimulatorFilters = (props: SimulatorFiltersProps) => {
         </button>
         <button
           aria-label={t().simulator.reset}
-          class="text-destructive hover:bg-destructive/10 inline-flex min-h-9 shrink-0 items-center rounded-md border px-2.5 transition-colors sm:hidden"
+          class="bg-card text-destructive hover:bg-destructive/10 inline-flex min-h-9 shrink-0 items-center rounded-md border px-2.5 transition-colors sm:hidden"
           onClick={() => {
             props.onReset();
           }}
@@ -87,12 +86,12 @@ export const SimulatorFilters = (props: SimulatorFiltersProps) => {
       </div>
 
       <div
-        class="grid gap-3 rounded-md border p-3"
+        class="bg-card grid gap-3 rounded-lg border p-3"
         hidden={!open()}
         id={panelId}
       >
         <FilterGroup label={t().simulator.courseTypeLabel}>
-          <ButtonGroup
+          <SegmentedControl
             class="w-full sm:w-auto"
             items={typeItems()}
             onSelect={props.onSetType}
@@ -100,20 +99,10 @@ export const SimulatorFilters = (props: SimulatorFiltersProps) => {
           />
         </FilterGroup>
         <FilterGroup label={t().listing.tagsLabel}>
-          <div class="flex flex-wrap gap-x-3 gap-y-2">
-            <For each={ALL_TAGS}>
-              {(tag) => (
-                <LabeledCheckbox
-                  checked={props.tags.has(tag)}
-                  onChange={() => {
-                    props.onToggleTag(tag);
-                  }}
-                >
-                  {getTagLabel(tag, t())}
-                </LabeledCheckbox>
-              )}
-            </For>
-          </div>
+          <TagChips
+            isSelected={(tag) => props.tags.has(tag)}
+            onToggle={props.onToggleTag}
+          />
         </FilterGroup>
         <LabeledCheckbox
           checked={props.showOnlyEnabled}

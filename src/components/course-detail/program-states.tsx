@@ -1,7 +1,7 @@
 import { For } from 'solid-js';
 
-import { PROGRAM_STATE_BADGE_CLASSES } from '@/components/enrollment-simulator/course-styles';
-import { Badge } from '@/components/ui/badge';
+import { PROGRAM_STATE_TONES } from '@/components/enrollment-simulator/course-styles';
+import { StatusBadge } from '@/components/ui/status-badge';
 import { type ProgramStateGroup } from '@/lib/course-detail';
 import { useLanguage } from '@/lib/LanguageProvider';
 
@@ -18,12 +18,9 @@ export const ProgramStates = (props: ProgramStatesProps) => {
       <For each={props.groups}>
         {(group) => (
           <li class="flex flex-wrap items-center gap-x-2 gap-y-1">
-            <Badge
-              class={`px-1.5 py-0 text-[11px] leading-4 font-medium ${PROGRAM_STATE_BADGE_CLASSES[group.kind]}`}
-              variant="outline"
-            >
+            <StatusBadge tone={PROGRAM_STATE_TONES[group.kind]}>
               {t().programState[group.kind]}
-            </Badge>
+            </StatusBadge>
             <span class="text-xs">
               <For each={group.programs}>
                 {(program, index) => (

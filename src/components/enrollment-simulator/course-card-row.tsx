@@ -1,13 +1,13 @@
 import { Lock } from 'lucide-solid';
 import { Show } from 'solid-js';
 
-import { Badge } from '@/components/ui/badge';
+import { InfoTip } from '@/components/ui/info-tip';
+import { StatusBadge } from '@/components/ui/status-badge';
 import { interpolate } from '@/lib/i18n';
 import { useLanguage } from '@/lib/LanguageProvider';
 import { getProgramStateKind } from '@/lib/simulator';
 
-import { getStatusClass, PROGRAM_STATE_BADGE_CLASSES } from './course-styles';
-import { InfoPopover } from './info-popover';
+import { getStatusClass, PROGRAM_STATE_TONES } from './course-styles';
 import { Checkbox } from './simulator-checkbox';
 
 type CourseCardRowProps = {
@@ -70,15 +70,12 @@ export const CourseCardRow = (props: CourseCardRowProps) => {
         <div class="mt-0.5 flex items-center gap-1">
           <Show when={kind()}>
             {(k) => (
-              <Badge
-                class={`px-1.5 py-0 text-[10px] leading-4 font-normal ${PROGRAM_STATE_BADGE_CLASSES[k()]}`}
-                variant="outline"
-              >
+              <StatusBadge tone={PROGRAM_STATE_TONES[k()]}>
                 {t().programStateShort[k()]}
-              </Badge>
+              </StatusBadge>
             )}
           </Show>
-          <InfoPopover text={props.reason} />
+          <InfoTip text={props.reason} />
         </div>
       </div>
 

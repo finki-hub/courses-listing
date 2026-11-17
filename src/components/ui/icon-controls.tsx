@@ -5,7 +5,7 @@ import { cn } from '@/lib/utils';
 type IconButtonProps = ComponentProps<'button'>;
 
 const ICON_BUTTON_CLASS =
-  'inline-flex h-9 w-9 cursor-pointer items-center justify-center rounded-md border border-input bg-background text-sm font-medium ring-offset-background transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2';
+  'inline-flex h-9 w-9 cursor-pointer items-center justify-center rounded-md border border-border bg-card text-sm font-medium ring-offset-background transition-colors hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2';
 
 export const IconButton = (props: IconButtonProps) => {
   const [local, rest] = splitProps(props, ['class']);

@@ -1,15 +1,12 @@
+import { type StatusTone } from '@/components/ui/status-badge';
 import { type ProgramStateKind } from '@/lib/simulator';
 
-const REQUIRED_BADGE_CLASS =
-  'bg-blue-500/15 text-blue-700 dark:text-blue-400 border-blue-500/25';
-
-export const PROGRAM_STATE_BADGE_CLASSES: Record<ProgramStateKind, string> = {
-  elective:
-    'bg-amber-500/15 text-amber-800 dark:text-amber-400 border-amber-500/25',
-  'faculty-list':
-    'bg-zinc-500/15 text-zinc-700 dark:text-zinc-400 border-zinc-500/25',
-  required: REQUIRED_BADGE_CLASS,
-  'required-4yr': REQUIRED_BADGE_CLASS,
+/** The semantic tone of each way a program offers a course. */
+export const PROGRAM_STATE_TONES: Record<ProgramStateKind, StatusTone> = {
+  elective: 'elective',
+  'faculty-list': 'faculty',
+  required: 'required',
+  'required-4yr': 'required',
 };
 
 export const getStatusClass = (status: {
@@ -18,10 +15,10 @@ export const getStatusClass = (status: {
   overLimit: boolean;
   passed: boolean;
 }): string => {
-  if (status.overLimit) return 'bg-red-500/10 border-l-red-500';
-  if (status.passed) return 'bg-green-500/10 border-l-green-500';
-  if (status.listened) return 'bg-blue-500/10 border-l-blue-500';
+  if (status.overLimit) return 'bg-danger-soft border-l-danger';
+  if (status.passed) return 'bg-passed-soft border-l-passed';
+  if (status.listened) return 'bg-enrolled-soft border-l-enrolled';
   return status.atLimit
-    ? 'bg-orange-500/10 border-l-orange-400'
+    ? 'bg-warning-soft border-l-warning'
     : 'border-l-transparent';
 };

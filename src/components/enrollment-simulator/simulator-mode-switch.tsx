@@ -1,7 +1,6 @@
-import { ButtonGroup } from '@/components/ui/button-group';
+import { InfoTip } from '@/components/ui/info-tip';
+import { SegmentedControl } from '@/components/ui/segmented-control';
 import { useLanguage } from '@/lib/LanguageProvider';
-
-import { InfoPopover } from './info-popover';
 
 export type SimulatorMode = 'checklist' | 'next' | 'plan';
 
@@ -30,14 +29,14 @@ export const SimulatorModeSwitch = (props: SimulatorModeSwitchProps) => {
   return (
     <div class="space-y-2">
       <div class="flex items-center gap-2">
-        <ButtonGroup
+        <SegmentedControl
           aria-label={t().simulator.modeLabel}
           class="flex-1 sm:flex-none"
           items={items()}
           onSelect={props.onSelect}
           value={props.mode}
         />
-        <InfoPopover
+        <InfoTip
           class="sm:hidden"
           text={props.description}
         />

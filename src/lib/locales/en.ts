@@ -3,6 +3,7 @@ export const en = {
   brand: 'FINKI Hub',
   common: {
     accreditation: 'Accreditation',
+    all: 'All',
     channel: 'Channel',
     close: 'Close',
     code: 'Code',
@@ -170,6 +171,7 @@ export const en = {
     'Browse all FCSE courses, study programs and accreditations.',
   nav: {
     equivalencies: 'Equivalencies',
+    label: 'Sections',
     listing: 'Courses',
     prerequisites: 'Prerequisites',
     simulator: 'Simulator',
@@ -186,6 +188,12 @@ export const en = {
     },
     markListened: 'Mark enrolled',
     upcoming: '(the next one; choose a semester above to change it)',
+  },
+  pageIntro: {
+    listing:
+      'Search and filter every FCSE course, then open one for its staff, curriculum and enrollment history.',
+    simulator:
+      'Mark the courses you have taken to see what you can enroll in next, track your credits and plan the semesters ahead.',
   },
   planner: {
     addToPlan: 'Add to plan',
@@ -231,6 +239,9 @@ export const en = {
     },
     description:
       'Choose an accreditation and a course to see all courses that require it.',
+    emptyText:
+      'Courses that list it as a prerequisite appear here, ordered by semester.',
+    emptyTitle: 'Pick a course to see what it unlocks',
     searchPlaceholder: 'Search by name, abbreviation or code...',
   },
   programState: {
