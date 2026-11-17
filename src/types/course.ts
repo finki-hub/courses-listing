@@ -55,6 +55,8 @@ const courseSchema = z.object({
   abbreviation: optionalString,
   assistants: optionalString,
   channel: optionalString,
+  // first or second (master's); missing on older files.
+  cycle: optionalString,
   name: z.string(),
   'name-en': optionalString,
   professors: z.string(),

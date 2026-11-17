@@ -9,7 +9,11 @@ const fetchCourses = async (): Promise<CourseRaw[]> => {
   if (!response.ok)
     throw new Error(`Failed to fetch courses: ${response.statusText}`);
   const data: unknown = await response.json();
-  return coursesSchema.parse(data);
+  // The listing is the undergraduate curriculum: courses.json also carries
+  // the master's courses, marked with cycle "second".
+  return coursesSchema
+    .parse(data)
+    .filter((course) => course.cycle !== 'second');
 };
 
 export const useCourses = () => createResource(fetchCourses);
