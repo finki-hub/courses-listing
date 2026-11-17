@@ -3,6 +3,7 @@ export const sq = {
   brand: 'FINKI Hub',
   common: {
     accreditation: 'Akreditimi',
+    all: 'Të gjitha',
     channel: 'Kanali',
     close: 'Mbyll',
     code: 'Kodi',
@@ -170,6 +171,7 @@ export const sq = {
     'Shfletoni të gjitha lëndët, programet e studimit dhe akreditimet e FINKI-t.',
   nav: {
     equivalencies: 'Ekuivalencat',
+    label: 'Seksionet',
     listing: 'Lëndët',
     prerequisites: 'Parakushtet',
     simulator: 'Simuluesi',
@@ -186,6 +188,12 @@ export const sq = {
     },
     markListened: 'Shëno të regjistruar',
     upcoming: '(i radhës; zgjidhni një semestër më lart për ta ndryshuar)',
+  },
+  pageIntro: {
+    listing:
+      'Kërkoni dhe filtroni të gjitha lëndët e FINKI-t, pastaj hapni një lëndë për stafin, programet dhe numrin e studentëve.',
+    simulator:
+      'Shënoni lëndët që keni ndjekur ose kaluar për të parë çfarë mund të regjistroni më pas, për të ndjekur kreditet dhe për të planifikuar semestrat e ardhshëm.',
   },
   planner: {
     addToPlan: 'Shto në plan',
@@ -232,6 +240,9 @@ export const sq = {
     },
     description:
       'Zgjidhni një akreditim dhe një lëndë për të parë të gjitha lëndët që e kanë si parakusht.',
+    emptyText:
+      'Lëndët që e kanë si parakusht shfaqen këtu, të renditura sipas semestrit.',
+    emptyTitle: 'Zgjidhni një lëndë për të parë çfarë hap',
     searchPlaceholder: 'Kërko sipas emrit, shkurtesës ose kodit...',
   },
   programState: {

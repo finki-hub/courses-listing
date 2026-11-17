@@ -1,6 +1,6 @@
 import { createUniqueId, type JSX, Show } from 'solid-js';
 
-import { InfoPopover } from '@/components/enrollment-simulator/info-popover';
+import { InfoTip } from '@/components/ui/info-tip';
 
 type FilterGroupProps = {
   children: JSX.Element;
@@ -26,7 +26,7 @@ export const FilterGroup = (props: FilterGroupProps) => {
         {props.label}
       </span>
       <div class="min-w-0 flex-1 sm:flex-none">{props.children}</div>
-      <Show when={props.info}>{(info) => <InfoPopover text={info()} />}</Show>
+      <Show when={props.info}>{(info) => <InfoTip text={info()} />}</Show>
     </div>
   );
 };

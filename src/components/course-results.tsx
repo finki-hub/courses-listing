@@ -149,7 +149,7 @@ export const CourseResults = (props: CourseResultsProps) => {
         </Show>
       </div>
 
-      <div class="hidden rounded-md border sm:block">
+      <div class="bg-card hidden rounded-lg border sm:block">
         <Table>
           <TableHeader>
             <TableRow>

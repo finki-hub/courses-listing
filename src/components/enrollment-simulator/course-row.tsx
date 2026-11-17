@@ -1,14 +1,14 @@
 import { Lock } from 'lucide-solid';
 import { Show } from 'solid-js';
 
-import { Badge } from '@/components/ui/badge';
+import { InfoTip } from '@/components/ui/info-tip';
+import { StatusBadge } from '@/components/ui/status-badge';
 import { TableCell, TableRow } from '@/components/ui/table';
 import { interpolate } from '@/lib/i18n';
 import { useLanguage } from '@/lib/LanguageProvider';
 import { getProgramStateKind, type SimulatorCourse } from '@/lib/simulator';
 
-import { getStatusClass, PROGRAM_STATE_BADGE_CLASSES } from './course-styles';
-import { InfoPopover } from './info-popover';
+import { getStatusClass, PROGRAM_STATE_TONES } from './course-styles';
 import { Checkbox } from './simulator-checkbox';
 
 /** Minimum row height to prevent layout shift when badges wrap */
@@ -59,23 +59,20 @@ export const CourseRow = (props: CourseRowProps) => {
               return (
                 <Show when={kind()}>
                   {(k) => (
-                    <Badge
-                      class={`ml-1 px-1.5 py-0 text-[10px] leading-4 font-normal ${PROGRAM_STATE_BADGE_CLASSES[k()]}`}
-                      variant="outline"
-                    >
+                    <StatusBadge tone={PROGRAM_STATE_TONES[k()]}>
                       <span class="sm:hidden">
                         {t().programStateShort[k()]}
                       </span>
                       <span class="hidden sm:inline">
                         {t().programState[k()]}
                       </span>
-                    </Badge>
+                    </StatusBadge>
                   )}
                 </Show>
               );
             }}
           </Show>
-          <InfoPopover text={props.reason} />
+          <InfoTip text={props.reason} />
         </span>
       </TableCell>
       <TableCell class="text-center">

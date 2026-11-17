@@ -61,7 +61,7 @@ export const LanguageSelect = (props: LanguageSelectProps) => {
     >
       <Select.Label class="sr-only">{props.label}</Select.Label>
       <Select.Trigger
-        class="flex h-10 w-auto items-center justify-between gap-1.5 rounded-xl border border-border/60 bg-background/80 px-3 py-2 text-sm font-medium shadow-sm ring-offset-background backdrop-blur-sm transition-colors hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 data-expanded:bg-muted [&>svg:last-child]:transition-transform [&[data-expanded]>svg:last-child]:rotate-180"
+        class="flex h-9 w-auto items-center justify-between gap-1.5 rounded-md border border-border bg-card px-2.5 text-sm font-medium ring-offset-background transition-colors hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 data-expanded:bg-muted [&>svg:last-child]:transition-transform [&[data-expanded]>svg:last-child]:rotate-180"
         onKeyDown={markKeyboard}
         onPointerDown={markPointer}
         ref={(element) => {

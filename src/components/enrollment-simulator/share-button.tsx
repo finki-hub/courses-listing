@@ -6,8 +6,8 @@ type ShareState = 'copying' | 'done' | 'error' | 'idle';
 
 const SHARE_STATE_CLASSES: Record<ShareState, string> = {
   copying: 'cursor-wait opacity-70',
-  done: 'border-green-500 bg-green-500/10 text-green-700 dark:text-green-400',
-  error: 'border-red-500 bg-red-500/10 text-red-700 dark:text-red-400',
+  done: 'border-passed-border bg-passed-soft text-passed',
+  error: 'border-danger-border bg-danger-soft text-danger',
   idle: 'hover:bg-muted',
 };
 

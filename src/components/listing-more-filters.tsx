@@ -1,10 +1,12 @@
 import { ChevronDown } from 'lucide-solid';
 import { createUniqueId, For, Show } from 'solid-js';
 
-import { InfoPopover } from '@/components/enrollment-simulator/info-popover';
 import { FilterGroup } from '@/components/filter-group';
-import { ButtonGroup } from '@/components/ui/button-group';
+import { FIELD_CLASS } from '@/components/ui/field';
+import { InfoTip } from '@/components/ui/info-tip';
 import { LabeledCheckbox } from '@/components/ui/labeled-checkbox';
+import { SegmentedControl } from '@/components/ui/segmented-control';
+import { Select } from '@/components/ui/select';
 import { getListingPrograms } from '@/lib/course-facts';
 import { type ProgramStateFilter } from '@/lib/course-filters';
 import { getStudyProgramName } from '@/lib/i18n';
@@ -13,9 +15,6 @@ import { type ListingFilters } from '@/lib/listing-url-state';
 import { STUDY_PROGRAM_LABELS } from '@/types/course';
 
 const SEMESTERS = [1, 2, 3, 4, 5, 6, 7, 8] as const;
-
-const FIELD_CLASS =
-  'bg-background border-input focus-visible:ring-ring h-9 w-full rounded-md border px-2 text-sm focus-visible:ring-2 focus-visible:outline-none sm:w-64';
 
 type ListingMoreFiltersProps = {
   readonly credits: readonly number[];
@@ -27,10 +26,6 @@ type ListingMoreFiltersProps = {
   readonly programOptions?: ReadonlyArray<{ label: string; value: string }>;
   readonly staff: readonly string[];
 };
-
-// Picks a value, or clears it when the selected one is picked again.
-const toggled = <T,>(current: null | T, value: T): null | T =>
-  current === value ? null : value;
 
 // Less common filters, behind a disclosure to keep the controls short.
 export const ListingMoreFilters = (props: ListingMoreFiltersProps) => {
@@ -65,7 +60,7 @@ export const ListingMoreFilters = (props: ListingMoreFiltersProps) => {
       <button
         aria-controls={panelId}
         aria-expanded={props.expanded}
-        class="text-foreground hover:bg-muted inline-flex items-center gap-1.5 rounded-md border px-3 py-1.5 text-sm font-medium transition-colors"
+        class="bg-card text-foreground hover:bg-muted inline-flex min-h-9 items-center gap-1.5 rounded-md border px-3 text-sm font-medium transition-colors"
         onClick={() => {
           props.onExpandedChange(!props.expanded);
         }}
@@ -80,54 +75,39 @@ export const ListingMoreFilters = (props: ListingMoreFiltersProps) => {
 
       <Show when={props.expanded}>
         <div
-          class="grid gap-3 rounded-md border p-3 sm:flex sm:flex-wrap sm:items-center sm:gap-x-6 sm:gap-y-3"
+          class="bg-card grid gap-3 rounded-lg border p-3 sm:flex sm:flex-wrap sm:items-center sm:gap-x-6 sm:gap-y-3"
           id={panelId}
         >
           <FilterGroup label={t().filters.program}>
             <div class="flex flex-col gap-2 sm:flex-row sm:items-center">
-              <select
+              <Select
                 aria-label={t().filters.program}
-                class={FIELD_CLASS}
-                onChange={(event) => {
-                  const program = event.currentTarget.value || null;
+                class="sm:w-64"
+                emptyLabel={t().filters.programAll}
+                onChange={(value) => {
+                  const program = value || null;
                   props.onUpdate({
                     program,
                     programState:
                       program === null ? null : props.filters.programState,
                   });
                 }}
-              >
-                <option
-                  selected={props.filters.program === null}
-                  value=""
-                >
-                  {t().filters.programAll}
-                </option>
-                <For each={programOptions()}>
-                  {(option) => (
-                    <option
-                      selected={props.filters.program === option.value}
-                      value={option.value}
-                    >
-                      {option.label}
-                    </option>
-                  )}
-                </For>
-              </select>
+                options={programOptions()}
+                value={props.filters.program}
+              />
               <Show when={props.filters.program !== null}>
-                <ButtonGroup
+                <SegmentedControl
+                  allLabel={t().common.all}
                   aria-label={t().filters.program}
                   class="w-full sm:w-auto"
                   items={programStateItems()}
-                  onSelect={(value) => {
-                    props.onUpdate({
-                      programState: toggled<NonNullable<ProgramStateFilter>>(
-                        props.filters.programState,
-                        value,
-                      ),
-                    });
+                  onClear={() => {
+                    props.onUpdate({ programState: null });
                   }}
-                  value={props.filters.programState ?? undefined}
+                  onSelect={(value: NonNullable<ProgramStateFilter>) => {
+                    props.onUpdate({ programState: value });
+                  }}
+                  value={props.filters.programState}
                 />
               </Show>
             </div>
@@ -135,42 +115,47 @@ export const ListingMoreFilters = (props: ListingMoreFiltersProps) => {
 
           <Show when={props.programOptions === undefined}>
             <FilterGroup label={t().filters.semesterNumber}>
-              <ButtonGroup
+              <SegmentedControl
+                allLabel={t().common.all}
                 class="w-full sm:w-auto"
                 items={SEMESTERS.map((value) => ({
                   label: String(value),
                   value,
                 }))}
-                onSelect={(value) => {
-                  props.onUpdate({
-                    semester: toggled(props.filters.semester, value),
-                  });
+                onClear={() => {
+                  props.onUpdate({ semester: null });
                 }}
-                value={props.filters.semester ?? undefined}
+                onSelect={(semester) => {
+                  props.onUpdate({ semester });
+                }}
+                size="sm"
+                value={props.filters.semester}
               />
             </FilterGroup>
           </Show>
 
           <FilterGroup label={t().filters.credits}>
-            <ButtonGroup
+            <SegmentedControl
+              allLabel={t().common.all}
               class="w-full sm:w-auto"
               items={props.credits.map((value) => ({
                 label: String(value),
                 value,
               }))}
-              onSelect={(value) => {
-                props.onUpdate({
-                  credits: toggled(props.filters.credits, value),
-                });
+              onClear={() => {
+                props.onUpdate({ credits: null });
               }}
-              value={props.filters.credits ?? undefined}
+              onSelect={(credits) => {
+                props.onUpdate({ credits });
+              }}
+              value={props.filters.credits}
             />
           </FilterGroup>
 
           <FilterGroup label={t().filters.staff}>
             <input
               aria-label={t().filters.staff}
-              class={FIELD_CLASS}
+              class={`${FIELD_CLASS} sm:w-64`}
               list={staffListId}
               onChange={(event) => {
                 applyStaff(event.currentTarget.value);
@@ -200,7 +185,7 @@ export const ListingMoreFilters = (props: ListingMoreFiltersProps) => {
                 >
                   {t().filters.hideInactive}
                 </LabeledCheckbox>
-                <InfoPopover text={t().filters.hideInactiveInfo} />
+                <InfoTip text={t().filters.hideInactiveInfo} />
               </span>
               <span class="inline-flex items-center gap-1">
                 <LabeledCheckbox
@@ -211,7 +196,7 @@ export const ListingMoreFilters = (props: ListingMoreFiltersProps) => {
                 >
                   {t().filters.offeredOnly}
                 </LabeledCheckbox>
-                <InfoPopover text={t().filters.offeredInfo} />
+                <InfoTip text={t().filters.offeredInfo} />
               </span>
               <LabeledCheckbox
                 checked={props.filters.channelOnly}

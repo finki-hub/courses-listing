@@ -1,7 +1,6 @@
 import { createMemo, createSignal, For, Show } from 'solid-js';
 
 import { Badge } from '@/components/ui/badge';
-import { LabeledCheckbox } from '@/components/ui/labeled-checkbox';
 import { SearchInput } from '@/components/ui/search-input';
 import {
   Table,
@@ -11,6 +10,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
+import { ToggleChip } from '@/components/ui/toggle-chip';
 import {
   resolveSimilarEquivalencies,
   type SimilarCourse,
@@ -364,37 +364,25 @@ export const CourseEquivalencies = (props: CourseEquivalenciesProps) => {
 
   return (
     <section
-      aria-labelledby="equivalencies-heading"
+      aria-label={t().equivalencies.heading}
       class="space-y-4"
     >
-      <h2
-        class="text-lg font-semibold"
-        id="equivalencies-heading"
-      >
-        {t().equivalencies.heading}
-      </h2>
-
       <div class="flex flex-wrap items-center gap-3">
-        <LabeledCheckbox
-          checked={showOneToOne()}
-          class="gap-2 py-1.5"
-          onChange={() => setShowOneToOne((current) => !current)}
+        <ToggleChip
+          onToggle={() => setShowOneToOne((current) => !current)}
+          pressed={showOneToOne()}
         >
           {t().equivalencies.oneToOne}
-        </LabeledCheckbox>
-        <LabeledCheckbox
-          checked={showSimilar()}
-          class="gap-2 py-1.5"
-          onChange={() => setShowSimilar((current) => !current)}
+        </ToggleChip>
+        <ToggleChip
+          onToggle={() => setShowSimilar((current) => !current)}
+          pressed={showSimilar()}
         >
           {t().equivalencies.similar}
-        </LabeledCheckbox>
+        </ToggleChip>
       </div>
 
       <div class="space-y-1">
-        <p class="text-muted-foreground text-sm">
-          {t().equivalencies.description}
-        </p>
         <div
           aria-live="polite"
           class="flex flex-wrap items-baseline gap-x-4 gap-y-1 text-sm"
@@ -453,13 +441,13 @@ export const CourseEquivalencies = (props: CourseEquivalenciesProps) => {
 
       <Show
         fallback={
-          <div class="rounded-md border p-8 text-center text-sm">
+          <div class="bg-card rounded-lg border p-8 text-center text-sm">
             {t().common.noResults}
           </div>
         }
         when={unifiedRules().length > 0}
       >
-        <div class="rounded-md border">
+        <div class="bg-card rounded-lg border">
           <Table class="w-full table-fixed">
             <TableHeader>
               <TableRow class="hover:bg-transparent transition-none">

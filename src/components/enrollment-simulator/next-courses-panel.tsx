@@ -1,6 +1,7 @@
 import { For, type JSX, Show } from 'solid-js';
 
 import { Badge } from '@/components/ui/badge';
+import { StatusBadge } from '@/components/ui/status-badge';
 import {
   formatCount,
   formatNumber,
@@ -12,7 +13,7 @@ import { type NextCourse, type Season } from '@/lib/next-courses';
 import { getProgramStateKind } from '@/lib/simulator';
 import { type AcademicYear, getCourseTags } from '@/types/course';
 
-import { PROGRAM_STATE_BADGE_CLASSES } from './course-styles';
+import { PROGRAM_STATE_TONES } from './course-styles';
 
 type NextCoursesPanelProps = {
   /** Extra actions per course, after "mark as enrolled". */
@@ -79,18 +80,15 @@ export const NextCoursesPanel = (props: NextCoursesPanelProps) => {
             {(item) => {
               const kind = () => getProgramStateKind(item.course.programState);
               return (
-                <li class="flex flex-wrap items-center gap-x-3 gap-y-2 rounded-md border px-3 py-2">
+                <li class="flex flex-wrap items-center gap-x-3 gap-y-2 rounded-lg border bg-card px-3 py-2">
                   <div class="min-w-0 flex-1 space-y-1">
                     <div class="flex flex-wrap items-center gap-1.5 text-sm font-medium">
                       {item.course.name}
                       <Show when={kind()}>
                         {(k) => (
-                          <Badge
-                            class={`px-1.5 py-0 text-[10px] leading-4 font-normal ${PROGRAM_STATE_BADGE_CLASSES[k()]}`}
-                            variant="outline"
-                          >
+                          <StatusBadge tone={PROGRAM_STATE_TONES[k()]}>
                             {t().programState[k()]}
-                          </Badge>
+                          </StatusBadge>
                         )}
                       </Show>
                       <For each={getCourseTags(item.course.raw)}>
@@ -108,7 +106,7 @@ export const NextCoursesPanel = (props: NextCoursesPanelProps) => {
                   <div class="flex gap-1.5">
                     <button
                       aria-label={`${t().nextCourses.markListened}: ${item.course.name}`}
-                      class="hover:bg-muted rounded-md border px-2.5 py-1 text-xs font-medium transition-colors"
+                      class="bg-card hover:bg-muted rounded-md border px-2.5 py-1 text-xs font-medium transition-colors"
                       onClick={() => {
                         props.onMarkListened(item.course.name);
                       }}

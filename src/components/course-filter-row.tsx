@@ -3,7 +3,7 @@ import { Show } from 'solid-js';
 import { AccreditationSwitch } from '@/components/accreditation-switch';
 import { CourseLevelFilter } from '@/components/course-level-filter';
 import { FilterGroup } from '@/components/filter-group';
-import { ButtonGroup } from '@/components/ui/button-group';
+import { SegmentedControl } from '@/components/ui/segmented-control';
 import { getStudyProgramName, interpolate } from '@/lib/i18n';
 import { useLanguage } from '@/lib/LanguageProvider';
 import { LEVEL_CREDIT_LIMITS } from '@/lib/simulator';
@@ -20,6 +20,8 @@ const isSeasonFilter = (value: string): value is 'summer' | 'winter' =>
 
 type CourseFilterRowProps = {
   readonly accreditation: Accreditation | null;
+  /** The listing can show both accreditations at once; the simulator can't. */
+  readonly clearableAccreditation?: boolean;
   readonly levelFilter: CourseLevelFilterValue;
   /** Master's courses have no accreditations or levels. */
   readonly master?: boolean;
@@ -59,6 +61,14 @@ export const CourseFilterRow = (props: CourseFilterRowProps) => {
         <FilterGroup label={t().filters.accreditation}>
           <AccreditationSwitch
             accreditation={props.accreditation}
+            onClear={
+              props.clearableAccreditation
+                ? () => {
+                    if (props.accreditation !== null)
+                      props.onSwitchAccreditation(props.accreditation);
+                  }
+                : undefined
+            }
             onSelect={props.onSwitchAccreditation}
           />
         </FilterGroup>
@@ -66,27 +76,27 @@ export const CourseFilterRow = (props: CourseFilterRowProps) => {
 
       {props.onSwitchProgram ? (
         <FilterGroup label={t().filters.program}>
-          <ButtonGroup
+          <SegmentedControl
             class="w-full sm:w-auto"
             items={programItems()}
             onSelect={props.onSwitchProgram}
-            value={props.program ?? undefined}
+            value={props.program}
           />
         </FilterGroup>
       ) : null}
 
       <FilterGroup label={t().filters.season}>
-        <ButtonGroup
+        <SegmentedControl
+          allLabel={t().common.all}
           class="w-full sm:w-auto"
           items={seasonItems()}
-          onSelect={(season) => {
-            props.onSetSeason(
-              props.seasonFilter === season || !isSeasonFilter(season)
-                ? null
-                : season,
-            );
+          onClear={() => {
+            props.onSetSeason(null);
           }}
-          value={props.seasonFilter ?? ''}
+          onSelect={(season) => {
+            props.onSetSeason(isSeasonFilter(season) ? season : null);
+          }}
+          value={props.seasonFilter}
         />
       </FilterGroup>
 

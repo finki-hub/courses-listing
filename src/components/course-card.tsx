@@ -29,7 +29,7 @@ export const CourseCard = (props: CourseCardProps) => {
   const { language, t } = useLanguage();
   return (
     <button
-      class="hover:bg-muted/50 w-full rounded-lg border p-3 text-left transition-colors"
+      class="bg-card hover:bg-muted/60 w-full rounded-lg border p-3 text-left transition-colors"
       onClick={() => {
         props.onClick();
       }}

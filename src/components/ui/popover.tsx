@@ -19,7 +19,7 @@ export const PopoverContent = <T extends ValidComponent = 'div'>(
   return (
     <PopoverPrimitive.Content
       class={cn(
-        'bg-background text-foreground data-expanded:animate-in data-closed:animate-out data-closed:fade-out-0 data-expanded:fade-in-0 data-closed:zoom-out-95 data-expanded:zoom-in-95 z-50 max-w-[min(calc(100vw-1rem),20rem)] rounded-lg border p-3 text-sm shadow-md outline-none',
+        'bg-popover text-popover-foreground data-expanded:animate-in data-closed:animate-out data-closed:fade-out-0 data-expanded:fade-in-0 data-closed:zoom-out-95 data-expanded:zoom-in-95 z-50 max-w-[min(calc(100vw-1rem),20rem)] rounded-lg border p-3 text-sm shadow-md outline-none',
         local.class,
       )}
       {...rest}
