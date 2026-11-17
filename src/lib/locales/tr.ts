@@ -151,6 +151,16 @@ export const tr = {
     prerequisites: 'Ön koşullar',
     simulator: 'Simülatör',
   },
+  nextCourses: {
+    credits: '{credits} kredi',
+    description:
+      'Sonra alabileceğiniz dersler: henüz alınmamış, ön koşulları sağlanmış ve seviye sınırları içinde. Önce zorunlu dersler, ardından yarıyıla ve alan öğrenci sayısına göre seçmeli dersler gelir.',
+    empty: 'Bu yarıyılda alınabilecek ders yok.',
+    enrolled: '{year} yılında {count} öğrenci',
+    forSeason: { summer: 'Bahar yarıyılı için', winter: 'Güz yarıyılı için' },
+    markListened: 'Kayıtlı işaretle',
+    upcoming: '(bir sonraki; değiştirmek için yukarıdan bir yarıyıl seçin)',
+  },
   prereqDescription: {
     attended: 'kayıtlı',
     creditsMet: '  ✅ {credits} kredi',
@@ -231,6 +241,8 @@ export const tr = {
       'ℹ️ ≥ 174 krediniz var, ancak 3 yıllık program için şu zorunlu dersler eksik: {courses}',
     missing4yr:
       'ℹ️ ≥ 234 krediniz var, ancak 4 yıllık program için şu zorunlu dersler eksik: {courses}',
+    modeLabel: 'Simülatör görünümü',
+    modes: { checklist: 'Liste', next: 'Sırada ne var' },
     onlyAvailable: 'Yalnızca alınabilir dersler',
     overLimit:
       '⛔ {levels} için kazanılabilecek azami kredi aşıldı. Fazla krediler sayılmadı.',

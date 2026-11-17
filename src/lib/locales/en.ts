@@ -151,6 +151,19 @@ export const en = {
     prerequisites: 'Prerequisites',
     simulator: 'Simulator',
   },
+  nextCourses: {
+    credits: '{credits} credits',
+    description:
+      'Courses you can take next: not yet taken, prerequisites met and within the level limits. Required courses come first, then electives by semester and by how many students took them.',
+    empty: 'No courses are available in this semester.',
+    enrolled: '{count} students in {year}',
+    forSeason: {
+      summer: 'For the summer semester',
+      winter: 'For the winter semester',
+    },
+    markListened: 'Mark enrolled',
+    upcoming: '(the next one; choose a semester above to change it)',
+  },
   prereqDescription: {
     attended: 'enrolled',
     creditsMet: '  ✅ {credits} credits',
@@ -231,6 +244,8 @@ export const en = {
       'ℹ️ You have ≥ 174 credits, but these required courses are missing for a 3-year degree: {courses}',
     missing4yr:
       'ℹ️ You have ≥ 234 credits, but these required courses are missing for a 4-year degree: {courses}',
+    modeLabel: 'Simulator view',
+    modes: { checklist: 'Checklist', next: 'What next' },
     onlyAvailable: 'Available only',
     overLimit:
       '⛔ The maximum earned credits for {levels} have been exceeded. Excess credits are not counted.',

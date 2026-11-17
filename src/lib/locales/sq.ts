@@ -151,6 +151,19 @@ export const sq = {
     prerequisites: 'Parakushtet',
     simulator: 'Simuluesi',
   },
+  nextCourses: {
+    credits: '{credits} kredite',
+    description:
+      'Lëndët që mund t’i merrni më pas: ende të pamarra, me parakushtet e plotësuara dhe brenda kufijve të nivelit. Së pari vijnë lëndët e detyrueshme, pastaj ato zgjedhore sipas semestrit dhe numrit të studentëve që i morën.',
+    empty: 'Nuk ka lëndë të disponueshme në këtë semestër.',
+    enrolled: '{count} studentë në {year}',
+    forSeason: {
+      summer: 'Për semestrin veror',
+      winter: 'Për semestrin dimëror',
+    },
+    markListened: 'Shëno të regjistruar',
+    upcoming: '(i radhës; zgjidhni një semestër më lart për ta ndryshuar)',
+  },
   prereqDescription: {
     attended: 'e regjistruar',
     creditsMet: '  ✅ {credits} kredite',
@@ -238,6 +251,8 @@ export const sq = {
       'ℹ️ Keni ≥ 174 kredite, por për studimet 3-vjeçare ju mungojnë këto lëndë të detyrueshme: {courses}',
     missing4yr:
       'ℹ️ Keni ≥ 234 kredite, por për studimet 4-vjeçare ju mungojnë këto lëndë të detyrueshme: {courses}',
+    modeLabel: 'Pamja e simulatorit',
+    modes: { checklist: 'Lista', next: 'Çfarë më pas' },
     onlyAvailable: 'Vetëm të disponueshme',
     overLimit:
       '⛔ Është tejkaluar numri maksimal i krediteve për {levels}. Kreditet e tepërta nuk numërohen.',

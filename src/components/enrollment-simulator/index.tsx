@@ -7,15 +7,7 @@ import {
   DEFAULT_PROGRAM,
   LEVEL_CREDIT_LIMITS,
   loadStatuses,
-  toggleListenedStatus,
-  togglePassedStatus,
 } from '@/lib/simulator';
-import {
-  type BulkStatus,
-  getBulkTargets,
-  markCourses,
-  type SemesterGroup,
-} from '@/lib/simulator-view';
 import {
   type Accreditation,
   type CourseLevelFilter,
@@ -25,10 +17,16 @@ import {
 } from '@/types/course';
 
 import { CreditLimitWarning, GraduationAlert } from './alerts';
+import { NextCoursesPanel } from './next-courses-panel';
 import { SimulatorFilters } from './simulator-filters';
+import {
+  type SimulatorMode,
+  SimulatorModeSwitch,
+} from './simulator-mode-switch';
 import { SimulatorTable } from './simulator-table';
 import { SimulatorToolbar } from './simulator-toolbar';
-import { useUndoableAction } from './undo-notice';
+import { useNextCourses } from './use-next-courses';
+import { useSimulatorActions } from './use-simulator-actions';
 import { useSimulatorCourses } from './use-simulator-courses';
 import { useSimulatorEffects } from './use-simulator-effects';
 import { getInitialSimulatorState } from './use-simulator-initial-state';
@@ -112,7 +110,24 @@ export const EnrollmentSimulator = (props: EnrollmentSimulatorProps) => {
     seasonFilter,
     showOnlyEnabled,
   });
-  const undoable = useUndoableAction();
+  const actions = useSimulatorActions({
+    enabledMap: state.enabledMap,
+    hpcCompleted,
+    setHpcCompleted,
+    setStatuses,
+    setUniListCredits,
+    statuses,
+    uniListCredits,
+  });
+  const next = useNextCourses({
+    courses: parsedCourses,
+    enabledMap: state.enabledMap,
+    fullLevels: state.fullLevels,
+    levelFilter,
+    seasonFilter,
+    statuses,
+  });
+  const [mode, setMode] = createSignal<SimulatorMode>('checklist');
 
   const switchAccreditation = (acc: Accreditation) => {
     setAccreditation(acc);
@@ -120,49 +135,24 @@ export const EnrollmentSimulator = (props: EnrollmentSimulatorProps) => {
     setStatuses(loadStatuses(acc));
   };
 
-  const toggleListened = (name: string) => {
-    setStatuses((prev) => toggleListenedStatus(prev, name));
-  };
-
-  const togglePassed = (name: string) => {
-    setStatuses((prev) => togglePassedStatus(prev, name));
-  };
-
-  const bulkMark = (group: SemesterGroup, target: BulkStatus) => {
-    const names = getBulkTargets(
-      group.courses,
-      { enabledMap: state.enabledMap(), statuses: statuses() },
-      target,
-    );
-    setStatuses((prev) => markCourses(prev, names, target));
-  };
-
-  const resetStatuses = () => {
-    const staticSnapshot = {
-      hpc: hpcCompleted(),
-      statuses: statuses(),
-      uniList: uniListCredits(),
-    };
-    setStatuses({});
-    setHpcCompleted(false);
-    setUniListCredits(0);
-    undoable.offer(() => {
-      setStatuses(staticSnapshot.statuses);
-      setHpcCompleted(staticSnapshot.hpc);
-      setUniListCredits(staticSnapshot.uniList);
-    });
-  };
-
   return (
     <div class="space-y-4">
-      <p class="text-muted-foreground text-sm">{t().simulator.description}</p>
+      <SimulatorModeSwitch
+        description={
+          mode() === 'checklist'
+            ? t().simulator.description
+            : t().nextCourses.description
+        }
+        mode={mode()}
+        onSelect={setMode}
+      />
 
       <div class="space-y-2 sm:space-y-3">
         <SimulatorToolbar
           accreditation={accreditation()}
           hpcCompleted={hpcCompleted()}
           levelFilter={levelFilter()}
-          onReset={resetStatuses}
+          onReset={actions.reset}
           onSetLevel={setLevelFilter}
           onSetSeason={setSeasonFilter}
           onShare={copyShareUrl}
@@ -179,23 +169,25 @@ export const EnrollmentSimulator = (props: EnrollmentSimulatorProps) => {
           uniListCredits={uniListCredits()}
         />
 
-        <SimulatorFilters
-          activeFilterCount={view.activeFilterCount()}
-          onReset={resetStatuses}
-          onSearch={view.setSearch}
-          onSetType={view.setTypeFilter}
-          onToggleOnlyEnabled={() => {
-            setShowOnlyEnabled((v) => !v);
-          }}
-          onToggleTag={view.toggleTag}
-          search={view.search()}
-          showOnlyEnabled={showOnlyEnabled()}
-          tags={view.tagFilter()}
-          type={view.typeFilter()}
-        />
+        <Show when={mode() === 'checklist'}>
+          <SimulatorFilters
+            activeFilterCount={view.activeFilterCount()}
+            onReset={actions.reset}
+            onSearch={view.setSearch}
+            onSetType={view.setTypeFilter}
+            onToggleOnlyEnabled={() => {
+              setShowOnlyEnabled((v) => !v);
+            }}
+            onToggleTag={view.toggleTag}
+            search={view.search()}
+            showOnlyEnabled={showOnlyEnabled()}
+            tags={view.tagFilter()}
+            type={view.typeFilter()}
+          />
+        </Show>
       </div>
 
-      <undoable.Notice message={t().simulator.resetDone} />
+      <actions.UndoNotice message={t().simulator.resetDone} />
 
       <CreditLimitWarning
         levelLimits={LEVEL_CREDIT_LIMITS}
@@ -212,17 +204,30 @@ export const EnrollmentSimulator = (props: EnrollmentSimulatorProps) => {
         missingMandatory4yr={state.graduationInfo().missing4yr}
       />
 
-      <SimulatorTable
-        enabledMap={state.enabledMap()}
-        fullLevels={state.fullLevels()}
-        groups={view.groups()}
-        onBulkMark={bulkMark}
-        onToggleListened={toggleListened}
-        onTogglePassed={togglePassed}
-        overLimitSet={state.overLimitSet()}
-        reasonMap={state.reasonMap()}
-        statuses={statuses()}
-      />
+      <Show
+        fallback={
+          <NextCoursesPanel
+            isUpcoming={next.isUpcoming()}
+            items={next.ranked().items}
+            onMarkListened={actions.toggleListened}
+            season={next.season()}
+            year={next.ranked().year}
+          />
+        }
+        when={mode() === 'checklist'}
+      >
+        <SimulatorTable
+          enabledMap={state.enabledMap()}
+          fullLevels={state.fullLevels()}
+          groups={view.groups()}
+          onBulkMark={actions.bulkMark}
+          onToggleListened={actions.toggleListened}
+          onTogglePassed={actions.togglePassed}
+          overLimitSet={state.overLimitSet()}
+          reasonMap={state.reasonMap()}
+          statuses={statuses()}
+        />
+      </Show>
     </div>
   );
 };
