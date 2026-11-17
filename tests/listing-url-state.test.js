@@ -3,6 +3,7 @@ import { test } from 'node:test';
 
 import {
   findCourseByLinkValue,
+  findPreferredCourseByLinkValue,
   getCourseLinkValue,
   LISTING_FILTER_PARAMS,
   parseListingUrlState,
@@ -20,6 +21,7 @@ const DEFAULT_STATE = {
   accreditation: null,
   channelOnly: false,
   credits: null,
+  cycle: 'undergraduate',
   hideInactive: false,
   level: null,
   offeredOnly: false,
@@ -53,6 +55,7 @@ test('valid listing params round-trip through the URL', () => {
     accreditation: '2018',
     channelOnly: true,
     credits: 6,
+    cycle: 'undergraduate',
     hideInactive: true,
     level: 2,
     offeredOnly: true,
@@ -158,4 +161,40 @@ test('missing or unknown course links resolve to nothing', () => {
   assert.equal(findCourseByLinkValue(COURSES, null), undefined);
   assert.equal(findCourseByLinkValue(COURSES, '  '), undefined);
   assert.equal(findCourseByLinkValue(COURSES, 'F23L9X999'), undefined);
+});
+
+test("the master's cycle is linked as cycle=master", () => {
+  assert.equal(write({ ...DEFAULT_STATE, cycle: 'master' }), 'cycle=master');
+  assert.equal(parse('cycle=master').cycle, 'master');
+  assert.equal(parse('cycle=phd').cycle, 'undergraduate');
+});
+
+test("master's program codes are kept until the data can check them", () => {
+  assert.equal(parse('cycle=master&prog=DS23_1').program, 'DS23_1');
+  assert.equal(parse('cycle=master&prog=bad%20code').program, null);
+  assert.equal(parse('prog=DS23_1').program, null);
+});
+
+test('the cycle param is a listing param', () => {
+  assert.ok(LISTING_FILTER_PARAMS.includes('cycle'));
+});
+
+const isMaster = (course) => course.cycle === 'second';
+
+test('a course link resolves within the preferred cycle first', () => {
+  const undergraduate = { cycle: 'first', name: 'Shared', professors: '' };
+  const master = { cycle: 'second', name: 'Shared', professors: '' };
+  const courses = [undergraduate, master];
+  assert.equal(
+    findPreferredCourseByLinkValue(courses, 'Shared', isMaster),
+    master,
+  );
+  assert.equal(
+    findPreferredCourseByLinkValue(courses, 'Shared', (c) => !isMaster(c)),
+    undergraduate,
+  );
+  assert.equal(
+    findPreferredCourseByLinkValue([undergraduate], 'Shared', isMaster),
+    undergraduate,
+  );
 });

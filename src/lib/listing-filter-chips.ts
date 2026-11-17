@@ -23,7 +23,15 @@ export type FilterChipKind =
   | 'staff'
   | 'tag';
 
-export const getFilterChips = (filters: ListingFilters): FilterChip[] => {
+// Filters the master's view doesn't have.
+const UNDERGRADUATE_ONLY: ReadonlySet<FilterChipKind> = new Set([
+  'accreditation',
+  'level',
+  'semester',
+  'tag',
+]);
+
+const getAllFilterChips = (filters: ListingFilters): FilterChip[] => {
   type ChipSource = [
     Exclude<FilterChipKind, 'tag'>,
     boolean | null | number | string,
@@ -52,6 +60,11 @@ export const getFilterChips = (filters: ListingFilters): FilterChip[] => {
   ];
 };
 
+export const getFilterChips = (filters: ListingFilters): FilterChip[] =>
+  getAllFilterChips(filters).filter(
+    (chip) => filters.cycle !== 'master' || !UNDERGRADUATE_ONLY.has(chip.kind),
+  );
+
 const CHIP_RESETS: Record<
   Exclude<FilterChipKind, 'tag'>,
   Partial<ListingFilters>
@@ -77,9 +90,10 @@ export const removeFilterChip = (
     ? { ...filters, tags: filters.tags.filter((tag) => tag !== chip.value) }
     : { ...filters, ...CHIP_RESETS[chip.kind] };
 
-// Clears every filter and the search, keeping how tags combine.
+// Clears every filter and the search, keeping the cycle and how tags combine.
 export const clearFilters = (filters: ListingFilters): ListingFilters => ({
   ...DEFAULT_LISTING_FILTERS,
+  cycle: filters.cycle,
   tagMode: filters.tagMode,
 });
 

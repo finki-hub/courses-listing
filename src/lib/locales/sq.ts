@@ -143,6 +143,29 @@ export const sq = {
     studentsValue: '{value} studentë',
     tagsLabel: 'Etiketat:',
   },
+  masters: {
+    cycle: 'Studimet:',
+    electiveGroups: {
+      facultySummer: 'Zgjedhore të fakultetit, verë',
+      facultyWinter: 'Zgjedhore të fakultetit, dimër',
+      other: 'Zgjedhore të tjera',
+      programSummer: 'Zgjedhore të programit, verë',
+      programWinter: 'Zgjedhore të programit, dimër',
+    },
+    electiveIn: {
+      one: 'zgjedhor në {count} program',
+      other: 'zgjedhor në {count} programe',
+    },
+    loadError: 'Programet master nuk u ngarkuan.',
+    loading: 'Po ngarkohen programet master...',
+    mandatory: 'I detyrueshëm',
+    mandatoryIn: 'I detyrueshëm në {programs}',
+    master: 'Master',
+    noEnrollment: 'Nuk ofrohet ose pa të dhëna',
+    noPrograms: 'Nuk është në asnjë program',
+    programs: 'Programet',
+    undergraduate: 'Bachelor',
+  },
   metadataDescription:
     'Shfletoni të gjitha lëndët, programet e studimit dhe akreditimet e FINKI-t.',
   nav: {

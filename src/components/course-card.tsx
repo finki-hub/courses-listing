@@ -7,13 +7,16 @@ import { useLanguage } from '@/lib/LanguageProvider';
 import {
   type Accreditation,
   type CourseRaw,
-  getAccLabel,
   getCourseName,
   getCourseTags,
   hasChannel,
 } from '@/types/course';
 
-import { type CourseRowFacts } from './course-table-row';
+import {
+  type CourseRowFacts,
+  hasUnknownStudents,
+  UNKNOWN_STUDENTS,
+} from './course-table-row';
 
 type CourseCardProps = {
   accreditation: Accreditation | null;
@@ -37,7 +40,9 @@ export const CourseCard = (props: CourseCardProps) => {
       </div>
 
       <div class="text-muted-foreground flex flex-wrap items-center gap-x-3 gap-y-1 text-xs">
-        <span>{getAccLabel(props.course)}</span>
+        <Show when={props.facts.label}>
+          <span>{props.facts.label}</span>
+        </Show>
 
         <Show when={props.facts.semester}>
           {(semester) => (
@@ -55,11 +60,25 @@ export const CourseCard = (props: CourseCardProps) => {
           )}
         </Show>
 
-        <span>
-          {interpolate(t().listing.studentsValue, {
-            value: formatNumber(props.facts.students, language()),
-          })}
-        </span>
+        <Show
+          fallback={
+            <span>
+              {interpolate(t().listing.studentsValue, {
+                value: formatNumber(props.facts.students, language()),
+              })}
+            </span>
+          }
+          when={hasUnknownStudents(props.facts)}
+        >
+          <span>
+            <span aria-hidden="true">
+              {interpolate(t().listing.studentsValue, {
+                value: UNKNOWN_STUDENTS,
+              })}
+            </span>
+            <span class="sr-only">{t().masters.noEnrollment}</span>
+          </span>
+        </Show>
 
         <Show when={hasChannel(props.course)}>
           <span class="text-primary inline-flex items-center gap-0.5">

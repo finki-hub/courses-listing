@@ -143,6 +143,29 @@ export const en = {
     studentsValue: '{value} students',
     tagsLabel: 'Tags:',
   },
+  masters: {
+    cycle: 'Studies:',
+    electiveGroups: {
+      facultySummer: 'Faculty electives, summer',
+      facultyWinter: 'Faculty electives, winter',
+      other: 'Other electives',
+      programSummer: 'Program electives, summer',
+      programWinter: 'Program electives, winter',
+    },
+    electiveIn: {
+      one: 'elective in {count} program',
+      other: 'elective in {count} programs',
+    },
+    loadError: "Couldn't load the master's programs.",
+    loading: "Loading the master's programs...",
+    mandatory: 'Mandatory',
+    mandatoryIn: 'Mandatory in {programs}',
+    master: "Master's",
+    noEnrollment: 'Not offered or no data',
+    noPrograms: 'Not listed in any program',
+    programs: 'Programs',
+    undergraduate: 'Undergraduate',
+  },
   metadataDescription:
     'Browse all FCSE courses, study programs and accreditations.',
   nav: {

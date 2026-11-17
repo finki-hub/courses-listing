@@ -144,6 +144,29 @@ export const mk = {
     studentsValue: '{value} студенти',
     tagsLabel: 'Тагови:',
   },
+  masters: {
+    cycle: 'Студии:',
+    electiveGroups: {
+      facultySummer: 'Факултетски изборни, летен',
+      facultyWinter: 'Факултетски изборни, зимски',
+      other: 'Други изборни',
+      programSummer: 'Изборни од програмата, летен',
+      programWinter: 'Изборни од програмата, зимски',
+    },
+    electiveIn: {
+      one: 'изборен во {count} програма',
+      other: 'изборен во {count} програми',
+    },
+    loadError: 'Магистерските програми не можеа да се вчитаат.',
+    loading: 'Се вчитуваат магистерските програми...',
+    mandatory: 'Задолжителен',
+    mandatoryIn: 'Задолжителен во {programs}',
+    master: 'Магистерски',
+    noEnrollment: 'Не се нуди или нема податоци',
+    noPrograms: 'Не е во ниту една програма',
+    programs: 'Програми',
+    undergraduate: 'Додипломски',
+  },
   metadataDescription:
     'Преглед на сите предмети, смерови и акредитации на ФИНКИ.',
   nav: {

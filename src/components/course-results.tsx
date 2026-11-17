@@ -18,55 +18,99 @@ import { useLanguage } from '@/lib/LanguageProvider';
 import { type Accreditation, type CourseRaw } from '@/types/course';
 
 import { CourseCard } from './course-card';
-import { type CourseRowFacts, CourseTableRow } from './course-table-row';
+import {
+  type CourseColumn,
+  type CourseRowFacts,
+  CourseTableRow,
+} from './course-table-row';
 
-type ColumnHead = {
+type ColumnHead = CourseColumn & {
   readonly class: string;
-  readonly column: SortColumn;
   readonly label: (t: Translations) => string;
+  /** Sortable columns sort by this. */
+  readonly sort?: SortColumn;
   readonly title?: (t: Translations) => string;
 };
 
+const NUMBER_CELL = 'hidden whitespace-nowrap tabular-nums';
+
+const NAME_HEAD: ColumnHead = {
+  cellClass: 'font-medium',
+  class: 'w-75',
+  key: 'name',
+  label: (t) => t.common.course,
+  sort: 'name',
+};
+const CREDITS_HEAD: ColumnHead = {
+  cellClass: `${NUMBER_CELL} lg:table-cell`,
+  class: 'hidden w-20 lg:table-cell',
+  key: 'credits',
+  label: (t) => t.common.credits,
+  sort: 'credits',
+};
+const STUDENTS_HEAD: ColumnHead = {
+  cellClass: `${NUMBER_CELL} md:table-cell`,
+  class: 'hidden w-24 md:table-cell',
+  key: 'students',
+  label: (t) => t.enrollment.students,
+  sort: 'popularity',
+  title: (t) => t.listing.studentsInfo,
+};
+const CHANNEL_HEAD: ColumnHead = {
+  cellClass: 'hidden whitespace-nowrap text-center md:table-cell',
+  class: 'hidden w-20 text-center md:table-cell',
+  key: 'channel',
+  label: (t) => t.common.discordChannel,
+  sort: 'channel',
+};
+
 // Desktop columns in display order; narrow widths hide the secondary ones.
-const COLUMN_HEADS: readonly ColumnHead[] = [
-  { class: 'w-75', column: 'name', label: (t) => t.common.course },
+const UNDERGRADUATE_HEADS: readonly ColumnHead[] = [
+  NAME_HEAD,
   {
+    cellClass: 'hidden whitespace-nowrap md:table-cell',
     class: 'hidden md:table-cell',
-    column: 'accreditation',
+    key: 'label',
     label: (t) => t.common.accreditation,
+    sort: 'accreditation',
   },
   {
+    cellClass: `${NUMBER_CELL} md:table-cell`,
     class: 'hidden w-16 md:table-cell',
-    column: 'semester',
+    key: 'semester',
     label: (t) => t.common.semesterShort,
+    sort: 'semester',
   },
+  CREDITS_HEAD,
+  STUDENTS_HEAD,
+  CHANNEL_HEAD,
   {
-    class: 'hidden w-20 lg:table-cell',
-    column: 'credits',
-    label: (t) => t.common.credits,
-  },
-  {
-    class: 'hidden w-24 md:table-cell',
-    column: 'popularity',
-    label: (t) => t.enrollment.students,
-    title: (t) => t.listing.studentsInfo,
-  },
-  {
-    class: 'hidden w-20 text-center md:table-cell',
-    column: 'channel',
-    label: (t) => t.common.discordChannel,
-  },
-  {
+    cellClass: 'hidden lg:table-cell',
     class: 'hidden lg:table-cell',
-    column: 'tags',
+    key: 'tags',
     label: (t) => t.common.tags,
+    sort: 'tags',
   },
+];
+
+const MASTER_HEADS: readonly ColumnHead[] = [
+  NAME_HEAD,
+  {
+    cellClass: 'hidden text-sm md:table-cell',
+    class: 'hidden md:table-cell',
+    key: 'label',
+    label: (t) => t.masters.programs,
+  },
+  CREDITS_HEAD,
+  STUDENTS_HEAD,
+  CHANNEL_HEAD,
 ];
 
 type CourseResultsProps = {
   readonly accreditation: Accreditation | null;
   readonly courses: readonly CourseRaw[];
   readonly getFacts: (course: CourseRaw) => CourseRowFacts;
+  readonly master?: boolean;
   readonly onOpen: (course: CourseRaw, position: number) => void;
   readonly onToggleSort: (column: SortColumn) => void;
   readonly sortColumn: SortColumn;
@@ -77,6 +121,7 @@ type CourseResultsProps = {
 export const CourseResults = (props: CourseResultsProps) => {
   const { t } = useLanguage();
   const noResults = () => t().common.noResults;
+  const heads = () => (props.master ? MASTER_HEADS : UNDERGRADUATE_HEADS);
 
   return (
     <>
@@ -108,26 +153,33 @@ export const CourseResults = (props: CourseResultsProps) => {
         <Table>
           <TableHeader>
             <TableRow>
-              <For each={COLUMN_HEADS}>
+              <For each={heads()}>
                 {(head) => (
                   <TableHead class={head.class}>
-                    <button
-                      class={`w-full cursor-pointer select-none ${
-                        head.column === 'channel' ? 'text-center' : 'text-left'
-                      }`}
-                      onClick={() => {
-                        props.onToggleSort(head.column);
-                      }}
-                      title={head.title?.(t())}
-                      type="button"
+                    <Show
+                      fallback={head.label(t())}
+                      when={head.sort}
                     >
-                      {head.label(t())}
-                      {sortIndicator(
-                        props.sortColumn,
-                        props.sortDirection,
-                        head.column,
+                      {(sort) => (
+                        <button
+                          class={`w-full cursor-pointer select-none ${
+                            head.key === 'channel' ? 'text-center' : 'text-left'
+                          }`}
+                          onClick={() => {
+                            props.onToggleSort(sort());
+                          }}
+                          title={head.title?.(t())}
+                          type="button"
+                        >
+                          {head.label(t())}
+                          {sortIndicator(
+                            props.sortColumn,
+                            props.sortDirection,
+                            sort(),
+                          )}
+                        </button>
                       )}
-                    </button>
+                    </Show>
                   </TableHead>
                 )}
               </For>
@@ -139,7 +191,7 @@ export const CourseResults = (props: CourseResultsProps) => {
                 <TableRow>
                   <TableCell
                     class="h-24 text-center"
-                    colSpan={COLUMN_HEADS.length}
+                    colSpan={heads().length}
                   >
                     {noResults()}
                   </TableCell>
@@ -151,6 +203,7 @@ export const CourseResults = (props: CourseResultsProps) => {
                 {(course, index) => (
                   <CourseTableRow
                     accreditation={props.accreditation}
+                    columns={heads()}
                     course={course}
                     facts={props.getFacts(course)}
                     onClick={() => {

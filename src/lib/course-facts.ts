@@ -15,6 +15,10 @@ const INACTIVE_MARKER = '(неактивиран предмет)';
 const ACCREDITATION_ORDER: readonly Accreditation[] = ['2023', '2018'];
 const STAFF_COLLATOR = new Intl.Collator('mk');
 
+// How a course's season is known: by default from its accreditation
+// semester; master's courses take it from their programs.
+export type SeasonResolver = (course: CourseRaw) => Season | undefined;
+
 type Season = 'summer' | 'winter';
 
 // The accreditation a course is shown by: the selected one, else the newest
@@ -51,12 +55,6 @@ export const getPrimaryCredits = (
     : getCourseCredits(course, accreditation);
 };
 
-const getCourseSeason = (course: CourseRaw): Season | undefined => {
-  const semester = getCourseSemester(course, null);
-  if (semester === undefined) return undefined;
-  return semester % 2 === 1 ? 'winter' : 'summer';
-};
-
 // The newest academic year with any enrollment, overall and per season. A
 // year in progress has winter figures before summer ones, so summer courses
 // are measured against the newest year that has summer figures.
@@ -64,6 +62,12 @@ export type EnrollmentYears = {
   readonly all?: AcademicYear;
   readonly summer?: AcademicYear;
   readonly winter?: AcademicYear;
+};
+
+const getCourseSeason = (course: CourseRaw): Season | undefined => {
+  const semester = getCourseSemester(course, null);
+  if (semester === undefined) return undefined;
+  return semester % 2 === 1 ? 'winter' : 'summer';
 };
 
 const findLatestYear = (
@@ -75,13 +79,14 @@ const findLatestYear = (
 
 export const getLatestEnrollmentYears = (
   courses: readonly CourseRaw[],
+  getSeason: SeasonResolver = getCourseSeason,
 ): EnrollmentYears => ({
   all: findLatestYear(courses),
   summer: findLatestYear(
-    courses.filter((course) => getCourseSeason(course) === 'summer'),
+    courses.filter((course) => getSeason(course) === 'summer'),
   ),
   winter: findLatestYear(
-    courses.filter((course) => getCourseSeason(course) === 'winter'),
+    courses.filter((course) => getSeason(course) === 'winter'),
   ),
 });
 
@@ -89,8 +94,9 @@ export const getLatestEnrollmentYears = (
 export const getCurrentEnrollment = (
   course: CourseRaw,
   years: EnrollmentYears,
+  getSeason: SeasonResolver = getCourseSeason,
 ): number => {
-  const season = getCourseSeason(course);
+  const season = getSeason(course);
   const year = (season === undefined ? undefined : years[season]) ?? years.all;
   return year === undefined ? 0 : getEnrollmentForYear(course, year);
 };

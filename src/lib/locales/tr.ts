@@ -143,6 +143,29 @@ export const tr = {
     studentsValue: '{value} öğrenci',
     tagsLabel: 'Etiketler:',
   },
+  masters: {
+    cycle: 'Öğrenim:',
+    electiveGroups: {
+      facultySummer: 'Fakülte seçmelileri, bahar',
+      facultyWinter: 'Fakülte seçmelileri, güz',
+      other: 'Diğer seçmeliler',
+      programSummer: 'Program seçmelileri, bahar',
+      programWinter: 'Program seçmelileri, güz',
+    },
+    electiveIn: {
+      one: '{count} programda seçmeli',
+      other: '{count} programda seçmeli',
+    },
+    loadError: 'Yüksek lisans programları yüklenemedi.',
+    loading: 'Yüksek lisans programları yükleniyor...',
+    mandatory: 'Zorunlu',
+    mandatoryIn: '{programs} programında zorunlu',
+    master: 'Yüksek lisans',
+    noEnrollment: 'Açılmadı veya veri yok',
+    noPrograms: 'Hiçbir programda yok',
+    programs: 'Programlar',
+    undergraduate: 'Lisans',
+  },
   metadataDescription:
     "FINKI'nin tüm derslerini, öğrenim programlarını ve akreditasyonlarını inceleyin.",
   nav: {

@@ -1,3 +1,5 @@
+import { Show } from 'solid-js';
+
 import { AccreditationSwitch } from '@/components/accreditation-switch';
 import { CourseLevelFilter } from '@/components/course-level-filter';
 import { FilterGroup } from '@/components/filter-group';
@@ -19,6 +21,8 @@ const isSeasonFilter = (value: string): value is 'summer' | 'winter' =>
 type CourseFilterRowProps = {
   readonly accreditation: Accreditation | null;
   readonly levelFilter: CourseLevelFilterValue;
+  /** Master's courses have no accreditations or levels. */
+  readonly master?: boolean;
   readonly onSetLevel: (level: CourseLevelFilterValue) => void;
   readonly onSetSeason: (season: SeasonFilter) => void;
   readonly onSwitchAccreditation: (accreditation: Accreditation) => void;
@@ -51,12 +55,14 @@ export const CourseFilterRow = (props: CourseFilterRowProps) => {
 
   return (
     <div class="grid gap-3 sm:flex sm:flex-wrap sm:items-center sm:gap-x-6 sm:gap-y-3">
-      <FilterGroup label={t().filters.accreditation}>
-        <AccreditationSwitch
-          accreditation={props.accreditation}
-          onSelect={props.onSwitchAccreditation}
-        />
-      </FilterGroup>
+      <Show when={!props.master}>
+        <FilterGroup label={t().filters.accreditation}>
+          <AccreditationSwitch
+            accreditation={props.accreditation}
+            onSelect={props.onSwitchAccreditation}
+          />
+        </FilterGroup>
+      </Show>
 
       {props.onSwitchProgram ? (
         <FilterGroup label={t().filters.program}>
@@ -84,15 +90,17 @@ export const CourseFilterRow = (props: CourseFilterRowProps) => {
         />
       </FilterGroup>
 
-      <FilterGroup
-        info={levelInfo()}
-        label={t().filters.level}
-      >
-        <CourseLevelFilter
-          onSelect={props.onSetLevel}
-          value={props.levelFilter}
-        />
-      </FilterGroup>
+      <Show when={!props.master}>
+        <FilterGroup
+          info={levelInfo()}
+          label={t().filters.level}
+        >
+          <CourseLevelFilter
+            onSelect={props.onSetLevel}
+            value={props.levelFilter}
+          />
+        </FilterGroup>
+      </Show>
     </div>
   );
 };
