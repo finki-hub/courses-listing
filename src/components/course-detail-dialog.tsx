@@ -1,4 +1,4 @@
-import { Show } from 'solid-js';
+import { createEffect, on, Show } from 'solid-js';
 
 import { AccreditationCardsGrid } from '@/components/course-detail/accreditation-cards-grid';
 import { CourseTagsSection } from '@/components/course-detail/course-tags-section';
@@ -22,19 +22,42 @@ import {
 type CourseDetailDialogProps = {
   accreditation: Accreditation | null;
   course: CourseRaw | null;
+  // All courses, so prerequisites can open the courses they name.
+  courses?: CourseRaw[];
   onOpenChange: (open: boolean) => void;
+  onOpenCourse?: (course: CourseRaw) => void;
   open: boolean;
 };
 
 export const CourseDetailDialog = (props: CourseDetailDialogProps) => {
   const { language, t } = useLanguage();
+  let content: HTMLDivElement | undefined;
+
+  // Following a prerequisite swaps the course in place: start it at the top,
+  // and keep focus in the dialog, since the clicked button is gone.
+  createEffect(
+    on(
+      () => props.course,
+      () => {
+        content?.scrollTo({ top: 0 });
+        content?.focus({ preventScroll: true });
+      },
+      { defer: true },
+    ),
+  );
+
   return (
     <Dialog
       onOpenChange={props.onOpenChange}
       open={props.open}
     >
       <DialogPortal>
-        <DialogContent class="max-h-[90vh] overflow-y-auto sm:max-w-2xl">
+        <DialogContent
+          class="max-h-[90vh] overflow-y-auto sm:max-w-2xl"
+          ref={(element: HTMLDivElement) => {
+            content = element;
+          }}
+        >
           <Show when={props.course}>
             {(course) => {
               const primaryName = () =>
@@ -84,7 +107,11 @@ export const CourseDetailDialog = (props: CourseDetailDialogProps) => {
 
                     <CourseTagsSection course={course()} />
 
-                    <AccreditationCardsGrid course={course()} />
+                    <AccreditationCardsGrid
+                      course={course()}
+                      courses={props.courses}
+                      onOpenCourse={props.onOpenCourse}
+                    />
 
                     <EnrollmentHistorySection course={course()} />
                   </div>

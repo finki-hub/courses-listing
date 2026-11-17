@@ -29,9 +29,14 @@ export const tr = {
   },
   detail: {
     accreditationYear: '{year} akreditasyonu',
+    accreditationYears: '{years} akreditasyonları',
     assistants: 'Araştırma görevlileri',
+    credits: 'Kredi',
     description: 'Ayrıntılı ders bilgileri',
+    discordChannel: 'FINKI Hub Discord sunucusunda kanal',
     professors: 'Öğretim üyeleri',
+    programs: 'Öğrenim programları',
+    subjectPage: 'finki.ukim.mk üzerindeki ders sayfası',
   },
   enrollment: {
     academicYear: 'Akademik yıl',

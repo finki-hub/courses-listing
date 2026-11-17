@@ -191,8 +191,8 @@ const getTrend = (
   return {
     className:
       delta > 0
-        ? 'bg-green-500/10 text-green-700 dark:text-green-400'
-        : 'bg-red-500/10 text-red-700 dark:text-red-400',
+        ? 'bg-green-500/10 text-green-800 dark:text-green-400'
+        : 'bg-red-500/10 text-red-800 dark:text-red-400',
     delta,
     direction: delta > 0 ? 'up' : 'down',
     label: delta > 0 ? t.enrollment.increasing : t.enrollment.decreasing,
@@ -296,9 +296,9 @@ export const buildEnrollmentMetrics = (
 
 export const getEnrollmentDeltaClass = (delta: null | number) => {
   if (delta === null) return 'bg-muted text-muted-foreground';
-  if (delta > 0) return 'bg-green-500/10 text-green-700 dark:text-green-400';
+  if (delta > 0) return 'bg-green-500/10 text-green-800 dark:text-green-400';
   return delta < 0
-    ? 'bg-red-500/10 text-red-700 dark:text-red-400'
+    ? 'bg-red-500/10 text-red-800 dark:text-red-400'
     : 'bg-muted text-muted-foreground';
 };
 

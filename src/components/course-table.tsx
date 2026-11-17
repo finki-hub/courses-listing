@@ -227,7 +227,9 @@ export const CourseTable = (props: CourseTableProps) => {
       <CourseDetailDialog
         accreditation={accreditation()}
         course={courseDialog.course()}
+        courses={props.courses}
         onOpenChange={courseDialog.setOpen}
+        onOpenCourse={courseDialog.openCourse}
         open={courseDialog.open()}
       />
     </div>

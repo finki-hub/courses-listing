@@ -54,7 +54,7 @@ export const EnrollmentSummary = (props: EnrollmentSummaryProps) => {
                   </Show>
                   {formatEnrollmentDelta(props.metrics.trend.delta, language())}
                   <Show when={props.metrics.trend.percent !== null}>
-                    <span class="opacity-80">
+                    <span>
                       {formatEnrollmentDeltaPercent(
                         props.metrics.trend.percent,
                         language(),
