@@ -151,6 +151,46 @@ export const en = {
     prerequisites: 'Prerequisites',
     simulator: 'Simulator',
   },
+  nextCourses: {
+    credits: '{credits} credits',
+    description:
+      'Courses you can take next: not yet taken, prerequisites met and within the level limits. Required courses come first, then electives by semester and by how many students took them.',
+    empty: 'No courses are available in this semester.',
+    enrolled: '{count} students in {year}',
+    forSeason: {
+      summer: 'For the summer semester',
+      winter: 'For the winter semester',
+    },
+    markListened: 'Mark enrolled',
+    upcoming: '(the next one; choose a semester above to change it)',
+  },
+  planner: {
+    addToPlan: 'Add to plan',
+    description:
+      'Plan the courses you have not taken yet across your remaining semesters. Courses planned earlier count as passed for the later ones; each course can go only in semesters of its season.',
+    emptySemester: 'Nothing planned yet.',
+    graduation3yr: 'With this plan, the 3-year degree is complete in:',
+    graduation4yr: 'With this plan, the 4-year degree is complete in:',
+    issues: {
+      exclusive: 'Only one of Тимски проект and Самостоен проект counts.',
+      levelLimit:
+        'Over the elective limit of its level; its credits will not count.',
+      past: 'Planned for a semester that has already passed.',
+      prerequisites:
+        'Prerequisites are not met by the courses taken or planned before it.',
+      season:
+        'The course is not offered in that season: odd semesters are winter, even ones summer.',
+    },
+    notPlanned: 'Not planned',
+    notReached: 'not reached by semester 8',
+    planFor: 'Semester for',
+    plannedFor: 'In plan: semester {semester}',
+    recommended: 'Recommended: semester {semester}',
+    semesterCredits:
+      '{credits} credits planned (a standard load is {standard}), {total} in total',
+    toPlan: 'Courses to plan',
+    unplannedRequired: 'Required courses not planned yet: {count}',
+  },
   prereqDescription: {
     attended: 'enrolled',
     creditsMet: '  ✅ {credits} credits',
@@ -206,7 +246,16 @@ export const en = {
     attended: 'Enrolled',
     attendedPlural: 'Enrolled',
     attendedShort: 'E',
+    bulk: { listened: 'All enrolled', passed: 'All passed' },
+    bulkLabel: {
+      listened:
+        'Mark the available required courses of semester {semester} as enrolled',
+      passed:
+        'Mark the available required courses of semester {semester} as passed',
+    },
     copyLink: 'Copy a link to the current state',
+    courseType: { all: 'All', elective: 'Elective', required: 'Required' },
+    courseTypeLabel: 'Type:',
     credits: 'Credits',
     description:
       'Mark the courses you have enrolled in or passed. Courses with unmet prerequisites are disabled.',
@@ -214,6 +263,7 @@ export const en = {
       '🎓 You meet the requirements for a 3-year degree (≥ 174 credits and all required courses passed, except the diploma thesis)',
     eligible4yr:
       '🎓 You meet the requirements for a 4-year degree (≥ 234 credits and all required courses passed, except the diploma thesis)',
+    filters: 'Filters',
     graduated: '🎉 Congratulations on graduating!',
     hpcInfo:
       'Tick this if you passed the HPC course, which is not in the course catalog. It adds {credits} credits to your total.',
@@ -221,6 +271,8 @@ export const en = {
       'ℹ️ You have ≥ 174 credits, but these required courses are missing for a 3-year degree: {courses}',
     missing4yr:
       'ℹ️ You have ≥ 234 credits, but these required courses are missing for a 4-year degree: {courses}',
+    modeLabel: 'Simulator view',
+    modes: { checklist: 'Checklist', next: 'What next', plan: 'Plan' },
     onlyAvailable: 'Available only',
     overLimit:
       '⛔ The maximum earned credits for {levels} have been exceeded. Excess credits are not counted.',
@@ -228,9 +280,13 @@ export const en = {
     passedPlural: 'Passed',
     passedShort: 'P',
     reset: 'Reset',
-    resetConfirm: 'Are you sure you want to reset all selected courses?',
+    resetDone: 'All selections were reset.',
+    search: 'Search the simulator courses',
+    semesterSummary: 'Credits: {listened} enrolled, {passed} passed',
+    semesterTitle: 'Semester {semester}',
     share: 'Share',
     statusToggle: '{status}: {course}',
+    undo: 'Undo',
     universityList: 'Uni list',
     universityListInfo:
       'Credits from courses on the UKIM university-wide list of electives.\nThere is no formal limit on credits from the university list.\nIn practice, you can take at most 4 courses worth 9 credits each, totaling 36 credits.',

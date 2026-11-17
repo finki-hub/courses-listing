@@ -151,6 +151,44 @@ export const tr = {
     prerequisites: 'Ön koşullar',
     simulator: 'Simülatör',
   },
+  nextCourses: {
+    credits: '{credits} kredi',
+    description:
+      'Sonra alabileceğiniz dersler: henüz alınmamış, ön koşulları sağlanmış ve seviye sınırları içinde. Önce zorunlu dersler, ardından yarıyıla ve alan öğrenci sayısına göre seçmeli dersler gelir.',
+    empty: 'Bu yarıyılda alınabilecek ders yok.',
+    enrolled: '{year} yılında {count} öğrenci',
+    forSeason: { summer: 'Bahar yarıyılı için', winter: 'Güz yarıyılı için' },
+    markListened: 'Kayıtlı işaretle',
+    upcoming: '(bir sonraki; değiştirmek için yukarıdan bir yarıyıl seçin)',
+  },
+  planner: {
+    addToPlan: 'Plana ekle',
+    description:
+      'Henüz almadığınız dersleri kalan yarıyıllarınıza planlayın. Daha önce planlanan dersler sonrakiler için geçilmiş sayılır; her ders yalnızca kendi dönemindeki yarıyıllara konabilir.',
+    emptySemester: 'Henüz bir şey planlanmadı.',
+    graduation3yr: 'Bu planla 3 yıllık derece şu yarıyılda tamamlanır:',
+    graduation4yr: 'Bu planla 4 yıllık derece şu yarıyılda tamamlanır:',
+    issues: {
+      exclusive:
+        'Тимски проект ve Самостоен проект derslerinden yalnızca biri sayılır.',
+      levelLimit:
+        'Seviyesinin seçmeli ders sınırını aşıyor; kredileri sayılmayacak.',
+      past: 'Geçmiş bir yarıyıla planlandı.',
+      prerequisites:
+        'Ön koşullar, öncesinde alınan veya planlanan derslerle sağlanmıyor.',
+      season:
+        'Ders o dönemde verilmiyor: tek yarıyıllar güz, çift yarıyıllar bahar dönemidir.',
+    },
+    notPlanned: 'Planlanmadı',
+    notReached: '8. yarıyıla kadar ulaşılamıyor',
+    planFor: 'Yarıyıl',
+    plannedFor: 'Planda: {semester}. yarıyıl',
+    recommended: 'Önerilen: {semester}. yarıyıl',
+    semesterCredits:
+      '{credits} kredi planlandı (standart yük {standard}), toplam {total}',
+    toPlan: 'Planlanacak dersler',
+    unplannedRequired: 'Henüz planlanmamış zorunlu dersler: {count}',
+  },
   prereqDescription: {
     attended: 'kayıtlı',
     creditsMet: '  ✅ {credits} kredi',
@@ -206,7 +244,16 @@ export const tr = {
     attended: 'Kayıtlı',
     attendedPlural: 'Kayıtlı',
     attendedShort: 'K',
+    bulk: { listened: 'Tümü kayıtlı', passed: 'Tümü geçildi' },
+    bulkLabel: {
+      listened:
+        '{semester}. yarıyılın alınabilir zorunlu derslerini kayıtlı olarak işaretle',
+      passed:
+        '{semester}. yarıyılın alınabilir zorunlu derslerini geçildi olarak işaretle',
+    },
     copyLink: 'Mevcut duruma ait bağlantıyı kopyala',
+    courseType: { all: 'Tümü', elective: 'Seçmeli', required: 'Zorunlu' },
+    courseTypeLabel: 'Tür:',
     credits: 'Kredi',
     description:
       'Kayıt yaptırdığınız veya geçtiğiniz dersleri işaretleyin. Ön koşulları sağlanmayan dersler devre dışıdır.',
@@ -214,6 +261,7 @@ export const tr = {
       '🎓 3 yıllık programdan mezuniyet koşullarını sağlıyorsunuz (≥ 174 kredi ve bitirme tezi dışında tüm zorunlu dersler geçilmiş)',
     eligible4yr:
       '🎓 4 yıllık programdan mezuniyet koşullarını sağlıyorsunuz (≥ 234 kredi ve bitirme tezi dışında tüm zorunlu dersler geçilmiş)',
+    filters: 'Filtreler',
     graduated: '🎉 Mezuniyetiniz kutlu olsun!',
     hpcInfo:
       'Ders kataloğunda yer almayan HPC dersini geçtiyseniz işaretleyin. Toplamınıza {credits} kredi ekler.',
@@ -221,6 +269,8 @@ export const tr = {
       'ℹ️ ≥ 174 krediniz var, ancak 3 yıllık program için şu zorunlu dersler eksik: {courses}',
     missing4yr:
       'ℹ️ ≥ 234 krediniz var, ancak 4 yıllık program için şu zorunlu dersler eksik: {courses}',
+    modeLabel: 'Simülatör görünümü',
+    modes: { checklist: 'Liste', next: 'Sırada ne var', plan: 'Plan' },
     onlyAvailable: 'Yalnızca alınabilir dersler',
     overLimit:
       '⛔ {levels} için kazanılabilecek azami kredi aşıldı. Fazla krediler sayılmadı.',
@@ -228,10 +278,13 @@ export const tr = {
     passedPlural: 'Geçilen',
     passedShort: 'G',
     reset: 'Sıfırla',
-    resetConfirm:
-      'Seçilen tüm dersleri sıfırlamak istediğinizden emin misiniz?',
+    resetDone: 'Tüm seçimler sıfırlandı.',
+    search: 'Simülatördeki dersleri ara',
+    semesterSummary: 'Kredi: {listened} kayıtlı, {passed} geçilen',
+    semesterTitle: '{semester}. yarıyıl',
     share: 'Paylaş',
     statusToggle: '{status}: {course}',
+    undo: 'Geri al',
     universityList: 'Üniv. listesi',
     universityListInfo:
       'UKIM üniversite geneli seçmeli ders listesindeki derslerden alınan krediler.\nÜniversite listesinden kazanılan krediler için resmî bir üst sınır yoktur.\nUygulamada, her biri 9 kredilik en fazla 4 ders, yani toplam 36 kredi alabilirsiniz.',
