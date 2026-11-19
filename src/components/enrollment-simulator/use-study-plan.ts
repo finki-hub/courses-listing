@@ -17,7 +17,7 @@ import {
   setPlannedSemester,
   type StudyPlan,
 } from '@/lib/study-plan';
-import { type Accreditation } from '@/types/course';
+import { type Accreditation, type CourseRaw } from '@/types/course';
 
 type StudyPlanParams = {
   accreditation: Accessor<Accreditation>;
@@ -26,6 +26,8 @@ type StudyPlanParams = {
   initialPlan: StudyPlan;
   /** False while a shared link is previewed, so the plan is not saved. */
   persist: Accessor<boolean>;
+  /** Every course, to save the plan by course code. */
+  rawCourses: Accessor<CourseRaw[]>;
   statuses: Accessor<Record<string, CourseStatus>>;
   totalCredits: Accessor<number>;
 };
@@ -49,7 +51,7 @@ export const useStudyPlan = (params: StudyPlanParams) => {
 
   createEffect(
     on([plan, params.persist], ([value, save]) => {
-      if (save) savePlan(params.accreditation(), value);
+      if (save) savePlan(params.accreditation(), value, params.rawCourses());
     }),
   );
 
@@ -63,7 +65,7 @@ export const useStudyPlan = (params: StudyPlanParams) => {
   };
 
   const reload = (accreditation: Accreditation) => {
-    setPlan(loadPlan(accreditation));
+    setPlan(loadPlan(accreditation, params.rawCourses()));
   };
 
   return { addToPlan, evaluation, plan, reload, setSemester, start };
