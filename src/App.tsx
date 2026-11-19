@@ -62,6 +62,7 @@ const PAGE_ICONS: Record<Page, (props: LucideProps) => JSX.Element> = {
 
 // Tabs whose course detail dialog is linked through `?course=`.
 const COURSE_LINK_PAGES: ReadonlySet<Page> = new Set([
+  'equivalencies',
   'listing',
   'prerequisites',
 ]);

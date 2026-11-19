@@ -1,488 +1,188 @@
 import { createMemo, createSignal, For, Show } from 'solid-js';
 
-import { Badge } from '@/components/ui/badge';
+import { CourseDetailDialog } from '@/components/course-detail-dialog';
+import {
+  type OpenEquivalencyCourse,
+  PairCard,
+  RuleCard,
+} from '@/components/equivalency-cards';
+import { EmptyState } from '@/components/ui/empty-state';
 import { SearchInput } from '@/components/ui/search-input';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
-import { ToggleChip } from '@/components/ui/toggle-chip';
-import {
-  resolveSimilarEquivalencies,
-  type SimilarCourse,
-  type SimilarEquivalency,
-} from '@/data/course-similar-equivalencies';
+import { SegmentedControl } from '@/components/ui/segmented-control';
+import { useLinkedCourseDialog } from '@/components/use-linked-course-dialog';
+import { resolveSimilarEquivalencies } from '@/data/course-similar-equivalencies';
 import { ALERT_STYLES } from '@/lib/alert-styles';
+import { useAppNavigation } from '@/lib/app-navigation';
 import {
-  formatCount,
-  formatNumber,
-  interpolate,
-  type Translations,
-} from '@/lib/i18n';
+  buildCodeIndex,
+  buildEquivalencyPairs,
+  EQUIVALENCY_VIEWS,
+  type EquivalencyView,
+  mergeCombinationRules,
+  pairMatchesView,
+  ruleMatchesSearch,
+} from '@/lib/equivalencies';
+import { formatCount, formatNumber, interpolate } from '@/lib/i18n';
 import { useLanguage } from '@/lib/LanguageProvider';
 import { normalizeSearchText } from '@/lib/search-normalization';
-import { type CourseRaw, getAccreditationInfo } from '@/types/course';
+import { type Accreditation, type CourseRaw } from '@/types/course';
 
 type CourseEquivalenciesProps = {
   readonly courses: CourseRaw[];
 };
 
-type EquivalencyCourse = {
-  readonly code: string | undefined;
-  readonly name: string;
-};
-
-type EquivalencyRow = {
-  readonly accreditation2018: EquivalencyCourse | undefined;
-  readonly accreditation2023: EquivalencyCourse | undefined;
-  readonly isDifferent: boolean;
-  readonly searchText: string;
-};
-
-type UnifiedRule =
-  | { kind: 'one-to-one'; row: EquivalencyRow }
-  | { kind: 'similar'; rule: SimilarEquivalency };
-
-const NAME_COLLATOR = new Intl.Collator('mk');
-
-const CourseCell = (props: {
-  readonly course: EquivalencyCourse | undefined;
-}) => {
-  const { t } = useLanguage();
-  return (
-    <Show
-      fallback={
-        <span class="text-muted-foreground italic">
-          {t().equivalencies.noCourse}
-        </span>
-      }
-      when={props.course}
-    >
-      {(course) => (
-        <div class="min-w-0 space-y-1">
-          <div class="text-pretty break-words font-medium">{course().name}</div>
-          <Show when={course().code}>
-            {(code) => (
-              <div class="text-muted-foreground font-mono text-xs break-all">
-                {code()}
-              </div>
-            )}
-          </Show>
-        </div>
-      )}
-    </Show>
-  );
-};
-
-const OneToOneRelationship = (props: { row: EquivalencyRow }) => {
-  const { t } = useLanguage();
-  return (
-    <div class="grid gap-3 sm:grid-cols-[1fr_auto_1fr] sm:items-start">
-      <CourseCell course={props.row.accreditation2018} />
-      <span
-        aria-label={t().equivalencies.equivalentAcross}
-        class="text-primary text-center text-lg font-semibold sm:pt-1"
-      >
-        <span aria-hidden="true">↔</span>
-        <span class="sr-only">{t().equivalencies.equivalentTo}</span>
-      </span>
-      <CourseCell course={props.row.accreditation2023} />
-    </div>
-  );
-};
-
-const SimilarCourseList = (props: { courses: SimilarCourse[] }) => (
-  <div class="min-w-0 space-y-2">
-    <For each={props.courses}>
-      {(course) => (
-        <div class="min-w-0">
-          <div class="text-pretty break-words font-medium">{course.name}</div>
-          <div class="text-muted-foreground font-mono text-xs break-all">
-            {course.code}
-          </div>
-        </div>
-      )}
-    </For>
-  </div>
-);
-
-/* eslint-disable solid/components-return-once, solid/reactivity -- conditional course rule markup must preserve discriminated types */
-const SimilarRule = (props: { rule: SimilarEquivalency }) => {
-  const { t } = useLanguage();
-
-  if (props.rule.kind === 'related') {
-    const courses = props.rule.courses;
-    return (
-      <div class="space-y-3">
-        <div
-          class={`grid grid-cols-1 items-start gap-2 sm:items-start sm:gap-3 ${
-            courses.length === 2
-              ? 'sm:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)]'
-              : 'sm:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)_auto_minmax(0,1fr)]'
-          }`}
-        >
-          <For each={courses}>
-            {(course, index) => (
-              <>
-                <SimilarCourseList courses={[course]} />
-                <Show when={index() < courses.length - 1}>
-                  <span
-                    aria-hidden="true"
-                    class="text-primary justify-self-center text-lg font-semibold sm:pt-1"
-                  >
-                    ↔
-                  </span>
-                  <span class="sr-only">{t().equivalencies.equivalentTo}</span>
-                </Show>
-              </>
-            )}
-          </For>
-        </div>
-      </div>
-    );
-  }
-
-  return (
-    <div class="space-y-3">
-      <div class="grid gap-3 sm:grid-cols-[1fr_auto_1fr] sm:items-start">
-        <SimilarCourseList courses={props.rule.sources} />
-        <span
-          aria-label={
-            props.rule.kind === 'combination'
-              ? t().equivalencies.sourcesToTargets
-              : t().equivalencies.sourceToTarget
-          }
-          class="text-primary text-center text-lg font-semibold sm:pt-1"
-        >
-          <span class="sm:hidden">
-            {props.rule.kind === 'combination' ? '+ ↓' : '↓'}
-          </span>
-          <span class="hidden sm:inline">
-            {props.rule.kind === 'combination' ? '+ →' : '→'}
-          </span>
-        </span>
-        <SimilarCourseList courses={props.rule.targets} />
-      </div>
-    </div>
-  );
-};
-/* eslint-enable solid/components-return-once, solid/reactivity -- end conditional rule markup */
-
-const mergeCombinationRules = (
-  rules: readonly SimilarEquivalency[],
-): SimilarEquivalency[] => {
-  const merged: SimilarEquivalency[] = [];
-  const combinationIndexes = new Map<string, number>();
-
-  for (const rule of rules) {
-    if (rule.kind !== 'combination') {
-      merged.push(rule);
-      continue;
-    }
-
-    const key = `${rule.accreditation}:${rule.sources.map((course) => course.code).join('|')}`;
-    const existingIndex = combinationIndexes.get(key);
-    const existing =
-      existingIndex === undefined ? undefined : merged[existingIndex];
-    if (existing?.kind === 'combination') {
-      existing.targets.push(...rule.targets);
-      continue;
-    }
-
-    combinationIndexes.set(key, merged.length);
-    merged.push({
-      accreditation: rule.accreditation,
-      kind: 'combination',
-      sources: rule.sources,
-      targets: [...rule.targets],
-    });
-  }
-
-  return merged;
-};
-
-/* eslint-disable solid/components-return-once, solid/reactivity -- table cells branch on a discriminated rule entry */
-const similarRuleLabel = (
-  rule: SimilarEquivalency,
-  t: Translations,
-): string => {
-  if (rule.kind === 'related') return t.equivalencies.related;
-  return rule.kind === 'combination'
-    ? t.equivalencies.combination
-    : t.equivalencies.directional;
-};
-
-const UnifiedTypeCell = (props: { entry: UnifiedRule }) => {
-  const { t } = useLanguage();
-
-  if (props.entry.kind === 'one-to-one') {
-    return (
-      <div class="space-y-2">
-        <Badge variant="secondary">1:1</Badge>
-        <div class="text-muted-foreground font-mono text-xs">2018 ↔ 2023</div>
-      </div>
-    );
-  }
-
-  return (
-    <div class="space-y-2">
-      <Badge variant="secondary">
-        {similarRuleLabel(props.entry.rule, t())}
-      </Badge>
-      <div class="text-muted-foreground font-mono text-xs">
-        {props.entry.rule.accreditation}
-      </div>
-    </div>
-  );
-};
-
-const UnifiedRelationshipCell = (props: { entry: UnifiedRule }) =>
-  props.entry.kind === 'one-to-one' ? (
-    <OneToOneRelationship row={props.entry.row} />
-  ) : (
-    <SimilarRule rule={props.entry.rule} />
-  );
-/* eslint-enable solid/components-return-once, solid/reactivity -- end table rule cells */
-
-/* eslint-disable max-lines-per-function -- this page owns both intentionally parallel responsive views */
 export const CourseEquivalencies = (props: CourseEquivalenciesProps) => {
   const { language, t } = useLanguage();
+  const navigation = useAppNavigation();
+  const courseDialog = useLinkedCourseDialog(() => props.courses);
+  const [dialogAccreditation, setDialogAccreditation] =
+    createSignal<Accreditation | null>(null);
 
   const [search, setSearch] = createSignal('');
-  const [showOneToOne, setShowOneToOne] = createSignal(true);
-  const [showSimilar, setShowSimilar] = createSignal(true);
+  const [view, setView] = createSignal<EquivalencyView | null>(null);
 
-  const equivalencies = createMemo(() => {
-    const rows: EquivalencyRow[] = [];
-    let renamedCount = 0;
-    let oneSidedCount = 0;
+  const pairs = createMemo(() => buildEquivalencyPairs(props.courses));
+  const rules = createMemo(() =>
+    mergeCombinationRules(resolveSimilarEquivalencies(props.courses)),
+  );
+  const codeIndex = createMemo(() => buildCodeIndex(props.courses));
+  const renamedCount = createMemo(
+    () => pairs().filter((pair) => pair.renamed).length,
+  );
 
-    for (const course of props.courses) {
-      const info2018 = getAccreditationInfo(course, '2018');
-      const info2023 = getAccreditationInfo(course, '2023');
-      if (!(info2018 || info2023)) continue;
-
-      const accreditation2018 = info2018
-        ? { code: info2018.code, name: info2018.name ?? course.name }
-        : undefined;
-      const accreditation2023 = info2023
-        ? { code: info2023.code, name: info2023.name ?? course.name }
-        : undefined;
-      const isRenamed =
-        accreditation2018 !== undefined &&
-        accreditation2023 !== undefined &&
-        accreditation2018.name !== accreditation2023.name;
-      const isOneSided =
-        (accreditation2018 === undefined) !== (accreditation2023 === undefined);
-
-      if (isRenamed) renamedCount += 1;
-      if (isOneSided) oneSidedCount += 1;
-
-      rows.push({
-        accreditation2018,
-        accreditation2023,
-        isDifferent: isRenamed || isOneSided,
-        searchText: normalizeSearchText(
-          [
-            accreditation2018?.name,
-            accreditation2018?.code,
-            accreditation2023?.name,
-            accreditation2023?.code,
-          ]
-            .filter((value) => value !== undefined)
-            .join(' '),
-        ),
-      });
-    }
-
-    rows.sort((left, right) =>
-      NAME_COLLATOR.compare(
-        left.accreditation2023?.name ?? left.accreditation2018?.name ?? '',
-        right.accreditation2023?.name ?? right.accreditation2018?.name ?? '',
-      ),
-    );
-
-    return { oneSidedCount, renamedCount, rows };
-  });
-
-  const filteredRows = createMemo(() => {
-    const searchTerm = normalizeSearchText(search());
-    return equivalencies().rows.filter(
-      (row) =>
-        row.accreditation2018 !== undefined &&
-        row.accreditation2023 !== undefined &&
-        (!searchTerm || row.searchText.includes(searchTerm)),
-    );
-  });
-
-  const similarRules = createMemo(() => {
-    const term = normalizeSearchText(search());
-    return resolveSimilarEquivalencies(props.courses).filter((rule) => {
-      const courses =
-        rule.kind === 'related'
-          ? rule.courses
-          : [...rule.sources, ...rule.targets];
-      return (
-        !term ||
-        courses.some((course) =>
-          normalizeSearchText(`${course.name} ${course.code}`).includes(term),
-        )
-      );
-    });
-  });
-
-  const hasCombinationRules = createMemo(() =>
-    resolveSimilarEquivalencies(props.courses).some(
-      (rule) => rule.kind === 'combination',
+  const term = createMemo(() => normalizeSearchText(search()));
+  const shownPairs = createMemo(() =>
+    pairs().filter(
+      (pair) =>
+        pairMatchesView(pair, view()) &&
+        (!term() || pair.searchText.includes(term())),
     ),
   );
-
-  const unifiedRules = createMemo<UnifiedRule[]>(() => [
-    ...(showOneToOne()
-      ? filteredRows().map((row) => ({ kind: 'one-to-one' as const, row }))
-      : []),
-    ...(showSimilar()
-      ? mergeCombinationRules(similarRules()).map((rule) => ({
-          kind: 'similar' as const,
-          rule,
-        }))
-      : []),
-  ]);
-
-  const combinationRulesEnabled = createMemo(
-    () => showSimilar() && hasCombinationRules(),
+  const shownRules = createMemo(() =>
+    view() === null || view() === 'rules'
+      ? rules().filter((rule) => ruleMatchesSearch(rule, term()))
+      : [],
   );
-  const selectedRuleCount = createMemo(
-    () =>
-      (showOneToOne() ? filteredRows().length : 0) +
-      (showSimilar() ? similarRules().length : 0),
-  );
+  const shownCount = () => shownPairs().length + shownRules().length;
+
+  const viewLabels = (): Record<EquivalencyView, string> => ({
+    renamed: t().equivalencies.viewRenamed,
+    rules: t().equivalencies.viewRules,
+    unchanged: t().equivalencies.viewUnchanged,
+  });
+
+  const openCourse: OpenEquivalencyCourse = (accreditation, code) => {
+    const course = code ? codeIndex().get(`${accreditation}:${code}`) : null;
+    if (!course) return;
+    setDialogAccreditation(accreditation);
+    courseDialog.openCourse(course);
+  };
 
   return (
     <section
       aria-label={t().equivalencies.heading}
       class="space-y-4"
     >
-      <div class="flex flex-wrap items-center gap-3">
-        <ToggleChip
-          onToggle={() => setShowOneToOne((current) => !current)}
-          pressed={showOneToOne()}
-        >
-          {t().equivalencies.oneToOne}
-        </ToggleChip>
-        <ToggleChip
-          onToggle={() => setShowSimilar((current) => !current)}
-          pressed={showSimilar()}
-        >
-          {t().equivalencies.similar}
-        </ToggleChip>
-      </div>
+      <p class="text-muted-foreground text-sm">
+        {interpolate(t().equivalencies.summary, {
+          pairs: formatNumber(pairs().length, language()),
+          renamed: formatNumber(renamedCount(), language()),
+          rules: formatNumber(rules().length, language()),
+        })}
+      </p>
 
-      <div class="space-y-1">
-        <div
-          aria-live="polite"
-          class="flex flex-wrap items-baseline gap-x-4 gap-y-1 text-sm"
-        >
-          <strong class="text-foreground font-semibold">
-            {formatCount(t().equivalencies.ruleCount, {
-              count: selectedRuleCount(),
-              language: language(),
-            })}
-          </strong>
-          <span class="text-muted-foreground">
-            1:1 {showOneToOne() ? filteredRows().length : 0}
-          </span>
-          <span class="text-muted-foreground">
-            {interpolate(t().equivalencies.relatedCount, {
-              count: formatNumber(
-                showSimilar() ? similarRules().length : 0,
-                language(),
-              ),
-            })}
-          </span>
+      <div class="flex flex-col gap-3 sm:flex-row sm:items-end">
+        <div class="min-w-0 flex-1 space-y-2">
+          <label
+            class="text-sm font-medium"
+            for="equivalencies-search"
+          >
+            {t().equivalencies.search}
+          </label>
+          <SearchInput
+            id="equivalencies-search"
+            onInput={(event) => {
+              setSearch(event.currentTarget.value);
+            }}
+            placeholder={t().equivalencies.searchPlaceholder}
+            value={search()}
+          />
         </div>
-      </div>
-
-      <div class="space-y-2">
-        <label
-          class="text-sm font-medium"
-          for="equivalencies-search"
-        >
-          {t().equivalencies.search}
-        </label>
-        <SearchInput
-          id="equivalencies-search"
-          onInput={(event) => {
-            setSearch(event.currentTarget.value);
-          }}
-          placeholder={t().equivalencies.searchPlaceholder}
-          value={search()}
+        <SegmentedControl
+          allLabel={t().equivalencies.viewAll}
+          aria-label={t().equivalencies.view}
+          items={EQUIVALENCY_VIEWS.map((value) => ({
+            label: viewLabels()[value],
+            value,
+          }))}
+          onClear={() => setView(null)}
+          onSelect={setView}
+          value={view()}
         />
       </div>
 
-      <Show when={combinationRulesEnabled()}>
-        <div
-          class={`${ALERT_STYLES.info} flex gap-3`}
+      <p
+        aria-live="polite"
+        class="text-sm font-medium"
+      >
+        {formatCount(t().equivalencies.ruleCount, {
+          count: shownCount(),
+          language: language(),
+        })}
+      </p>
+
+      <Show
+        when={
+          view() === 'rules' &&
+          shownRules().some((rule) => rule.kind === 'combination')
+        }
+      >
+        <p
+          class={ALERT_STYLES.info}
           role="note"
         >
-          <span
-            aria-hidden="true"
-            class="text-primary text-lg leading-none"
-          >
-            ⓘ
-          </span>
-          <p>{t().equivalencies.combinationInfo}</p>
-        </div>
+          {t().equivalencies.combinationInfo}
+        </p>
       </Show>
 
       <Show
         fallback={
-          <div class="bg-card rounded-lg border p-8 text-center text-sm">
-            {t().common.noResults}
-          </div>
+          <EmptyState
+            text={t().equivalencies.emptyText}
+            title={t().equivalencies.emptyTitle}
+          />
         }
-        when={unifiedRules().length > 0}
+        when={shownCount() > 0}
       >
-        <div class="bg-card rounded-lg border">
-          <Table class="w-full table-fixed">
-            <TableHeader>
-              <TableRow class="hover:bg-transparent transition-none">
-                <TableHead
-                  class="w-28 border-r pr-2 whitespace-normal break-words leading-tight sm:w-36"
-                  scope="col"
-                >
-                  {t().equivalencies.type}
-                </TableHead>
-                <TableHead
-                  class="pl-2 whitespace-normal break-words leading-tight"
-                  scope="col"
-                >
-                  {t().equivalencies.relationship}
-                </TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              <For each={unifiedRules()}>
-                {(entry) => (
-                  <TableRow class="even:bg-muted/20 hover:bg-transparent even:hover:bg-muted/20 transition-none">
-                    <TableCell class="border-r align-top pr-2">
-                      <UnifiedTypeCell entry={entry} />
-                    </TableCell>
-                    <TableCell class="min-w-0 align-top whitespace-normal pl-2">
-                      <UnifiedRelationshipCell entry={entry} />
-                    </TableCell>
-                  </TableRow>
-                )}
-              </For>
-            </TableBody>
-          </Table>
+        <div class="grid items-start gap-3 lg:grid-cols-2">
+          <For each={shownPairs()}>
+            {(pair) => (
+              <PairCard
+                onOpen={openCourse}
+                pair={pair}
+              />
+            )}
+          </For>
+          <For each={shownRules()}>
+            {(rule) => (
+              <RuleCard
+                onOpen={openCourse}
+                rule={rule}
+              />
+            )}
+          </For>
         </div>
       </Show>
+
+      <CourseDetailDialog
+        accreditation={dialogAccreditation()}
+        course={courseDialog.course()}
+        courses={props.courses}
+        onOpenChange={courseDialog.setOpen}
+        onOpenCourse={courseDialog.openCourse}
+        onShowPrerequisites={navigation?.showPrerequisites}
+        open={courseDialog.open()}
+      />
     </section>
   );
 };
-/* eslint-enable max-lines-per-function -- end equivalencies page */
