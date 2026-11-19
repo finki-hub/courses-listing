@@ -1,3 +1,4 @@
+import { fromStorageKeys, toStorageKeys } from '@/lib/course-storage-keys';
 import {
   type CourseInfo,
   type CourseStatus,
@@ -14,7 +15,7 @@ import {
   LEVEL_CREDIT_LIMITS,
   type SimulatorCourse,
 } from '@/lib/simulator';
-import { type Accreditation } from '@/types/course';
+import { type Accreditation, type CourseRaw } from '@/types/course';
 
 export type PlanContext = {
   /** Credits already earned: passed courses, HPC and the university list. */
@@ -331,7 +332,11 @@ export const setPlannedSemester = (
   return next;
 };
 
-export const loadPlan = (accreditation: Accreditation): StudyPlan => {
+// Like statuses, a plan is saved by course code and read back by name.
+export const loadPlan = (
+  accreditation: Accreditation,
+  courses: readonly CourseRaw[] = [],
+): StudyPlan => {
   try {
     const parsed: unknown = JSON.parse(
       readBrowserStorage(`${STORAGE_KEY_PREFIX}${accreditation}`) ?? '{}',
@@ -340,18 +345,26 @@ export const loadPlan = (accreditation: Accreditation): StudyPlan => {
       parsed === null ||
       Array.isArray(parsed)
       ? {}
-      : Object.fromEntries(
-          Object.entries(parsed).filter((entry): entry is [string, number] =>
-            isSemester(entry[1]),
+      : fromStorageKeys(
+          Object.fromEntries(
+            Object.entries(parsed).filter((entry): entry is [string, number] =>
+              isSemester(entry[1]),
+            ),
           ),
+          courses,
+          accreditation,
         );
   } catch {
     return {};
   }
 };
 
-export const savePlan = (accreditation: Accreditation, plan: StudyPlan) =>
+export const savePlan = (
+  accreditation: Accreditation,
+  plan: StudyPlan,
+  courses: readonly CourseRaw[] = [],
+) =>
   writeBrowserStorage(
     `${STORAGE_KEY_PREFIX}${accreditation}`,
-    JSON.stringify(plan),
+    JSON.stringify(toStorageKeys(plan, courses, accreditation)),
   );

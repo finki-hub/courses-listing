@@ -34,6 +34,7 @@ const wouldReplaceSaved = (
   shared: SimulatorShareState,
 ): boolean => {
   const saved = getSavedSimulatorSettings();
+  const raw = courses.map((course) => course.raw);
   const settingsDiffer =
     saved.accreditation !== shared.accreditation ||
     saved.program !== shared.program ||
@@ -41,8 +42,8 @@ const wouldReplaceSaved = (
     saved.uniListCredits !== shared.uniListCredits;
   return (
     sharedStateConflicts(courses, shared, {
-      plan: loadPlan(shared.accreditation),
-      statuses: loadStatuses(shared.accreditation),
+      plan: loadPlan(shared.accreditation, raw),
+      statuses: loadStatuses(shared.accreditation, raw),
     }) ||
     (settingsDiffer && hasProgress(saved.accreditation))
   );

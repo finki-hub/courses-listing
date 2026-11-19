@@ -35,12 +35,11 @@ import { useSimulatorState } from './use-simulator-state';
 import { useSimulatorView } from './use-simulator-view';
 import { useStudyPlan } from './use-study-plan';
 
-// All of the simulator's state, derived data and actions.
-export const useEnrollmentSimulator = (courses: () => CourseRaw[]) => {
-  const initialState = getInitialSimulatorState();
+// Whether the first-visit setup still has to be shown, and how to finish it.
+const useSimulatorSetup = (hasShareLink: boolean) => {
   const [setupPending, setSetupPending] = createSignal(
     needsSimulatorSetup({
-      hasShareLink: initialState.shared !== undefined,
+      hasShareLink,
       read: readBrowserStorage,
       storageAvailable: isBrowserStorageAvailable(),
     }),
@@ -49,6 +48,15 @@ export const useEnrollmentSimulator = (courses: () => CourseRaw[]) => {
     writeBrowserStorage(STORAGE_KEY_SETUP, 'true');
     setSetupPending(false);
   };
+  return { completeSetup, setupPending };
+};
+
+// All of the simulator's state, derived data and actions.
+export const useEnrollmentSimulator = (courses: () => CourseRaw[]) => {
+  const initialState = getInitialSimulatorState();
+  const { completeSetup, setupPending } = useSimulatorSetup(
+    initialState.shared !== undefined,
+  );
 
   const [accreditation, setAccreditation] = createSignal<Accreditation>(
     initialState.accreditation,
@@ -89,7 +97,7 @@ export const useEnrollmentSimulator = (courses: () => CourseRaw[]) => {
       setProgram(saved.program);
       setHpcCompleted(saved.hpcCompleted);
       setUniListCredits(saved.uniListCredits);
-      setStatuses(loadStatuses(saved.accreditation));
+      setStatuses(loadStatuses(saved.accreditation, courses()));
       planRef.reload?.(saved.accreditation);
       setSeasonFilter(null);
       setShowOnlyEnabled(false);
@@ -112,6 +120,7 @@ export const useEnrollmentSimulator = (courses: () => CourseRaw[]) => {
     parsedCourses,
     persist: preview.persist,
     program,
+    rawCourses: courses,
     setStatuses,
     setUniListCredits,
     statuses,
@@ -124,6 +133,7 @@ export const useEnrollmentSimulator = (courses: () => CourseRaw[]) => {
     courses: parsedCourses,
     initialPlan: initialState.resolvePlan(parsedCourses()),
     persist: preview.persist,
+    rawCourses: courses,
     statuses,
     totalCredits: state.totalCredits,
   });
@@ -199,7 +209,7 @@ export const useEnrollmentSimulator = (courses: () => CourseRaw[]) => {
       if (preview.previewing()) preview.discard();
       setAccreditation(acc);
       setProgram(getStudyPrograms(acc)[0] ?? DEFAULT_PROGRAM);
-      setStatuses(loadStatuses(acc));
+      setStatuses(loadStatuses(acc, courses()));
       plan.reload(acc);
     });
   };

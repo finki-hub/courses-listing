@@ -76,12 +76,18 @@ export const getInitialSimulatorState = (): InitialSimulatorState => {
   ): Record<string, CourseStatus> =>
     sharedState
       ? restoreStatusesFromShareState(courses, sharedState)
-      : loadStatuses(accreditation);
+      : loadStatuses(
+          accreditation,
+          courses.map((course) => course.raw),
+        );
 
   const resolvePlan = (courses: SharedSimulatorConfig['courses']) =>
     sharedState
       ? restorePlanFromShareState(courses, sharedState)
-      : loadPlan(accreditation);
+      : loadPlan(
+          accreditation,
+          courses.map((course) => course.raw),
+        );
 
   return {
     accreditation,

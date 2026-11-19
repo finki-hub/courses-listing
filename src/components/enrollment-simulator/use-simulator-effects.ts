@@ -12,7 +12,7 @@ import {
   STORAGE_KEY_HPC,
   STORAGE_KEY_PROGRAM,
 } from '@/lib/simulator';
-import { type Accreditation } from '@/types/course';
+import { type Accreditation, type CourseRaw } from '@/types/course';
 
 type SimulatorEffectsParams = {
   accreditation: Accessor<Accreditation>;
@@ -22,6 +22,8 @@ type SimulatorEffectsParams = {
   /** False while a shared link is previewed, so nothing is saved. */
   persist: Accessor<boolean>;
   program: Accessor<string>;
+  /** Every course, to save statuses by course code. */
+  rawCourses: Accessor<CourseRaw[]>;
   setStatuses: Setter<Record<string, CourseStatus>>;
   setUniListCredits: Setter<number>;
   statuses: Accessor<Record<string, CourseStatus>>;
@@ -76,7 +78,7 @@ export const useSimulatorEffects = (params: SimulatorEffectsParams): void => {
 
   createEffect(
     on([statuses, persist], ([s, save]) => {
-      if (save) saveStatuses(accreditation(), s);
+      if (save) saveStatuses(accreditation(), s, params.rawCourses());
     }),
   );
 

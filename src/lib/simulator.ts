@@ -1,3 +1,4 @@
+import { fromStorageKeys, toStorageKeys } from '@/lib/course-storage-keys';
 import { interpolate, type Translations } from '@/lib/i18n';
 import {
   type CourseInfo,
@@ -181,15 +182,19 @@ const getExclusiveProjectReasonLines = (
   interpolate(t.reasons.exclusiveRule, { course: blocker }),
 ];
 
+// Statuses are saved by course code and read back by today's names.
 export const loadStatuses = (
   accreditation: Accreditation,
+  courses: readonly CourseRaw[] = [],
 ): Record<string, CourseStatus> => {
   try {
     const raw = localStorage.getItem(`${STORAGE_KEY_PREFIX}${accreditation}`);
     if (!raw) return {};
     const parsed: unknown = JSON.parse(raw);
     return isStatusRecord(parsed)
-      ? normalizeExclusiveProjectStatuses(parsed)
+      ? normalizeExclusiveProjectStatuses(
+          fromStorageKeys(parsed, courses, accreditation),
+        )
       : {};
   } catch {
     return {};
@@ -199,10 +204,11 @@ export const loadStatuses = (
 export const saveStatuses = (
   accreditation: Accreditation,
   statuses: Record<string, CourseStatus>,
+  courses: readonly CourseRaw[] = [],
 ): void => {
   localStorage.setItem(
     `${STORAGE_KEY_PREFIX}${accreditation}`,
-    JSON.stringify(statuses),
+    JSON.stringify(toStorageKeys(statuses, courses, accreditation)),
   );
 };
 
