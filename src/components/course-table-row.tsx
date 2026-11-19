@@ -3,6 +3,7 @@ import { siDiscord } from 'simple-icons';
 import { For, type JSX, Show } from 'solid-js';
 
 import { TableCell, TableRow } from '@/components/ui/table';
+import { formatCompactYear, type Offering } from '@/lib/course-offering';
 import { formatNumber, getTagLabel, interpolate } from '@/lib/i18n';
 import { useLanguage } from '@/lib/LanguageProvider';
 import { cn } from '@/lib/utils';
@@ -32,6 +33,8 @@ export type CourseRowFacts = {
   readonly label: string;
   /** 0 means not offered or not counted that year: shown as a dash. */
   readonly noStudentsAsUnknown?: boolean;
+  /** Undergraduate courses: whether they had students in the latest year. */
+  readonly offering?: Offering;
   readonly semester: number | undefined;
   /** Students relative to the most popular course shown, from 0 to 1. */
   readonly share: number;
@@ -45,7 +48,45 @@ const VISIBLE_TAGS = 2;
 export const hasUnknownStudents = (facts: CourseRowFacts): boolean =>
   facts.noStudentsAsUnknown === true && facts.students === 0;
 
-// The student count, or a dash read aloud as "not offered or no data".
+// Whether a note on when the course last ran stands in for the count.
+export const hasOfferingNote = (facts: CourseRowFacts): boolean =>
+  hasUnknownStudents(facts) &&
+  facts.offering !== undefined &&
+  facts.offering.kind !== 'current';
+
+// When a course with no students this year last had some, or that it never
+// did. Short, muted and not a number, so it isn't read as a count.
+const OfferingNote = (props: { offering: Offering }) => {
+  const { t } = useLanguage();
+  const visible = () => {
+    const { offering } = props;
+    return offering.kind === 'last'
+      ? interpolate(t().listing.lastOffered, {
+          year: formatCompactYear(offering.year),
+        })
+      : t().listing.notOfferedYet;
+  };
+  const spoken = () => {
+    const { offering } = props;
+    return offering.kind === 'last'
+      ? interpolate(t().listing.lastOfferedSr, { year: offering.year })
+      : t().listing.notOfferedYet;
+  };
+  return (
+    <>
+      <span
+        aria-hidden="true"
+        class="text-muted-foreground text-xs font-normal"
+      >
+        {visible()}
+      </span>
+      <span class="sr-only">{spoken()}</span>
+    </>
+  );
+};
+
+// The student count; without students, when the course last had some, or a
+// dash read aloud as "not offered or no data" where there is no history.
 export const StudentCount = (props: { facts: CourseRowFacts }) => {
   const { language, t } = useLanguage();
   return (
@@ -53,8 +94,17 @@ export const StudentCount = (props: { facts: CourseRowFacts }) => {
       fallback={formatNumber(props.facts.students, language())}
       when={hasUnknownStudents(props.facts)}
     >
-      <span aria-hidden="true">{UNKNOWN_STUDENTS}</span>
-      <span class="sr-only">{t().masters.noEnrollment}</span>
+      <Show
+        fallback={
+          <>
+            <span aria-hidden="true">{UNKNOWN_STUDENTS}</span>
+            <span class="sr-only">{t().masters.noEnrollment}</span>
+          </>
+        }
+        when={props.facts.offering?.kind !== 'current' && props.facts.offering}
+      >
+        {(offering) => <OfferingNote offering={offering()} />}
+      </Show>
     </Show>
   );
 };

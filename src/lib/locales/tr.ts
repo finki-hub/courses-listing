@@ -44,6 +44,9 @@ export const tr = {
     prerequisites: 'Ön koşullar',
     professors: 'Öğretim üyeleri',
     programs: 'Öğrenim programları',
+    requiredFor: 'Şunlar için gerekli',
+    showAllRequired: 'Tümünü göster ({count})',
+    showFewerRequired: 'Daha az göster',
     showMap: 'Ön koşul haritasını göster',
     staff: 'Öğretim kadrosu',
     subjectPage: 'finki.ukim.mk üzerindeki ders sayfası',
@@ -58,6 +61,7 @@ export const tr = {
     heading: 'Kayıtlı öğrenci sayısı',
     increasing: 'Artıyor',
     insufficientData: 'Yetersiz veri',
+    lastOffered: 'En son {year} yılında açıldı',
     latest: 'En son',
     lowestYear: 'En az öğrencinin kayıtlı olduğu yıl',
     maximum: 'En yüksek',
@@ -70,6 +74,7 @@ export const tr = {
     noHistoryDescription:
       'Bu ders için yıllık kayıtlı öğrenci sayıları henüz mevcut değil.',
     noPrevious: 'Karşılaştırılacak önceki yıl yok',
+    notOfferedYet: 'Henüz açılmadı',
     peakYear: 'En çok öğrencinin kayıtlı olduğu yıl',
     same: 'Önceki yılla aynı öğrenci sayısı',
     stable: 'Sabit',
@@ -159,9 +164,12 @@ export const tr = {
   listing: {
     creditsValue: '{value} kredi',
     discordAvailable: 'Discord kanalı var',
+    lastOffered: 'Son: {year}',
+    lastOfferedSr: 'Bu yıl öğrenci yok. En son {year} yılında açıldı',
     moreTags: '+{count}',
     noResultsText: 'Bir filtreyi kaldırın veya başka bir şey arayın.',
     noResultsTitle: 'Bu filtrelere uyan ders yok',
+    notOfferedYet: 'Henüz açılmadı',
     openDetails: '{course} ayrıntılarını aç',
     resultCount: {
       one: '{count} ders',
@@ -178,6 +186,7 @@ export const tr = {
     studentsInfo:
       'Dersin yarıyılı için veri bulunan en son akademik yılda kayıtlı öğrenciler',
     studentsValue: '{value} öğrenci',
+    studentsYear: 'Öğrenciler {year}',
     tagsLabel: 'Etiketler:',
   },
   masters: {

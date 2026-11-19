@@ -29,6 +29,7 @@ import {
   sortCourses,
   type SortDirection,
 } from '@/lib/course-filters';
+import { getOffering } from '@/lib/course-offering';
 import { useLanguage } from '@/lib/LanguageProvider';
 import {
   clearFilters,
@@ -139,6 +140,7 @@ const createFactsResolver = (deps: FactsDeps) => {
           credits: getPrimaryCredits(course, accreditation),
           label: getAccLabel(course),
           noStudentsAsUnknown: true,
+          offering: getOffering(course, deps.enrollmentYears()),
           semester: getCourseSemester(course, accreditation),
           share,
           students,
@@ -412,6 +414,7 @@ export const CourseTable = (props: CourseTableProps) => {
         sortColumn={sortColumn()}
         sortColumns={master() ? MASTER_SORT_COLUMNS : SORT_COLUMNS}
         sortDirection={sortDirection()}
+        studentsYear={master() ? undefined : enrollmentYears().all}
       />
 
       <Show when={master()}>
@@ -493,6 +496,7 @@ export const CourseTable = (props: CourseTableProps) => {
                   onToggleSort={toggleSort}
                   sortColumn={sortColumn()}
                   sortDirection={sortDirection()}
+                  studentsYear={master() ? undefined : enrollmentYears().all}
                 />
               </Show>
             </Show>

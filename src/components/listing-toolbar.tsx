@@ -11,6 +11,7 @@ import { SearchInput } from '@/components/ui/search-input';
 import { SegmentedControl } from '@/components/ui/segmented-control';
 import { Select } from '@/components/ui/select';
 import { type SortColumn, type SortDirection } from '@/lib/course-filters';
+import { formatCompactYear } from '@/lib/course-offering';
 import { interpolate } from '@/lib/i18n';
 import { useLanguage } from '@/lib/LanguageProvider';
 import { type StudyCycle } from '@/lib/listing-url-state';
@@ -38,6 +39,8 @@ type ListingToolbarProps = {
   readonly sortColumn: SortColumn;
   readonly sortColumns: readonly SortColumn[];
   readonly sortDirection: SortDirection;
+  /** The year the popularity sort counts students in, if known. */
+  readonly studentsYear?: string;
 };
 
 // What every visit uses: which studies, the search and the order. Filters
@@ -127,7 +130,12 @@ export const ListingToolbar = (props: ListingToolbarProps) => {
                   props.onToggleSort(column);
               }}
               options={props.sortColumns.map((column) => ({
-                label: t().common[SORT_LABEL_KEYS[column]],
+                label:
+                  column === 'popularity' && props.studentsYear !== undefined
+                    ? interpolate(t().listing.studentsYear, {
+                        year: formatCompactYear(props.studentsYear),
+                      })
+                    : t().common[SORT_LABEL_KEYS[column]],
                 value: column,
               }))}
               value={props.sortColumn}

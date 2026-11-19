@@ -16,6 +16,7 @@ import {
   CourseSecondLine,
   CourseTags,
   DiscordMark,
+  hasOfferingNote,
   hasUnknownStudents,
   PopularityBar,
   StudentCount,
@@ -64,7 +65,9 @@ export const CourseCard = (props: CourseCardProps) => {
             <span class="tabular-nums">
               <StudentCount facts={props.facts} />
             </span>
-            {t().enrollment.students.toLowerCase()}
+            <Show when={!hasOfferingNote(props.facts)}>
+              {t().enrollment.students.toLowerCase()}
+            </Show>
             <Show when={!hasUnknownStudents(props.facts)}>
               <PopularityBar share={props.facts.share} />
             </Show>
