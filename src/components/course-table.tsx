@@ -39,7 +39,7 @@ import {
   findPreferredCourseByLinkValue,
   type ListingFilters,
 } from '@/lib/listing-url-state';
-import { isMasterCourse } from '@/lib/master-programs';
+import { isMasterCourse, type ProgramCourse } from '@/lib/master-programs';
 import { type CourseRaw, getAccLabel } from '@/types/course';
 
 import { ActiveFilterChips } from './active-filter-chips';
@@ -49,6 +49,10 @@ import { type CourseRowFacts } from './course-table-row';
 import { FiltersFrame, NoResults } from './listing-filter-frames';
 import { ListingFilterPanel } from './listing-filter-panel';
 import { ListingToolbar } from './listing-toolbar';
+import {
+  MasterCurriculumView,
+  MasterViewSwitch,
+} from './master-curriculum-view';
 import { useCourseSearchAnalytics } from './use-course-search-analytics';
 import { useLinkedCourseDialog } from './use-linked-course-dialog';
 import { useListingState } from './use-listing-state';
@@ -217,13 +221,103 @@ const MasterStatus = (props: { error: boolean; loading: boolean }) => {
   );
 };
 
+type FilteredDeps = {
+  readonly courses: () => CourseRaw[];
+  readonly enrollmentYears: () => EnrollmentYears;
+  readonly filters: () => ListingFilters;
+  readonly getSeason: () => SeasonResolver | undefined;
+  readonly master: () => boolean;
+  readonly masters: MasterListing;
+  readonly selectedTags: () => ReadonlySet<string>;
+  readonly sortColumn: () => SortColumn;
+  readonly sortDirection: () => SortDirection;
+};
+
+// The courses matching the filters and search, in the chosen order.
+const createFilteredCourses = (deps: FilteredDeps) => {
+  const { language } = useLanguage();
+  const criteria = (): CourseFilterCriteria => ({
+    ...deps.filters(),
+    enrollmentYears: deps.enrollmentYears(),
+    getSeason: deps.getSeason(),
+    matchesCurriculum: deps.master()
+      ? (course) => deps.masters.matches(course, deps.filters())
+      : undefined,
+    searchTerm: deps.filters().query,
+    tags: deps.selectedTags(),
+  });
+  return createMemo(() =>
+    sortCourses(filterCourses(deps.courses(), criteria()), {
+      accreditation: deps.filters().accreditation,
+      column: deps.sortColumn(),
+      direction: deps.sortDirection(),
+      enrollmentYears: deps.enrollmentYears(),
+      getCredits: deps.master()
+        ? (course) => deps.masters.getCredits(course, deps.filters().program)
+        : undefined,
+      getSeason: deps.getSeason(),
+      language: language(),
+    }),
+  );
+};
+
+type OpeningDeps = AnalyticsDeps & {
+  readonly courseDialog: ReturnType<typeof useLinkedCourseDialog>;
+};
+
+// Opens a result's details, noting which search led to it.
+const useResultOpening = (deps: OpeningDeps) => {
+  const searchLinkage = useListingSearchAnalytics(deps);
+  return (course: CourseRaw, position: number) => {
+    capture('result_clicked', {
+      ...searchLinkage(),
+      position,
+      // eslint-disable-next-line camelcase -- PostHog event props are snake_case
+      result_id: course.name,
+    });
+    deps.courseDialog.openCourse(course);
+  };
+};
+
+type CurriculumDeps = {
+  readonly filteredCourses: () => readonly CourseRaw[];
+  readonly listing: ReturnType<typeof useListingState>;
+  readonly masters: MasterListing;
+};
+
+// The curriculum layout follows the listing's filters: it keeps the program
+// rows whose course is in the filtered results. Rows with no master's course
+// show only while nothing narrows the listing.
+const useCurriculumLayout = (deps: CurriculumDeps) => {
+  const { filters } = deps.listing;
+  const shownCourses = createMemo(() => new Set(deps.filteredCourses()));
+  // The program is always a filter here; anything more narrows the courses.
+  const narrowed = () =>
+    countActiveFilters(filters()) > 1 || filters().query !== '';
+  return {
+    clear: () => {
+      deps.listing.setFilters({
+        ...clearFilters(filters()),
+        program: filters().program,
+      });
+    },
+    keep: (entry: ProgramCourse): boolean => {
+      const course = deps.masters.findCourse(entry);
+      return course !== undefined && isMasterCourse(course)
+        ? shownCourses().has(course)
+        : !narrowed();
+    },
+    narrowed,
+    shown: () =>
+      filters().cycle === 'master' && filters().view === 'curriculum',
+  };
+};
+
 type CourseTableProps = {
   courses: CourseRaw[];
 };
 
 export const CourseTable = (props: CourseTableProps) => {
-  const { language } = useLanguage();
-
   const listing = useListingState();
   const { filters, sortColumn, sortDirection, toggleSort } = listing;
   const master = () => filters().cycle === 'master';
@@ -254,30 +348,17 @@ export const CourseTable = (props: CourseTableProps) => {
   const [filtersOpen, setFiltersOpen] = createSignal(false);
   const activeFilters = () => countActiveFilters(filters());
 
-  const filterCriteria = (): CourseFilterCriteria => ({
-    ...filters(),
-    enrollmentYears: enrollmentYears(),
-    getSeason: getSeason(),
-    matchesCurriculum: master()
-      ? (course) => masters.matches(course, filters())
-      : undefined,
-    searchTerm: filters().query,
-    tags: selectedTags(),
+  const filteredCourses = createFilteredCourses({
+    courses,
+    enrollmentYears,
+    filters,
+    getSeason,
+    master,
+    masters,
+    selectedTags,
+    sortColumn,
+    sortDirection,
   });
-
-  const filteredCourses = createMemo(() =>
-    sortCourses(filterCourses(courses(), filterCriteria()), {
-      accreditation: filters().accreditation,
-      column: sortColumn(),
-      direction: sortDirection(),
-      enrollmentYears: enrollmentYears(),
-      getCredits: master()
-        ? (course) => masters.getCredits(course, filters().program)
-        : undefined,
-      getSeason: getSeason(),
-      language: language(),
-    }),
-  );
 
   const getFacts = createFactsResolver({
     enrollmentYears,
@@ -288,22 +369,14 @@ export const CourseTable = (props: CourseTableProps) => {
     shown: filteredCourses,
   });
 
-  const searchLinkage = useListingSearchAnalytics({
-    filters,
+  const openDetail = useResultOpening({
+    ...listing,
+    courseDialog,
     resultCount: () => filteredCourses().length,
     selectedTags,
-    sortColumn,
-    sortDirection,
   });
-  const openDetail = (course: CourseRaw, position: number) => {
-    capture('result_clicked', {
-      ...searchLinkage(),
-      position,
-      // eslint-disable-next-line camelcase -- PostHog event props are snake_case
-      result_id: course.name,
-    });
-    courseDialog.openCourse(course);
-  };
+
+  const curriculum = useCurriculumLayout({ filteredCourses, listing, masters });
 
   const clearAll = () => {
     listing.setFilters(clearFilters(filters()));
@@ -335,6 +408,7 @@ export const CourseTable = (props: CourseTableProps) => {
         onSwitchCycle={listing.switchCycle}
         onToggleSort={toggleSort}
         query={filters().query}
+        showSort={!curriculum.shown()}
         sortColumn={sortColumn()}
         sortColumns={master() ? MASTER_SORT_COLUMNS : SORT_COLUMNS}
         sortDirection={sortDirection()}
@@ -361,43 +435,66 @@ export const CourseTable = (props: CourseTableProps) => {
         </FiltersFrame>
 
         <div class="min-w-0 space-y-3">
-          <ActiveFilterChips
-            filters={filters()}
-            onClear={clearAll}
-            onRemove={(chip) => {
-              listing.setFilters(removeFilterChip(filters(), chip));
-            }}
-            programLabel={
-              master()
-                ? (code: string) => `${code}: ${masters.programTitle(code)}`
-                : undefined
-            }
-            resultCount={filteredCourses().length}
-          />
+          <Show when={master()}>
+            <MasterViewSwitch
+              onSelect={(view) => {
+                listing.updateFilters({ view });
+              }}
+              value={filters().view}
+            />
+          </Show>
 
           <Show
-            fallback={<ProgramsPending error={masters.error()} />}
-            when={!awaitingPrograms()}
-          >
-            <Show
-              fallback={
-                <NoResults
-                  canClear={activeFilters() > 0 || filters().query !== ''}
-                  onClear={clearAll}
-                />
-              }
-              when={filteredCourses().length > 0}
-            >
-              <CourseResults
-                accreditation={filters().accreditation}
-                courses={filteredCourses()}
-                getFacts={getFacts}
-                master={master()}
-                onOpen={openDetail}
-                onToggleSort={toggleSort}
-                sortColumn={sortColumn()}
-                sortDirection={sortDirection()}
+            fallback={
+              <MasterCurriculumView
+                canClear={curriculum.narrowed()}
+                keep={curriculum.keep}
+                masters={masters}
+                onClear={curriculum.clear}
+                onOpen={courseDialog.openCourse}
+                program={filters().program}
               />
+            }
+            when={!curriculum.shown()}
+          >
+            <ActiveFilterChips
+              filters={filters()}
+              onClear={clearAll}
+              onRemove={(chip) => {
+                listing.setFilters(removeFilterChip(filters(), chip));
+              }}
+              programLabel={
+                master()
+                  ? (code: string) => `${code}: ${masters.programTitle(code)}`
+                  : undefined
+              }
+              resultCount={filteredCourses().length}
+            />
+
+            <Show
+              fallback={<ProgramsPending error={masters.error()} />}
+              when={!awaitingPrograms()}
+            >
+              <Show
+                fallback={
+                  <NoResults
+                    canClear={activeFilters() > 0 || filters().query !== ''}
+                    onClear={clearAll}
+                  />
+                }
+                when={filteredCourses().length > 0}
+              >
+                <CourseResults
+                  accreditation={filters().accreditation}
+                  courses={filteredCourses()}
+                  getFacts={getFacts}
+                  master={master()}
+                  onOpen={openDetail}
+                  onToggleSort={toggleSort}
+                  sortColumn={sortColumn()}
+                  sortDirection={sortDirection()}
+                />
+              </Show>
             </Show>
           </Show>
         </div>

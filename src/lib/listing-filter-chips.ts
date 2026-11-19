@@ -95,6 +95,7 @@ export const clearFilters = (filters: ListingFilters): ListingFilters => ({
   ...DEFAULT_LISTING_FILTERS,
   cycle: filters.cycle,
   tagMode: filters.tagMode,
+  view: filters.view,
 });
 
 // The groups the filter panel is organized in.

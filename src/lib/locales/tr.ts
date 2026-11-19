@@ -181,6 +181,21 @@ export const tr = {
     tagsLabel: 'Etiketler:',
   },
   masters: {
+    curriculum: {
+      chooseProgramText:
+        'Müfredatı dönemlere göre görmek için filtrelerden bir program seçin.',
+      chooseProgramTitle: 'Bir yüksek lisans programı seçin',
+      courseCount: {
+        one: '{count} ders',
+        other: '{count} ders',
+      },
+      curriculum: 'Müfredat',
+      ects: '{ects} AKTS',
+      label: 'Görünüm:',
+      list: 'Liste',
+      noCourses: 'Bu program için listelenmiş ders yok.',
+      unplaced: 'Dönemi belirtilmemiş',
+    },
     cycle: 'Öğrenim:',
     electiveGroups: {
       facultySummer: 'Fakülte seçmelileri, bahar',

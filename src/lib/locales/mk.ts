@@ -181,6 +181,21 @@ export const mk = {
     tagsLabel: 'Тагови:',
   },
   masters: {
+    curriculum: {
+      chooseProgramText:
+        'Изберете програма од филтрите за да ја видите нејзината наставна програма по семестри.',
+      chooseProgramTitle: 'Изберете магистерска програма',
+      courseCount: {
+        one: '{count} предмет',
+        other: '{count} предмети',
+      },
+      curriculum: 'Наставна програма',
+      ects: '{ects} ECTS',
+      label: 'Приказ:',
+      list: 'Листа',
+      noCourses: 'За оваа програма нема наведени предмети.',
+      unplaced: 'Без семестар',
+    },
     cycle: 'Студии:',
     electiveGroups: {
       facultySummer: 'Факултетски изборни, летен',
