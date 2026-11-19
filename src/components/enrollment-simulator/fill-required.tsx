@@ -2,6 +2,7 @@ import { Wand2 } from 'lucide-solid';
 import { createSignal } from 'solid-js';
 
 import { InfoTip } from '@/components/ui/info-tip';
+import { capture } from '@/lib/analytics-client';
 import { interpolate } from '@/lib/i18n';
 import { useLanguage } from '@/lib/LanguageProvider';
 
@@ -22,6 +23,8 @@ export const FillRequired = (props: FillRequiredProps) => {
   const fill = () => {
     const result = props.onFill();
     setAdded(result.added);
+    // eslint-disable-next-line camelcase -- PostHog event props are snake_case
+    capture('plan_filled', { result_count: result.added });
     if (result.added > 0) undo.offer(result.undo);
   };
 

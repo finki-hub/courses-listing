@@ -19,14 +19,32 @@ const isUuid = (value: unknown): value is string =>
 const isString = (value: unknown): value is string => typeof value === 'string';
 const isCount = (value: unknown): value is number =>
   typeof value === 'number' && Number.isSafeInteger(value) && value >= 0;
+const isBoolean = (value: unknown): value is boolean =>
+  typeof value === 'boolean';
+const isOneOf =
+  (...allowed: readonly string[]) =>
+  (value: unknown): value is string =>
+    typeof value === 'string' && allowed.includes(value);
 const EVENT_FIELDS: Record<
   string,
   Record<string, (value: unknown) => boolean>
 > = {
   catalog_query_intent: { result_count: isCount },
   catalog_refinement: { result_count: isCount },
+  course_saved: { result_id: isString, saved: isBoolean },
+  master_layout_changed: { layout: isOneOf('curriculum', 'list') },
+  plan_filled: { result_count: isCount },
+  related_course_opened: {
+    result_id: isString,
+    source: isOneOf('prerequisite', 'required_for'),
+  },
   result_clicked: { position: isCount, result_id: isString },
+  saved_link_added: { result_count: isCount },
+  saved_link_opened: { result_count: isCount },
+  saved_list_shared: { result_count: isCount },
   search_zero_results: {},
+  simulator_expert_mode: { enabled: isBoolean },
+  simulator_shared: {},
 };
 
 // Rebuild both levels rather than recursively redacting an open-ended SDK payload.

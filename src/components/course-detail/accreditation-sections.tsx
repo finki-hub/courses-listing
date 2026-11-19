@@ -4,6 +4,7 @@ import { createMemo, For, type JSX, Show } from 'solid-js';
 import { PrerequisiteText } from '@/components/course-detail/prerequisite-text';
 import { ProgramStates } from '@/components/course-detail/program-states';
 import { SectionHeader } from '@/components/ui/page-header';
+import { capture } from '@/lib/analytics-client';
 import {
   type AccreditationDetails,
   type DetailValue,
@@ -153,7 +154,13 @@ export const AccreditationSections = (props: AccreditationSectionsProps) => {
   ];
   const openCourse = (accreditation: Accreditation, name: string) => {
     const course = indexes().get(accreditation)?.get(name);
-    if (course) props.onOpenCourse?.(course);
+    if (!course) return;
+    capture('related_course_opened', {
+      // eslint-disable-next-line camelcase -- PostHog event props are snake_case
+      result_id: name,
+      source: 'prerequisite',
+    });
+    props.onOpenCourse?.(course);
   };
 
   const prerequisites = () =>

@@ -1,6 +1,7 @@
 import { Match, Show, Switch } from 'solid-js';
 
 import { ALERT_STYLES } from '@/lib/alert-styles';
+import { capture } from '@/lib/analytics-client';
 import { interpolate } from '@/lib/i18n';
 import { useLanguage } from '@/lib/LanguageProvider';
 import { type NextCourse } from '@/lib/next-courses';
@@ -33,6 +34,10 @@ type EnrollmentSimulatorProps = {
 export const EnrollmentSimulator = (props: EnrollmentSimulatorProps) => {
   const { t } = useLanguage();
   const sim = useEnrollmentSimulator(() => props.courses);
+  const setExpertMode = (enabled: boolean) => {
+    sim.setIgnorePrerequisites(enabled);
+    capture('simulator_expert_mode', { enabled });
+  };
 
   const descriptions = () => ({
     checklist: t().simulator.description,
@@ -93,7 +98,7 @@ export const EnrollmentSimulator = (props: EnrollmentSimulatorProps) => {
                 sim.setHpcCompleted((value) => !value);
               }}
               onToggleIgnorePrerequisites={() => {
-                sim.setIgnorePrerequisites((value) => !value);
+                setExpertMode(!sim.ignorePrerequisites());
               }}
               onUniListCreditsChange={sim.setUniListCredits}
               program={sim.program()}
@@ -105,7 +110,7 @@ export const EnrollmentSimulator = (props: EnrollmentSimulatorProps) => {
         <Show when={sim.ignorePrerequisites()}>
           <PrerequisitesIgnoredNotice
             onTurnOff={() => {
-              sim.setIgnorePrerequisites(false);
+              setExpertMode(false);
             }}
           />
         </Show>

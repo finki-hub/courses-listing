@@ -1,6 +1,7 @@
 import { createMemo, createSignal, For, Show } from 'solid-js';
 
 import { DetailSection } from '@/components/course-detail/accreditation-sections';
+import { capture } from '@/lib/analytics-client';
 import {
   type AccreditationDetails,
   getAccreditationDetails,
@@ -129,7 +130,13 @@ export const RequiredForSection = (props: RequiredForSectionProps) => {
                       const course = indexes()
                         .get(accreditation())
                         ?.byName.get(name);
-                      if (course) props.onOpenCourse(course);
+                      if (!course) return;
+                      capture('related_course_opened', {
+                        // eslint-disable-next-line camelcase -- PostHog event props are snake_case
+                        result_id: name,
+                        source: 'required_for',
+                      });
+                      props.onOpenCourse(course);
                     }}
                   />
                 </div>

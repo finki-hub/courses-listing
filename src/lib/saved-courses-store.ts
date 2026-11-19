@@ -1,5 +1,6 @@
 import { createRoot, createSignal } from 'solid-js';
 
+import { capture } from '@/lib/analytics-client';
 import { getCourseLinkValue } from '@/lib/listing-url-state';
 import { readBrowserStorage, writeBrowserStorage } from '@/lib/safe-storage';
 import {
@@ -31,7 +32,11 @@ export const useSavedCourses = () => ({
   isSaved: (course: CourseRaw): boolean =>
     values().includes(getCourseLinkValue(course)),
   toggle: (course: CourseRaw) => {
-    update(toggleSavedValue(values(), getCourseLinkValue(course)));
+    const value = getCourseLinkValue(course);
+    const saved = !values().includes(value);
+    update(toggleSavedValue(values(), value));
+    // eslint-disable-next-line camelcase -- PostHog event props are snake_case
+    capture('course_saved', { result_id: value, saved });
   },
   values,
 });

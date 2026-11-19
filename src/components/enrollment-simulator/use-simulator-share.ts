@@ -1,5 +1,6 @@
 import { type Accessor, createMemo } from 'solid-js';
 
+import { capture } from '@/lib/analytics-client';
 import {
   getSimulatorShareUrl,
   type SharedSimulatorConfig,
@@ -35,6 +36,7 @@ export const useSimulatorShare = (params: SimulatorShareParams) => {
   const copyShareUrl = async (): Promise<boolean> => {
     try {
       await navigator.clipboard.writeText(getSimulatorShareUrl(shareConfig()));
+      capture('simulator_shared');
       return true;
     } catch {
       return false;

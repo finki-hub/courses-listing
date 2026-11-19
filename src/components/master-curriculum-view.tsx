@@ -4,6 +4,7 @@ import { Show } from 'solid-js';
 import { MasterCurriculum } from '@/components/master-curriculum';
 import { EmptyState } from '@/components/ui/empty-state';
 import { SegmentedControl } from '@/components/ui/segmented-control';
+import { capture } from '@/lib/analytics-client';
 import { useLanguage } from '@/lib/LanguageProvider';
 import { type ListingView } from '@/lib/listing-url-state';
 import { filterCurriculum } from '@/lib/master-curriculum';
@@ -33,7 +34,10 @@ export const MasterViewSwitch = (props: MasterViewSwitchProps) => {
           value: 'curriculum' as const,
         },
       ]}
-      onSelect={props.onSelect}
+      onSelect={(view) => {
+        props.onSelect(view);
+        capture('master_layout_changed', { layout: view });
+      }}
       size="sm"
       value={props.value}
     />
