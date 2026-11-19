@@ -386,6 +386,11 @@ export const en = {
       title: 'Set up the simulator',
     },
     share: 'Share',
+    sharedDiscard: 'Back to my progress',
+    sharedKeep: 'Replace my progress with this',
+    sharedText:
+      'Changes here are not saved, and your own progress stays as it was until you choose otherwise.',
+    sharedTitle: 'You are viewing a shared simulator state',
     status: {
       label: 'Status of {course}',
       listened: 'Enrolled',

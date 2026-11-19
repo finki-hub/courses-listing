@@ -37,6 +37,7 @@ import {
 } from '@/lib/listing-url-state';
 import { isMasterCourse } from '@/lib/master-programs';
 import { PAGE_QUERY_PARAM, SIMULATOR_SHARE_PARAM } from '@/lib/simulator-share';
+import { SIMULATOR_VIEW_PARAMS } from '@/lib/simulator-url-state';
 
 type Page = 'equivalencies' | 'listing' | 'prerequisites' | 'simulator';
 
@@ -141,6 +142,7 @@ const App = () => {
       params.set(PAGE_QUERY_PARAM, staticActivePage);
       if (staticActivePage !== 'simulator') {
         params.delete(SIMULATOR_SHARE_PARAM);
+        for (const param of SIMULATOR_VIEW_PARAMS) params.delete(param);
       }
       if (staticActivePage !== 'listing') {
         for (const param of LISTING_FILTER_PARAMS) params.delete(param);

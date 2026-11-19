@@ -1,8 +1,7 @@
-import { type Accessor, createEffect, createMemo } from 'solid-js';
+import { type Accessor, createMemo } from 'solid-js';
 
 import {
   getSimulatorShareUrl,
-  replaceSimulatorShareUrl,
   type SharedSimulatorConfig,
 } from '@/lib/simulator-share';
 
@@ -30,10 +29,6 @@ export const useSimulatorShare = (params: SimulatorShareParams) => {
     statuses: params.statuses(),
     uniListCredits: params.uniListCredits(),
   }));
-
-  createEffect(() => {
-    replaceSimulatorShareUrl(shareConfig());
-  });
 
   const copyShareUrl = async (): Promise<boolean> => {
     try {

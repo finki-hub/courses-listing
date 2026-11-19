@@ -1,5 +1,7 @@
+import { replaceUrlParams } from '@/lib/listing-url-state';
 import { type CourseStatus } from '@/lib/prerequisite';
 import { clampUniListCredits, type SimulatorCourse } from '@/lib/simulator';
+import { SIMULATOR_VIEW_PARAMS } from '@/lib/simulator-url-state';
 import { LAST_SEMESTER, type StudyPlan } from '@/lib/study-plan';
 import {
   type Accreditation,
@@ -288,6 +290,8 @@ export const getSimulatorShareUrl = (config: SharedSimulatorConfig): string => {
   );
   const encodedStatuses = encodeStatuses(config.courses, config.statuses);
 
+  // The sharer's own search and filters stay out of the link.
+  for (const param of SIMULATOR_VIEW_PARAMS) url.searchParams.delete(param);
   url.searchParams.set(PAGE_QUERY_PARAM, 'simulator');
   url.searchParams.set(
     SIMULATOR_SHARE_PARAM,
@@ -304,12 +308,6 @@ export const getSimulatorShareUrl = (config: SharedSimulatorConfig): string => {
   return url.href;
 };
 
-export const replaceSimulatorShareUrl = (
-  config: SharedSimulatorConfig,
-): void => {
-  history.replaceState({}, '', getSimulatorShareUrl(config));
-};
-
 export const restoreStatusesFromShareState = (
   courses: SimulatorCourse[],
   sharedState: SimulatorShareState,
@@ -320,3 +318,62 @@ export const restorePlanFromShareState = (
   courses: SimulatorCourse[],
   sharedState: SimulatorShareState,
 ): StudyPlan => decodePlan(courses, sharedState.encodedPlan);
+
+// Each course with a status, mapped to its share code; cleared ones are left out.
+const statusCodes = (
+  statuses: Record<string, CourseStatus>,
+): Record<string, number> =>
+  Object.fromEntries(
+    Object.entries(statuses)
+      .map(([name, status]) => [name, encodeCourseStatus(status)] as const)
+      .filter(([, code]) => code !== 0),
+  );
+
+const sameEntries = (
+  first: Record<string, number>,
+  second: Record<string, number>,
+): boolean => {
+  const keys = Object.keys(first);
+  return (
+    keys.length === Object.keys(second).length &&
+    keys.every((key) => first[key] === second[key])
+  );
+};
+
+// Drops the shared state from the URL once it has been kept or left.
+export const clearSimulatorShareParam = (): void => {
+  replaceUrlParams((params) => {
+    params.delete(SIMULATOR_SHARE_PARAM);
+  });
+};
+
+/**
+ * Whether opening a shared state would replace progress the student saved,
+ * so it should be previewed instead of taken over.
+ *
+ * @param courses - The shared accreditation's simulator courses
+ * @param sharedState - The decoded shared link
+ * @param saved - The student's saved statuses and plan for that accreditation
+ * @param saved.plan - The saved study plan
+ * @param saved.statuses - The saved course statuses
+ * @returns True when there is saved progress that differs from the link
+ */
+export const sharedStateConflicts = (
+  courses: SimulatorCourse[],
+  sharedState: SimulatorShareState,
+  saved: { plan: StudyPlan; statuses: Record<string, CourseStatus> },
+): boolean => {
+  const savedStatuses = statusCodes(saved.statuses);
+  const hasSavedProgress =
+    Object.keys(savedStatuses).length > 0 || Object.keys(saved.plan).length > 0;
+  return (
+    hasSavedProgress &&
+    !(
+      sameEntries(
+        savedStatuses,
+        statusCodes(restoreStatusesFromShareState(courses, sharedState)),
+      ) &&
+      sameEntries(saved.plan, restorePlanFromShareState(courses, sharedState))
+    )
+  );
+};

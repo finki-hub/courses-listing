@@ -15,7 +15,7 @@ import {
   needsSimulatorSetup,
   STORAGE_KEY_SETUP,
 } from '@/lib/simulator-setup';
-import { readSimulatorShareState } from '@/lib/simulator-share';
+import { type SimulatorMode } from '@/lib/simulator-url-state';
 import {
   type Accreditation,
   type CourseLevelFilter,
@@ -24,8 +24,8 @@ import {
   type SeasonFilter,
 } from '@/types/course';
 
-import { type SimulatorMode } from './simulator-mode-switch';
 import { useNextCourses } from './use-next-courses';
+import { useSharedPreview } from './use-shared-preview';
 import { useSimulatorActions } from './use-simulator-actions';
 import { useSimulatorCourses } from './use-simulator-courses';
 import { useSimulatorEffects } from './use-simulator-effects';
@@ -40,7 +40,7 @@ export const useEnrollmentSimulator = (courses: () => CourseRaw[]) => {
   const initialState = getInitialSimulatorState();
   const [setupPending, setSetupPending] = createSignal(
     needsSimulatorSetup({
-      hasShareLink: readSimulatorShareState() !== undefined,
+      hasShareLink: initialState.shared !== undefined,
       read: readBrowserStorage,
       storageAvailable: isBrowserStorageAvailable(),
     }),
@@ -60,14 +60,16 @@ export const useEnrollmentSimulator = (courses: () => CourseRaw[]) => {
   const [seasonFilter, setSeasonFilter] = createSignal<SeasonFilter>(
     initialState.seasonFilter,
   );
-  const [levelFilter, setLevelFilter] = createSignal<CourseLevelFilter>(null);
+  const [levelFilter, setLevelFilter] = createSignal<CourseLevelFilter>(
+    initialState.view.level,
+  );
   const [hpcCompleted, setHpcCompleted] = createSignal(
     initialState.hpcCompleted,
   );
   const [uniListCredits, setUniListCredits] = createSignal(
     initialState.uniListCredits,
   );
-  const [mode, setMode] = createSignal<SimulatorMode>('checklist');
+  const [mode, setMode] = createSignal<SimulatorMode>(initialState.view.mode);
 
   const { courseInfoMap, electiveCourses, parsedCourses } = useSimulatorCourses(
     courses,
@@ -78,6 +80,22 @@ export const useEnrollmentSimulator = (courses: () => CourseRaw[]) => {
   const [statuses, setStatuses] = createSignal(
     initialState.resolveStatuses(parsedCourses()),
   );
+
+  const planRef: { reload?: (acc: Accreditation) => void } = {}; // set below
+  const preview = useSharedPreview({
+    courses: parsedCourses,
+    onDiscard: (saved) => {
+      setAccreditation(saved.accreditation);
+      setProgram(saved.program);
+      setHpcCompleted(saved.hpcCompleted);
+      setUniListCredits(saved.uniListCredits);
+      setStatuses(loadStatuses(saved.accreditation));
+      planRef.reload?.(saved.accreditation);
+      setSeasonFilter(null);
+      setShowOnlyEnabled(false);
+    },
+    shared: initialState.shared,
+  });
 
   const state = useSimulatorState({
     courseInfoMap,
@@ -93,6 +111,7 @@ export const useEnrollmentSimulator = (courses: () => CourseRaw[]) => {
     enabledMap: state.enabledMap,
     hpcCompleted,
     parsedCourses,
+    persist: preview.persist,
     program,
     setStatuses,
     setUniListCredits,
@@ -105,9 +124,11 @@ export const useEnrollmentSimulator = (courses: () => CourseRaw[]) => {
     courseInfoMap,
     courses: parsedCourses,
     initialPlan: initialState.resolvePlan(parsedCourses()),
+    persist: preview.persist,
     statuses,
     totalCredits: state.totalCredits,
   });
+  planRef.reload = plan.reload;
 
   const { copyShareUrl } = useSimulatorShare({
     accreditation,
@@ -124,10 +145,13 @@ export const useEnrollmentSimulator = (courses: () => CourseRaw[]) => {
   const view = useSimulatorView({
     courses: parsedCourses,
     enabledMap: state.enabledMap,
+    initial: initialState.view,
     levelFilter,
+    mode,
     seasonFilter,
     showOnlyEnabled,
   });
+
   const actions = useSimulatorActions({
     accreditation,
     courses: parsedCourses,
@@ -172,6 +196,7 @@ export const useEnrollmentSimulator = (courses: () => CourseRaw[]) => {
   );
 
   const switchAccreditation = (acc: Accreditation) => {
+    if (preview.previewing()) preview.discard();
     setAccreditation(acc);
     setProgram(getStudyPrograms(acc)[0] ?? DEFAULT_PROGRAM);
     setStatuses(loadStatuses(acc));
@@ -190,6 +215,7 @@ export const useEnrollmentSimulator = (courses: () => CourseRaw[]) => {
     next,
     plan,
     planCandidates,
+    preview,
     program,
     progress,
     seasonFilter,

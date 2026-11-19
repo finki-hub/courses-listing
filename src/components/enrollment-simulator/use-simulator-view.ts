@@ -1,6 +1,17 @@
-import { type Accessor, createMemo, createSignal } from 'solid-js';
+import {
+  type Accessor,
+  createEffect,
+  createMemo,
+  createSignal,
+} from 'solid-js';
 
+import { replaceUrlParams } from '@/lib/listing-url-state';
 import { type SimulatorCourse } from '@/lib/simulator';
+import {
+  type SimulatorMode,
+  type SimulatorUrlState,
+  writeSimulatorUrlState,
+} from '@/lib/simulator-url-state';
 import {
   type CourseTypeFilter,
   filterSimulatorCourses,
@@ -11,17 +22,21 @@ import { type CourseLevelFilter, type SeasonFilter } from '@/types/course';
 type SimulatorViewParams = {
   courses: Accessor<SimulatorCourse[]>;
   enabledMap: Accessor<Record<string, boolean>>;
+  initial: Pick<SimulatorUrlState, 'search' | 'tags' | 'type'>;
   levelFilter: Accessor<CourseLevelFilter>;
+  mode: Accessor<SimulatorMode>;
   seasonFilter: Accessor<SeasonFilter>;
   showOnlyEnabled: Accessor<boolean>;
 };
 
 // Search, course-type and tag filters, and the semester groups they produce.
 export const useSimulatorView = (params: SimulatorViewParams) => {
-  const [search, setSearch] = createSignal('');
-  const [typeFilter, setTypeFilter] = createSignal<CourseTypeFilter>('all');
+  const [search, setSearch] = createSignal(params.initial.search);
+  const [typeFilter, setTypeFilter] = createSignal<CourseTypeFilter>(
+    params.initial.type,
+  );
   const [tagFilter, setTagFilter] = createSignal<ReadonlySet<string>>(
-    new Set(),
+    new Set(params.initial.tags),
   );
 
   const toggleTag = (tag: string) => {
@@ -44,6 +59,22 @@ export const useSimulatorView = (params: SimulatorViewParams) => {
       }),
     ),
   );
+
+  // The view and its filters live in the URL, so a reload keeps them.
+  createEffect(() => {
+    const state: SimulatorUrlState = {
+      level: params.levelFilter(),
+      mode: params.mode(),
+      search: search(),
+      season: params.seasonFilter(),
+      showOnlyEnabled: params.showOnlyEnabled(),
+      tags: [...tagFilter()],
+      type: typeFilter(),
+    };
+    replaceUrlParams((urlParams) => {
+      writeSimulatorUrlState(urlParams, state);
+    });
+  });
 
   // Filters that only narrow the checklist and the plan, not "What next".
   const listFilterCount = () =>

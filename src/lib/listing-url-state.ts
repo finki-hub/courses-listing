@@ -117,10 +117,10 @@ export const DEFAULT_LISTING_FILTERS: Readonly<ListingFilters> = {
 const parseAccreditation = (value: null | string): Accreditation | null =>
   value === '2018' || value === '2023' ? value : null;
 
-const parseSeason = (value: null | string): SeasonFilter =>
+export const parseSeason = (value: null | string): SeasonFilter =>
   value === 'summer' || value === 'winter' ? value : null;
 
-const parseLevel = (value: null | string): CourseLevelFilter => {
+export const parseLevel = (value: null | string): CourseLevelFilter => {
   if (value === '1') return 1;
   if (value === '2') return 2;
   if (value === '3') return 3;
@@ -150,7 +150,10 @@ const parseSortDirection = (value: null | string): SortDirection =>
   value === 'desc' ? 'desc' : DEFAULT_SORT_DIRECTION;
 
 // Known tags in canonical order; unknown and duplicate tags are dropped.
-const parseTags = (value: null | string, tags: readonly string[]): string[] => {
+export const parseTags = (
+  value: null | string,
+  tags: readonly string[],
+): string[] => {
   if (!value) return [];
   const requested = new Set(value.split(TAG_SEPARATOR));
   return tags.filter((tag) => requested.has(tag));
@@ -206,7 +209,7 @@ export const parseListingUrlState = (
   };
 };
 
-const setOrDelete = (
+export const setOrDelete = (
   params: URLSearchParams,
   key: string,
   value: null | number | string,

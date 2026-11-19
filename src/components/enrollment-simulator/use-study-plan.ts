@@ -24,6 +24,8 @@ type StudyPlanParams = {
   courseInfoMap: Accessor<Map<string, CourseInfo>>;
   courses: Accessor<SimulatorCourse[]>;
   initialPlan: StudyPlan;
+  /** False while a shared link is previewed, so the plan is not saved. */
+  persist: Accessor<boolean>;
   statuses: Accessor<Record<string, CourseStatus>>;
   totalCredits: Accessor<number>;
 };
@@ -46,15 +48,9 @@ export const useStudyPlan = (params: StudyPlanParams) => {
   );
 
   createEffect(
-    // Deferred, so opening a shared link does not overwrite the saved plan
-    // until the student changes it.
-    on(
-      plan,
-      (value) => {
-        savePlan(params.accreditation(), value);
-      },
-      { defer: true },
-    ),
+    on([plan, params.persist], ([value, save]) => {
+      if (save) savePlan(params.accreditation(), value);
+    }),
   );
 
   const setSemester = (name: string, semester: number | undefined) => {

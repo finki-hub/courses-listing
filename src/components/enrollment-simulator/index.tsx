@@ -14,6 +14,7 @@ import { ROW_ACTION_CLASS } from './course-styles';
 import { NextCoursesPanel } from './next-courses-panel';
 import { PlanView } from './plan-view';
 import { ProgressHeader } from './progress-header';
+import { SharedPreviewBanner } from './shared-preview-banner';
 import { SimulatorFilters } from './simulator-filters';
 import { SimulatorModeSwitch } from './simulator-mode-switch';
 import { SimulatorSettings } from './simulator-settings';
@@ -92,6 +93,13 @@ export const EnrollmentSimulator = (props: EnrollmentSimulatorProps) => {
             />
           }
         />
+
+        <Show when={sim.preview.previewing()}>
+          <SharedPreviewBanner
+            onDiscard={sim.preview.discard}
+            onKeep={sim.preview.keep}
+          />
+        </Show>
 
         <sim.actions.UndoNotice message={t().simulator.resetDone} />
 

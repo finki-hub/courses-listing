@@ -394,6 +394,11 @@ export const sq = {
       title: 'Konfiguro simulatorin',
     },
     share: 'Ndaj',
+    sharedDiscard: 'Kthehu te përparimi im',
+    sharedKeep: 'Zëvendëso përparimin tim me këtë',
+    sharedText:
+      'Ndryshimet këtu nuk ruhen dhe përparimi juaj mbetet i njëjtë derisa të vendosni ndryshe.',
+    sharedTitle: 'Po shikoni një gjendje të ndarë të simulatorit',
     status: {
       label: 'Gjendja e {course}',
       listened: 'E regjistruar',
