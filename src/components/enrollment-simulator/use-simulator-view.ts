@@ -3,6 +3,7 @@ import {
   createEffect,
   createMemo,
   createSignal,
+  onCleanup,
 } from 'solid-js';
 
 import { replaceUrlParams } from '@/lib/listing-url-state';
@@ -18,6 +19,8 @@ import {
   groupBySemester,
 } from '@/lib/simulator-view';
 import { type CourseLevelFilter, type SeasonFilter } from '@/types/course';
+
+const URL_WRITE_DELAY_MS = 300;
 
 type SimulatorViewParams = {
   courses: Accessor<SimulatorCourse[]>;
@@ -71,8 +74,14 @@ export const useSimulatorView = (params: SimulatorViewParams) => {
       tags: [...tagFilter()],
       type: typeFilter(),
     };
-    replaceUrlParams((urlParams) => {
-      writeSimulatorUrlState(urlParams, state);
+    // Waits for typing to pause; browsers throttle frequent URL updates.
+    const timer = setTimeout(() => {
+      replaceUrlParams((urlParams) => {
+        writeSimulatorUrlState(urlParams, state);
+      });
+    }, URL_WRITE_DELAY_MS);
+    onCleanup(() => {
+      clearTimeout(timer);
     });
   });
 

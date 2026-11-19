@@ -33,7 +33,12 @@ export const buildPrerequisiteGraph = (
     ].filter((name) => name !== course.name);
     requires.set(course.name, required);
     for (const name of required) {
-      const list = unlocks.getOrInsert(name, []);
+      let list = unlocks.get(name);
+      // eslint-disable-next-line e18e/prefer-get-or-insert -- Map.prototype.getOrInsert is Baseline newly-available (Feb 2026), unsupported on Safari < 26.2, and this build ships no runtime polyfill.
+      if (!list) {
+        list = [];
+        unlocks.set(name, list);
+      }
       list.push(course.name);
     }
   }

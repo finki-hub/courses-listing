@@ -1,4 +1,4 @@
-import { createMemo, createSignal } from 'solid-js';
+import { batch, createMemo, createSignal } from 'solid-js';
 
 import {
   isBrowserStorageAvailable,
@@ -96,7 +96,6 @@ export const useEnrollmentSimulator = (courses: () => CourseRaw[]) => {
     },
     shared: initialState.shared,
   });
-
   const state = useSimulatorState({
     courseInfoMap,
     electiveCourses,
@@ -196,11 +195,13 @@ export const useEnrollmentSimulator = (courses: () => CourseRaw[]) => {
   );
 
   const switchAccreditation = (acc: Accreditation) => {
-    if (preview.previewing()) preview.discard();
-    setAccreditation(acc);
-    setProgram(getStudyPrograms(acc)[0] ?? DEFAULT_PROGRAM);
-    setStatuses(loadStatuses(acc));
-    plan.reload(acc);
+    batch(() => {
+      if (preview.previewing()) preview.discard();
+      setAccreditation(acc);
+      setProgram(getStudyPrograms(acc)[0] ?? DEFAULT_PROGRAM);
+      setStatuses(loadStatuses(acc));
+      plan.reload(acc);
+    });
   };
 
   return {
