@@ -42,6 +42,7 @@ export type SimulatorCourse = {
 const STORAGE_KEY_PREFIX = 'enrollment-';
 export const STORAGE_KEY_ACC = `${STORAGE_KEY_PREFIX}accreditation`;
 export const STORAGE_KEY_HPC = `${STORAGE_KEY_PREFIX}hpc`;
+export const STORAGE_KEY_IGNORE_PREREQUISITES = `${STORAGE_KEY_PREFIX}ignore-prerequisites`;
 export const STORAGE_KEY_PROGRAM = `${STORAGE_KEY_PREFIX}program`;
 export const STORAGE_KEY_UNI_LIST_CREDITS = `${STORAGE_KEY_PREFIX}uni-list-credits`;
 export const HPC_CREDITS = 6;
@@ -304,13 +305,14 @@ const MAX_FIXED_POINT_ITERATIONS = 20;
 const computeCourseEnabled = (
   c: SimulatorCourse,
   ctx: {
+    ignorePrerequisites: boolean;
     infoMap: Map<string, CourseInfo>;
     s: Record<string, CourseStatus>;
     totalCredits: number;
   },
 ): boolean => {
   const isBlockedByProjectPair = getExclusiveProjectBlocker(ctx.s, c.name);
-  if (c.programState === FACULTY_LIST_MARKER) {
+  if (c.programState === FACULTY_LIST_MARKER || ctx.ignorePrerequisites) {
     return !isBlockedByProjectPair;
   }
   const met = isPrerequisiteMet(c.prereqNode, {
@@ -325,10 +327,13 @@ const computeCourseEnabled = (
 export const computeEnabledMap = (config: {
   courseInfoMap: Map<string, CourseInfo>;
   courses: SimulatorCourse[];
+  /** Expert mode: any course can be taken, whatever it requires. */
+  ignorePrerequisites?: boolean;
   statuses: Record<string, CourseStatus>;
   totalCredits: number;
 }): Record<string, boolean> => {
   const { courseInfoMap: infoMap, courses, statuses: s, totalCredits } = config;
+  const ignorePrerequisites = config.ignorePrerequisites === true;
   const enabled: Record<string, boolean> = {};
 
   for (const c of courses) enabled[c.name] = true;
@@ -337,6 +342,7 @@ export const computeEnabledMap = (config: {
     let changed = false;
     for (const c of courses) {
       const nextEnabled = computeCourseEnabled(c, {
+        ignorePrerequisites,
         infoMap,
         s,
         totalCredits,
@@ -402,7 +408,7 @@ const getCreditLimitLines = (
   return [];
 };
 
-const getPrerequisiteLines = (
+const getPrerequisiteStatusLines = (
   c: SimulatorCourse,
   config: {
     courseInfoMap: Map<string, CourseInfo>;
@@ -413,9 +419,6 @@ const getPrerequisiteLines = (
   },
   t: Translations,
 ): string[] => {
-  if (c.programState === FACULTY_LIST_MARKER) {
-    return [t.reasons.facultyList];
-  }
   if (c.prereqNode.type === 'none' && c.rawPrereqNode.type === 'none') {
     return [t.reasons.noPrerequisite];
   }
@@ -438,6 +441,29 @@ const getPrerequisiteLines = (
   ];
 };
 
+const getPrerequisiteLines = (
+  c: SimulatorCourse,
+  config: {
+    courseInfoMap: Map<string, CourseInfo>;
+    courseName?: (name: string) => string;
+    electiveCourses: Set<string>;
+    ignorePrerequisites?: boolean;
+    statuses: Record<string, CourseStatus>;
+    totalCredits: number;
+  },
+  t: Translations,
+): string[] => {
+  if (c.programState === FACULTY_LIST_MARKER) {
+    return [t.reasons.facultyList];
+  }
+  const lines = getPrerequisiteStatusLines(c, config, t);
+  // Still shown in expert mode, as a reminder of what the course asks for.
+  return config.ignorePrerequisites === true &&
+    lines[0] === t.reasons.prerequisite
+    ? [t.reasons.prerequisitesIgnored, ...lines]
+    : lines;
+};
+
 export const computeReasonMap = (
   config: {
     courseInfoMap: Map<string, CourseInfo>;
@@ -447,6 +473,7 @@ export const computeReasonMap = (
     electiveCourses: Set<string>;
     enabledMap: Record<string, boolean>;
     fullLevels: Set<number>;
+    ignorePrerequisites?: boolean;
     overLimitSet: Set<string>;
     statuses: Record<string, CourseStatus>;
     totalCredits: number;

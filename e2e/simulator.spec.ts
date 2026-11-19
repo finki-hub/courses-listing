@@ -4,6 +4,9 @@ import { prepareContext, test } from './fixtures';
 
 const ALGORITHMS_ROW = /^Algorithms and data structures/u;
 const SIX_CREDITS = /^6 credits/u;
+const SETTINGS_BUTTON = /^Change the program/u;
+const FILLED = /^Planned \d+ required courses\./u;
+const THREE_YEAR = /3-year degree is complete in:/u;
 
 const setUp = async (page: Page) => {
   await page.goto('/?page=simulator');
@@ -81,5 +84,52 @@ test.describe('simulator', () => {
         .getByRole('radio', { name: 'Passed' }),
     ).toBeChecked();
     await otherContext.close();
+  });
+  test('expert mode lets any course be taken', async ({ page }) => {
+    await setUp(page);
+    const algorithms = page
+      .getByRole('listitem')
+      .filter({ hasText: ALGORITHMS_ROW });
+    await expect(algorithms).toContainText('Prerequisites not met');
+
+    await page.getByRole('button', { name: SETTINGS_BUTTON }).click();
+    await page.getByRole('checkbox', { name: 'Ignore prerequisites' }).check();
+    await page.keyboard.press('Escape');
+
+    const notice = page.getByText('Prerequisites ignored.');
+    await expect(notice).toBeVisible();
+    await status(page, 'Algorithms and data structures')
+      .getByRole('radio', { name: 'Passed' })
+      .check();
+
+    // The choice is kept, and turning it off brings the checks back.
+    await page.reload();
+    await expect(notice).toBeVisible();
+    await page.getByRole('button', { name: 'Turn off' }).click();
+    await expect(notice).toBeHidden();
+    await expect(algorithms).toContainText('Prerequisites not met');
+  });
+
+  test('the plan fills in the required courses, with undo', async ({
+    page,
+  }) => {
+    await setUp(page);
+    await page.getByRole('radio', { name: 'Plan' }).check();
+    const empty = page.getByText(
+      'Plan your remaining courses to see when you would graduate.',
+    );
+    await expect(empty).toBeVisible();
+
+    await page
+      .getByRole('button', { name: 'Fill in required courses' })
+      .click();
+    await expect(page.getByText(FILLED)).toBeVisible();
+    await expect(
+      page.getByText('Every required course is already taken or planned.'),
+    ).toBeVisible();
+    await expect(page.getByText(THREE_YEAR)).toBeVisible();
+
+    await page.getByRole('button', { name: 'Undo' }).click();
+    await expect(empty).toBeVisible();
   });
 });

@@ -1,5 +1,6 @@
 import { batch, createMemo, createSignal } from 'solid-js';
 
+import { type CourseStatus } from '@/lib/prerequisite';
 import {
   isBrowserStorageAvailable,
   readBrowserStorage,
@@ -9,6 +10,7 @@ import {
   DEFAULT_PROGRAM,
   getElectiveCreditsPerLevel,
   loadStatuses,
+  type SimulatorCourse,
 } from '@/lib/simulator';
 import {
   getSimulatorProgress,
@@ -16,6 +18,7 @@ import {
   STORAGE_KEY_SETUP,
 } from '@/lib/simulator-setup';
 import { type SimulatorMode } from '@/lib/simulator-url-state';
+import { type StudyPlan } from '@/lib/study-plan';
 import {
   type Accreditation,
   type CourseLevelFilter,
@@ -34,6 +37,19 @@ import { useSimulatorShare } from './use-simulator-share';
 import { useSimulatorState } from './use-simulator-state';
 import { useSimulatorView } from './use-simulator-view';
 import { useStudyPlan } from './use-study-plan';
+
+// Untaken, unplanned courses matching the filters, for the plan view.
+const findPlanCandidates = (
+  courses: SimulatorCourse[],
+  statuses: Record<string, CourseStatus>,
+  plan: StudyPlan,
+): SimulatorCourse[] =>
+  courses.filter((course) => {
+    const status = statuses[course.name];
+    return (
+      !status?.listened && !status?.passed && plan[course.name] === undefined
+    );
+  });
 
 // Whether the first-visit setup still has to be shown, and how to finish it.
 const useSimulatorSetup = (hasShareLink: boolean) => {
@@ -74,6 +90,9 @@ export const useEnrollmentSimulator = (courses: () => CourseRaw[]) => {
   const [hpcCompleted, setHpcCompleted] = createSignal(
     initialState.hpcCompleted,
   );
+  const [ignorePrerequisites, setIgnorePrerequisites] = createSignal(
+    initialState.ignorePrerequisites,
+  );
   const [uniListCredits, setUniListCredits] = createSignal(
     initialState.uniListCredits,
   );
@@ -96,6 +115,7 @@ export const useEnrollmentSimulator = (courses: () => CourseRaw[]) => {
       setAccreditation(saved.accreditation);
       setProgram(saved.program);
       setHpcCompleted(saved.hpcCompleted);
+      setIgnorePrerequisites(saved.ignorePrerequisites);
       setUniListCredits(saved.uniListCredits);
       setStatuses(loadStatuses(saved.accreditation, courses()));
       planRef.reload?.(saved.accreditation);
@@ -108,6 +128,7 @@ export const useEnrollmentSimulator = (courses: () => CourseRaw[]) => {
     courseInfoMap,
     electiveCourses,
     hpcCompleted,
+    ignorePrerequisites,
     parsedCourses,
     statuses,
     uniListCredits,
@@ -117,6 +138,7 @@ export const useEnrollmentSimulator = (courses: () => CourseRaw[]) => {
     accreditation,
     enabledMap: state.enabledMap,
     hpcCompleted,
+    ignorePrerequisites,
     parsedCourses,
     persist: preview.persist,
     program,
@@ -131,6 +153,7 @@ export const useEnrollmentSimulator = (courses: () => CourseRaw[]) => {
     accreditation,
     courseInfoMap,
     courses: parsedCourses,
+    ignorePrerequisites,
     initialPlan: initialState.resolvePlan(parsedCourses()),
     persist: preview.persist,
     rawCourses: courses,
@@ -143,6 +166,7 @@ export const useEnrollmentSimulator = (courses: () => CourseRaw[]) => {
     accreditation,
     courses: parsedCourses,
     hpcCompleted,
+    ignorePrerequisites,
     plan: plan.plan,
     program,
     seasonFilter,
@@ -182,19 +206,12 @@ export const useEnrollmentSimulator = (courses: () => CourseRaw[]) => {
     statuses,
   });
 
-  // Untaken, unplanned courses matching the filters, for the plan view.
   const planCandidates = createMemo(() =>
-    view
-      .groups()
-      .flatMap((group) => group.courses)
-      .filter((course) => {
-        const status = statuses()[course.name];
-        return (
-          !status?.listened &&
-          !status?.passed &&
-          plan.plan()[course.name] === undefined
-        );
-      }),
+    findPlanCandidates(
+      view.groups().flatMap((group) => group.courses),
+      statuses(),
+      plan.plan(),
+    ),
   );
 
   const progress = createMemo(() =>
@@ -221,6 +238,7 @@ export const useEnrollmentSimulator = (courses: () => CourseRaw[]) => {
     copyShareUrl,
     courses: parsedCourses,
     hpcCompleted,
+    ignorePrerequisites,
     levelFilter,
     mode,
     next,
@@ -231,6 +249,7 @@ export const useEnrollmentSimulator = (courses: () => CourseRaw[]) => {
     progress,
     seasonFilter,
     setHpcCompleted,
+    setIgnorePrerequisites,
     setLevelFilter,
     setMode,
     setProgram,

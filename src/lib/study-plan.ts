@@ -6,6 +6,7 @@ import {
 } from '@/lib/prerequisite';
 import { readBrowserStorage, writeBrowserStorage } from '@/lib/safe-storage';
 import {
+  compareBySemesterAndName,
   getExclusiveProjectBlocker,
   getProgramStateKind,
   GRADUATION_CREDITS_3YR,
@@ -22,6 +23,8 @@ export type PlanContext = {
   baseCredits: number;
   courseInfoMap: Map<string, CourseInfo>;
   courses: SimulatorCourse[];
+  /** Expert mode: prerequisites are not checked. */
+  ignorePrerequisites?: boolean;
   plan: StudyPlan;
   statuses: Record<string, CourseStatus>;
 };
@@ -191,6 +194,7 @@ const findIssues = (
     getProgramStateKind(course.programState) === 'faculty-list';
   const prerequisitesMet =
     facultyList ||
+    context.ignorePrerequisites === true ||
     isPrerequisiteMet(course.prereqNode, {
       courseInfoMap: context.courseInfoMap,
       courseSemester: course.semester,
@@ -368,3 +372,59 @@ export const savePlan = (
     `${STORAGE_KEY_PREFIX}${accreditation}`,
     JSON.stringify(toStorageKeys(plan, courses, accreditation)),
   );
+
+// A required course's semesters to try: from its recommended one on, or from
+// the plan's start when the student is past it.
+const getFillOptions = (course: SimulatorCourse, start: number): number[] => {
+  const options = getPlanOptions(course, start);
+  const fromRecommended = options.filter(
+    (semester) => semester >= course.semester,
+  );
+  return fromRecommended.length > 0 ? fromRecommended : options;
+};
+
+/**
+ * Plans every required course not yet taken or planned: each in its
+ * recommended semester, moved to a later one of its season while what it
+ * requires is not taken or planned before it. Electives are left alone, and
+ * so is what the student already planned.
+ *
+ * @param context - The courses, statuses, earned credits and the plan
+ * @returns The plan with the required courses added
+ */
+export const fillRequiredCourses = (context: PlanContext): StudyPlan => {
+  const start = getPlanStart(context.courses, context.statuses);
+  const choices = new Map<string, number[]>();
+  let plan = context.plan;
+  const toPlace = context.courses
+    .filter(
+      (course) =>
+        isRequired(course.programState) &&
+        !isTaken(context.statuses[course.name]) &&
+        !isSemester(context.plan[course.name]),
+    )
+    .toSorted(compareBySemesterAndName);
+  for (const course of toPlace) {
+    const options = getFillOptions(course, start);
+    const first = options[0];
+    if (first === undefined) continue;
+    choices.set(course.name, options);
+    plan = setPlannedSemester(plan, course.name, first);
+  }
+
+  // Each round moves the courses still missing a prerequisite a year later.
+  for (let round = 0; round < LAST_SEMESTER; round++) {
+    const { issues } = evaluatePlan({ ...context, plan });
+    let moved = false;
+    for (const [name, options] of choices) {
+      if (!issues[name]?.includes('prerequisites')) continue;
+      const plannedFor = plan[name] ?? 0;
+      const later = options.find((semester) => semester > plannedFor);
+      if (later === undefined) continue;
+      plan = setPlannedSemester(plan, name, later);
+      moved = true;
+    }
+    if (!moved) break;
+  }
+  return plan;
+};

@@ -233,9 +233,9 @@ export const tr = {
       'Sonra alabileceğiniz dersler: henüz alınmamış, ön koşulları sağlanmış ve seviye sınırları içinde. Önce zorunlu dersler, ardından yarıyıla ve alan öğrenci sayısına göre seçmeli dersler gelir.',
     empty: 'Bu yarıyılda alınabilecek ders yok.',
     enrolled: '{year} yılında {count} öğrenci',
-    forSeason: { summer: 'Bahar yarıyılı için', winter: 'Güz yarıyılı için' },
+    forSeason: { summer: 'Bahar yarıyılı', winter: 'Güz yarıyılı' },
     markListened: 'Kayıtlı işaretle',
-    upcoming: '(bir sonraki; değiştirmek için yukarıdan bir yarıyıl seçin)',
+    upcoming: '(bir sonraki)',
   },
   pageIntro: {
     listing:
@@ -248,6 +248,13 @@ export const tr = {
     description:
       'Henüz almadığınız dersleri kalan yarıyıllarınıza planlayın. Daha önce planlanan dersler sonrakiler için geçilmiş sayılır; her ders yalnızca kendi dönemindeki yarıyıllara konabilir.',
     emptySemester: 'Henüz bir şey planlanmadı.',
+    emptySummary:
+      'Ne zaman mezun olacağınızı görmek için kalan derslerinizi planlayın.',
+    fill: 'Zorunlu dersleri doldur',
+    filled:
+      '{count} zorunlu ders planlandı. Diploma kredilerine ulaşmak için seçmeli dersler ekleyin.',
+    fillInfo:
+      'Almadığınız veya planlamadığınız her zorunlu dersi önerilen yarıyılına, önkoşulları daha sonra geliyorsa aynı dönemin daha sonraki bir yarıyılına yerleştirir. Seçmeli dersleri size bırakır.',
     graduation3yr: 'Bu planla 3 yıllık derece şu yarıyılda tamamlanır:',
     graduation4yr: 'Bu planla 4 yıllık derece şu yarıyılda tamamlanır:',
     issues: {
@@ -261,6 +268,7 @@ export const tr = {
       season:
         'Ders o dönemde verilmiyor: tek yarıyıllar güz, çift yarıyıllar bahar dönemidir.',
     },
+    nothingToFill: 'Tüm zorunlu dersler zaten alındı veya planlandı.',
     notPlanned: 'Planlanmadı',
     notReached: '8. yarıyıla kadar ulaşılamıyor',
     planFor: 'Yarıyıl',
@@ -331,6 +339,7 @@ export const tr = {
     overLimit: '❌ L{level} sınırı aşıldı (en fazla {limit} kredi)',
     passed: '✅ Durum: Geçildi',
     prerequisite: '📋 Ön koşul:',
+    prerequisitesIgnored: '⚠️ Önkoşullar yok sayılıyor (uzman modu)',
     required: 'ℹ️ Zorunlu ders',
   },
   simulator: {
@@ -404,8 +413,16 @@ export const tr = {
       description:
         'Akreditasyonunuz, öğrenim programınız ve ders listesi dışında kazanılan krediler.',
       edit: 'Programı ve ek kredileri değiştir',
+      expert: 'Uzman',
       extras: 'Ek krediler',
+      ignorePrerequisites: 'Önkoşulları yok say',
+      ignorePrerequisitesInfo:
+        'Önkoşullarından bağımsız olarak herhangi bir dersi kayıtlı veya geçilmiş olarak işaretlemenizi sağlar. Başka bir programa veya akreditasyona geçtiyseniz ve dersleriniz simülatörün normalde izin vermeyeceği bir sıradaysa kullanışlıdır. Seviye sınırları yine geçerlidir.',
+      prerequisitesIgnored: 'Önkoşullar yok sayılıyor',
+      prerequisitesIgnoredHint:
+        'Herhangi bir ders kayıtlı veya geçilmiş olarak işaretlenebilir.',
       title: 'Öğreniminiz',
+      turnOff: 'Kapat',
     },
     setup: {
       choose: 'Bir program seçin',

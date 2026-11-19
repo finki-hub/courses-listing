@@ -15,9 +15,11 @@ import { UniListCreditsField } from './uni-list-credits-field';
 type SimulatorSettingsProps = {
   accreditation: Accreditation;
   hpcCompleted: boolean;
+  ignorePrerequisites: boolean;
   onSwitchAccreditation: (accreditation: Accreditation) => void;
   onSwitchProgram: (program: string) => void;
   onToggleHpc: () => void;
+  onToggleIgnorePrerequisites: () => void;
   onUniListCreditsChange: (credits: number) => void;
   program: string;
   uniListCredits: number;
@@ -85,6 +87,20 @@ export const SimulatorSettings = (props: SimulatorSettingsProps) => {
               onChange={props.onUniListCreditsChange}
               value={props.uniListCredits}
             />
+          </fieldset>
+          <fieldset class="space-y-3 border-t pt-5">
+            <legend class="text-sm font-medium">
+              {t().simulator.settings.expert}
+            </legend>
+            <div class="flex items-center gap-1.5">
+              <LabeledCheckbox
+                checked={props.ignorePrerequisites}
+                onChange={props.onToggleIgnorePrerequisites}
+              >
+                {t().simulator.settings.ignorePrerequisites}
+              </LabeledCheckbox>
+              <InfoTip text={t().simulator.settings.ignorePrerequisitesInfo} />
+            </div>
           </fieldset>
         </div>
       </Sheet>

@@ -22,6 +22,7 @@ export type SharedSimulatorConfig = {
   accreditation: Accreditation;
   courses: SimulatorCourse[];
   hpcCompleted: boolean;
+  ignorePrerequisites: boolean;
   plan: StudyPlan;
   program: string;
   seasonFilter: SeasonFilter;
@@ -35,6 +36,7 @@ export type SimulatorShareState = {
   encodedPlan: string;
   encodedStatuses: string;
   hpcCompleted: boolean;
+  ignorePrerequisites: boolean;
   program: string;
   seasonFilter: SeasonFilter;
   showOnlyEnabled: boolean;
@@ -49,6 +51,7 @@ const SEASON_CODES: Record<'none' | 'summer' | 'winter', number> = {
 
 const SETTINGS_HPC_FLAG = 4;
 const SETTINGS_SHOW_ONLY_FLAG = 8;
+const SETTINGS_IGNORE_PREREQUISITES_FLAG = 16;
 const SEASON_CODE_MODULUS = 4;
 
 const STATUS_GROUP_SIZE = 3;
@@ -87,6 +90,7 @@ const sanitizeProgram = (
 
 const encodeSettings = (config: {
   hpcCompleted: boolean;
+  ignorePrerequisites: boolean;
   seasonFilter: SeasonFilter;
   showOnlyEnabled: boolean;
 }): string => {
@@ -95,7 +99,8 @@ const encodeSettings = (config: {
   const value =
     seasonCode +
     (config.hpcCompleted ? SETTINGS_HPC_FLAG : 0) +
-    (config.showOnlyEnabled ? SETTINGS_SHOW_ONLY_FLAG : 0);
+    (config.showOnlyEnabled ? SETTINGS_SHOW_ONLY_FLAG : 0) +
+    (config.ignorePrerequisites ? SETTINGS_IGNORE_PREREQUISITES_FLAG : 0);
 
   return encodeAlphabetValue(value);
 };
@@ -135,6 +140,8 @@ const decodeSettings = (
 
   return {
     hpcCompleted: Math.trunc(decoded / SETTINGS_HPC_FLAG) % 2 === 1,
+    ignorePrerequisites:
+      Math.trunc(decoded / SETTINGS_IGNORE_PREREQUISITES_FLAG) % 2 === 1,
     seasonFilter,
     showOnlyEnabled: Math.trunc(decoded / SETTINGS_SHOW_ONLY_FLAG) % 2 === 1,
   };
@@ -275,6 +282,7 @@ export const readSimulatorShareState = (): SimulatorShareState | undefined => {
     encodedPlan: version === '1' ? '' : encodedPlan,
     encodedStatuses,
     hpcCompleted: decodedSettings.hpcCompleted,
+    ignorePrerequisites: decodedSettings.ignorePrerequisites,
     program: sanitizeProgram(accreditation, program),
     seasonFilter: decodedSettings.seasonFilter,
     showOnlyEnabled: decodedSettings.showOnlyEnabled,

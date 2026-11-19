@@ -21,6 +21,7 @@ type UseSimulatorStateParams = {
   courseInfoMap: Accessor<Map<string, CourseInfo>>;
   electiveCourses: Accessor<Set<string>>;
   hpcCompleted: Accessor<boolean>;
+  ignorePrerequisites: Accessor<boolean>;
   parsedCourses: Accessor<SimulatorCourse[]>;
   statuses: Accessor<Record<string, CourseStatus>>;
   uniListCredits: Accessor<number>;
@@ -33,6 +34,7 @@ export const useSimulatorState = (params: UseSimulatorStateParams) => {
     courseInfoMap,
     electiveCourses,
     hpcCompleted,
+    ignorePrerequisites,
     parsedCourses,
     statuses,
     uniListCredits,
@@ -119,6 +121,7 @@ export const useSimulatorState = (params: UseSimulatorStateParams) => {
     computeEnabledMap({
       courseInfoMap: courseInfoMap(),
       courses: parsedCourses(),
+      ignorePrerequisites: ignorePrerequisites(),
       statuses: statuses(),
       totalCredits: totalCredits(),
     }),
@@ -133,6 +136,7 @@ export const useSimulatorState = (params: UseSimulatorStateParams) => {
         electiveCourses: electiveCourses(),
         enabledMap: enabledMap(),
         fullLevels: fullLevels(),
+        ignorePrerequisites: ignorePrerequisites(),
         overLimitSet: overLimitSet(),
         statuses: statuses(),
         totalCredits: totalCredits(),

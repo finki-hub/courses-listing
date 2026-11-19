@@ -73,6 +73,7 @@ test('live language changes preserve simulator statuses, credit totals and gradu
       courseInfoMap: () => new Map(),
       electiveCourses: () => new Set(),
       hpcCompleted: () => false,
+      ignorePrerequisites: () => false,
       parsedCourses: () => courses,
       statuses,
       uniListCredits: () => 0,

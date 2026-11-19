@@ -39,6 +39,7 @@ const wouldReplaceSaved = (
     saved.accreditation !== shared.accreditation ||
     saved.program !== shared.program ||
     saved.hpcCompleted !== shared.hpcCompleted ||
+    saved.ignorePrerequisites !== shared.ignorePrerequisites ||
     saved.uniListCredits !== shared.uniListCredits;
   return (
     sharedStateConflicts(courses, shared, {
