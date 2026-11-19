@@ -74,21 +74,31 @@ const nameIn = (
   return info ? (info.name ?? course.name) : undefined;
 };
 
-// The course linked through `?focus=`, and the accreditation that has it.
-const readLinkedFocus = (
-  courses: readonly CourseRaw[],
+type MapPlace = { accreditation: Accreditation; name: string };
+
+// Where a course sits on the map: the preferred accreditation if it has the
+// course, otherwise another one that does.
+const findOnMap = (
+  course: CourseRaw,
   preferred: Accreditation,
-): undefined | { accreditation: Accreditation; name: string } => {
-  const course = findCourseByLinkValue(
-    courses,
-    new URL(location.href).searchParams.get(PREREQUISITE_FOCUS_PARAM),
-  );
-  if (!course) return undefined;
+): MapPlace | undefined => {
   for (const accreditation of [preferred, ...ACCREDITATIONS]) {
     const name = nameIn(course, accreditation);
     if (name) return { accreditation, name };
   }
   return undefined;
+};
+
+// The course linked through `?focus=`, and the accreditation that has it.
+const readLinkedFocus = (
+  courses: readonly CourseRaw[],
+  preferred: Accreditation,
+): MapPlace | undefined => {
+  const course = findCourseByLinkValue(
+    courses,
+    new URL(location.href).searchParams.get(PREREQUISITE_FOCUS_PARAM),
+  );
+  return course ? findOnMap(course, preferred) : undefined;
 };
 
 // Search for a course, with the matches listed until one is chosen.
@@ -158,16 +168,16 @@ const PrerequisitesStart = () => {
 export const PrerequisiteExplorer = (props: PrerequisiteExplorerProps) => {
   const { t } = useLanguage();
 
-  const [accreditation, setAccreditation] = usePersistedSignal<Accreditation>(
-    STORAGE_KEY_ACC,
-    '2023',
-    isAccreditation,
-  );
+  const [savedAccreditation, saveAccreditation] =
+    usePersistedSignal<Accreditation>(STORAGE_KEY_ACC, '2023', isAccreditation);
   const linked = readLinkedFocus(
     untrack(() => props.courses),
-    untrack(accreditation),
+    untrack(savedAccreditation),
   );
-  if (linked) setAccreditation(linked.accreditation);
+  // A link may show another accreditation; only a choice made here is saved.
+  const [accreditation, setAccreditation] = createSignal(
+    linked?.accreditation ?? untrack(savedAccreditation),
+  );
 
   const [focus, setFocus] = createSignal(linked?.name ?? '');
   // The courses moved away from, for going back along the map.
@@ -257,10 +267,12 @@ export const PrerequisiteExplorer = (props: PrerequisiteExplorerProps) => {
     setTrail((current) => current.slice(0, -1));
     setFocus(previous);
     setSearch(previous);
+    mapTop?.scrollIntoView({ block: 'nearest' });
   };
 
   const handleAccreditationChange = (acc: Accreditation) => {
     setAccreditation(acc);
+    saveAccreditation(acc);
     choose('');
   };
 
@@ -271,10 +283,15 @@ export const PrerequisiteExplorer = (props: PrerequisiteExplorerProps) => {
 
   // From the course panel: centre the map on that course.
   const showOnMap = (course: CourseRaw) => {
-    const name = nameIn(course, accreditation());
-    if (!name) return;
+    const place = findOnMap(course, accreditation());
+    if (!place) return;
     courseDialog.setOpen(false);
-    if (name !== focus()) moveTo(name);
+    if (place.accreditation !== accreditation()) {
+      setAccreditation(place.accreditation);
+      choose(place.name);
+    } else if (place.name !== focus()) {
+      moveTo(place.name);
+    }
   };
 
   return (
