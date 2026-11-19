@@ -83,9 +83,6 @@ export const ListingToolbar = (props: ListingToolbarProps) => {
 
       <div class="flex shrink-0 items-center gap-2">
         <button
-          aria-label={interpolate(t().filters.buttonLabel, {
-            count: props.activeFilters,
-          })}
           class="bg-card hover:bg-muted focus-visible:ring-ring inline-flex h-9 items-center gap-2 rounded-md border px-3 text-sm font-medium transition-colors focus-visible:ring-2 focus-visible:outline-none lg:hidden"
           onClick={() => {
             props.onOpenFilters();
@@ -97,6 +94,12 @@ export const ListingToolbar = (props: ListingToolbarProps) => {
             class="h-4 w-4"
           />
           {t().filters.panelTitle}
+          <span class="sr-only">
+            ,{' '}
+            {interpolate(t().filters.activeCount, {
+              count: props.activeFilters,
+            })}
+          </span>
           <Show when={props.activeFilters > 0}>
             <span
               aria-hidden="true"

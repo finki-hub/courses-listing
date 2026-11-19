@@ -51,6 +51,12 @@ tests serve the course data from `e2e/fixtures`, a trimmed snapshot of the
 published files, so they do not depend on the network. Refresh the snapshot when
 the data's shape changes.
 
+`e2e/accessibility.spec.ts` runs axe (WCAG 2.2 AA and best practices) on every
+tab, the course panels, the curriculum and the open menus and sheets, in both
+themes at both sizes, and fails on any violation. It also checks keyboard focus:
+returning to the course after closing its panel, the elective lists' toggles,
+and that focus never lands under the sticky bars.
+
 ## License
 
 This project is licensed under the terms of the MIT license.

@@ -112,8 +112,8 @@ export const sq = {
   },
   filters: {
     accreditation: 'Akreditimi:',
+    activeCount: '{count} aktivë',
     activeFilters: 'Filtrat aktivë',
-    buttonLabel: 'Filtrat, {count} aktivë',
     channelOnly: 'Ka kanal në Discord',
     clearAll: 'Pastro të gjitha',
     clearFilters: 'Pastro filtrat',
@@ -374,6 +374,8 @@ export const sq = {
     graduated: '🎉 Urime diplomimin!',
     hpcInfo:
       'Shënojeni nëse e keni kaluar kursin HPC, i cili nuk është në katalogun e lëndëve. Shton {credits} kredite në totalin tuaj.',
+    linkCopied: 'Lidhja u kopjua',
+    linkCopyFailed: 'Lidhja nuk u kopjua dot',
     locked: {
       limit: 'U arrit kufiri i zgjedhoreve L{level}',
       prerequisites: 'Parakushtet nuk plotësohen',

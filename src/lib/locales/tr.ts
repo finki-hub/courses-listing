@@ -112,8 +112,8 @@ export const tr = {
   },
   filters: {
     accreditation: 'Akreditasyon:',
+    activeCount: '{count} etkin',
     activeFilters: 'Etkin filtreler',
-    buttonLabel: 'Filtreler, {count} etkin',
     channelOnly: 'Discord kanalı var',
     clearAll: 'Tümünü temizle',
     clearFilters: 'Filtreleri temizle',
@@ -364,6 +364,8 @@ export const tr = {
     graduated: '🎉 Mezuniyetiniz kutlu olsun!',
     hpcInfo:
       'Ders kataloğunda yer almayan HPC dersini geçtiyseniz işaretleyin. Toplamınıza {credits} kredi ekler.',
+    linkCopied: 'Bağlantı kopyalandı',
+    linkCopyFailed: 'Bağlantı kopyalanamadı',
     locked: {
       limit: 'L{level} seçmeli sınırına ulaşıldı',
       prerequisites: 'Ön koşullar karşılanmadı',

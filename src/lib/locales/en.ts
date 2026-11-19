@@ -112,8 +112,8 @@ export const en = {
   },
   filters: {
     accreditation: 'Accreditation:',
+    activeCount: '{count} active',
     activeFilters: 'Active filters',
-    buttonLabel: 'Filters, {count} active',
     channelOnly: 'Has a Discord channel',
     clearAll: 'Clear all',
     clearFilters: 'Clear filters',
@@ -366,6 +366,8 @@ export const en = {
     graduated: '🎉 Congratulations on graduating!',
     hpcInfo:
       'Tick this if you passed the HPC course, which is not in the course catalog. It adds {credits} credits to your total.',
+    linkCopied: 'Link copied',
+    linkCopyFailed: 'Could not copy the link',
     locked: {
       limit: 'L{level} elective limit reached',
       prerequisites: 'Prerequisites not met',

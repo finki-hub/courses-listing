@@ -243,6 +243,17 @@
   html {
     scroll-behavior: smooth;
     scrollbar-gutter: stable;
+    /* Keeps focused and scrolled-to content clear of the sticky tab bar and,
+       in the simulator, the sticky progress header (WCAG 2.4.11). */
+    scroll-padding-top: calc(
+      var(--tabbar-h, 0px) + var(--sticky-progress-h, 0px) + 0.75rem
+    );
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
   }
 
   body {

@@ -57,7 +57,7 @@ export const MasterProgramsSection = (props: MasterProgramsSectionProps) => {
 
       <Show when={grouped().mandatory.length > 0}>
         <div class="space-y-1">
-          <h5 class={SUBHEADING_CLASS}>{t().masters.mandatory}</h5>
+          <h4 class={SUBHEADING_CLASS}>{t().masters.mandatory}</h4>
           <ul class="space-y-1 text-sm">
             <For each={grouped().mandatory}>
               {(entry) => (
@@ -77,7 +77,7 @@ export const MasterProgramsSection = (props: MasterProgramsSectionProps) => {
       <For each={grouped().electives}>
         {(group) => (
           <div class="space-y-1">
-            <h5 class={SUBHEADING_CLASS}>{groupLabel(group)}</h5>
+            <h4 class={SUBHEADING_CLASS}>{groupLabel(group)}</h4>
             <ul class="flex flex-wrap gap-x-2 gap-y-1 text-xs">
               <For each={group.entries}>
                 {(entry) => (

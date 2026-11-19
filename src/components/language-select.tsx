@@ -35,19 +35,18 @@ export const LanguageSelect = (props: LanguageSelectProps) => {
           <Select.ItemIndicator class="absolute right-2 flex size-3.5 items-center justify-center text-primary">
             <Check class="size-4" />
           </Select.ItemIndicator>
-          <Select.ItemLabel class="flex items-center gap-3">
-            <span
-              aria-hidden="true"
-              class="inline-flex h-6 w-8 items-center justify-center rounded-md border border-border bg-muted/60 text-[0.6875rem] font-semibold tracking-wide text-muted-foreground transition-colors group-data-selected:border-primary/30 group-data-selected:bg-primary/10 group-data-selected:text-primary"
-            >
-              {itemProps.item.rawValue.toUpperCase()}
-            </span>
-            <span
-              class="group-data-selected:font-medium"
-              lang={itemProps.item.rawValue}
-            >
-              {languageNames[itemProps.item.rawValue]}
-            </span>
+          {/* The code is drawn from an attribute, not text, so the option's
+              visible text matches its name: the language's own name. */}
+          <span
+            aria-hidden="true"
+            class="inline-flex h-6 w-8 items-center justify-center rounded-md border border-border bg-muted/60 text-[0.6875rem] font-semibold tracking-wide text-foreground transition-colors before:content-[attr(data-code)] group-data-selected:border-primary/30 group-data-selected:bg-primary/6 group-data-selected:text-primary"
+            data-code={itemProps.item.rawValue.toUpperCase()}
+          />
+          <Select.ItemLabel
+            class="group-data-selected:font-medium"
+            lang={itemProps.item.rawValue}
+          >
+            {languageNames[itemProps.item.rawValue]}
           </Select.ItemLabel>
         </Select.Item>
       )}
@@ -86,7 +85,7 @@ export const LanguageSelect = (props: LanguageSelectProps) => {
           />
         </Select.Icon>
       </Select.Trigger>
-      <Select.Portal>
+      <Select.Portal mount={triggerRef?.closest('header') ?? undefined}>
         <Select.Content
           class="relative z-50 min-w-52 overflow-hidden rounded-xl border border-border/60 bg-popover/95 text-popover-foreground shadow-lg backdrop-blur-md origin-(--kb-select-content-transform-origin) data-expanded:animate-in data-expanded:fade-in-0 data-expanded:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95"
           onCloseAutoFocus={(event) => {
