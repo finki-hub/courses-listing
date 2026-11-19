@@ -10,6 +10,7 @@ import {
 
 import { AccreditationSwitch } from '@/components/accreditation-switch';
 import { CourseLevelFilter } from '@/components/course-level-filter';
+import { ShareSavedButton } from '@/components/saved-courses-ui';
 import { TagChips } from '@/components/tag-chips';
 import { FIELD_CLASS } from '@/components/ui/field';
 import { InfoTip } from '@/components/ui/info-tip';
@@ -41,7 +42,7 @@ const DEFAULT_OPEN: Record<FilterSectionKey, boolean> = {
   curriculum: true,
   people: false,
   program: true,
-  status: false,
+  status: true,
   topics: true,
 };
 
@@ -160,9 +161,12 @@ export type ListingFilterPanelProps = {
   readonly filters: ListingFilters;
   /** Master's programs; without them, the accreditation's study programs. */
   readonly masterPrograms?: ReadonlyArray<{ label: string; value: string }>;
+  readonly onShareSaved: () => Promise<boolean>;
   readonly onSwitchAccreditation: (accreditation: Accreditation) => void;
   readonly onToggleTag: (tag: string) => void;
   readonly onUpdate: (patch: Partial<ListingFilters>) => void;
+  /** How many courses the student has saved. */
+  readonly savedCount: number;
   readonly staff: readonly string[];
 };
 
@@ -356,7 +360,7 @@ const TopicsSection = (props: SectionProps) => {
 };
 
 const StatusSection = (props: SectionProps) => {
-  type FlagKey = 'channelOnly' | 'hideInactive' | 'offeredOnly';
+  type FlagKey = 'channelOnly' | 'hideInactive' | 'offeredOnly' | 'savedOnly';
   const { t } = useLanguage();
   const flags = (): ReadonlyArray<{
     info?: string;
@@ -374,6 +378,10 @@ const StatusSection = (props: SectionProps) => {
       label: t().filters.offeredOnly,
     },
     { key: 'channelOnly', label: t().filters.channelOnly },
+    {
+      key: 'savedOnly',
+      label: interpolate(t().filters.savedOnly, { count: props.savedCount }),
+    },
   ];
 
   return (
@@ -401,6 +409,11 @@ const StatusSection = (props: SectionProps) => {
           )}
         </For>
       </ul>
+      <Show when={props.savedCount > 0}>
+        <div class="mt-2">
+          <ShareSavedButton onShare={props.onShareSaved} />
+        </div>
+      </Show>
     </FilterSection>
   );
 };

@@ -2,6 +2,7 @@ import { ChevronRight } from 'lucide-solid';
 import { siDiscord } from 'simple-icons';
 import { For, type JSX, Show } from 'solid-js';
 
+import { SaveButton } from '@/components/saved-courses-ui';
 import { TableCell, TableRow } from '@/components/ui/table';
 import { formatCompactYear, type Offering } from '@/lib/course-offering';
 import { formatNumber, getTagLabel, interpolate } from '@/lib/i18n';
@@ -21,7 +22,14 @@ export type CourseColumn = {
 };
 
 export type CourseColumnKey =
-  'channel' | 'credits' | 'name' | 'open' | 'semester' | 'students' | 'tags';
+  | 'channel'
+  | 'credits'
+  | 'name'
+  | 'open'
+  | 'save'
+  | 'semester'
+  | 'students'
+  | 'tags';
 
 // Values shown beside a course: for undergraduate courses by the
 // accreditation they are shown by, for master's ones by their programs.
@@ -189,6 +197,8 @@ type CourseTableRowProps = {
   course: CourseRaw;
   facts: CourseRowFacts;
   onClick: () => void;
+  onToggleSaved: () => void;
+  saved: boolean;
 };
 
 // A result row: the whole row opens the course, and the name is the button
@@ -220,6 +230,13 @@ export const CourseTableRow = (props: CourseTableRowProps) => {
       <ChevronRight
         aria-hidden="true"
         class="text-muted-foreground group-hover:text-foreground ml-auto h-4 w-4 transition-colors"
+      />
+    ),
+    save: () => (
+      <SaveButton
+        courseName={name()}
+        onToggle={props.onToggleSaved}
+        saved={props.saved}
       />
     ),
     semester: () => <>{props.facts.semester ?? ''}</>,

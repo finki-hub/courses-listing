@@ -28,6 +28,7 @@ const DEFAULT_STATE = {
   program: null,
   programState: null,
   query: '',
+  savedOnly: false,
   season: null,
   semester: null,
   sortColumn: 'name',
@@ -63,6 +64,7 @@ test('valid listing params round-trip through the URL', () => {
     program: 'kn',
     programState: 'elective',
     query: 'веб прог',
+    savedOnly: true,
     season: 'winter',
     semester: 5,
     sortColumn: 'popularity',
@@ -88,7 +90,7 @@ test('invalid values fall back to defaults', () => {
   );
   assert.deepEqual(
     parse(
-      'prog=xx&pstate=required&sem=9&credits=06&hideinactive=yes&offered=0&channel=true&tagmode=none',
+      'prog=xx&pstate=required&sem=9&credits=06&hideinactive=yes&offered=0&channel=true&savedonly=yes&tagmode=none',
     ),
     DEFAULT_STATE,
   );

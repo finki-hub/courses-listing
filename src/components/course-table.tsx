@@ -41,6 +41,7 @@ import {
   type ListingFilters,
 } from '@/lib/listing-url-state';
 import { isMasterCourse, type ProgramCourse } from '@/lib/master-programs';
+import { useSavedCourses } from '@/lib/saved-courses-store';
 import { type CourseRaw, getAccLabel } from '@/types/course';
 
 import { ActiveFilterChips } from './active-filter-chips';
@@ -54,6 +55,7 @@ import {
   MasterCurriculumView,
   MasterViewSwitch,
 } from './master-curriculum-view';
+import { SharedSavedBanner } from './saved-courses-ui';
 import { useCourseSearchAnalytics } from './use-course-search-analytics';
 import { useLinkedCourseDialog } from './use-linked-course-dialog';
 import { useListingState } from './use-listing-state';
@@ -62,6 +64,7 @@ import {
   type MasterListing,
   useMasterListing,
 } from './use-master-listing';
+import { useSavedListing } from './use-saved-listing';
 
 // In place of results that need the master's programs to be filtered.
 const ProgramsPending = (props: { error: boolean }) => {
@@ -230,6 +233,7 @@ type FilteredDeps = {
   readonly getSeason: () => SeasonResolver | undefined;
   readonly master: () => boolean;
   readonly masters: MasterListing;
+  readonly savedValues: () => ReadonlySet<string> | undefined;
   readonly selectedTags: () => ReadonlySet<string>;
   readonly sortColumn: () => SortColumn;
   readonly sortDirection: () => SortDirection;
@@ -245,6 +249,7 @@ const createFilteredCourses = (deps: FilteredDeps) => {
     matchesCurriculum: deps.master()
       ? (course) => deps.masters.matches(course, deps.filters())
       : undefined,
+    savedValues: deps.savedValues(),
     searchTerm: deps.filters().query,
     tags: deps.selectedTags(),
   });
@@ -315,6 +320,59 @@ const useCurriculumLayout = (deps: CurriculumDeps) => {
   };
 };
 
+type TableToolbarProps = {
+  readonly activeFilters: number;
+  readonly listing: ReturnType<typeof useListingState>;
+  readonly master: boolean;
+  readonly onOpenFilters: () => void;
+  readonly showSort: boolean;
+  readonly studentsYear: string | undefined;
+};
+
+// The cycle, search and sort controls above the listing.
+const TableToolbar = (props: TableToolbarProps) => (
+  <ListingToolbar
+    activeFilters={props.activeFilters}
+    cycle={props.listing.filters().cycle}
+    onOpenFilters={props.onOpenFilters}
+    onSearch={(query) => {
+      props.listing.updateFilters({ query });
+    }}
+    onSwitchCycle={props.listing.switchCycle}
+    onToggleSort={props.listing.toggleSort}
+    query={props.listing.filters().query}
+    showSort={props.showSort}
+    sortColumn={props.listing.sortColumn()}
+    sortColumns={props.master ? MASTER_SORT_COLUMNS : SORT_COLUMNS}
+    sortDirection={props.listing.sortDirection()}
+    studentsYear={props.studentsYear}
+  />
+);
+
+type TableFilterPanelProps = {
+  readonly credits: readonly number[];
+  readonly listing: ReturnType<typeof useListingState>;
+  /** The master's listing, for the master's cycle. */
+  readonly masters: MasterListing | undefined;
+  readonly saved: ReturnType<typeof useSavedListing>;
+  readonly staff: readonly string[];
+};
+
+// Every listing filter, for the sidebar or the sheet.
+const TableFilterPanel = (props: TableFilterPanelProps) => (
+  <ListingFilterPanel
+    credits={props.credits}
+    filters={props.listing.filters()}
+    masterPrograms={props.masters?.programOptions()}
+    onShareSaved={props.saved.share}
+    onSwitchAccreditation={props.listing.switchAccreditation}
+    onToggleTag={props.listing.toggleTag}
+    onUpdate={props.listing.updateFilters}
+    savedCount={props.saved.ownCount()}
+    staff={props.staff}
+  />
+);
+
 type CourseTableProps = {
   courses: CourseRaw[];
 };
@@ -327,6 +385,11 @@ export const CourseTable = (props: CourseTableProps) => {
 
   const courseDialog = useCycleLinkedCourseDialog(() => props.courses, listing);
   const navigation = useAppNavigation();
+  const savedCourses = useSavedCourses();
+  const savedListing = useSavedListing({
+    courses: () => props.courses,
+    listing,
+  });
 
   const courses = () =>
     master() ? masters.masterCourses() : masters.undergraduateCourses();
@@ -357,6 +420,7 @@ export const CourseTable = (props: CourseTableProps) => {
     getSeason,
     master,
     masters,
+    savedValues: savedListing.filterValues,
     selectedTags,
     sortColumn,
     sortDirection,
@@ -385,35 +449,25 @@ export const CourseTable = (props: CourseTableProps) => {
   };
 
   const filterPanel = () => (
-    <ListingFilterPanel
+    <TableFilterPanel
       credits={credits()}
-      filters={filters()}
-      masterPrograms={master() ? masters.programOptions() : undefined}
-      onSwitchAccreditation={listing.switchAccreditation}
-      onToggleTag={listing.toggleTag}
-      onUpdate={listing.updateFilters}
+      listing={listing}
+      masters={master() ? masters : undefined}
+      saved={savedListing}
       staff={staff()}
     />
   );
 
   return (
     <div class="space-y-4">
-      <ListingToolbar
+      <TableToolbar
         activeFilters={activeFilters()}
-        cycle={filters().cycle}
+        listing={listing}
+        master={master()}
         onOpenFilters={() => {
           setFiltersOpen(true);
         }}
-        onSearch={(query) => {
-          listing.updateFilters({ query });
-        }}
-        onSwitchCycle={listing.switchCycle}
-        onToggleSort={toggleSort}
-        query={filters().query}
         showSort={!curriculum.shown()}
-        sortColumn={sortColumn()}
-        sortColumns={master() ? MASTER_SORT_COLUMNS : SORT_COLUMNS}
-        sortDirection={sortDirection()}
         studentsYear={master() ? undefined : enrollmentYears().all}
       />
 
@@ -438,6 +492,7 @@ export const CourseTable = (props: CourseTableProps) => {
         </FiltersFrame>
 
         <div class="min-w-0 space-y-3">
+          <SharedSavedBanner saved={savedListing} />
           <Show when={master()}>
             <MasterViewSwitch
               onSelect={(view) => {
@@ -482,6 +537,9 @@ export const CourseTable = (props: CourseTableProps) => {
                 fallback={
                   <NoResults
                     canClear={activeFilters() > 0 || filters().query !== ''}
+                    noneSaved={
+                      filters().savedOnly && savedListing.effective().size === 0
+                    }
                     onClear={clearAll}
                   />
                 }
@@ -491,8 +549,10 @@ export const CourseTable = (props: CourseTableProps) => {
                   accreditation={filters().accreditation}
                   courses={filteredCourses()}
                   getFacts={getFacts}
+                  isSaved={savedCourses.isSaved}
                   master={master()}
                   onOpen={openDetail}
+                  onToggleSaved={savedCourses.toggle}
                   onToggleSort={toggleSort}
                   sortColumn={sortColumn()}
                   sortDirection={sortDirection()}

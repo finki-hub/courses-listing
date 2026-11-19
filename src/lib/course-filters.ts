@@ -9,6 +9,7 @@ import {
   isInactiveCourse,
   type SeasonResolver,
 } from '@/lib/course-facts';
+import { getCourseLinkValue } from '@/lib/listing-url-state';
 import {
   matchesNormalizedTerm,
   normalizeSearchText,
@@ -75,6 +76,8 @@ export type CourseFilterCriteria = {
   readonly program?: null | string;
   /** Without a program state, a program matches its required and electives. */
   readonly programState?: ProgramStateFilter;
+  /** When set, only the courses with these link values match. */
+  readonly savedValues?: ReadonlySet<string>;
   readonly searchTerm: string;
   readonly season: SeasonFilter;
   readonly semester?: null | number;
@@ -192,6 +195,8 @@ const matchesCourseFacts = (
     ) === 0
   ) &&
   (criteria.channelOnly !== true || hasChannel(course)) &&
+  (criteria.savedValues === undefined ||
+    criteria.savedValues.has(getCourseLinkValue(course))) &&
   matchesStaff(course, criteria.staff ?? '');
 
 // The values that identify a course: its names, abbreviation and codes.

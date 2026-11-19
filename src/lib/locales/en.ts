@@ -139,6 +139,10 @@ export const en = {
     programAll: 'All programs',
     removeChip: 'Remove filter: {filter}',
     required: 'Required',
+    savedChip: 'Only saved',
+    savedLinkCopied: 'Link copied',
+    savedLinkFailed: 'Could not copy the link',
+    savedOnly: 'Only saved ({count})',
     season: 'Semester:',
     sections: {
       curriculum: 'Curriculum',
@@ -148,6 +152,7 @@ export const en = {
       topics: 'Topics',
     },
     semesterNumber: 'Semester no.:',
+    shareSaved: 'Share saved courses',
     showCourses: 'Show courses',
     showResults: {
       one: 'Show {count} course',
@@ -351,6 +356,19 @@ export const en = {
     prerequisite: '📋 Prerequisite:',
     prerequisitesIgnored: '⚠️ Prerequisites ignored (expert mode)',
     required: 'ℹ️ Required course',
+  },
+  saved: {
+    addShared: 'Add to my saved',
+    column: 'Saved',
+    emptyText:
+      'Use the star next to a course to save it. Saved courses stay in this browser.',
+    emptyTitle: 'No saved courses yet',
+    save: 'Save {course}',
+    sharedBanner: {
+      one: 'Showing {count} course shared with you.',
+      other: 'Showing {count} courses shared with you.',
+    },
+    showMine: 'Show my saved courses',
   },
   simulator: {
     allUnlocked: '🔓 You have ≥ 180 credits — all courses are unlocked',

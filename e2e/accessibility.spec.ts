@@ -100,6 +100,34 @@ const SCENES: readonly Scene[] = [
     },
   },
   {
+    name: 'saved filter with nothing saved',
+    setup: async (page) => {
+      await page.goto('/?savedonly=1');
+      await expect(page.getByText('No saved courses yet')).toBeVisible();
+    },
+  },
+  {
+    name: 'saved courses',
+    setup: async (page) => {
+      await page.goto('/');
+      await page.evaluate(() => {
+        localStorage.setItem(
+          'finki-hub-saved-courses',
+          JSON.stringify(['F23L3W140', 'F23L2W001']),
+        );
+      });
+      await page.goto('/?savedonly=1');
+      await expect(page.getByText('2 courses', { exact: true })).toBeVisible();
+    },
+  },
+  {
+    name: 'shared saved courses',
+    setup: async (page) => {
+      await page.goto('/?saved=F23L3W140,F23L2W001');
+      await expect(page.getByText('Showing 2 courses shared')).toBeVisible();
+    },
+  },
+  {
     name: 'simulator setup',
     setup: async (page) => {
       await page.goto('/?page=simulator');
