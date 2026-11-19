@@ -43,6 +43,12 @@ Run `npm test`, `npm run check`, `npm run lint` and `npm run build` to validate
 changes. Localization tests check dictionary and placeholder coverage, formatting,
 metadata, prerequisite explanations and simulator share compatibility.
 
+`npm run test:e2e` builds the app and drives it in Chromium at desktop and phone
+sizes with Playwright (run `npx playwright install chromium` once first). The
+tests serve the course data from `e2e/fixtures`, a trimmed snapshot of the
+published files, so they do not depend on the network. Refresh the snapshot when
+the data's shape changes.
+
 ## License
 
 This project is licensed under the terms of the MIT license.
