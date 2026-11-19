@@ -19,6 +19,8 @@ type SimulatorEffectsParams = {
   enabledMap: Accessor<Record<string, boolean>>;
   hpcCompleted: Accessor<boolean>;
   parsedCourses: Accessor<SimulatorCourse[]>;
+  /** False while a shared link is previewed, so nothing is saved. */
+  persist: Accessor<boolean>;
   program: Accessor<string>;
   setStatuses: Setter<Record<string, CourseStatus>>;
   setUniListCredits: Setter<number>;
@@ -32,6 +34,7 @@ export const useSimulatorEffects = (params: SimulatorEffectsParams): void => {
     enabledMap,
     hpcCompleted,
     parsedCourses,
+    persist,
     program,
     setStatuses,
     setUniListCredits,
@@ -72,37 +75,37 @@ export const useSimulatorEffects = (params: SimulatorEffectsParams): void => {
   );
 
   createEffect(
-    on(statuses, (s) => {
-      saveStatuses(accreditation(), s);
+    on([statuses, persist], ([s, save]) => {
+      if (save) saveStatuses(accreditation(), s);
     }),
   );
 
   createEffect(
-    on(accreditation, (acc) => {
-      localStorage.setItem(STORAGE_KEY_ACC, acc);
+    on([accreditation, persist], ([acc, save]) => {
+      if (save) localStorage.setItem(STORAGE_KEY_ACC, acc);
     }),
   );
 
   createEffect(
-    on(program, (p) => {
-      localStorage.setItem(STORAGE_KEY_PROGRAM, p);
+    on([program, persist], ([p, save]) => {
+      if (save) localStorage.setItem(STORAGE_KEY_PROGRAM, p);
     }),
   );
 
   createEffect(
-    on(hpcCompleted, (value) => {
-      localStorage.setItem(STORAGE_KEY_HPC, String(value));
+    on([hpcCompleted, persist], ([value, save]) => {
+      if (save) localStorage.setItem(STORAGE_KEY_HPC, String(value));
     }),
   );
 
   createEffect(
-    on(uniListCredits, (credits) => {
+    on([uniListCredits, persist], ([credits, save]) => {
       const normalized = clampUniListCredits(credits);
       if (normalized !== credits) {
         setUniListCredits(normalized);
         return;
       }
-      saveUniListCredits(normalized);
+      if (save) saveUniListCredits(normalized);
     }),
   );
 };

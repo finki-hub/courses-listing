@@ -1,5 +1,8 @@
+import { replaceUrlParams } from '@/lib/listing-url-state';
 import { type CourseStatus } from '@/lib/prerequisite';
 import { clampUniListCredits, type SimulatorCourse } from '@/lib/simulator';
+import { SIMULATOR_VIEW_PARAMS } from '@/lib/simulator-url-state';
+import { LAST_SEMESTER, type StudyPlan } from '@/lib/study-plan';
 import {
   type Accreditation,
   getStudyPrograms,
@@ -9,7 +12,9 @@ import {
 export const SIMULATOR_SHARE_PARAM = 'sim';
 export const PAGE_QUERY_PARAM = 'page';
 
-const SHARE_STATE_VERSION = '1';
+// Version 2 adds the study plan; version 1 links still open, without a plan.
+const SHARE_STATE_VERSION = '2';
+const SUPPORTED_SHARE_VERSIONS: ReadonlySet<string> = new Set(['1', '2']);
 const SHARE_ALPHABET =
   'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_';
 
@@ -17,6 +22,7 @@ export type SharedSimulatorConfig = {
   accreditation: Accreditation;
   courses: SimulatorCourse[];
   hpcCompleted: boolean;
+  plan: StudyPlan;
   program: string;
   seasonFilter: SeasonFilter;
   showOnlyEnabled: boolean;
@@ -26,6 +32,7 @@ export type SharedSimulatorConfig = {
 
 export type SimulatorShareState = {
   accreditation: Accreditation;
+  encodedPlan: string;
   encodedStatuses: string;
   hpcCompleted: boolean;
   program: string;
@@ -98,7 +105,11 @@ const decodeSettings = (
 ):
   | Omit<
       SimulatorShareState,
-      'accreditation' | 'encodedStatuses' | 'program' | 'uniListCredits'
+      | 'accreditation'
+      | 'encodedPlan'
+      | 'encodedStatuses'
+      | 'program'
+      | 'uniListCredits'
     >
   | undefined => {
   const decoded = decodeAlphabetValue(value);
@@ -193,6 +204,39 @@ const decodeStatuses = (
   return statuses;
 };
 
+const ALPHABET_SIZE = SHARE_ALPHABET.length;
+
+// Each planned course takes two characters: its position in the course list
+// and its semester, packed as position * 8 + semester - 1.
+const encodePlan = (courses: SimulatorCourse[], plan: StudyPlan): string =>
+  courses
+    .map((course, index) => {
+      const semester = plan[course.name];
+      if (semester === undefined) return '';
+      const value = index * LAST_SEMESTER + semester - 1;
+      return (
+        encodeAlphabetValue(Math.trunc(value / ALPHABET_SIZE)) +
+        encodeAlphabetValue(value % ALPHABET_SIZE)
+      );
+    })
+    .join('');
+
+const decodePlan = (
+  courses: SimulatorCourse[],
+  encodedPlan: string,
+): StudyPlan => {
+  const plan: StudyPlan = {};
+  for (let offset = 0; offset + 1 < encodedPlan.length; offset += 2) {
+    const high = decodeAlphabetValue(encodedPlan.charAt(offset));
+    const low = decodeAlphabetValue(encodedPlan.charAt(offset + 1));
+    if (high < 0 || low < 0) return {};
+    const value = high * ALPHABET_SIZE + low;
+    const course = courses[Math.trunc(value / LAST_SEMESTER)];
+    if (course) plan[course.name] = (value % LAST_SEMESTER) + 1;
+  }
+  return plan;
+};
+
 export const readSimulatorShareState = (): SimulatorShareState | undefined => {
   const raw = new URL(location.href).searchParams.get(SIMULATOR_SHARE_PARAM);
   if (!raw) return undefined;
@@ -204,14 +248,15 @@ export const readSimulatorShareState = (): SimulatorShareState | undefined => {
     settings,
     uniListCredits,
     encodedStatuses = '',
-  ] = raw.split('.', 6);
+    encodedPlan = '',
+  ] = raw.split('.', 7);
 
   if (
-    version !== SHARE_STATE_VERSION ||
     !accreditationCode ||
     !program ||
     !settings ||
-    !uniListCredits
+    !uniListCredits ||
+    !SUPPORTED_SHARE_VERSIONS.has(version ?? '')
   ) {
     return undefined;
   }
@@ -227,6 +272,7 @@ export const readSimulatorShareState = (): SimulatorShareState | undefined => {
 
   return {
     accreditation,
+    encodedPlan: version === '1' ? '' : encodedPlan,
     encodedStatuses,
     hpcCompleted: decodedSettings.hpcCompleted,
     program: sanitizeProgram(accreditation, program),
@@ -244,6 +290,8 @@ export const getSimulatorShareUrl = (config: SharedSimulatorConfig): string => {
   );
   const encodedStatuses = encodeStatuses(config.courses, config.statuses);
 
+  // The sharer's own search and filters stay out of the link.
+  for (const param of SIMULATOR_VIEW_PARAMS) url.searchParams.delete(param);
   url.searchParams.set(PAGE_QUERY_PARAM, 'simulator');
   url.searchParams.set(
     SIMULATOR_SHARE_PARAM,
@@ -254,15 +302,10 @@ export const getSimulatorShareUrl = (config: SharedSimulatorConfig): string => {
       encodedSettings,
       encodedUniListCredits,
       encodedStatuses,
+      encodePlan(config.courses, config.plan),
     ].join('.'),
   );
   return url.href;
-};
-
-export const replaceSimulatorShareUrl = (
-  config: SharedSimulatorConfig,
-): void => {
-  history.replaceState({}, '', getSimulatorShareUrl(config));
 };
 
 export const restoreStatusesFromShareState = (
@@ -270,3 +313,67 @@ export const restoreStatusesFromShareState = (
   sharedState: SimulatorShareState,
 ): Record<string, CourseStatus> =>
   decodeStatuses(courses, sharedState.encodedStatuses) ?? {};
+
+export const restorePlanFromShareState = (
+  courses: SimulatorCourse[],
+  sharedState: SimulatorShareState,
+): StudyPlan => decodePlan(courses, sharedState.encodedPlan);
+
+// Each course with a status, mapped to its share code; cleared ones are left out.
+const statusCodes = (
+  statuses: Record<string, CourseStatus>,
+): Record<string, number> =>
+  Object.fromEntries(
+    Object.entries(statuses)
+      .map(([name, status]) => [name, encodeCourseStatus(status)] as const)
+      .filter(([, code]) => code !== 0),
+  );
+
+const sameEntries = (
+  first: Record<string, number>,
+  second: Record<string, number>,
+): boolean => {
+  const keys = Object.keys(first);
+  return (
+    keys.length === Object.keys(second).length &&
+    keys.every((key) => first[key] === second[key])
+  );
+};
+
+// Drops the shared state from the URL once it has been kept or left.
+export const clearSimulatorShareParam = (): void => {
+  replaceUrlParams((params) => {
+    params.delete(SIMULATOR_SHARE_PARAM);
+  });
+};
+
+/**
+ * Whether opening a shared state would replace progress the student saved,
+ * so it should be previewed instead of taken over.
+ *
+ * @param courses - The shared accreditation's simulator courses
+ * @param sharedState - The decoded shared link
+ * @param saved - The student's saved statuses and plan for that accreditation
+ * @param saved.plan - The saved study plan
+ * @param saved.statuses - The saved course statuses
+ * @returns True when there is saved progress that differs from the link
+ */
+export const sharedStateConflicts = (
+  courses: SimulatorCourse[],
+  sharedState: SimulatorShareState,
+  saved: { plan: StudyPlan; statuses: Record<string, CourseStatus> },
+): boolean => {
+  const savedStatuses = statusCodes(saved.statuses);
+  const hasSavedProgress =
+    Object.keys(savedStatuses).length > 0 || Object.keys(saved.plan).length > 0;
+  return (
+    hasSavedProgress &&
+    !(
+      sameEntries(
+        savedStatuses,
+        statusCodes(restoreStatusesFromShareState(courses, sharedState)),
+      ) &&
+      sameEntries(saved.plan, restorePlanFromShareState(courses, sharedState))
+    )
+  );
+};

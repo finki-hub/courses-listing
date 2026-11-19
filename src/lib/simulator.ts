@@ -111,6 +111,18 @@ const EXCLUSIVE_PROJECT_PAIRS: Record<string, string> = {
   [TEAM_PROJECT_COURSE_NAME]: INDIVIDUAL_PROJECT_COURSE_NAME,
 };
 
+export const isExclusiveProjectCourse = (name: string): boolean =>
+  Object.hasOwn(EXCLUSIVE_PROJECT_PAIRS, name);
+
+/**
+ * The other project of a mutually exclusive pair, if the course is one.
+ *
+ * @param name - The course name
+ * @returns The paired project, or undefined for any other course
+ */
+export const getExclusiveProjectPair = (name: string): string | undefined =>
+  EXCLUSIVE_PROJECT_PAIRS[name];
+
 export const getExclusiveProjectBlocker = (
   statuses: Record<string, CourseStatus>,
   name: string,
@@ -491,6 +503,19 @@ const collectPassedElectiveCredits = (
 
   return { coursesByLevel, creditsPerLevel };
 };
+
+/**
+ * Credits from passed electives per level, before the level limits apply.
+ *
+ * @param courses - The program's courses
+ * @param statuses - The current statuses
+ * @returns Elective credits keyed by level
+ */
+export const getElectiveCreditsPerLevel = (
+  courses: SimulatorCourse[],
+  statuses: Record<string, CourseStatus>,
+): Record<number, number> =>
+  collectPassedElectiveCredits(courses, statuses).creditsPerLevel;
 
 const findOverLimitCourses = (
   list: SimulatorCourse[],

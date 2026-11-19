@@ -14,3 +14,15 @@ export const writeBrowserStorage = (key: string, value: string): boolean => {
     return false;
   }
 };
+
+// Whether values can be stored, so a choice made once is remembered.
+export const isBrowserStorageAvailable = (): boolean => {
+  const probe = '__storage-probe__';
+  try {
+    localStorage.setItem(probe, probe);
+    localStorage.removeItem(probe);
+    return true;
+  } catch {
+    return false;
+  }
+};

@@ -190,9 +190,7 @@ const getTrend = (
 
   return {
     className:
-      delta > 0
-        ? 'bg-green-500/10 text-green-700 dark:text-green-400'
-        : 'bg-red-500/10 text-red-700 dark:text-red-400',
+      delta > 0 ? 'bg-passed-soft text-passed' : 'bg-danger-soft text-danger',
     delta,
     direction: delta > 0 ? 'up' : 'down',
     label: delta > 0 ? t.enrollment.increasing : t.enrollment.decreasing,
@@ -296,9 +294,9 @@ export const buildEnrollmentMetrics = (
 
 export const getEnrollmentDeltaClass = (delta: null | number) => {
   if (delta === null) return 'bg-muted text-muted-foreground';
-  if (delta > 0) return 'bg-green-500/10 text-green-700 dark:text-green-400';
+  if (delta > 0) return 'bg-passed-soft text-passed';
   return delta < 0
-    ? 'bg-red-500/10 text-red-700 dark:text-red-400'
+    ? 'bg-danger-soft text-danger'
     : 'bg-muted text-muted-foreground';
 };
 
@@ -329,11 +327,9 @@ export const formatEnrollmentValue = (
   language: Language,
 ) => (value === null ? '—' : formatNumber(value, language));
 
-export const ENROLLMENT_TREND_UP_CLASS =
-  'h-3.5 w-3.5 text-green-700 dark:text-green-400';
+export const ENROLLMENT_TREND_UP_CLASS = 'h-3.5 w-3.5 text-passed';
 
-export const ENROLLMENT_TREND_DOWN_CLASS =
-  'h-3.5 w-3.5 text-red-700 dark:text-red-400';
+export const ENROLLMENT_TREND_DOWN_CLASS = 'h-3.5 w-3.5 text-danger';
 
 export const ENROLLMENT_TREND_NEUTRAL_CLASS =
   'h-3.5 w-3.5 text-muted-foreground';

@@ -3,11 +3,12 @@ export const sq = {
   brand: 'FINKI Hub',
   common: {
     accreditation: 'Akreditimi',
+    all: 'Të gjitha',
     channel: 'Kanali',
     close: 'Mbyll',
     code: 'Kodi',
     course: 'Lënda',
-    courseLevel: 'Niveli i lëndës',
+    credits: 'Kreditet',
     discordChannel: 'Kanali (Discord)',
     level: 'Niveli',
     link: 'Lidhja',
@@ -17,6 +18,7 @@ export const sq = {
     name: 'Emri',
     no: 'Jo',
     noResults: 'Nuk ka rezultate.',
+    popularity: 'Popullariteti',
     prerequisite: 'Parakushti',
     searchCourses: 'Kërko lëndë',
     searchPlaceholder: 'Kërko lëndë...',
@@ -29,10 +31,21 @@ export const sq = {
     yes: 'Po',
   },
   detail: {
+    accreditations: 'Akreditimet',
     accreditationYear: 'Akreditimi {year}',
+    accreditationYears: 'Akreditimet {years}',
     assistants: 'Asistentët',
+    back: 'Kthehu te {course}',
+    credits: 'Kredite',
     description: 'Informacion i hollësishëm për lëndën',
+    discordChannel: 'Kanal në Discord-in e FINKI Hub',
+    noPrerequisites: 'Pa parakushte',
+    overview: 'Përmbledhje',
+    prerequisites: 'Parakushtet',
     professors: 'Profesorët',
+    programs: 'Programet e studimit',
+    staff: 'Stafi mësimor',
+    subjectPage: 'Faqja e lëndës në finki.ukim.mk',
   },
   enrollment: {
     academicYear: 'Viti akademik',
@@ -91,23 +104,154 @@ export const sq = {
     sourceToTarget: 'lënda burimore drejt lëndës së synuar',
     type: 'Lloji',
   },
+  filters: {
+    accreditation: 'Akreditimi:',
+    activeFilters: 'Filtrat aktivë',
+    buttonLabel: 'Filtrat, {count} aktivë',
+    channelOnly: 'Ka kanal në Discord',
+    clearAll: 'Pastro të gjitha',
+    clearFilters: 'Pastro filtrat',
+    credits: 'Kreditet:',
+    elective: 'Zgjedhore',
+    hideInactive: 'Fshih lëndët joaktive',
+    hideInactiveInfo:
+      'Fsheh lëndët e shënuara si të çaktivizuara dhe lëndët që nuk kanë pasur kurrë studentë të regjistruar.',
+    level: 'Niveli:',
+    levelInfo:
+      'Çdo lëndë i përket njërit prej tre niveleve: L1 hyrëse, L2 të mesme dhe L3 të avancuara.\nNga lëndët zgjedhore, simulatori numëron më së shumti {l1} kredite nga L1 dhe {l2} kredite nga L2; për L3 nuk ka kufi.',
+    more: 'Më shumë filtra',
+    offeredInfo:
+      'Lëndët me studentë të regjistruar në vitin e fundit akademik që ka të dhëna për semestrin e tyre.',
+    offeredOnly: 'Ofrohet këtë vit',
+    panelTitle: 'Filtrat',
+    program: 'Programi:',
+    programAll: 'Të gjitha programet',
+    removeChip: 'Hiq filtrin: {filter}',
+    required: 'E detyrueshme',
+    season: 'Semestri:',
+    sections: {
+      curriculum: 'Plani mësimor',
+      people: 'Stafi mësimor',
+      program: 'Programi i studimit',
+      status: 'Statusi',
+      topics: 'Temat',
+    },
+    semesterNumber: 'Nr. i semestrit:',
+    showCourses: 'Shfaq lëndët',
+    showResults: {
+      one: 'Shfaq {count} lëndë',
+      other: 'Shfaq {count} lëndë',
+    },
+    staff: 'Stafi:',
+    staffPlaceholder: 'Profesor ose asistent...',
+    status: 'Shfaq:',
+    tagMode: 'Përputhja:',
+    tagModeAll: 'Të gjitha etiketat',
+    tagModeAny: 'Çdo etiketë',
+  },
   language: 'Gjuha',
   listing: {
+    creditsValue: '{value} kredite',
+    discordAvailable: 'Ka kanal në Discord',
+    moreTags: '+{count}',
+    noResultsText: 'Hiqni një filtër ose kërkoni diçka tjetër.',
+    noResultsTitle: 'Asnjë lëndë nuk përputhet me këto filtra',
+    openDetails: 'Hap detajet për {course}',
     resultCount: {
       one: '{count} lëndë',
       other: '{count} lëndë',
     },
+    searchChip: 'Kërkimi: {value}',
     searchPlaceholder: 'Kërko sipas emrit, shkurtesës, kodit ose stafit...',
+    semesterValue: 'Semestri {value}',
     sort: 'Rendit:',
+    sortAscending: 'Në rritje',
+    sortBy: 'Rendit sipas',
+    sortDescending: 'Në zbritje',
+    sortDirection: 'Drejtimi i renditjes: {direction}',
+    studentsInfo:
+      'Studentët e regjistruar në vitin e fundit akademik me të dhëna për semestrin e lëndës',
+    studentsValue: '{value} studentë',
     tagsLabel: 'Etiketat:',
+  },
+  masters: {
+    cycle: 'Studimet:',
+    electiveGroups: {
+      facultySummer: 'Zgjedhore të fakultetit, verë',
+      facultyWinter: 'Zgjedhore të fakultetit, dimër',
+      other: 'Zgjedhore të tjera',
+      programSummer: 'Zgjedhore të programit, verë',
+      programWinter: 'Zgjedhore të programit, dimër',
+    },
+    electiveIn: {
+      one: 'zgjedhor në {count} program',
+      other: 'zgjedhor në {count} programe',
+    },
+    loadError: 'Programet master nuk u ngarkuan.',
+    loading: 'Po ngarkohen programet master...',
+    mandatory: 'I detyrueshëm',
+    mandatoryIn: 'I detyrueshëm në {programs}',
+    master: 'Master',
+    noEnrollment: 'Nuk ofrohet ose pa të dhëna',
+    noPrograms: 'Nuk është në asnjë program',
+    programs: 'Programet',
+    undergraduate: 'Bachelor',
   },
   metadataDescription:
     'Shfletoni të gjitha lëndët, programet e studimit dhe akreditimet e FINKI-t.',
   nav: {
     equivalencies: 'Ekuivalencat',
+    label: 'Seksionet',
     listing: 'Lëndët',
     prerequisites: 'Parakushtet',
     simulator: 'Simuluesi',
+  },
+  nextCourses: {
+    credits: '{credits} kredite',
+    description:
+      'Lëndët që mund t’i merrni më pas: ende të pamarra, me parakushtet e plotësuara dhe brenda kufijve të nivelit. Së pari vijnë lëndët e detyrueshme, pastaj ato zgjedhore sipas semestrit dhe numrit të studentëve që i morën.',
+    empty: 'Nuk ka lëndë të disponueshme në këtë semestër.',
+    enrolled: '{count} studentë në {year}',
+    forSeason: {
+      summer: 'Për semestrin veror',
+      winter: 'Për semestrin dimëror',
+    },
+    markListened: 'Shëno të regjistruar',
+    upcoming: '(i radhës; zgjidhni një semestër më lart për ta ndryshuar)',
+  },
+  pageIntro: {
+    listing:
+      'Kërkoni dhe filtroni të gjitha lëndët e FINKI-t, pastaj hapni një lëndë për stafin, programet dhe numrin e studentëve.',
+    simulator:
+      'Shënoni lëndët që keni ndjekur ose kaluar për të parë çfarë mund të regjistroni më pas, për të ndjekur kreditet dhe për të planifikuar semestrat e ardhshëm.',
+  },
+  planner: {
+    addToPlan: 'Shto në plan',
+    description:
+      'Planifikoni lëndët që ende nuk i keni marrë në semestrat e mbetur. Lëndët e planifikuara më herët llogariten si të kaluara për ato më vonë; çdo lëndë mund të vendoset vetëm në semestrat e sezonit të saj.',
+    emptySemester: 'Ende asgjë e planifikuar.',
+    graduation3yr: 'Me këtë plan, studimet trevjeçare përfundojnë në:',
+    graduation4yr: 'Me këtë plan, studimet katërvjeçare përfundojnë në:',
+    issues: {
+      exclusive:
+        'Llogaritet vetëm njëra nga Тимски проект dhe Самостоен проект.',
+      levelLimit:
+        'Mbi kufirin e lëndëve zgjedhore të nivelit të saj; kreditet nuk do të llogariten.',
+      past: 'E planifikuar për një semestër që ka kaluar.',
+      prerequisites:
+        'Parakushtet nuk plotësohen nga lëndët e marra ose të planifikuara para saj.',
+      season:
+        'Lënda nuk ofrohet në atë sezon: semestrat tek janë dimërorë, ata çift verorë.',
+    },
+    notPlanned: 'E paplanifikuar',
+    notReached: 'nuk arrihet deri në semestrin 8',
+    planFor: 'Semestri për',
+    plannedFor: 'Në plan: semestri {semester}',
+    recommended: 'E rekomanduar: semestri {semester}',
+    semesterCredits:
+      '{credits} kredite të planifikuara (ngarkesa standarde është {standard}), {total} gjithsej',
+    toPlan: 'Lëndë për t’u planifikuar',
+    unplannedRequired: 'Lëndë të detyrueshme ende të paplanifikuara: {count}',
   },
   prereqDescription: {
     attended: 'e regjistruar',
@@ -126,6 +270,9 @@ export const sq = {
     },
     description:
       'Zgjidhni një akreditim dhe një lëndë për të parë të gjitha lëndët që e kanë si parakusht.',
+    emptyText:
+      'Lëndët që e kanë si parakusht shfaqen këtu, të renditura sipas semestrit.',
+    emptyTitle: 'Zgjidhni një lëndë për të parë çfarë hap',
     searchPlaceholder: 'Kërko sipas emrit, shkurtesës ose kodit...',
   },
   programState: {
@@ -164,7 +311,28 @@ export const sq = {
     attended: 'E regjistruar',
     attendedPlural: 'Të regjistruara',
     attendedShort: 'R',
+    bulk: {
+      listened: 'Regjistro të detyrueshmet',
+      passed: 'Kalo të detyrueshmet',
+    },
+    bulkLabel: {
+      listened:
+        'Shëno lëndët e detyrueshme të disponueshme të semestrit {semester} si të regjistruara',
+      passed:
+        'Shëno lëndët e detyrueshme të disponueshme të semestrit {semester} si të kaluara',
+    },
+    checklistOnly: {
+      one: '{count} filtër vlen vetëm për listën',
+      other: '{count} filtra vlejnë vetëm për listën',
+    },
+    clearChecklistFilters: 'Pastroji',
     copyLink: 'Kopjo lidhjen me gjendjen aktuale',
+    courseType: {
+      all: 'Të gjitha',
+      elective: 'Zgjedhore',
+      required: 'Të detyrueshme',
+    },
+    courseTypeLabel: 'Lloji:',
     credits: 'Kredite',
     description:
       'Shënoni lëndët që keni regjistruar ose kaluar. Lëndët me parakushte të paplotësuara janë të çaktivizuara.',
@@ -172,25 +340,87 @@ export const sq = {
       '🎓 I plotësoni kushtet për diplomim në studimet 3-vjeçare (≥ 174 kredite dhe të gjitha lëndët e detyrueshme të kaluara, përveç punimit të diplomës)',
     eligible4yr:
       '🎓 I plotësoni kushtet për diplomim në studimet 4-vjeçare (≥ 234 kredite dhe të gjitha lëndët e detyrueshme të kaluara, përveç punimit të diplomës)',
+    filters: 'Filtrat',
     graduated: '🎉 Urime diplomimin!',
+    hpcInfo:
+      'Shënojeni nëse e keni kaluar kursin HPC, i cili nuk është në katalogun e lëndëve. Shton {credits} kredite në totalin tuaj.',
+    locked: {
+      limit: 'U arrit kufiri i zgjedhoreve L{level}',
+      prerequisites: 'Parakushtet nuk plotësohen',
+      project: 'Në vend të saj: {course}',
+    },
     missing3yr:
       'ℹ️ Keni ≥ 174 kredite, por për studimet 3-vjeçare ju mungojnë këto lëndë të detyrueshme: {courses}',
     missing4yr:
       'ℹ️ Keni ≥ 234 kredite, por për studimet 4-vjeçare ju mungojnë këto lëndë të detyrueshme: {courses}',
+    modeLabel: 'Pamja e simulatorit',
+    modes: { checklist: 'Lista', next: 'Çfarë më pas', plan: 'Plani' },
     onlyAvailable: 'Vetëm të disponueshme',
     overLimit:
       '⛔ Është tejkaluar numri maksimal i krediteve për {levels}. Kreditet e tepërta nuk numërohen.',
     passed: 'E kaluar',
     passedPlural: 'Të kaluara',
     passedShort: 'K',
+    progress: {
+      credits: '{credits} kredite',
+      degree3: 'Diplomë 3-vjeçare',
+      degree3Short: '3 vj.',
+      degree4: 'Diplomë 4-vjeçare',
+      degree4Short: '4 vj.',
+      details: 'Detaje',
+      label: 'Përparimi juaj',
+      levelMeter: 'Zgjedhore L{level}',
+      limitValue: '{credits} nga {limit}',
+    },
     reset: 'Rivendos',
-    resetConfirm:
-      'Jeni të sigurt që dëshironi të rivendosni të gjitha lëndët e zgjedhura?',
+    resetDone: 'Të gjitha zgjedhjet u rivendosën.',
+    search: 'Kërko lëndët e simulatorit',
+    semesterProgress: '{passed} nga {total} kredite të kaluara',
+    semesterSummary: 'Kredite: {listened} të regjistruara, {passed} të kaluara',
+    semesterTitle: 'Semestri {semester}',
+    settings: {
+      description:
+        'Akreditimi, programi i studimit dhe kreditet e fituara jashtë listës së lëndëve.',
+      edit: 'Ndrysho programin dhe kreditet shtesë',
+      extras: 'Kredite shtesë',
+      title: 'Studimet tuaja',
+    },
+    setup: {
+      choose: 'Zgjidhni një program',
+      description:
+        'Zgjidhni akreditimin dhe programin e studimit ku jeni regjistruar. Mund t’i ndryshoni më vonë.',
+      program: 'Programi i studimit',
+      start: 'Fillo',
+      title: 'Konfiguro simulatorin',
+    },
     share: 'Ndaj',
+    sharedDiscard: 'Kthehu te përparimi im',
+    sharedKeep: 'Zëvendëso përparimin tim me këtë',
+    sharedText:
+      'Ndryshimet këtu nuk ruhen dhe përparimi juaj mbetet i njëjtë derisa të vendosni ndryshe.',
+    sharedTitle: 'Po shikoni një gjendje të ndarë të simulatorit',
+    status: {
+      label: 'Gjendja e {course}',
+      listened: 'E regjistruar',
+      none: 'Jo',
+      passed: 'E kaluar',
+    },
     statusToggle: '{status}: {course}',
+    undo: 'Zhbëj',
     universityList: 'Lista univ.',
     universityListInfo:
-      'Nuk ka kufi formal për kreditet nga lista universitare.\nNë praktikë, mund të merrni më së shumti 4 lëndë me nga 9 kredite, gjithsej 36 kredite.',
+      'Kredite nga lëndët e listës universitare të lëndëve zgjedhore të UKIM.\nNuk ka kufi formal për kreditet nga lista universitare.\nNë praktikë, mund të merrni më së shumti 4 lëndë me nga 9 kredite, gjithsej 36 kredite.',
+  },
+  studyPrograms: {
+    ie: 'Computer Education',
+    imb: 'Internet, Networks and Security',
+    ke: 'Computer Education',
+    ki: 'Computer Engineering',
+    kn: 'Computer Science',
+    pit: 'Application of Information Technologies',
+    seis: 'Software Engineering and Information Systems (në anglisht)',
+    siis: 'Software Engineering and Information Systems',
+    ssp: 'Professional Studies in Programming',
   },
   tagLabels: {
     ai: 'Inteligjenca artificiale',

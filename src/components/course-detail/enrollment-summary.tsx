@@ -28,7 +28,7 @@ export const EnrollmentSummary = (props: EnrollmentSummaryProps) => {
         <div class="rounded-lg border bg-muted/20 p-3">
           <div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
             <div>
-              <div class="text-muted-foreground text-[11px] font-medium uppercase tracking-wide">
+              <div class="text-muted-foreground text-xs font-medium">
                 {t().enrollment.trend}
               </div>
               <div class="mt-1 flex flex-wrap items-center gap-2">
@@ -54,7 +54,7 @@ export const EnrollmentSummary = (props: EnrollmentSummaryProps) => {
                   </Show>
                   {formatEnrollmentDelta(props.metrics.trend.delta, language())}
                   <Show when={props.metrics.trend.percent !== null}>
-                    <span class="opacity-80">
+                    <span>
                       {formatEnrollmentDeltaPercent(
                         props.metrics.trend.percent,
                         language(),
@@ -70,7 +70,7 @@ export const EnrollmentSummary = (props: EnrollmentSummaryProps) => {
 
             <Show when={props.metrics.sparkline}>
               {(sparkline) => (
-                <div class="border-border/60 bg-background/70 rounded-md border px-3 py-2">
+                <div class="border-border bg-raised rounded-md border px-3 py-2">
                   <EnrollmentSparkline sparkline={sparkline()} />
                 </div>
               )}

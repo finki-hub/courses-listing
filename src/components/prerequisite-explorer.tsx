@@ -1,7 +1,9 @@
+import { Network } from 'lucide-solid';
 import { createMemo, createSignal, For, Show } from 'solid-js';
 
 import { AccreditationSwitch } from '@/components/accreditation-switch';
 import { CourseDetailDialog } from '@/components/course-detail-dialog';
+import { EmptyState } from '@/components/ui/empty-state';
 import { SearchInput } from '@/components/ui/search-input';
 import {
   Table,
@@ -50,6 +52,18 @@ const createPickerMatcher = (
       matchesNormalizedTerm(value, term),
     );
   };
+};
+
+// Before a course is chosen: what choosing one shows.
+const PrerequisitesStart = () => {
+  const { t } = useLanguage();
+  return (
+    <EmptyState
+      icon={<Network />}
+      text={t().prerequisites.emptyText}
+      title={t().prerequisites.emptyTitle}
+    />
+  );
 };
 
 export const PrerequisiteExplorer = (props: PrerequisiteExplorerProps) => {
@@ -133,10 +147,6 @@ export const PrerequisiteExplorer = (props: PrerequisiteExplorerProps) => {
 
   return (
     <div class="space-y-4">
-      <p class="text-muted-foreground text-sm">
-        {t().prerequisites.description}
-      </p>
-
       <AccreditationSwitch
         accreditation={accreditation()}
         onSelect={handleAccreditationChange}
@@ -160,7 +170,7 @@ export const PrerequisiteExplorer = (props: PrerequisiteExplorerProps) => {
           value={search()}
         />
         <Show when={!selectedCourse()}>
-          <div class="max-h-60 overflow-y-auto rounded-md border">
+          <div class="bg-card max-h-60 overflow-y-auto rounded-lg border">
             <For each={filteredPickerCourses()}>
               {(name) => (
                 <button
@@ -184,6 +194,10 @@ export const PrerequisiteExplorer = (props: PrerequisiteExplorerProps) => {
         </Show>
       </div>
 
+      <Show when={!selectedCourse()}>
+        <PrerequisitesStart />
+      </Show>
+
       <Show when={selectedCourse()}>
         <div class="text-muted-foreground text-sm">
           {formatCount(t().prerequisites.dependentCount, {
@@ -193,7 +207,7 @@ export const PrerequisiteExplorer = (props: PrerequisiteExplorerProps) => {
           })}
         </div>
 
-        <div class="rounded-md border">
+        <div class="bg-card rounded-lg border">
           <Table>
             <TableHeader>
               <TableRow>
@@ -241,7 +255,9 @@ export const PrerequisiteExplorer = (props: PrerequisiteExplorerProps) => {
       <CourseDetailDialog
         accreditation={accreditation()}
         course={courseDialog.course()}
+        courses={props.courses}
         onOpenChange={courseDialog.setOpen}
+        onOpenCourse={courseDialog.openCourse}
         open={courseDialog.open()}
       />
     </div>

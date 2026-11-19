@@ -1,4 +1,4 @@
-import { ButtonGroup } from '@/components/ui/button-group';
+import { SegmentedControl } from '@/components/ui/segmented-control';
 import { useLanguage } from '@/lib/LanguageProvider';
 import {
   COURSE_LEVELS,
@@ -16,17 +16,19 @@ type CourseLevelFilterProps = {
   readonly value: CourseLevelFilterValue;
 };
 
+// Labelled by the surrounding FilterGroup.
 export const CourseLevelFilter = (props: CourseLevelFilterProps) => {
   const { t } = useLanguage();
   return (
-    <ButtonGroup
-      aria-label={t().common.courseLevel}
+    <SegmentedControl
+      allLabel={t().common.all}
       class={`w-full sm:w-auto ${props.class ?? ''}`}
       items={LEVEL_ITEMS}
-      onSelect={(level) => {
-        props.onSelect(props.value === level ? null : level);
+      onClear={() => {
+        props.onSelect(null);
       }}
-      value={props.value ?? undefined}
+      onSelect={props.onSelect}
+      value={props.value}
     />
   );
 };

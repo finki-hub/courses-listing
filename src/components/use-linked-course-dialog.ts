@@ -8,9 +8,17 @@ import {
 } from '@/lib/listing-url-state';
 import { type CourseRaw } from '@/types/course';
 
+type FindLinkedCourse = (
+  courses: readonly CourseRaw[],
+  value: null | string,
+) => CourseRaw | undefined;
+
 // A course detail dialog that opens from `?course=` and keeps it in the URL.
-export const useLinkedCourseDialog = (courses: () => CourseRaw[]) => {
-  const linkedCourse = findCourseByLinkValue(
+export const useLinkedCourseDialog = (
+  courses: () => readonly CourseRaw[],
+  find: FindLinkedCourse = findCourseByLinkValue,
+) => {
+  const linkedCourse = find(
     untrack(courses),
     new URL(location.href).searchParams.get(COURSE_QUERY_PARAM),
   );

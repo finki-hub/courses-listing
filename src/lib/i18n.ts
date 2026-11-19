@@ -71,3 +71,11 @@ export const getTagLabel = (tag: string, t: Translations): string =>
   Object.hasOwn(t.tagLabels, tag)
     ? t.tagLabels[tag as keyof Translations['tagLabels']]
     : tag;
+
+export const getStudyProgramName = (
+  program: string,
+  t: Translations,
+): string | undefined =>
+  Object.hasOwn(t.studyPrograms, program)
+    ? t.studyPrograms[program as keyof Translations['studyPrograms']]
+    : undefined;

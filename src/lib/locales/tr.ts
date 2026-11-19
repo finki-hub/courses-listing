@@ -3,11 +3,12 @@ export const tr = {
   brand: 'FINKI Hub',
   common: {
     accreditation: 'Akreditasyon',
+    all: 'Tümü',
     channel: 'Kanal',
     close: 'Kapat',
     code: 'Kod',
     course: 'Ders',
-    courseLevel: 'Ders seviyesi',
+    credits: 'Kredi',
     discordChannel: 'Kanal (Discord)',
     level: 'Seviye',
     link: 'Bağlantı',
@@ -17,6 +18,7 @@ export const tr = {
     name: 'Ad',
     no: 'Yok',
     noResults: 'Sonuç bulunamadı.',
+    popularity: 'Popülerlik',
     prerequisite: 'Ön koşul',
     searchCourses: 'Ders ara',
     searchPlaceholder: 'Ders ara...',
@@ -29,10 +31,21 @@ export const tr = {
     yes: 'Var',
   },
   detail: {
+    accreditations: 'Akreditasyonlar',
     accreditationYear: '{year} akreditasyonu',
+    accreditationYears: '{years} akreditasyonları',
     assistants: 'Araştırma görevlileri',
+    back: '{course} dersine dön',
+    credits: 'Kredi',
     description: 'Ayrıntılı ders bilgileri',
+    discordChannel: 'FINKI Hub Discord sunucusunda kanal',
+    noPrerequisites: 'Ön koşul yok',
+    overview: 'Genel bakış',
+    prerequisites: 'Ön koşullar',
     professors: 'Öğretim üyeleri',
+    programs: 'Öğrenim programları',
+    staff: 'Öğretim kadrosu',
+    subjectPage: 'finki.ukim.mk üzerindeki ders sayfası',
   },
   enrollment: {
     academicYear: 'Akademik yıl',
@@ -91,23 +104,151 @@ export const tr = {
     sourceToTarget: 'kaynak dersten hedef derse',
     type: 'Tür',
   },
+  filters: {
+    accreditation: 'Akreditasyon:',
+    activeFilters: 'Etkin filtreler',
+    buttonLabel: 'Filtreler, {count} etkin',
+    channelOnly: 'Discord kanalı var',
+    clearAll: 'Tümünü temizle',
+    clearFilters: 'Filtreleri temizle',
+    credits: 'Kredi:',
+    elective: 'Seçmeli',
+    hideInactive: 'Etkin olmayan dersleri gizle',
+    hideInactiveInfo:
+      'Devre dışı olarak işaretlenen ve hiç öğrenci kaydı olmamış dersleri gizler.',
+    level: 'Seviye:',
+    levelInfo:
+      'Her ders üç seviyeden birine aittir: L1 giriş, L2 orta ve L3 ileri düzey.\nSeçmeli derslerden simülatör L1 için en fazla {l1}, L2 için en fazla {l2} kredi sayar; L3 için sınır yoktur.',
+    more: 'Daha fazla filtre',
+    offeredInfo:
+      'Yarıyılı için veri bulunan en son akademik yılda kayıtlı öğrencisi olan dersler.',
+    offeredOnly: 'Bu yıl açılıyor',
+    panelTitle: 'Filtreler',
+    program: 'Program:',
+    programAll: 'Tüm programlar',
+    removeChip: 'Filtreyi kaldır: {filter}',
+    required: 'Zorunlu',
+    season: 'Yarıyıl:',
+    sections: {
+      curriculum: 'Müfredat',
+      people: 'Öğretim kadrosu',
+      program: 'Çalışma programı',
+      status: 'Durum',
+      topics: 'Konular',
+    },
+    semesterNumber: 'Yarıyıl no.:',
+    showCourses: 'Dersleri göster',
+    showResults: {
+      one: '{count} dersi göster',
+      other: '{count} dersi göster',
+    },
+    staff: 'Personel:',
+    staffPlaceholder: 'Profesör veya asistan...',
+    status: 'Göster:',
+    tagMode: 'Eşleşme:',
+    tagModeAll: 'Tüm etiketler',
+    tagModeAny: 'Herhangi bir etiket',
+  },
   language: 'Dil',
   listing: {
+    creditsValue: '{value} kredi',
+    discordAvailable: 'Discord kanalı var',
+    moreTags: '+{count}',
+    noResultsText: 'Bir filtreyi kaldırın veya başka bir şey arayın.',
+    noResultsTitle: 'Bu filtrelere uyan ders yok',
+    openDetails: '{course} ayrıntılarını aç',
     resultCount: {
       one: '{count} ders',
       other: '{count} ders',
     },
+    searchChip: 'Arama: {value}',
     searchPlaceholder: 'Ad, kısaltma, kod veya personele göre ara...',
+    semesterValue: '{value}. yarıyıl',
     sort: 'Sırala:',
+    sortAscending: 'Artan',
+    sortBy: 'Sırala',
+    sortDescending: 'Azalan',
+    sortDirection: 'Sıralama yönü: {direction}',
+    studentsInfo:
+      'Dersin yarıyılı için veri bulunan en son akademik yılda kayıtlı öğrenciler',
+    studentsValue: '{value} öğrenci',
     tagsLabel: 'Etiketler:',
+  },
+  masters: {
+    cycle: 'Öğrenim:',
+    electiveGroups: {
+      facultySummer: 'Fakülte seçmelileri, bahar',
+      facultyWinter: 'Fakülte seçmelileri, güz',
+      other: 'Diğer seçmeliler',
+      programSummer: 'Program seçmelileri, bahar',
+      programWinter: 'Program seçmelileri, güz',
+    },
+    electiveIn: {
+      one: '{count} programda seçmeli',
+      other: '{count} programda seçmeli',
+    },
+    loadError: 'Yüksek lisans programları yüklenemedi.',
+    loading: 'Yüksek lisans programları yükleniyor...',
+    mandatory: 'Zorunlu',
+    mandatoryIn: '{programs} programında zorunlu',
+    master: 'Yüksek lisans',
+    noEnrollment: 'Açılmadı veya veri yok',
+    noPrograms: 'Hiçbir programda yok',
+    programs: 'Programlar',
+    undergraduate: 'Lisans',
   },
   metadataDescription:
     "FINKI'nin tüm derslerini, öğrenim programlarını ve akreditasyonlarını inceleyin.",
   nav: {
     equivalencies: 'Eşdeğerlikler',
+    label: 'Bölümler',
     listing: 'Dersler',
     prerequisites: 'Ön koşullar',
     simulator: 'Simülatör',
+  },
+  nextCourses: {
+    credits: '{credits} kredi',
+    description:
+      'Sonra alabileceğiniz dersler: henüz alınmamış, ön koşulları sağlanmış ve seviye sınırları içinde. Önce zorunlu dersler, ardından yarıyıla ve alan öğrenci sayısına göre seçmeli dersler gelir.',
+    empty: 'Bu yarıyılda alınabilecek ders yok.',
+    enrolled: '{year} yılında {count} öğrenci',
+    forSeason: { summer: 'Bahar yarıyılı için', winter: 'Güz yarıyılı için' },
+    markListened: 'Kayıtlı işaretle',
+    upcoming: '(bir sonraki; değiştirmek için yukarıdan bir yarıyıl seçin)',
+  },
+  pageIntro: {
+    listing:
+      'Tüm FINKI derslerini arayın ve filtreleyin, ardından personel, programlar ve kayıt sayıları için bir ders açın.',
+    simulator:
+      'Sonra hangi derslere kaydolabileceğinizi görmek, kredilerinizi takip etmek ve gelecek dönemleri planlamak için aldığınız veya geçtiğiniz dersleri işaretleyin.',
+  },
+  planner: {
+    addToPlan: 'Plana ekle',
+    description:
+      'Henüz almadığınız dersleri kalan yarıyıllarınıza planlayın. Daha önce planlanan dersler sonrakiler için geçilmiş sayılır; her ders yalnızca kendi dönemindeki yarıyıllara konabilir.',
+    emptySemester: 'Henüz bir şey planlanmadı.',
+    graduation3yr: 'Bu planla 3 yıllık derece şu yarıyılda tamamlanır:',
+    graduation4yr: 'Bu planla 4 yıllık derece şu yarıyılda tamamlanır:',
+    issues: {
+      exclusive:
+        'Тимски проект ve Самостоен проект derslerinden yalnızca biri sayılır.',
+      levelLimit:
+        'Seviyesinin seçmeli ders sınırını aşıyor; kredileri sayılmayacak.',
+      past: 'Geçmiş bir yarıyıla planlandı.',
+      prerequisites:
+        'Ön koşullar, öncesinde alınan veya planlanan derslerle sağlanmıyor.',
+      season:
+        'Ders o dönemde verilmiyor: tek yarıyıllar güz, çift yarıyıllar bahar dönemidir.',
+    },
+    notPlanned: 'Planlanmadı',
+    notReached: '8. yarıyıla kadar ulaşılamıyor',
+    planFor: 'Yarıyıl',
+    plannedFor: 'Planda: {semester}. yarıyıl',
+    recommended: 'Önerilen: {semester}. yarıyıl',
+    semesterCredits:
+      '{credits} kredi planlandı (standart yük {standard}), toplam {total}',
+    toPlan: 'Planlanacak dersler',
+    unplannedRequired: 'Henüz planlanmamış zorunlu dersler: {count}',
   },
   prereqDescription: {
     attended: 'kayıtlı',
@@ -126,6 +267,9 @@ export const tr = {
     },
     description:
       'Bir akreditasyon ve ders seçerek bu dersi ön koşul olarak gerektiren tüm dersleri görün.',
+    emptyText:
+      'Onu önkoşul olarak listeleyen dersler burada dönemlerine göre sıralı görünür.',
+    emptyTitle: 'Neyin önünü açtığını görmek için bir ders seçin',
     searchPlaceholder: 'Ad, kısaltma veya koda göre ara...',
   },
   programState: {
@@ -164,7 +308,21 @@ export const tr = {
     attended: 'Kayıtlı',
     attendedPlural: 'Kayıtlı',
     attendedShort: 'K',
+    bulk: { listened: 'Tümü kayıtlı', passed: 'Tümü geçildi' },
+    bulkLabel: {
+      listened:
+        '{semester}. yarıyılın alınabilir zorunlu derslerini kayıtlı olarak işaretle',
+      passed:
+        '{semester}. yarıyılın alınabilir zorunlu derslerini geçildi olarak işaretle',
+    },
+    checklistOnly: {
+      one: '{count} filtre yalnızca listeye uygulanır',
+      other: '{count} filtre yalnızca listeye uygulanır',
+    },
+    clearChecklistFilters: 'Temizle',
     copyLink: 'Mevcut duruma ait bağlantıyı kopyala',
+    courseType: { all: 'Tümü', elective: 'Seçmeli', required: 'Zorunlu' },
+    courseTypeLabel: 'Tür:',
     credits: 'Kredi',
     description:
       'Kayıt yaptırdığınız veya geçtiğiniz dersleri işaretleyin. Ön koşulları sağlanmayan dersler devre dışıdır.',
@@ -172,25 +330,87 @@ export const tr = {
       '🎓 3 yıllık programdan mezuniyet koşullarını sağlıyorsunuz (≥ 174 kredi ve bitirme tezi dışında tüm zorunlu dersler geçilmiş)',
     eligible4yr:
       '🎓 4 yıllık programdan mezuniyet koşullarını sağlıyorsunuz (≥ 234 kredi ve bitirme tezi dışında tüm zorunlu dersler geçilmiş)',
+    filters: 'Filtreler',
     graduated: '🎉 Mezuniyetiniz kutlu olsun!',
+    hpcInfo:
+      'Ders kataloğunda yer almayan HPC dersini geçtiyseniz işaretleyin. Toplamınıza {credits} kredi ekler.',
+    locked: {
+      limit: 'L{level} seçmeli sınırına ulaşıldı',
+      prerequisites: 'Ön koşullar karşılanmadı',
+      project: 'Bunun yerine: {course}',
+    },
     missing3yr:
       'ℹ️ ≥ 174 krediniz var, ancak 3 yıllık program için şu zorunlu dersler eksik: {courses}',
     missing4yr:
       'ℹ️ ≥ 234 krediniz var, ancak 4 yıllık program için şu zorunlu dersler eksik: {courses}',
+    modeLabel: 'Simülatör görünümü',
+    modes: { checklist: 'Liste', next: 'Sırada ne var', plan: 'Plan' },
     onlyAvailable: 'Yalnızca alınabilir dersler',
     overLimit:
       '⛔ {levels} için kazanılabilecek azami kredi aşıldı. Fazla krediler sayılmadı.',
     passed: 'Geçildi',
     passedPlural: 'Geçilen',
     passedShort: 'G',
+    progress: {
+      credits: '{credits} kredi',
+      degree3: '3 yıllık derece',
+      degree3Short: '3 yıl',
+      degree4: '4 yıllık derece',
+      degree4Short: '4 yıl',
+      details: 'Ayrıntılar',
+      label: 'İlerlemeniz',
+      levelMeter: 'L{level} seçmeli',
+      limitValue: '{credits} / {limit}',
+    },
     reset: 'Sıfırla',
-    resetConfirm:
-      'Seçilen tüm dersleri sıfırlamak istediğinizden emin misiniz?',
+    resetDone: 'Tüm seçimler sıfırlandı.',
+    search: 'Simülatördeki dersleri ara',
+    semesterProgress: '{total} krediden {passed} geçildi',
+    semesterSummary: 'Kredi: {listened} kayıtlı, {passed} geçilen',
+    semesterTitle: '{semester}. yarıyıl',
+    settings: {
+      description:
+        'Akreditasyonunuz, öğrenim programınız ve ders listesi dışında kazanılan krediler.',
+      edit: 'Programı ve ek kredileri değiştir',
+      extras: 'Ek krediler',
+      title: 'Öğreniminiz',
+    },
+    setup: {
+      choose: 'Bir program seçin',
+      description:
+        'Kayıtlı olduğunuz akreditasyonu ve öğrenim programını seçin. Daha sonra değiştirebilirsiniz.',
+      program: 'Öğrenim programı',
+      start: 'Başla',
+      title: 'Simülatörü ayarlayın',
+    },
     share: 'Paylaş',
+    sharedDiscard: 'İlerlememe dön',
+    sharedKeep: 'İlerlememi bununla değiştir',
+    sharedText:
+      'Buradaki değişiklikler kaydedilmez ve siz aksini seçene kadar kendi ilerlemeniz olduğu gibi kalır.',
+    sharedTitle: 'Paylaşılan bir simülatör durumunu görüntülüyorsunuz',
+    status: {
+      label: '{course} durumu',
+      listened: 'Kayıtlı',
+      none: 'Yok',
+      passed: 'Geçildi',
+    },
     statusToggle: '{status}: {course}',
+    undo: 'Geri al',
     universityList: 'Üniv. listesi',
     universityListInfo:
-      'Üniversite listesinden kazanılan krediler için resmî bir üst sınır yoktur.\nUygulamada, her biri 9 kredilik en fazla 4 ders, yani toplam 36 kredi alabilirsiniz.',
+      'UKIM üniversite geneli seçmeli ders listesindeki derslerden alınan krediler.\nÜniversite listesinden kazanılan krediler için resmî bir üst sınır yoktur.\nUygulamada, her biri 9 kredilik en fazla 4 ders, yani toplam 36 kredi alabilirsiniz.',
+  },
+  studyPrograms: {
+    ie: 'Computer Education',
+    imb: 'Internet, Networks and Security',
+    ke: 'Computer Education',
+    ki: 'Computer Engineering',
+    kn: 'Computer Science',
+    pit: 'Application of Information Technologies',
+    seis: 'Software Engineering and Information Systems (İngilizce)',
+    siis: 'Software Engineering and Information Systems',
+    ssp: 'Professional Studies in Programming',
   },
   tagLabels: {
     ai: 'Yapay zekâ',

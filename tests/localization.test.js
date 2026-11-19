@@ -403,6 +403,7 @@ test('share URLs preserve source-course positions and statuses in both accredita
       accreditation,
       courses,
       hpcCompleted: true,
+      plan: {},
       program: 'kn',
       seasonFilter: 'winter',
       showOnlyEnabled: true,

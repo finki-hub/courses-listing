@@ -1,0 +1,26 @@
+import { type Accessor, createRoot, createSignal } from 'solid-js';
+
+const queries = new Map<string, Accessor<boolean>>();
+
+// Whether a media query matches, as a signal shared by every caller of the
+// same query: one listener per query for the page's lifetime.
+export const useMediaQuery = (query: string): Accessor<boolean> => {
+  const known = queries.get(query);
+  if (known) return known;
+
+  const matches = createRoot(() => {
+    const media =
+      typeof matchMedia === 'function' ? matchMedia(query) : undefined;
+    const [value, setValue] = createSignal(media?.matches ?? false);
+    media?.addEventListener('change', (event) => {
+      setValue(event.matches);
+    });
+    return value;
+  });
+  queries.set(query, matches);
+  return matches;
+};
+
+// The Tailwind breakpoints the listing switches layouts at.
+export const SMALL_SCREEN_QUERY = '(min-width: 640px)';
+export const LARGE_SCREEN_QUERY = '(min-width: 1024px)';

@@ -1,8 +1,7 @@
-import { type Accessor, createEffect, createMemo } from 'solid-js';
+import { type Accessor, createMemo } from 'solid-js';
 
 import {
   getSimulatorShareUrl,
-  replaceSimulatorShareUrl,
   type SharedSimulatorConfig,
 } from '@/lib/simulator-share';
 
@@ -10,6 +9,7 @@ type SimulatorShareParams = {
   accreditation: Accessor<SharedSimulatorConfig['accreditation']>;
   courses: Accessor<SharedSimulatorConfig['courses']>;
   hpcCompleted: Accessor<SharedSimulatorConfig['hpcCompleted']>;
+  plan: Accessor<SharedSimulatorConfig['plan']>;
   program: Accessor<SharedSimulatorConfig['program']>;
   seasonFilter: Accessor<SharedSimulatorConfig['seasonFilter']>;
   showOnlyEnabled: Accessor<SharedSimulatorConfig['showOnlyEnabled']>;
@@ -22,16 +22,13 @@ export const useSimulatorShare = (params: SimulatorShareParams) => {
     accreditation: params.accreditation(),
     courses: params.courses(),
     hpcCompleted: params.hpcCompleted(),
+    plan: params.plan(),
     program: params.program(),
     seasonFilter: params.seasonFilter(),
     showOnlyEnabled: params.showOnlyEnabled(),
     statuses: params.statuses(),
     uniListCredits: params.uniListCredits(),
   }));
-
-  createEffect(() => {
-    replaceSimulatorShareUrl(shareConfig());
-  });
 
   const copyShareUrl = async (): Promise<boolean> => {
     try {

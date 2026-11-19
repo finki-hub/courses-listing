@@ -9,6 +9,7 @@ const fetchCourses = async (): Promise<CourseRaw[]> => {
   if (!response.ok)
     throw new Error(`Failed to fetch courses: ${response.statusText}`);
   const data: unknown = await response.json();
+  // Undergraduate and master's courses; master's ones have cycle "second".
   return coursesSchema.parse(data);
 };
 
