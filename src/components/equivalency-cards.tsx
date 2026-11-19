@@ -212,7 +212,7 @@ export const RuleCard = (props: {
   return (
     <article class={CARD_CLASS}>
       <div class="flex flex-wrap items-center gap-2">
-        <span class={cn(TAG_CLASS, 'bg-primary/10 text-primary')}>
+        <span class={cn(TAG_CLASS, 'bg-primary/6 text-primary')}>
           {ruleLabel(props.rule, t())}
         </span>
         <span class="text-muted-foreground text-xs">

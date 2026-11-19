@@ -64,9 +64,7 @@ test.describe('simulator', () => {
     await status(page, 'Structured programming')
       .getByRole('radio', { name: 'Passed' })
       .check();
-    await page
-      .getByRole('button', { name: 'Copy a link to the current state' })
-      .click();
+    await page.getByRole('button', { name: 'Share' }).click();
     const link = await page.evaluate(async () =>
       navigator.clipboard.readText(),
     );

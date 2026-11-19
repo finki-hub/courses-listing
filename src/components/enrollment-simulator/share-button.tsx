@@ -1,6 +1,7 @@
 import { Check, Link2, LoaderCircle, TriangleAlert } from 'lucide-solid';
 import { createSignal, Match, onCleanup, Switch } from 'solid-js';
 
+import { type Translations } from '@/lib/i18n';
 import { useLanguage } from '@/lib/LanguageProvider';
 import { cn } from '@/lib/utils';
 
@@ -16,6 +17,14 @@ const SHARE_STATE_CLASSES: Record<ShareState, string> = {
 };
 
 const STATUS_RESET_DELAY_MS = 2_000;
+
+// What a screen reader hears once a copy finishes.
+const SHARE_STATUS_TEXT: Record<ShareState, (t: Translations) => string> = {
+  copying: () => '',
+  done: (t) => t.simulator.linkCopied,
+  error: (t) => t.simulator.linkCopyFailed,
+  idle: () => '',
+};
 
 // Copies a link to the current simulator state; the icon confirms the copy.
 export const ShareButton = (props: { onShare: () => Promise<boolean> }) => {
@@ -43,7 +52,6 @@ export const ShareButton = (props: { onShare: () => Promise<boolean> }) => {
 
   return (
     <button
-      aria-label={t().simulator.copyLink}
       class={cn(SIMULATOR_ACTION_CLASS, SHARE_STATE_CLASSES[state()])}
       disabled={state() !== 'idle'}
       onClick={() => {
@@ -79,7 +87,13 @@ export const ShareButton = (props: { onShare: () => Promise<boolean> }) => {
           />
         </Match>
       </Switch>
-      <span class="hidden sm:inline">{t().simulator.share}</span>
+      <span class="sr-only sm:not-sr-only">{t().simulator.share}</span>
+      <span
+        class="sr-only"
+        role="status"
+      >
+        {SHARE_STATUS_TEXT[state()](t())}
+      </span>
     </button>
   );
 };

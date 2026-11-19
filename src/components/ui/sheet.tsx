@@ -30,6 +30,9 @@ const PANEL_SIDES = {
 // mobile, with a title, a close button, a scrolling body and a footer.
 export const Sheet = (props: SheetProps) => {
   const { t } = useLanguage();
+  // The panel opens from code rather than a trigger, so it remembers what had
+  // focus and returns it there on close instead of leaving it on the page.
+  let opener: HTMLElement | undefined;
   return (
     <DialogPrimitive
       onOpenChange={props.onOpenChange}
@@ -45,6 +48,18 @@ export const Sheet = (props: SheetProps) => {
             PANEL_SIDES[props.side ?? 'right'],
             props.class,
           )}
+          onCloseAutoFocus={(event) => {
+            if (!opener?.isConnected) return;
+            event.preventDefault();
+            opener.focus({ preventScroll: true });
+          }}
+          onOpenAutoFocus={() => {
+            opener =
+              document.activeElement instanceof HTMLElement &&
+              document.activeElement !== document.body
+                ? document.activeElement
+                : undefined;
+          }}
         >
           <div
             aria-hidden="true"

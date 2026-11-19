@@ -112,8 +112,8 @@ export const mk = {
   },
   filters: {
     accreditation: 'Акредитација:',
+    activeCount: '{count} активни',
     activeFilters: 'Активни филтри',
-    buttonLabel: 'Филтри, {count} активни',
     channelOnly: 'Има Discord канал',
     clearAll: 'Исчисти сè',
     clearFilters: 'Исчисти ги филтрите',
@@ -367,6 +367,8 @@ export const mk = {
     graduated: '🎉 Честитки дипломирање!',
     hpcInfo:
       'Означете ако сте го положиле курсот HPC, кој не е дел од каталогот на предмети. Додава {credits} кредити на вкупниот збир.',
+    linkCopied: 'Врската е копирана',
+    linkCopyFailed: 'Врската не може да се копира',
     locked: {
       limit: 'Исполнет лимит за изборни L{level}',
       prerequisites: 'Неисполнети предуслови',

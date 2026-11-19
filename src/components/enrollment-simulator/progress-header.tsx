@@ -8,6 +8,7 @@ import {
   GRADUATION_CREDITS_4YR,
 } from '@/lib/simulator';
 import { type SimulatorProgress } from '@/lib/simulator-setup';
+import { trackHeight } from '@/lib/track-height';
 import { cn } from '@/lib/utils';
 
 import { SIMULATOR_ACTION_CLASS } from './course-styles';
@@ -42,6 +43,9 @@ export const ProgressHeader = (props: ProgressHeaderProps) => {
     <section
       aria-label={t().simulator.progress.label}
       class="bg-card sticky top-[calc(var(--tabbar-h,0px)+4px)] z-30 space-y-3 rounded-xl border p-3 shadow-md sm:px-4"
+      ref={(element) => {
+        trackHeight(element, '--sticky-progress-h');
+      }}
     >
       <div class="flex flex-wrap items-center gap-x-4 gap-y-3">
         <div class="min-w-0 flex-1 lg:max-w-sm lg:flex-none">

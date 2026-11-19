@@ -13,7 +13,6 @@ import {
   For,
   type JSX,
   Match,
-  onCleanup,
   Switch,
 } from 'solid-js';
 import { Dynamic } from 'solid-js/web';
@@ -40,8 +39,10 @@ import {
 } from '@/lib/listing-url-state';
 import { isMasterCourse } from '@/lib/master-programs';
 import { PREREQUISITE_FOCUS_PARAM } from '@/lib/prerequisite-graph';
+import { useRevealFocus } from '@/lib/reveal-focus';
 import { PAGE_QUERY_PARAM, SIMULATOR_SHARE_PARAM } from '@/lib/simulator-share';
 import { SIMULATOR_VIEW_PARAMS } from '@/lib/simulator-url-state';
+import { trackHeight } from '@/lib/track-height';
 
 type Page = 'equivalencies' | 'listing' | 'prerequisites' | 'simulator';
 
@@ -86,20 +87,11 @@ const getInitialPage = (): Page => {
 // Publishes the sticky tab bar's height as --tabbar-h, so content that sticks
 // below it (such as the simulator's progress header) can sit right under it.
 const trackTabBarHeight = (element: HTMLElement) => {
-  const update = () => {
-    document.documentElement.style.setProperty(
-      '--tabbar-h',
-      `${String(element.getBoundingClientRect().height)}px`,
-    );
-  };
-  const observer = new ResizeObserver(update);
-  observer.observe(element);
-  onCleanup(() => {
-    observer.disconnect();
-  });
+  trackHeight(element, '--tabbar-h');
 };
 
 const App = () => {
+  useRevealFocus();
   const { language, setLanguage, t } = useLanguage();
   const tabs = (): Array<{ label: string; value: Page }> => [
     { label: t().nav.listing, value: 'listing' },

@@ -28,7 +28,7 @@ export const FINKI_HUB_DISCORD_URL =
   'https://discord.gg/finki-studenti-810997107376914444';
 
 export const EXTERNAL_LINK_CLASS =
-  'text-primary hover:text-primary/80 inline-flex w-fit items-center gap-1 underline-offset-2 hover:underline';
+  'text-primary hover:text-primary/80 inline-flex min-h-6 w-fit items-center gap-1 underline-offset-2 hover:underline';
 
 // A titled block of the course panel.
 export const DetailSection = (props: {
