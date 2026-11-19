@@ -44,6 +44,9 @@ export const en = {
     prerequisites: 'Prerequisites',
     professors: 'Professors',
     programs: 'Study programs',
+    requiredFor: 'Required for',
+    showAllRequired: 'Show all {count}',
+    showFewerRequired: 'Show fewer',
     showMap: 'Show prerequisite map',
     staff: 'Teaching staff',
     subjectPage: 'Subject page on finki.ukim.mk',
@@ -58,6 +61,7 @@ export const en = {
     heading: 'Student enrollment',
     increasing: 'Increasing',
     insufficientData: 'Insufficient data',
+    lastOffered: 'Last offered in {year}',
     latest: 'Latest',
     lowestYear: 'Year with the lowest enrollment',
     maximum: 'Maximum',
@@ -70,6 +74,7 @@ export const en = {
     noHistoryDescription:
       'No yearly enrollment figures are currently available for this course.',
     noPrevious: 'No previous year to compare',
+    notOfferedYet: 'Not offered yet',
     peakYear: 'Year with the highest enrollment',
     same: 'Same enrollment as the previous year',
     stable: 'Stable',
@@ -159,9 +164,12 @@ export const en = {
   listing: {
     creditsValue: '{value} credits',
     discordAvailable: 'Has a Discord channel',
+    lastOffered: 'Last: {year}',
+    lastOfferedSr: 'No students this year. Last offered in {year}',
     moreTags: '+{count}',
     noResultsText: 'Remove a filter or search for something else.',
     noResultsTitle: 'No courses match these filters',
+    notOfferedYet: 'Not offered yet',
     openDetails: 'Open details for {course}',
     resultCount: {
       one: '{count} course',
@@ -178,6 +186,7 @@ export const en = {
     studentsInfo:
       "Students enrolled in the latest academic year with figures for the course's semester",
     studentsValue: '{value} students',
+    studentsYear: 'Students {year}',
     tagsLabel: 'Tags:',
   },
   masters: {

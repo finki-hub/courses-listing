@@ -12,7 +12,8 @@ import {
   type SortDirection,
   sortIndicator,
 } from '@/lib/course-filters';
-import { type Translations } from '@/lib/i18n';
+import { formatCompactYear } from '@/lib/course-offering';
+import { interpolate, type Translations } from '@/lib/i18n';
 import { useLanguage } from '@/lib/LanguageProvider';
 import { SMALL_SCREEN_QUERY, useMediaQuery } from '@/lib/use-media-query';
 import { type Accreditation, type CourseRaw } from '@/types/course';
@@ -26,7 +27,7 @@ import {
 
 type ColumnHead = CourseColumn & {
   readonly class: string;
-  readonly label: (t: Translations) => string;
+  readonly label: (t: Translations, studentsYear?: string) => string;
   /** Visually hidden header, for columns whose content explains itself. */
   readonly labelHidden?: boolean;
   /** Sortable columns sort by this. */
@@ -52,9 +53,14 @@ const CREDITS_HEAD: ColumnHead = {
 };
 const STUDENTS_HEAD: ColumnHead = {
   cellClass: `${NUMBER_CELL} md:table-cell`,
-  class: 'hidden w-24 text-right md:table-cell',
+  class: 'hidden w-32 text-right md:table-cell',
   key: 'students',
-  label: (t) => t.enrollment.students,
+  label: (t, year) =>
+    year === undefined
+      ? t.enrollment.students
+      : interpolate(t.listing.studentsYear, {
+          year: formatCompactYear(year),
+        }),
   sort: 'popularity',
   title: (t) => t.listing.studentsInfo,
 };
@@ -112,6 +118,8 @@ type CourseResultsProps = {
   readonly onToggleSort: (column: SortColumn) => void;
   readonly sortColumn: SortColumn;
   readonly sortDirection: SortDirection;
+  /** The latest year with enrollment, which the Students column counts. */
+  readonly studentsYear?: string;
 };
 
 // The filtered courses: cards on narrow screens, a sortable table otherwise.
@@ -165,7 +173,7 @@ export const CourseResults = (props: CourseResultsProps) => {
                     <Show
                       fallback={
                         <span class={head.labelHidden ? 'sr-only' : undefined}>
-                          {head.label(t())}
+                          {head.label(t(), props.studentsYear)}
                         </span>
                       }
                       when={head.sort}
@@ -183,7 +191,7 @@ export const CourseResults = (props: CourseResultsProps) => {
                           title={head.title?.(t())}
                           type="button"
                         >
-                          {head.label(t())}
+                          {head.label(t(), props.studentsYear)}
                           {sortIndicator(
                             props.sortColumn,
                             props.sortDirection,

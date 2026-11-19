@@ -44,6 +44,9 @@ export const sq = {
     prerequisites: 'Parakushtet',
     professors: 'Profesorët',
     programs: 'Programet e studimit',
+    requiredFor: 'E nevojshme për',
+    showAllRequired: 'Shfaq të gjitha {count}',
+    showFewerRequired: 'Shfaq më pak',
     showMap: 'Shfaq hartën e parakushteve',
     staff: 'Stafi mësimor',
     subjectPage: 'Faqja e lëndës në finki.ukim.mk',
@@ -58,6 +61,7 @@ export const sq = {
     heading: 'Numri i studentëve të regjistruar',
     increasing: 'Në rritje',
     insufficientData: 'Të dhëna të pamjaftueshme',
+    lastOffered: 'Ofruar së fundmi në {year}',
     latest: 'Më i fundit',
     lowestYear: 'Viti me numrin më të vogël të studentëve',
     maximum: 'Maksimumi',
@@ -70,6 +74,7 @@ export const sq = {
     noHistoryDescription:
       'Për këtë lëndë aktualisht nuk ka të dhëna vjetore për numrin e studentëve.',
     noPrevious: 'Nuk ka vit të mëparshëm për krahasim',
+    notOfferedYet: 'Ende nuk ofrohet',
     peakYear: 'Viti me numrin më të madh të studentëve',
     same: 'I njëjti numër studentësh si vitin e kaluar',
     stable: 'E qëndrueshme',
@@ -159,9 +164,12 @@ export const sq = {
   listing: {
     creditsValue: '{value} kredite',
     discordAvailable: 'Ka kanal në Discord',
+    lastOffered: 'Së fundmi: {year}',
+    lastOfferedSr: 'Pa studentë këtë vit. Ofruar së fundmi në {year}',
     moreTags: '+{count}',
     noResultsText: 'Hiqni një filtër ose kërkoni diçka tjetër.',
     noResultsTitle: 'Asnjë lëndë nuk përputhet me këto filtra',
+    notOfferedYet: 'Ende nuk ofrohet',
     openDetails: 'Hap detajet për {course}',
     resultCount: {
       one: '{count} lëndë',
@@ -178,6 +186,7 @@ export const sq = {
     studentsInfo:
       'Studentët e regjistruar në vitin e fundit akademik me të dhëna për semestrin e lëndës',
     studentsValue: '{value} studentë',
+    studentsYear: 'Studentë {year}',
     tagsLabel: 'Etiketat:',
   },
   masters: {

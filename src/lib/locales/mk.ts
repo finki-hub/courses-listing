@@ -44,6 +44,9 @@ export const mk = {
     prerequisites: 'Предуслови',
     professors: 'Професори',
     programs: 'Студиски програми',
+    requiredFor: 'Потребен за',
+    showAllRequired: 'Прикажи ги сите {count}',
+    showFewerRequired: 'Прикажи помалку',
     showMap: 'Прикажи мапа на предуслови',
     staff: 'Наставен кадар',
     subjectPage: 'Страница на предметот на finki.ukim.mk',
@@ -58,6 +61,7 @@ export const mk = {
     heading: 'Број на запишани студенти',
     increasing: 'Расте',
     insufficientData: 'Недоволно податоци',
+    lastOffered: 'Последно се нудел во {year}',
     latest: 'Последно',
     lowestYear: 'Година со најнизок број на слушачи',
     maximum: 'Максимум',
@@ -70,6 +74,7 @@ export const mk = {
     noHistoryDescription:
       'За овој предмет моментално нема години со внесен број на слушачи.',
     noPrevious: 'Нема претходна година за споредба',
+    notOfferedYet: 'Сè уште не се нуди',
     peakYear: 'Година со највисок број на слушачи',
     same: 'Ист број на слушачи како претходната година',
     stable: 'Стабилно',
@@ -159,9 +164,12 @@ export const mk = {
   listing: {
     creditsValue: '{value} кредити',
     discordAvailable: 'Има Discord канал',
+    lastOffered: 'Последно: {year}',
+    lastOfferedSr: 'Нема слушатели оваа година. Последно се нудел во {year}',
     moreTags: '+{count}',
     noResultsText: 'Отстранете филтер или пребарајте нешто друго.',
     noResultsTitle: 'Ниту еден предмет не одговара на филтрите',
+    notOfferedYet: 'Сè уште не се нуди',
     openDetails: 'Отвори детали за {course}',
     resultCount: {
       one: '{count} предмет',
@@ -178,6 +186,7 @@ export const mk = {
     studentsInfo:
       'Запишани студенти во последната академска година со податоци за семестарот на предметот',
     studentsValue: '{value} студенти',
+    studentsYear: 'Слушачи {year}',
     tagsLabel: 'Тагови:',
   },
   masters: {

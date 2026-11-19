@@ -1,5 +1,13 @@
 import { ArrowLeft, Network } from 'lucide-solid';
-import { createEffect, createSignal, For, on, Show, untrack } from 'solid-js';
+import {
+  createEffect,
+  createMemo,
+  createSignal,
+  For,
+  on,
+  Show,
+  untrack,
+} from 'solid-js';
 
 import {
   AccreditationSections,
@@ -9,8 +17,11 @@ import {
 } from '@/components/course-detail/accreditation-sections';
 import { EnrollmentHistorySection } from '@/components/course-detail/enrollment-history-section';
 import { MasterProgramsSection } from '@/components/course-detail/master-programs-section';
+import { RequiredForSection } from '@/components/course-detail/required-for-section';
 import { Sheet } from '@/components/ui/sheet';
 import { type MasterListing } from '@/components/use-master-listing';
+import { getLatestEnrollmentYears } from '@/lib/course-facts';
+import { getOffering } from '@/lib/course-offering';
 import { interpolate } from '@/lib/i18n';
 import { useLanguage } from '@/lib/LanguageProvider';
 import { isMasterCourse } from '@/lib/master-programs';
@@ -49,6 +60,57 @@ const StaffList = (props: { names: string[]; title: string }) => (
   </Show>
 );
 
+// An undergraduate course's accreditations, and the courses that need it.
+const UndergraduateSections = (props: {
+  course: CourseRaw;
+  courses?: CourseRaw[];
+  onOpenCourse?: (course: CourseRaw) => void;
+}) => (
+  <>
+    <AccreditationSections
+      course={props.course}
+      courses={props.courses}
+      onOpenCourse={props.onOpenCourse}
+    />
+    <Show when={props.onOpenCourse && props.courses}>
+      {(courses) => (
+        <RequiredForSection
+          course={props.course}
+          courses={courses()}
+          onOpenCourse={(next) => {
+            props.onOpenCourse?.(next);
+          }}
+        />
+      )}
+    </Show>
+  </>
+);
+
+const StaffSection = (props: { course: CourseRaw }) => {
+  const { t } = useLanguage();
+  return (
+    <Show
+      when={
+        splitNames(props.course.professors).length > 0 ||
+        splitNames(props.course.assistants).length > 0
+      }
+    >
+      <DetailSection title={t().detail.staff}>
+        <div class="grid gap-4 sm:grid-cols-2">
+          <StaffList
+            names={splitNames(props.course.professors)}
+            title={t().detail.professors}
+          />
+          <StaffList
+            names={splitNames(props.course.assistants)}
+            title={t().detail.assistants}
+          />
+        </div>
+      </DetailSection>
+    </Show>
+  );
+};
+
 // A course's details in a panel beside the list (a sheet on phones).
 // Following a prerequisite opens that course in place, with a way back.
 export const CourseDetailDialog = (props: CourseDetailDialogProps) => {
@@ -62,6 +124,15 @@ export const CourseDetailDialog = (props: CourseDetailDialogProps) => {
   // A move the panel itself asked for: forward to a prerequisite, or back.
   const pending: { move?: { course: CourseRaw; kind: 'back' | 'forward' } } =
     {};
+
+  const latestYears = createMemo(() =>
+    getLatestEnrollmentYears(props.courses ?? []),
+  );
+  // Undergraduate courses only: master's courses have no enrollment data.
+  const offeringOf = (value: CourseRaw) =>
+    isMasterCourse(value) || !props.courses
+      ? undefined
+      : getOffering(value, latestYears());
 
   const nameOf = (value: CourseRaw) =>
     getCourseName(value, props.accreditation, language());
@@ -178,7 +249,7 @@ export const CourseDetailDialog = (props: CourseDetailDialogProps) => {
 
             <Show
               fallback={
-                <AccreditationSections
+                <UndergraduateSections
                   course={course()}
                   courses={props.courses}
                   onOpenCourse={props.onOpenCourse ? openFromPanel : undefined}
@@ -221,28 +292,13 @@ export const CourseDetailDialog = (props: CourseDetailDialogProps) => {
               )}
             </Show>
 
-            <Show
-              when={
-                splitNames(course().professors).length > 0 ||
-                splitNames(course().assistants).length > 0
-              }
-            >
-              <DetailSection title={t().detail.staff}>
-                <div class="grid gap-4 sm:grid-cols-2">
-                  <StaffList
-                    names={splitNames(course().professors)}
-                    title={t().detail.professors}
-                  />
-                  <StaffList
-                    names={splitNames(course().assistants)}
-                    title={t().detail.assistants}
-                  />
-                </div>
-              </DetailSection>
-            </Show>
+            <StaffSection course={course()} />
 
             <DetailSection title={t().enrollment.heading}>
-              <EnrollmentHistorySection course={course()} />
+              <EnrollmentHistorySection
+                course={course()}
+                offering={offeringOf(course())}
+              />
             </DetailSection>
           </div>
         )}
