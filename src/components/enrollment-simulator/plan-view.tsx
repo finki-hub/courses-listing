@@ -3,6 +3,7 @@ import { For, type JSX, Show } from 'solid-js';
 
 import { EmptyState } from '@/components/ui/empty-state';
 import { SectionHeader } from '@/components/ui/page-header';
+import { useCourseNames } from '@/lib/course-names-context';
 import { interpolate } from '@/lib/i18n';
 import { useLanguage } from '@/lib/LanguageProvider';
 import { type SimulatorCourse } from '@/lib/simulator';
@@ -36,6 +37,7 @@ const PlanCard = (props: { children: JSX.Element; header: JSX.Element }) => (
 // its load against the standard 30 credits, and the courses still to place.
 export const PlanView = (props: PlanViewProps) => {
   const { t } = useLanguage();
+  const names = useCourseNames();
 
   const row = (course: SimulatorCourse) => (
     <PlanCourseRow
@@ -76,7 +78,7 @@ export const PlanView = (props: PlanViewProps) => {
             </summary>
             <p class="text-foreground mt-1">
               {props.evaluation.unplannedRequired
-                .map((course) => course.name)
+                .map((course) => names().courseName(course.name))
                 .join(', ')}
             </p>
           </details>

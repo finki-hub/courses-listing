@@ -33,11 +33,13 @@ dictionaries, preserve named placeholders such as `{count}`, and use `t()` from
 locale-aware number helpers for dynamic text. Page metadata uses the same
 dictionaries, with Macedonian defaults rendered by Vite before JavaScript runs.
 
-Course names, people, codes, official study-program abbreviations and source
-prerequisite text remain as supplied by the catalog. In English, a course
-shows its official English name (`name-en` in `courses.json`, from FINKI's
-English subject pages) when it has one; search matches both names. Prerequisite parsing and
-simulator state use the original values; translate their display messages only.
+Course names, people, codes and official study-program abbreviations remain as
+supplied by the catalog. In English, every tab shows a course by its official
+English name (`name-en` in `courses.json`, from FINKI's English subject pages)
+when it has one, and prerequisites show those names with "and", "or" and
+"credits" in English; search matches both names. Prerequisite parsing, saved
+simulator progress and share links use the original Macedonian names, which
+`src/lib/CourseNamesProvider.tsx` translates for display only.
 
 Run `npm test`, `npm run check`, `npm run lint` and `npm run build` to validate
 changes. Localization tests check dictionary and placeholder coverage, formatting,

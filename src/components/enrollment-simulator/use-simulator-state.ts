@@ -1,5 +1,6 @@
 import { type Accessor, createMemo } from 'solid-js';
 
+import { useCourseNames } from '@/lib/course-names-context';
 import { useLanguage } from '@/lib/LanguageProvider';
 import { type CourseInfo, type CourseStatus } from '@/lib/prerequisite';
 import {
@@ -27,6 +28,7 @@ type UseSimulatorStateParams = {
 
 export const useSimulatorState = (params: UseSimulatorStateParams) => {
   const { t } = useLanguage();
+  const names = useCourseNames();
   const {
     courseInfoMap,
     electiveCourses,
@@ -126,6 +128,7 @@ export const useSimulatorState = (params: UseSimulatorStateParams) => {
     computeReasonMap(
       {
         courseInfoMap: courseInfoMap(),
+        courseName: names().courseName,
         courses: parsedCourses(),
         electiveCourses: electiveCourses(),
         enabledMap: enabledMap(),

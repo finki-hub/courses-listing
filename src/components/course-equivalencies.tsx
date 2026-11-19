@@ -13,6 +13,7 @@ import { useLinkedCourseDialog } from '@/components/use-linked-course-dialog';
 import { resolveSimilarEquivalencies } from '@/data/course-similar-equivalencies';
 import { ALERT_STYLES } from '@/lib/alert-styles';
 import { useAppNavigation } from '@/lib/app-navigation';
+import { useCourseNames } from '@/lib/course-names-context';
 import {
   buildCodeIndex,
   buildEquivalencyPairs,
@@ -33,6 +34,7 @@ type CourseEquivalenciesProps = {
 
 export const CourseEquivalencies = (props: CourseEquivalenciesProps) => {
   const { language, t } = useLanguage();
+  const names = useCourseNames();
   const navigation = useAppNavigation();
   const courseDialog = useLinkedCourseDialog(() => props.courses);
   const [dialogAccreditation, setDialogAccreditation] =
@@ -41,7 +43,9 @@ export const CourseEquivalencies = (props: CourseEquivalenciesProps) => {
   const [search, setSearch] = createSignal('');
   const [view, setView] = createSignal<EquivalencyView | null>(null);
 
-  const pairs = createMemo(() => buildEquivalencyPairs(props.courses));
+  const pairs = createMemo(() =>
+    buildEquivalencyPairs(props.courses, names().courseName),
+  );
   const rules = createMemo(() =>
     mergeCombinationRules(resolveSimilarEquivalencies(props.courses)),
   );
@@ -60,7 +64,9 @@ export const CourseEquivalencies = (props: CourseEquivalenciesProps) => {
   );
   const shownRules = createMemo(() =>
     view() === null || view() === 'rules'
-      ? rules().filter((rule) => ruleMatchesSearch(rule, term()))
+      ? rules().filter((rule) =>
+          ruleMatchesSearch(rule, term(), names().courseName),
+        )
       : [],
   );
   const shownCount = () => shownPairs().length + shownRules().length;

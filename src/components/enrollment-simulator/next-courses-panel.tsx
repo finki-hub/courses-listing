@@ -4,6 +4,7 @@ import { For, type JSX, Show } from 'solid-js';
 import { EmptyState } from '@/components/ui/empty-state';
 import { SectionHeader } from '@/components/ui/page-header';
 import { StatusBadge } from '@/components/ui/status-badge';
+import { useCourseNames } from '@/lib/course-names-context';
 import {
   formatCount,
   formatNumber,
@@ -31,6 +32,7 @@ type NextCoursesPanelProps = {
 // The courses the student can take in the chosen semester, best first.
 export const NextCoursesPanel = (props: NextCoursesPanelProps) => {
   const { language, t } = useLanguage();
+  const names = useCourseNames();
 
   const details = (item: NextCourse) =>
     [
@@ -78,7 +80,7 @@ export const NextCoursesPanel = (props: NextCoursesPanelProps) => {
                 <li class="grid gap-x-4 gap-y-2 px-3 py-2.5 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center sm:px-4">
                   <div class="min-w-0 space-y-1">
                     <div class="text-sm font-medium leading-snug">
-                      {item.course.name}
+                      {names().courseName(item.course.name)}
                     </div>
                     <div class="text-muted-foreground flex flex-wrap items-center gap-x-3 gap-y-1 text-xs">
                       <Show when={kind()}>
@@ -102,7 +104,7 @@ export const NextCoursesPanel = (props: NextCoursesPanelProps) => {
                   </div>
                   <div class="flex gap-1.5">
                     <button
-                      aria-label={`${t().nextCourses.markListened}: ${item.course.name}`}
+                      aria-label={`${t().nextCourses.markListened}: ${names().courseName(item.course.name)}`}
                       class={ROW_ACTION_CLASS}
                       onClick={() => {
                         props.onMarkListened(item.course.name);

@@ -4,6 +4,7 @@ import { Show } from 'solid-js';
 import { InfoTip } from '@/components/ui/info-tip';
 import { SegmentedControl } from '@/components/ui/segmented-control';
 import { StatusBadge } from '@/components/ui/status-badge';
+import { useCourseNames } from '@/lib/course-names-context';
 import { interpolate, type Translations } from '@/lib/i18n';
 import { useLanguage } from '@/lib/LanguageProvider';
 import { getProgramStateKind, type SimulatorCourse } from '@/lib/simulator';
@@ -40,6 +41,8 @@ export type CourseStatusRowProps = {
 // as a three-way choice or, when it can't be taken yet, the short reason.
 export const CourseStatusRow = (props: CourseStatusRowProps) => {
   const { t } = useLanguage();
+  const names = useCourseNames();
+  const name = () => names().courseName(props.course.name);
   const kind = () => getProgramStateKind(props.course.programState);
   const locked = () => !props.enabled || props.exclusiveBlocker !== undefined;
 
@@ -47,11 +50,11 @@ export const CourseStatusRow = (props: CourseStatusRowProps) => {
     props.exclusiveBlocker === undefined
       ? t().simulator.locked.prerequisites
       : interpolate(t().simulator.locked.project, {
-          course: props.exclusiveBlocker,
+          course: names().courseName(props.exclusiveBlocker),
         });
 
   const statusLabel = () =>
-    interpolate(t().simulator.status.label, { course: props.course.name });
+    interpolate(t().simulator.status.label, { course: name() });
   // Phones get one-letter options on the course's own line; the full label
   // is the option's accessible name and tooltip.
   const shortStatusItems = () =>
@@ -85,7 +88,7 @@ export const CourseStatusRow = (props: CourseStatusRowProps) => {
             locked() && 'text-muted-foreground',
           )}
         >
-          {props.course.name}
+          {name()}
         </div>
         <div class="flex flex-wrap items-center gap-x-2 gap-y-1">
           <Show when={kind()}>
@@ -105,7 +108,8 @@ export const CourseStatusRow = (props: CourseStatusRowProps) => {
           <Show when={props.course.prerequisite}>
             {(prerequisite) => (
               <span class="text-muted-foreground hidden min-w-0 truncate text-xs md:inline md:max-w-md">
-                {t().common.prerequisite}: {prerequisite()}
+                {t().common.prerequisite}:{' '}
+                {names().prerequisiteText(prerequisite())}
               </span>
             )}
           </Show>

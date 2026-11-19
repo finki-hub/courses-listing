@@ -1,6 +1,7 @@
 import { For, Show } from 'solid-js';
 
 import { linkPrerequisiteText } from '@/lib/course-detail';
+import { useCourseNames } from '@/lib/course-names-context';
 
 type PrerequisiteTextProps = {
   courseNames: string[];
@@ -9,18 +10,24 @@ type PrerequisiteTextProps = {
 };
 
 // The source prerequisite text, with each known course as a button that opens
-// that course's details.
+// that course's details. Where course names are translated, the courses and
+// the words between them are shown in the language.
 export const PrerequisiteText = (props: PrerequisiteTextProps) => {
+  const names = useCourseNames();
+  const courseLabel = (course: string, written: string) => {
+    const shown = names().courseName(course);
+    return shown === course ? written : shown;
+  };
   const segments = () =>
     props.onOpenCourse
       ? linkPrerequisiteText(props.text, props.courseNames)
-      : [{ text: props.text }];
+      : [{ text: names().prerequisiteText(props.text) }];
 
   return (
     <For each={segments()}>
       {(segment) => (
         <Show
-          fallback={segment.text}
+          fallback={names().prerequisiteConnectors(segment.text)}
           when={segment.course}
         >
           {(course) => (
@@ -31,7 +38,7 @@ export const PrerequisiteText = (props: PrerequisiteTextProps) => {
               }}
               type="button"
             >
-              {segment.text}
+              {courseLabel(course(), segment.text)}
             </button>
           )}
         </Show>

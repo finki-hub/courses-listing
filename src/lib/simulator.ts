@@ -406,6 +406,7 @@ const getPrerequisiteLines = (
   c: SimulatorCourse,
   config: {
     courseInfoMap: Map<string, CourseInfo>;
+    courseName?: (name: string) => string;
     electiveCourses: Set<string>;
     statuses: Record<string, CourseStatus>;
     totalCredits: number;
@@ -430,6 +431,7 @@ const getPrerequisiteLines = (
   return [
     t.reasons.prerequisite,
     ...describePrereqNode(c.rawPrereqNode, ctx, {
+      courseName: config.courseName,
       electives: config.electiveCourses,
       t,
     }),
@@ -439,6 +441,8 @@ const getPrerequisiteLines = (
 export const computeReasonMap = (
   config: {
     courseInfoMap: Map<string, CourseInfo>;
+    /** How a course name is shown in the reasons; as written by default. */
+    courseName?: (name: string) => string;
     courses: SimulatorCourse[];
     electiveCourses: Set<string>;
     enabledMap: Record<string, boolean>;
@@ -456,10 +460,11 @@ export const computeReasonMap = (
     const st = config.statuses[c.name];
     const required = isRequired(c.programState);
     const enabled = config.enabledMap[c.name] ?? true;
-    const exclusiveProjectBlocker = getExclusiveProjectBlocker(
-      config.statuses,
-      c.name,
-    );
+    const blocker = getExclusiveProjectBlocker(config.statuses, c.name);
+    const exclusiveProjectBlocker =
+      blocker === undefined
+        ? undefined
+        : (config.courseName?.(blocker) ?? blocker);
 
     parts.push(
       getStatusLine(st, t),

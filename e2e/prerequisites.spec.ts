@@ -2,8 +2,8 @@ import { expect } from '@playwright/test';
 
 import { test } from './fixtures';
 
-const STRUCTURED_PROGRAMMING = /^Структурно програмирање/u;
-const DATABASES = /^Бази на податоци/u;
+const STRUCTURED_PROGRAMMING = /^Structured programming/u;
+const DATABASES = /^Databases/u;
 
 test.describe('prerequisite map', () => {
   test('a chosen course shows what it needs and unlocks', async ({ page }) => {
@@ -14,12 +14,12 @@ test.describe('prerequisite map', () => {
     await page
       .getByRole('button', {
         exact: true,
-        name: 'Алгоритми и податочни структури',
+        name: 'Algorithms and data structures',
       })
       .click();
 
     const map = page.getByRole('region', {
-      name: 'Prerequisite map for Алгоритми и податочни структури',
+      name: 'Prerequisite map for Algorithms and data structures',
     });
     await expect(map).toBeVisible();
     const requires = map.getByRole('region', { name: 'Requires' });
@@ -38,7 +38,7 @@ test.describe('prerequisite map', () => {
       .click();
     await expect(
       page.getByRole('region', {
-        name: 'Prerequisite map for Структурно програмирање',
+        name: 'Prerequisite map for Structured programming',
       }),
     ).toBeVisible();
   });
@@ -48,7 +48,7 @@ test.describe('prerequisite map', () => {
     await page.getByRole('button', { name: 'Show prerequisite map' }).click();
     await expect(
       page.getByRole('region', {
-        name: 'Prerequisite map for Напредно програмирање',
+        name: 'Prerequisite map for Advanced programming',
       }),
     ).toBeVisible();
   });

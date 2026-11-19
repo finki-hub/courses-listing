@@ -284,6 +284,11 @@ export const en = {
     stepsAway: '{count} steps away',
     unlocks: 'Unlocks',
   },
+  prerequisiteText: {
+    and: 'and',
+    credits: '{credits} credits',
+    or: 'or',
+  },
   programState: {
     elective: 'Elective',
     'faculty-list': 'Faculty list',
