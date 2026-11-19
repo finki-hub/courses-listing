@@ -29,13 +29,16 @@ import { PageHeader } from '@/components/ui/page-header';
 import { PageSkeleton } from '@/components/ui/skeleton';
 import { useCourses } from '@/data/use-courses';
 import { ALERT_STYLES } from '@/lib/alert-styles';
+import { type AppNavigation, AppNavigationContext } from '@/lib/app-navigation';
 import { useLanguage } from '@/lib/LanguageProvider';
 import {
   COURSE_QUERY_PARAM,
+  getCourseLinkValue,
   LISTING_FILTER_PARAMS,
   replaceUrlParams,
 } from '@/lib/listing-url-state';
 import { isMasterCourse } from '@/lib/master-programs';
+import { PREREQUISITE_FOCUS_PARAM } from '@/lib/prerequisite-graph';
 import { PAGE_QUERY_PARAM, SIMULATOR_SHARE_PARAM } from '@/lib/simulator-share';
 import { SIMULATOR_VIEW_PARAMS } from '@/lib/simulator-url-state';
 
@@ -147,6 +150,9 @@ const App = () => {
       if (staticActivePage !== 'listing') {
         for (const param of LISTING_FILTER_PARAMS) params.delete(param);
       }
+      if (staticActivePage !== 'prerequisites') {
+        params.delete(PREREQUISITE_FOCUS_PARAM);
+      }
       // A course link belongs to the tab it was opened on, if that tab has one.
       if (pageChanged || !COURSE_LINK_PAGES.has(staticActivePage)) {
         params.delete(COURSE_QUERY_PARAM);
@@ -154,8 +160,19 @@ const App = () => {
     });
   });
 
+  const navigation: AppNavigation = {
+    showPrerequisites: (course) => {
+      replaceUrlParams((params) => {
+        params.set(PREREQUISITE_FOCUS_PARAM, getCourseLinkValue(course));
+        // The panel it came from closes; the map's tab must not reopen it.
+        params.delete(COURSE_QUERY_PARAM);
+      });
+      setPage('prerequisites');
+    },
+  };
+
   return (
-    <>
+    <AppNavigationContext.Provider value={navigation}>
       <header class="bg-card border-b">
         <div class="container mx-auto flex min-h-16 items-center gap-3 py-2">
           <img
@@ -272,7 +289,7 @@ const App = () => {
           </Match>
         </Switch>
       </main>
-    </>
+    </AppNavigationContext.Provider>
   );
 };
 

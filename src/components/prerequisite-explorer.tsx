@@ -1,23 +1,33 @@
-import { Network } from 'lucide-solid';
-import { createMemo, createSignal, For, Show } from 'solid-js';
+import { ArrowLeft, Network } from 'lucide-solid';
+import {
+  createEffect,
+  createMemo,
+  createSignal,
+  For,
+  Show,
+  untrack,
+} from 'solid-js';
 
 import { AccreditationSwitch } from '@/components/accreditation-switch';
 import { CourseDetailDialog } from '@/components/course-detail-dialog';
+import { PrerequisiteMap } from '@/components/prerequisite-map';
 import { EmptyState } from '@/components/ui/empty-state';
 import { SearchInput } from '@/components/ui/search-input';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
 import { useLinkedCourseDialog } from '@/components/use-linked-course-dialog';
 import { getCourseIdentityFields } from '@/lib/course-filters';
-import { formatCount } from '@/lib/i18n';
+import { interpolate } from '@/lib/i18n';
 import { useLanguage } from '@/lib/LanguageProvider';
-import { buildReverseDependencyMap } from '@/lib/prerequisite';
+import {
+  findCourseByLinkValue,
+  getCourseLinkValue,
+  replaceUrlParams,
+} from '@/lib/listing-url-state';
+import {
+  buildPrerequisiteGraph,
+  collectLayers,
+  type GraphCourse,
+  PREREQUISITE_FOCUS_PARAM,
+} from '@/lib/prerequisite-graph';
 import {
   matchesNormalizedTerm,
   normalizeSearchText,
@@ -36,6 +46,7 @@ type PrerequisiteExplorerProps = {
 };
 
 const NAME_COLLATOR = new Intl.Collator('mk');
+const ACCREDITATIONS: readonly Accreditation[] = ['2023', '2018'];
 
 // The picker finds a course by its names, abbreviation or codes, like the
 // listing search without the staff.
@@ -54,6 +65,84 @@ const createPickerMatcher = (
   };
 };
 
+// The name a course goes by in an accreditation, if it is part of it.
+const nameIn = (
+  course: CourseRaw,
+  accreditation: Accreditation,
+): string | undefined => {
+  const info = getAccreditationInfo(course, accreditation);
+  return info ? (info.name ?? course.name) : undefined;
+};
+
+// The course linked through `?focus=`, and the accreditation that has it.
+const readLinkedFocus = (
+  courses: readonly CourseRaw[],
+  preferred: Accreditation,
+): undefined | { accreditation: Accreditation; name: string } => {
+  const course = findCourseByLinkValue(
+    courses,
+    new URL(location.href).searchParams.get(PREREQUISITE_FOCUS_PARAM),
+  );
+  if (!course) return undefined;
+  for (const accreditation of [preferred, ...ACCREDITATIONS]) {
+    const name = nameIn(course, accreditation);
+    if (name) return { accreditation, name };
+  }
+  return undefined;
+};
+
+// Search for a course, with the matches listed until one is chosen.
+const CoursePicker = (props: {
+  courses: string[];
+  onChoose: (name: string) => void;
+  onSearch: (value: string) => void;
+  open: boolean;
+  search: string;
+}) => {
+  const { t } = useLanguage();
+  return (
+    <div class="space-y-2">
+      <span
+        class="text-sm font-medium"
+        id="course-search-label"
+      >
+        {t().prerequisites.chooseCourse}
+      </span>
+      <SearchInput
+        aria-labelledby="course-search-label"
+        id="course-search"
+        onInput={(e) => {
+          props.onSearch(e.currentTarget.value);
+        }}
+        placeholder={t().prerequisites.searchPlaceholder}
+        value={props.search}
+      />
+      <Show when={props.open}>
+        <div class="bg-card max-h-60 overflow-y-auto rounded-lg border">
+          <For each={props.courses}>
+            {(name) => (
+              <button
+                class="hover:bg-muted w-full px-3 py-2 text-left text-sm transition-colors"
+                onClick={() => {
+                  props.onChoose(name);
+                }}
+                type="button"
+              >
+                {name}
+              </button>
+            )}
+          </For>
+          <Show when={props.search && props.courses.length === 0}>
+            <div class="text-muted-foreground px-3 py-2 text-sm">
+              {t().common.noResults}
+            </div>
+          </Show>
+        </div>
+      </Show>
+    </div>
+  );
+};
+
 // Before a course is chosen: what choosing one shows.
 const PrerequisitesStart = () => {
   const { t } = useLanguage();
@@ -67,82 +156,125 @@ const PrerequisitesStart = () => {
 };
 
 export const PrerequisiteExplorer = (props: PrerequisiteExplorerProps) => {
-  type AccCourse = {
-    name: string;
-    prerequisite: string | undefined;
-    semester: number;
-  };
-
-  const { language, t } = useLanguage();
+  const { t } = useLanguage();
 
   const [accreditation, setAccreditation] = usePersistedSignal<Accreditation>(
     STORAGE_KEY_ACC,
     '2023',
     isAccreditation,
   );
-  const [selectedCourse, setSelectedCourse] = createSignal('');
-  const courseDialog = useLinkedCourseDialog(() => props.courses);
-  const [search, setSearch] = createSignal('');
-
-  const accCourses = createMemo<AccCourse[]>(() => {
-    const acc = accreditation();
-    const courses: AccCourse[] = [];
-    for (const raw of props.courses) {
-      const info = getAccreditationInfo(raw, acc);
-      if (!info) continue;
-      const name = info.name ?? raw.name;
-      const semester = info.semester ? Number.parseInt(info.semester, 10) : 0;
-      courses.push({ name, prerequisite: info.prerequisite, semester });
-    }
-    courses.sort((a, b) => NAME_COLLATOR.compare(a.name, b.name));
-    return courses;
-  });
-
-  const courseNames = createMemo(() => accCourses().map((c) => c.name));
-
-  const reverseMap = createMemo(() =>
-    buildReverseDependencyMap(accCourses(), courseNames()),
+  const linked = readLinkedFocus(
+    untrack(() => props.courses),
+    untrack(accreditation),
   );
+  if (linked) setAccreditation(linked.accreditation);
+
+  const [focus, setFocus] = createSignal(linked?.name ?? '');
+  // The courses moved away from, for going back along the map.
+  const [trail, setTrail] = createSignal<string[]>([]);
+  const [search, setSearch] = createSignal(linked?.name ?? '');
+  const courseDialog = useLinkedCourseDialog(() => props.courses);
+  let mapTop: HTMLDivElement | undefined;
 
   const rawCourseMap = createMemo(() => {
     const acc = accreditation();
     const map = new Map<string, CourseRaw>();
     for (const raw of props.courses) {
-      const info = getAccreditationInfo(raw, acc);
-      if (!info) continue;
-      map.set(info.name ?? raw.name, raw);
+      const name = nameIn(raw, acc);
+      if (name) map.set(name, raw);
     }
     return map;
   });
 
-  const coursesWithDependents = createMemo(() => {
-    const map = reverseMap();
-    return courseNames().filter((n) => (map.get(n)?.length ?? 0) > 0);
+  const accCourses = createMemo(() => {
+    const acc = accreditation();
+    const courses = new Map<string, GraphCourse>();
+    for (const [name, raw] of rawCourseMap()) {
+      const info = getAccreditationInfo(raw, acc);
+      courses.set(name, {
+        name,
+        prerequisite: info?.prerequisite,
+        semester: info?.semester ? Number.parseInt(info.semester, 10) : 0,
+      });
+    }
+    return courses;
   });
 
-  const filteredPickerCourses = createMemo(() =>
-    coursesWithDependents().filter(
-      createPickerMatcher(rawCourseMap(), search()),
-    ),
+  const graph = createMemo(() =>
+    buildPrerequisiteGraph(accCourses().values().toArray()),
   );
 
-  const dependents = createMemo<AccCourse[]>(() => {
-    const sel = selectedCourse();
-    if (!sel) return [];
-    const list = reverseMap().get(sel) ?? [];
-    return list.toSorted(compareBySemesterAndName);
+  const pickerCourses = createMemo(() =>
+    accCourses()
+      .keys()
+      .toArray()
+      .toSorted((a, b) => NAME_COLLATOR.compare(a, b))
+      .filter(createPickerMatcher(rawCourseMap(), search())),
+  );
+
+  const toLayers = (layers: string[][]): GraphCourse[][] =>
+    layers.map((names) =>
+      names
+        .map((name) => accCourses().get(name))
+        .filter((course) => course !== undefined)
+        .toSorted(compareBySemesterAndName),
+    );
+
+  const focusCourse = () => accCourses().get(focus());
+  const requires = createMemo(() =>
+    toLayers(collectLayers(focus(), graph().requires)),
+  );
+  const unlocks = createMemo(() =>
+    toLayers(collectLayers(focus(), graph().unlocks)),
+  );
+
+  createEffect(() => {
+    const raw = rawCourseMap().get(focus());
+    replaceUrlParams((params) => {
+      if (raw) params.set(PREREQUISITE_FOCUS_PARAM, getCourseLinkValue(raw));
+      else params.delete(PREREQUISITE_FOCUS_PARAM);
+    });
   });
+
+  const choose = (name: string) => {
+    setTrail([]);
+    setFocus(name);
+    setSearch(name);
+  };
+
+  // Moves the map to a course on it, and brings the new middle into view.
+  const moveTo = (name: string) => {
+    const current = focus();
+    if (current) setTrail((previous) => [...previous, current]);
+    setFocus(name);
+    setSearch(name);
+    mapTop?.scrollIntoView({ block: 'nearest' });
+  };
+
+  const goBack = () => {
+    const previous = trail().at(-1);
+    if (previous === undefined) return;
+    setTrail((current) => current.slice(0, -1));
+    setFocus(previous);
+    setSearch(previous);
+  };
 
   const handleAccreditationChange = (acc: Accreditation) => {
     setAccreditation(acc);
-    setSelectedCourse('');
-    setSearch('');
+    choose('');
   };
 
   const openDetail = (name: string) => {
     const course = rawCourseMap().get(name);
-    if (!course) return;
-    courseDialog.openCourse(course);
+    if (course) courseDialog.openCourse(course);
+  };
+
+  // From the course panel: centre the map on that course.
+  const showOnMap = (course: CourseRaw) => {
+    const name = nameIn(course, accreditation());
+    if (!name) return;
+    courseDialog.setOpen(false);
+    if (name !== focus()) moveTo(name);
   };
 
   return (
@@ -152,104 +284,55 @@ export const PrerequisiteExplorer = (props: PrerequisiteExplorerProps) => {
         onSelect={handleAccreditationChange}
       />
 
-      <div class="space-y-2">
-        <span
-          class="text-sm font-medium"
-          id="course-search-label"
-        >
-          {t().prerequisites.chooseCourse}
-        </span>
-        <SearchInput
-          aria-labelledby="course-search-label"
-          id="course-search"
-          onInput={(e) => {
-            setSearch(e.currentTarget.value);
-            setSelectedCourse('');
-          }}
-          placeholder={t().prerequisites.searchPlaceholder}
-          value={search()}
-        />
-        <Show when={!selectedCourse()}>
-          <div class="bg-card max-h-60 overflow-y-auto rounded-lg border">
-            <For each={filteredPickerCourses()}>
-              {(name) => (
+      <CoursePicker
+        courses={pickerCourses()}
+        onChoose={choose}
+        onSearch={(value) => {
+          setSearch(value);
+          setFocus('');
+          setTrail([]);
+        }}
+        open={!focusCourse()}
+        search={search()}
+      />
+
+      <Show
+        fallback={<PrerequisitesStart />}
+        when={focusCourse()}
+      >
+        {(course) => (
+          <div
+            class="scroll-mt-[calc(var(--tabbar-h,0px)+1rem)] space-y-3"
+            ref={(element) => {
+              mapTop = element;
+            }}
+          >
+            <Show when={trail().at(-1)}>
+              {(previous) => (
                 <button
-                  class="hover:bg-muted w-full px-3 py-2 text-left text-sm transition-colors"
-                  onClick={() => {
-                    setSelectedCourse(name);
-                    setSearch(name);
-                  }}
+                  class="text-muted-foreground hover:text-foreground focus-visible:ring-ring inline-flex items-center gap-1.5 rounded-md text-sm transition-colors focus-visible:ring-2 focus-visible:outline-none"
+                  onClick={goBack}
                   type="button"
                 >
-                  {name}
+                  <ArrowLeft
+                    aria-hidden="true"
+                    class="h-4 w-4"
+                  />
+                  {interpolate(t().detail.back, { course: previous() })}
                 </button>
               )}
-            </For>
-            <Show when={search() && filteredPickerCourses().length === 0}>
-              <div class="text-muted-foreground px-3 py-2 text-sm">
-                {t().common.noResults}
-              </div>
             </Show>
+            <PrerequisiteMap
+              focus={course()}
+              onFocus={moveTo}
+              onOpenDetails={() => {
+                openDetail(course().name);
+              }}
+              requires={requires()}
+              unlocks={unlocks()}
+            />
           </div>
-        </Show>
-      </div>
-
-      <Show when={!selectedCourse()}>
-        <PrerequisitesStart />
-      </Show>
-
-      <Show when={selectedCourse()}>
-        <div class="text-muted-foreground text-sm">
-          {formatCount(t().prerequisites.dependentCount, {
-            count: dependents().length,
-            language: language(),
-            values: { course: selectedCourse() },
-          })}
-        </div>
-
-        <div class="bg-card rounded-lg border">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead class="w-15">{t().common.semesterShort}</TableHead>
-                <TableHead>{t().common.course}</TableHead>
-                <TableHead class="hidden sm:table-cell">
-                  {t().common.prerequisite}
-                </TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              <For each={dependents()}>
-                {(course) => (
-                  <TableRow
-                    class="cursor-pointer"
-                    onClick={() => {
-                      openDetail(course.name);
-                    }}
-                    onKeyDown={(e) => {
-                      if (!(e.key === 'Enter' || e.key === ' ')) {
-                        return;
-                      }
-
-                      e.preventDefault();
-                      openDetail(course.name);
-                    }}
-                    role="button"
-                    tabIndex={0}
-                  >
-                    <TableCell class="whitespace-nowrap">
-                      {course.semester}
-                    </TableCell>
-                    <TableCell class="font-medium">{course.name}</TableCell>
-                    <TableCell class="text-muted-foreground hidden sm:table-cell">
-                      {course.prerequisite ?? '—'}
-                    </TableCell>
-                  </TableRow>
-                )}
-              </For>
-            </TableBody>
-          </Table>
-        </div>
+        )}
       </Show>
 
       <CourseDetailDialog
@@ -258,6 +341,7 @@ export const PrerequisiteExplorer = (props: PrerequisiteExplorerProps) => {
         courses={props.courses}
         onOpenChange={courseDialog.setOpen}
         onOpenCourse={courseDialog.openCourse}
+        onShowPrerequisites={showOnMap}
         open={courseDialog.open()}
       />
     </div>

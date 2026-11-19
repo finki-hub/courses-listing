@@ -1,4 +1,4 @@
-import { ArrowLeft } from 'lucide-solid';
+import { ArrowLeft, Network } from 'lucide-solid';
 import { createEffect, createSignal, For, on, Show, untrack } from 'solid-js';
 
 import {
@@ -30,6 +30,8 @@ type CourseDetailDialogProps = {
   masters?: MasterListing;
   onOpenChange: (open: boolean) => void;
   onOpenCourse?: (course: CourseRaw) => void;
+  /** Centres the prerequisite map on the course; no button without it. */
+  onShowPrerequisites?: (course: CourseRaw) => void;
   open: boolean;
 };
 
@@ -152,6 +154,24 @@ export const CourseDetailDialog = (props: CourseDetailDialogProps) => {
                   {interpolate(t().detail.back, {
                     course: nameOf(previous()),
                   })}
+                </button>
+              )}
+            </Show>
+
+            <Show when={!isMasterCourse(course()) && props.onShowPrerequisites}>
+              {(show) => (
+                <button
+                  class="hover:bg-muted focus-visible:ring-ring inline-flex min-h-9 items-center gap-2 rounded-md border px-3 text-sm font-medium transition-colors focus-visible:ring-2 focus-visible:outline-none"
+                  onClick={() => {
+                    show()(course());
+                  }}
+                  type="button"
+                >
+                  <Network
+                    aria-hidden="true"
+                    class="h-4 w-4"
+                  />
+                  {t().detail.showMap}
                 </button>
               )}
             </Show>

@@ -44,6 +44,7 @@ export const en = {
     prerequisites: 'Prerequisites',
     professors: 'Professors',
     programs: 'Study programs',
+    showMap: 'Show prerequisite map',
     staff: 'Teaching staff',
     subjectPage: 'Subject page on finki.ukim.mk',
   },
@@ -263,16 +264,20 @@ export const en = {
   },
   prerequisites: {
     chooseCourse: 'Choose a course',
-    dependentCount: {
-      one: '{count} course requires {course}',
-      other: '{count} courses require {course}',
-    },
+    courseDetails: 'Course details',
     description:
-      'Choose an accreditation and a course to see all courses that require it.',
+      'Choose a course to see what it requires and what it unlocks, step by step.',
+    direct: 'Directly',
     emptyText:
-      'Courses that list it as a prerequisite appear here, ordered by semester.',
-    emptyTitle: 'Pick a course to see what it unlocks',
+      'Its prerequisites appear on one side and the courses it opens up on the other. Select any course on the map to move to it.',
+    emptyTitle: 'Pick a course to see its prerequisite map',
+    mapLabel: 'Prerequisite map for {course}',
+    noRequires: 'No other course is required.',
+    noUnlocks: 'No course requires it.',
+    requires: 'Requires',
     searchPlaceholder: 'Search by name, abbreviation or code...',
+    stepsAway: '{count} steps away',
+    unlocks: 'Unlocks',
   },
   programState: {
     elective: 'Elective',

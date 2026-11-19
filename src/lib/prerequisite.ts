@@ -256,7 +256,7 @@ export const isPrerequisiteMet = (
   ctx: EvalContext,
 ): boolean => ctx.totalCredits >= OVERRIDE_CREDITS || evaluateNode(node, ctx);
 
-const collectCourseNames = (node: PrereqNode): string[] => {
+export const collectCourseNames = (node: PrereqNode): string[] => {
   switch (node.type) {
     case 'and':
     case 'or':
@@ -270,36 +270,6 @@ const collectCourseNames = (node: PrereqNode): string[] => {
     default:
       return [];
   }
-};
-
-/**
- * Build a reverse dependency map: for each prerequisite course name,
- * list all courses that depend on it.
- *
- * @param courses - List of courses with prerequisite strings
- * @param courseNames - List of known course names for tokenisation
- * @returns A map from course name to list of dependent courses
- */
-export const buildReverseDependencyMap = <
-  T extends { name: string; prerequisite: string | undefined },
->(
-  courses: T[],
-  courseNames: string[],
-): Map<string, T[]> => {
-  const map = new Map<string, T[]>();
-  for (const course of courses) {
-    const node = parsePrerequisite(course.prerequisite, courseNames);
-    for (const pn of collectCourseNames(node)) {
-      let list = map.get(pn);
-      // eslint-disable-next-line e18e/prefer-get-or-insert -- Map.prototype.getOrInsert is Baseline newly-available (Feb 2026), unsupported on Safari < 26.2, and this build ships no runtime polyfill.
-      if (!list) {
-        list = [];
-        map.set(pn, list);
-      }
-      list.push(course);
-    }
-  }
-  return map;
 };
 
 /**

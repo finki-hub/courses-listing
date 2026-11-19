@@ -130,14 +130,22 @@ test('accepts exactly the reference languages and rejects inherited dictionary k
 test('formats counts, sentence placeholders, numbers and percentages for each locale', () => {
   for (const [language, dictionary] of Object.entries(translations)) {
     for (const count of [0, 1, 2, 21, 1_000]) {
-      const text = formatCount(dictionary.prerequisites.dependentCount, {
+      const text = formatCount(dictionary.filters.showResults, {
         count,
         language,
-        values: { course: 'Оригинален предмет' },
       });
       assert.ok(text.includes(formatNumber(count, language)));
-      assert.ok(text.includes('Оригинален предмет'));
       assert.ok(!text.includes('{'));
+    }
+    const label = interpolate(dictionary.prerequisites.mapLabel, {
+      course: 'Оригинален предмет',
+    });
+    assert.ok(label.includes('Оригинален предмет'));
+    assert.ok(!label.includes('{'));
+    for (const count of [2, 5]) {
+      const steps = interpolate(dictionary.prerequisites.stepsAway, { count });
+      assert.ok(steps.includes(String(count)));
+      assert.ok(!steps.includes('{'));
     }
   }
   assert.equal(

@@ -44,6 +44,7 @@ export const sq = {
     prerequisites: 'Parakushtet',
     professors: 'Profesorët',
     programs: 'Programet e studimit',
+    showMap: 'Shfaq hartën e parakushteve',
     staff: 'Stafi mësimor',
     subjectPage: 'Faqja e lëndës në finki.ukim.mk',
   },
@@ -264,16 +265,20 @@ export const sq = {
   },
   prerequisites: {
     chooseCourse: 'Zgjidhni një lëndë',
-    dependentCount: {
-      one: '{count} lëndë e ka {course} si parakusht',
-      other: '{count} lëndë e kanë {course} si parakusht',
-    },
+    courseDetails: 'Detajet e lëndës',
     description:
-      'Zgjidhni një akreditim dhe një lëndë për të parë të gjitha lëndët që e kanë si parakusht.',
+      'Zgjidhni një lëndë për të parë çfarë kërkon dhe çfarë hap, hap pas hapi.',
+    direct: 'Drejtpërdrejt',
     emptyText:
-      'Lëndët që e kanë si parakusht shfaqen këtu, të renditura sipas semestrit.',
-    emptyTitle: 'Zgjidhni një lëndë për të parë çfarë hap',
+      'Parakushtet shfaqen në njërën anë dhe lëndët që hap në anën tjetër. Zgjidhni çdo lëndë në hartë për të kaluar te ajo.',
+    emptyTitle: 'Zgjidhni një lëndë për të parë hartën e parakushteve',
+    mapLabel: 'Harta e parakushteve për {course}',
+    noRequires: 'Nuk kërkon asnjë lëndë tjetër.',
+    noUnlocks: 'Asnjë lëndë nuk e kërkon.',
+    requires: 'Kërkon',
     searchPlaceholder: 'Kërko sipas emrit, shkurtesës ose kodit...',
+    stepsAway: '{count} hapa larg',
+    unlocks: 'Hap',
   },
   programState: {
     elective: 'Zgjedhore',
