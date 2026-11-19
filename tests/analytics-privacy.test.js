@@ -27,6 +27,18 @@ test('allowlist rebuilds both payload levels and preserves only event-specific f
     ['catalog_refinement', { result_count: 1 }],
     ['search_zero_results', {}],
     ['result_clicked', { position: 0, result_id: 'Public course' }],
+    ['course_saved', { result_id: 'F23L3W140', saved: true }],
+    ['master_layout_changed', { layout: 'curriculum' }],
+    ['plan_filled', { result_count: 12 }],
+    [
+      'related_course_opened',
+      { result_id: 'Public course', source: 'required_for' },
+    ],
+    ['saved_link_added', { result_count: 2 }],
+    ['saved_link_opened', { result_count: 2 }],
+    ['saved_list_shared', { result_count: 3 }],
+    ['simulator_expert_mode', { enabled: false }],
+    ['simulator_shared', {}],
   ]) {
     const input = {
       $set: { profile: { url: PRIVATE_URL } },
@@ -460,4 +472,31 @@ test('real SDK serializes only approved captures; remote replay and opt-out stay
     undefined,
   );
   assert.equal(requests.length, sentCount);
+});
+
+const sanitizeProperties = (event, properties) =>
+  sanitizeAnalyticsEvent({ event, properties, uuid: ID }, TOKEN, REVISION)
+    ?.properties;
+
+test('new feature events keep only well-formed values', () => {
+  assert.equal(
+    sanitizeProperties('master_layout_changed', { layout: PRIVATE }).layout,
+    undefined,
+  );
+  assert.equal(
+    sanitizeProperties('simulator_expert_mode', { enabled: 'yes' }).enabled,
+    undefined,
+  );
+  assert.equal(
+    sanitizeProperties('related_course_opened', { source: PRIVATE }).source,
+    undefined,
+  );
+  assert.equal(
+    sanitizeProperties('plan_filled', { result_count: -1 }).result_count,
+    undefined,
+  );
+  assert.equal(
+    sanitizeProperties('course_saved', { extra: PRIVATE, saved: true }).extra,
+    undefined,
+  );
 });

@@ -274,7 +274,7 @@ export const en = {
     graduation3yr: 'With this plan, the 3-year degree is complete in:',
     graduation4yr: 'With this plan, the 4-year degree is complete in:',
     issues: {
-      exclusive: 'Only one of Тимски проект and Самостоен проект counts.',
+      exclusive: 'Only one of Team project and Personal project counts.',
       levelLimit:
         'Over the elective limit of its level; its credits will not count.',
       past: 'Planned for a semester that has already passed.',
@@ -346,7 +346,7 @@ export const en = {
     exclusiveBlocked:
       '❌ Cannot enroll (you have already enrolled in or passed {course})',
     exclusiveRule:
-      '⛔ You have already enrolled in or passed {course} — Тимски проект and Самостоен проект are mutually exclusive; only one may be enrolled in and passed.',
+      '⛔ You have already enrolled in or passed {course}. Team project and Personal project are mutually exclusive; only one may be enrolled in and passed.',
     facultyList: 'ℹ️ Faculty list – no prerequisite',
     limitFull: '⚠️ L{level} limit reached ({limit} credits)',
     noPrerequisite: '✅ No prerequisite',

@@ -1,5 +1,6 @@
 import { createEffect, createMemo, createSignal, untrack } from 'solid-js';
 
+import { capture } from '@/lib/analytics-client';
 import { getCourseLinkValue, replaceUrlParams } from '@/lib/listing-url-state';
 import { isMasterCourse } from '@/lib/master-programs';
 import {
@@ -32,6 +33,8 @@ export const useSavedListing = (deps: SavedListingDeps) => {
   );
 
   if (linked.length > 0) {
+    // eslint-disable-next-line camelcase -- PostHog event props are snake_case
+    capture('saved_link_opened', { result_count: linked.length });
     // Show the cycle the shared courses are in.
     const undergraduate = untrack(deps.courses).some(
       (course) =>
@@ -60,7 +63,11 @@ export const useSavedListing = (deps: SavedListingDeps) => {
   return {
     addShared: () => {
       const list = shared();
-      if (list) saved.add(list);
+      if (list) {
+        saved.add(list);
+        // eslint-disable-next-line camelcase -- PostHog event props are snake_case
+        capture('saved_link_added', { result_count: list.length });
+      }
       setShared(null);
     },
     // The courses the Saved filter keeps.
@@ -74,6 +81,8 @@ export const useSavedListing = (deps: SavedListingDeps) => {
         await navigator.clipboard.writeText(
           getSavedShareUrl(location.href, [...own()]),
         );
+        // eslint-disable-next-line camelcase -- PostHog event props are snake_case
+        capture('saved_list_shared', { result_count: own().size });
         return true;
       } catch {
         return false;
