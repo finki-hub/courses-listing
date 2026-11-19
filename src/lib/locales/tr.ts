@@ -44,6 +44,7 @@ export const tr = {
     prerequisites: 'Ön koşullar',
     professors: 'Öğretim üyeleri',
     programs: 'Öğrenim programları',
+    showMap: 'Ön koşul haritasını göster',
     staff: 'Öğretim kadrosu',
     subjectPage: 'finki.ukim.mk üzerindeki ders sayfası',
   },
@@ -260,17 +261,21 @@ export const tr = {
     unmet: '  ❌ {course} (gerekli: {status})',
   },
   prerequisites: {
-    chooseCourse: 'Ders seçin',
-    dependentCount: {
-      one: '{count} ders için {course} ön koşuldur',
-      other: '{count} ders için {course} ön koşuldur',
-    },
+    chooseCourse: 'Bir ders seçin',
+    courseDetails: 'Ders ayrıntıları',
     description:
-      'Bir akreditasyon ve ders seçerek bu dersi ön koşul olarak gerektiren tüm dersleri görün.',
+      'Bir dersin neyi gerektirdiğini ve neyin önünü açtığını adım adım görmek için seçin.',
+    direct: 'Doğrudan',
     emptyText:
-      'Onu önkoşul olarak listeleyen dersler burada dönemlerine göre sıralı görünür.',
-    emptyTitle: 'Neyin önünü açtığını görmek için bir ders seçin',
+      'Ön koşulları bir tarafta, açtığı dersler diğer tarafta görünür. Haritadaki herhangi bir derse geçmek için onu seçin.',
+    emptyTitle: 'Ön koşul haritasını görmek için bir ders seçin',
+    mapLabel: '{course} için ön koşul haritası',
+    noRequires: 'Başka bir ders gerektirmez.',
+    noUnlocks: 'Hiçbir ders bunu gerektirmez.',
+    requires: 'Gerektirir',
     searchPlaceholder: 'Ad, kısaltma veya koda göre ara...',
+    stepsAway: '{count} adım uzakta',
+    unlocks: 'Önünü açar',
   },
   programState: {
     elective: 'Seçmeli',

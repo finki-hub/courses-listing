@@ -8,6 +8,7 @@ import {
 
 import { ALERT_STYLES } from '@/lib/alert-styles';
 import { capture } from '@/lib/analytics-client';
+import { useAppNavigation } from '@/lib/app-navigation';
 import {
   type EnrollmentYears,
   getAllStaff,
@@ -229,6 +230,7 @@ export const CourseTable = (props: CourseTableProps) => {
   const masters = useMasterListing(() => props.courses, master);
 
   const courseDialog = useCycleLinkedCourseDialog(() => props.courses, listing);
+  const navigation = useAppNavigation();
 
   const courses = () =>
     master() ? masters.masterCourses() : masters.undergraduateCourses();
@@ -408,6 +410,7 @@ export const CourseTable = (props: CourseTableProps) => {
         masters={masters}
         onOpenChange={courseDialog.setOpen}
         onOpenCourse={courseDialog.openCourse}
+        onShowPrerequisites={navigation?.showPrerequisites}
         open={courseDialog.open()}
       />
     </div>
