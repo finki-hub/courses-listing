@@ -12,7 +12,12 @@ import {
   restorePlanFromShareState,
   restoreStatusesFromShareState,
   type SharedSimulatorConfig,
+  type SimulatorShareState,
 } from '@/lib/simulator-share';
+import {
+  parseSimulatorUrlState,
+  type SimulatorUrlState,
+} from '@/lib/simulator-url-state';
 import { loadPlan, type StudyPlan } from '@/lib/study-plan';
 import {
   type Accreditation,
@@ -30,23 +35,41 @@ export type InitialSimulatorState = {
     courses: SharedSimulatorConfig['courses'],
   ) => SharedSimulatorConfig['statuses'];
   seasonFilter: SeasonFilter;
+  shared: SimulatorShareState | undefined;
   showOnlyEnabled: boolean;
   uniListCredits: number;
+  view: SimulatorUrlState;
+};
+
+export type SavedSimulatorSettings = {
+  accreditation: Accreditation;
+  hpcCompleted: boolean;
+  program: string;
+  uniListCredits: number;
+};
+
+// The settings the student saved, ignoring any shared link.
+export const getSavedSimulatorSettings = (): SavedSimulatorSettings => {
+  const storedAcc = localStorage.getItem(STORAGE_KEY_ACC) ?? '';
+  const accreditation: Accreditation = isAccreditation(storedAcc)
+    ? storedAcc
+    : '2023';
+  return {
+    accreditation,
+    hpcCompleted: localStorage.getItem(STORAGE_KEY_HPC) === 'true',
+    program:
+      localStorage.getItem(STORAGE_KEY_PROGRAM) ??
+      getStudyPrograms(accreditation)[0] ??
+      DEFAULT_PROGRAM,
+    uniListCredits: loadUniListCredits(),
+  };
 };
 
 export const getInitialSimulatorState = (): InitialSimulatorState => {
   const sharedState = readSimulatorShareState();
-  const storedAcc = localStorage.getItem(STORAGE_KEY_ACC) ?? '';
-  const savedAcc: Accreditation = isAccreditation(storedAcc)
-    ? storedAcc
-    : '2023';
-  const accreditation = sharedState?.accreditation ?? savedAcc;
-  const defaultPrograms = getStudyPrograms(accreditation);
-  const program =
-    sharedState?.program ??
-    localStorage.getItem(STORAGE_KEY_PROGRAM) ??
-    defaultPrograms[0] ??
-    DEFAULT_PROGRAM;
+  const urlState = parseSimulatorUrlState(new URL(location.href).searchParams);
+  const saved = getSavedSimulatorSettings();
+  const accreditation = sharedState?.accreditation ?? saved.accreditation;
 
   const resolveStatuses = (
     courses: SharedSimulatorConfig['courses'],
@@ -62,14 +85,14 @@ export const getInitialSimulatorState = (): InitialSimulatorState => {
 
   return {
     accreditation,
-    hpcCompleted:
-      sharedState?.hpcCompleted ??
-      localStorage.getItem(STORAGE_KEY_HPC) === 'true',
-    program,
+    hpcCompleted: sharedState?.hpcCompleted ?? saved.hpcCompleted,
+    program: sharedState?.program ?? saved.program,
     resolvePlan,
     resolveStatuses,
-    seasonFilter: sharedState?.seasonFilter ?? null,
-    showOnlyEnabled: sharedState?.showOnlyEnabled ?? false,
-    uniListCredits: sharedState?.uniListCredits ?? loadUniListCredits(),
+    seasonFilter: sharedState?.seasonFilter ?? urlState.season,
+    shared: sharedState,
+    showOnlyEnabled: sharedState?.showOnlyEnabled ?? urlState.showOnlyEnabled,
+    uniListCredits: sharedState?.uniListCredits ?? saved.uniListCredits,
+    view: urlState,
   };
 };

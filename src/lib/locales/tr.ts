@@ -384,6 +384,11 @@ export const tr = {
       title: 'Simülatörü ayarlayın',
     },
     share: 'Paylaş',
+    sharedDiscard: 'İlerlememe dön',
+    sharedKeep: 'İlerlememi bununla değiştir',
+    sharedText:
+      'Buradaki değişiklikler kaydedilmez ve siz aksini seçene kadar kendi ilerlemeniz olduğu gibi kalır.',
+    sharedTitle: 'Paylaşılan bir simülatör durumunu görüntülüyorsunuz',
     status: {
       label: '{course} durumu',
       listened: 'Kayıtlı',

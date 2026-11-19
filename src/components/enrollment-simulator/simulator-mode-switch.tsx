@@ -1,13 +1,6 @@
 import { SegmentedControl } from '@/components/ui/segmented-control';
 import { useLanguage } from '@/lib/LanguageProvider';
-
-export type SimulatorMode = 'checklist' | 'next' | 'plan';
-
-export const SIMULATOR_MODES: readonly SimulatorMode[] = [
-  'checklist',
-  'next',
-  'plan',
-];
+import { SIMULATOR_MODES, type SimulatorMode } from '@/lib/simulator-url-state';
 
 type SimulatorModeSwitchProps = {
   /** What the current view shows. */
