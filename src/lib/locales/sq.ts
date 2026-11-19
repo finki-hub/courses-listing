@@ -234,11 +234,11 @@ export const sq = {
     empty: 'Nuk ka lëndë të disponueshme në këtë semestër.',
     enrolled: '{count} studentë në {year}',
     forSeason: {
-      summer: 'Për semestrin veror',
-      winter: 'Për semestrin dimëror',
+      summer: 'Semestri veror',
+      winter: 'Semestri dimëror',
     },
     markListened: 'Shëno të regjistruar',
-    upcoming: '(i radhës; zgjidhni një semestër më lart për ta ndryshuar)',
+    upcoming: '(i radhës)',
   },
   pageIntro: {
     listing:
@@ -251,6 +251,13 @@ export const sq = {
     description:
       'Planifikoni lëndët që ende nuk i keni marrë në semestrat e mbetur. Lëndët e planifikuara më herët llogariten si të kaluara për ato më vonë; çdo lëndë mund të vendoset vetëm në semestrat e sezonit të saj.',
     emptySemester: 'Ende asgjë e planifikuar.',
+    emptySummary:
+      'Planifikoni lëndët e mbetura për të parë kur do të diplomoheshit.',
+    fill: 'Plotëso lëndët e detyrueshme',
+    filled:
+      'U planifikuan {count} lëndë të detyrueshme. Shtoni lëndë zgjedhore për të arritur kreditet për diplomë.',
+    fillInfo:
+      'Vendos çdo lëndë të detyrueshme që nuk e keni marrë ose planifikuar në semestrin e rekomanduar, ose në një më të vonshëm të të njëjtit sezon kur parakushtet vijnë më vonë. Lëndët zgjedhore ua lë juve.',
     graduation3yr: 'Me këtë plan, studimet trevjeçare përfundojnë në:',
     graduation4yr: 'Me këtë plan, studimet katërvjeçare përfundojnë në:',
     issues: {
@@ -264,6 +271,7 @@ export const sq = {
       season:
         'Lënda nuk ofrohet në atë sezon: semestrat tek janë dimërorë, ata çift verorë.',
     },
+    nothingToFill: 'Të gjitha lëndët e detyrueshme janë marrë ose planifikuar.',
     notPlanned: 'E paplanifikuar',
     notReached: 'nuk arrihet deri në semestrin 8',
     planFor: 'Semestri për',
@@ -334,6 +342,7 @@ export const sq = {
     overLimit: '❌ Kufiri L{level} është tejkaluar (maksimumi {limit} kredite)',
     passed: '✅ Gjendja: E kaluar',
     prerequisite: '📋 Parakushti:',
+    prerequisitesIgnored: '⚠️ Parakushtet injorohen (modaliteti i ekspertit)',
     required: 'ℹ️ Lëndë e detyrueshme',
   },
   simulator: {
@@ -414,8 +423,16 @@ export const sq = {
       description:
         'Akreditimi, programi i studimit dhe kreditet e fituara jashtë listës së lëndëve.',
       edit: 'Ndrysho programin dhe kreditet shtesë',
+      expert: 'Ekspert',
       extras: 'Kredite shtesë',
+      ignorePrerequisites: 'Injoro parakushtet',
+      ignorePrerequisitesInfo:
+        'Ju lejon të shënoni çdo lëndë si të regjistruar ose të kaluar, pavarësisht parakushteve. E dobishme nëse jeni transferuar në një program ose akreditim tjetër dhe keni lëndë në një renditje që simulatori përndryshe nuk do ta lejonte. Kufijtë sipas nivelit vlejnë ende.',
+      prerequisitesIgnored: 'Parakushtet injorohen',
+      prerequisitesIgnoredHint:
+        'Çdo lëndë mund të shënohet si e regjistruar ose e kaluar.',
       title: 'Studimet tuaja',
+      turnOff: 'Çaktivizo',
     },
     setup: {
       choose: 'Zgjidhni një program',

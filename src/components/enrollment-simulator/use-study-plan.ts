@@ -10,6 +10,7 @@ import { type CourseInfo, type CourseStatus } from '@/lib/prerequisite';
 import { type SimulatorCourse } from '@/lib/simulator';
 import {
   evaluatePlan,
+  fillRequiredCourses,
   getPlanOptions,
   getPlanStart,
   loadPlan,
@@ -23,6 +24,7 @@ type StudyPlanParams = {
   accreditation: Accessor<Accreditation>;
   courseInfoMap: Accessor<Map<string, CourseInfo>>;
   courses: Accessor<SimulatorCourse[]>;
+  ignorePrerequisites: Accessor<boolean>;
   initialPlan: StudyPlan;
   /** False while a shared link is previewed, so the plan is not saved. */
   persist: Accessor<boolean>;
@@ -39,15 +41,15 @@ export const useStudyPlan = (params: StudyPlanParams) => {
   const start = createMemo(() =>
     getPlanStart(params.courses(), params.statuses()),
   );
-  const evaluation = createMemo(() =>
-    evaluatePlan({
-      baseCredits: params.totalCredits(),
-      courseInfoMap: params.courseInfoMap(),
-      courses: params.courses(),
-      plan: plan(),
-      statuses: params.statuses(),
-    }),
-  );
+  const context = () => ({
+    baseCredits: params.totalCredits(),
+    courseInfoMap: params.courseInfoMap(),
+    courses: params.courses(),
+    ignorePrerequisites: params.ignorePrerequisites(),
+    plan: plan(),
+    statuses: params.statuses(),
+  });
+  const evaluation = createMemo(() => evaluatePlan(context()));
 
   createEffect(
     on([plan, params.persist], ([value, save]) => {
@@ -68,5 +70,25 @@ export const useStudyPlan = (params: StudyPlanParams) => {
     setPlan(loadPlan(accreditation, params.rawCourses()));
   };
 
-  return { addToPlan, evaluation, plan, reload, setSemester, start };
+  // Plans the remaining required courses; returns how many were added and
+  // how to undo it.
+  const fillRequired = (): { added: number; undo: () => void } => {
+    const previous = plan();
+    const filled = fillRequiredCourses(context());
+    setPlan(filled);
+    return {
+      added: Object.keys(filled).length - Object.keys(previous).length,
+      undo: () => setPlan(previous),
+    };
+  };
+
+  return {
+    addToPlan,
+    evaluation,
+    fillRequired,
+    plan,
+    reload,
+    setSemester,
+    start,
+  };
 };

@@ -155,6 +155,10 @@ const SCENES: readonly Scene[] = [
   },
 ];
 
+// Where the focused element's top is, in the viewport.
+const focusedTop = async (page: Page): Promise<number> =>
+  page.evaluate(() => document.activeElement?.getBoundingClientRect().top ?? 0);
+
 // Each violation with the elements it was found on, readable in a failure.
 const findViolations = async (page: Page): Promise<string[]> => {
   const results = await new AxeBuilder({ page }).withTags(WCAG_TAGS).analyze();
@@ -232,10 +236,10 @@ test.describe('keyboard', () => {
     }, stickyBottom);
     for (let step = 0; step < 6; step++) {
       await page.keyboard.press('Shift+Tab');
-      const focusedTop = await page.evaluate(
-        () => document.activeElement?.getBoundingClientRect().top ?? 0,
-      );
-      expect(focusedTop).toBeGreaterThanOrEqual(stickyBottom);
+      // The page scrolls a frame after the focus moves.
+      await expect
+        .poll(async () => focusedTop(page))
+        .toBeGreaterThanOrEqual(stickyBottom);
     }
   });
 });

@@ -9,7 +9,11 @@ import { LEVEL_CREDIT_LIMITS } from '@/lib/simulator';
 import { getPlanOptions } from '@/lib/study-plan';
 import { type CourseRaw } from '@/types/course';
 
-import { CreditLimitWarning, GraduationAlert } from './alerts';
+import {
+  CreditLimitWarning,
+  GraduationAlert,
+  PrerequisitesIgnoredNotice,
+} from './alerts';
 import { ROW_ACTION_CLASS } from './course-styles';
 import { NextCoursesPanel } from './next-courses-panel';
 import { PlanView } from './plan-view';
@@ -82,10 +86,14 @@ export const EnrollmentSimulator = (props: EnrollmentSimulatorProps) => {
             <SimulatorSettings
               accreditation={sim.accreditation()}
               hpcCompleted={sim.hpcCompleted()}
+              ignorePrerequisites={sim.ignorePrerequisites()}
               onSwitchAccreditation={sim.switchAccreditation}
               onSwitchProgram={sim.setProgram}
               onToggleHpc={() => {
                 sim.setHpcCompleted((value) => !value);
+              }}
+              onToggleIgnorePrerequisites={() => {
+                sim.setIgnorePrerequisites((value) => !value);
               }}
               onUniListCreditsChange={sim.setUniListCredits}
               program={sim.program()}
@@ -93,6 +101,14 @@ export const EnrollmentSimulator = (props: EnrollmentSimulatorProps) => {
             />
           }
         />
+
+        <Show when={sim.ignorePrerequisites()}>
+          <PrerequisitesIgnoredNotice
+            onTurnOff={() => {
+              sim.setIgnorePrerequisites(false);
+            }}
+          />
+        </Show>
 
         <Show when={sim.preview.previewing()}>
           <SharedPreviewBanner
@@ -177,6 +193,7 @@ export const EnrollmentSimulator = (props: EnrollmentSimulatorProps) => {
             <PlanView
               candidates={sim.planCandidates()}
               evaluation={sim.plan.evaluation()}
+              onFillRequired={sim.plan.fillRequired}
               onSetSemester={sim.plan.setSemester}
               plan={sim.plan.plan()}
               start={sim.plan.start()}

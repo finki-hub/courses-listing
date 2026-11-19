@@ -234,11 +234,11 @@ export const en = {
     empty: 'No courses are available in this semester.',
     enrolled: '{count} students in {year}',
     forSeason: {
-      summer: 'For the summer semester',
-      winter: 'For the winter semester',
+      summer: 'Summer semester',
+      winter: 'Winter semester',
     },
     markListened: 'Mark enrolled',
-    upcoming: '(the next one; choose a semester above to change it)',
+    upcoming: '(the next one)',
   },
   pageIntro: {
     listing:
@@ -251,6 +251,12 @@ export const en = {
     description:
       'Plan the courses you have not taken yet across your remaining semesters. Courses planned earlier count as passed for the later ones; each course can go only in semesters of its season.',
     emptySemester: 'Nothing planned yet.',
+    emptySummary: 'Plan your remaining courses to see when you would graduate.',
+    fill: 'Fill in required courses',
+    filled:
+      'Planned {count} required courses. Add electives to reach the credits for a degree.',
+    fillInfo:
+      'Places each required course you have not taken or planned in its recommended semester, or a later one of the same season when what it requires comes later. Electives are left to you.',
     graduation3yr: 'With this plan, the 3-year degree is complete in:',
     graduation4yr: 'With this plan, the 4-year degree is complete in:',
     issues: {
@@ -263,6 +269,7 @@ export const en = {
       season:
         'The course is not offered in that season: odd semesters are winter, even ones summer.',
     },
+    nothingToFill: 'Every required course is already taken or planned.',
     notPlanned: 'Not planned',
     notReached: 'not reached by semester 8',
     planFor: 'Semester for',
@@ -333,6 +340,7 @@ export const en = {
     overLimit: '❌ L{level} limit exceeded (maximum {limit} credits)',
     passed: '✅ Status: Passed',
     prerequisite: '📋 Prerequisite:',
+    prerequisitesIgnored: '⚠️ Prerequisites ignored (expert mode)',
     required: 'ℹ️ Required course',
   },
   simulator: {
@@ -406,8 +414,16 @@ export const en = {
       description:
         'Your accreditation, study program and credits earned outside the course list.',
       edit: 'Change the program and extra credits',
+      expert: 'Expert',
       extras: 'Extra credits',
+      ignorePrerequisites: 'Ignore prerequisites',
+      ignorePrerequisitesInfo:
+        'Lets you mark any course as enrolled or passed, whatever it requires. Useful if you transferred to another program or accreditation and your record has courses in an order the simulator would otherwise not allow. Level limits still apply.',
+      prerequisitesIgnored: 'Prerequisites ignored',
+      prerequisitesIgnoredHint:
+        'Any course can be marked as enrolled or passed.',
       title: 'Your studies',
+      turnOff: 'Turn off',
     },
     setup: {
       choose: 'Choose a program',

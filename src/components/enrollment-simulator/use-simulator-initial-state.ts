@@ -5,6 +5,7 @@ import {
   loadUniListCredits,
   STORAGE_KEY_ACC,
   STORAGE_KEY_HPC,
+  STORAGE_KEY_IGNORE_PREREQUISITES,
   STORAGE_KEY_PROGRAM,
 } from '@/lib/simulator';
 import {
@@ -29,6 +30,7 @@ import {
 export type InitialSimulatorState = {
   accreditation: Accreditation;
   hpcCompleted: boolean;
+  ignorePrerequisites: boolean;
   program: string;
   resolvePlan: (courses: SharedSimulatorConfig['courses']) => StudyPlan;
   resolveStatuses: (
@@ -44,6 +46,7 @@ export type InitialSimulatorState = {
 export type SavedSimulatorSettings = {
   accreditation: Accreditation;
   hpcCompleted: boolean;
+  ignorePrerequisites: boolean;
   program: string;
   uniListCredits: number;
 };
@@ -57,6 +60,8 @@ export const getSavedSimulatorSettings = (): SavedSimulatorSettings => {
   return {
     accreditation,
     hpcCompleted: localStorage.getItem(STORAGE_KEY_HPC) === 'true',
+    ignorePrerequisites:
+      localStorage.getItem(STORAGE_KEY_IGNORE_PREREQUISITES) === 'true',
     program:
       localStorage.getItem(STORAGE_KEY_PROGRAM) ??
       getStudyPrograms(accreditation)[0] ??
@@ -92,6 +97,8 @@ export const getInitialSimulatorState = (): InitialSimulatorState => {
   return {
     accreditation,
     hpcCompleted: sharedState?.hpcCompleted ?? saved.hpcCompleted,
+    ignorePrerequisites:
+      sharedState?.ignorePrerequisites ?? saved.ignorePrerequisites,
     program: sharedState?.program ?? saved.program,
     resolvePlan,
     resolveStatuses,

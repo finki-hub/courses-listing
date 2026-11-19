@@ -27,14 +27,19 @@ const revealFocusedElement = (event: FocusEvent): void => {
   ) {
     return;
   }
-  const clearance =
-    Number.parseFloat(
-      getComputedStyle(document.documentElement).scrollPaddingTop,
-    ) || 0;
-  const { top } = target.getBoundingClientRect();
-  if (top < clearance) {
-    scrollBy({ behavior: 'instant', top: top - clearance });
-  }
+  // After the frame, so the browser's own scrolling to the focus is done
+  // and does not undo this.
+  requestAnimationFrame(() => {
+    if (document.activeElement !== target) return;
+    const clearance =
+      Number.parseFloat(
+        getComputedStyle(document.documentElement).scrollPaddingTop,
+      ) || 0;
+    const { top } = target.getBoundingClientRect();
+    if (top < clearance) {
+      scrollBy({ behavior: 'instant', top: top - clearance });
+    }
+  });
 };
 
 // Keeps keyboard focus clear of the sticky bars while the app is mounted.

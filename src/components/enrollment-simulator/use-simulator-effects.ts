@@ -10,6 +10,7 @@ import {
   type SimulatorCourse,
   STORAGE_KEY_ACC,
   STORAGE_KEY_HPC,
+  STORAGE_KEY_IGNORE_PREREQUISITES,
   STORAGE_KEY_PROGRAM,
 } from '@/lib/simulator';
 import { type Accreditation, type CourseRaw } from '@/types/course';
@@ -18,6 +19,7 @@ type SimulatorEffectsParams = {
   accreditation: Accessor<Accreditation>;
   enabledMap: Accessor<Record<string, boolean>>;
   hpcCompleted: Accessor<boolean>;
+  ignorePrerequisites: Accessor<boolean>;
   parsedCourses: Accessor<SimulatorCourse[]>;
   /** False while a shared link is previewed, so nothing is saved. */
   persist: Accessor<boolean>;
@@ -35,6 +37,7 @@ export const useSimulatorEffects = (params: SimulatorEffectsParams): void => {
     accreditation,
     enabledMap,
     hpcCompleted,
+    ignorePrerequisites,
     parsedCourses,
     persist,
     program,
@@ -97,6 +100,14 @@ export const useSimulatorEffects = (params: SimulatorEffectsParams): void => {
   createEffect(
     on([hpcCompleted, persist], ([value, save]) => {
       if (save) localStorage.setItem(STORAGE_KEY_HPC, String(value));
+    }),
+  );
+
+  createEffect(
+    on([ignorePrerequisites, persist], ([value, save]) => {
+      if (save) {
+        localStorage.setItem(STORAGE_KEY_IGNORE_PREREQUISITES, String(value));
+      }
     }),
   );
 

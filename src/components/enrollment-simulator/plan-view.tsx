@@ -14,6 +14,7 @@ import {
   type StudyPlan,
 } from '@/lib/study-plan';
 
+import { FillRequired } from './fill-required';
 import { Meter } from './meter';
 import { PlanCourseRow } from './plan-course-row';
 
@@ -21,6 +22,8 @@ type PlanViewProps = {
   /** Courses not taken or planned yet that match the simulator filters. */
   candidates: SimulatorCourse[];
   evaluation: PlanEvaluation;
+  /** Plans the remaining required courses; returns how to undo it. */
+  onFillRequired: () => { added: number; undo: () => void };
   onSetSemester: (name: string, semester: number | undefined) => void;
   plan: StudyPlan;
   start: number;
@@ -58,17 +61,39 @@ export const PlanView = (props: PlanViewProps) => {
       : interpolate(t().simulator.semesterTitle, { semester });
   };
 
+  const nothingPlanned = () =>
+    props.evaluation.semesters.every((entry) => entry.courses.length === 0);
+
   return (
     <div class="space-y-4">
+      <FillRequired
+        onFill={props.onFillRequired}
+        remaining={props.evaluation.unplannedRequired.length}
+      />
       <section class="bg-card grid gap-3 rounded-xl border p-3 text-sm sm:grid-cols-2 sm:p-4">
-        <p>
-          <span class="text-muted-foreground">{t().planner.graduation3yr}</span>{' '}
-          <span class="font-semibold">{graduationText('threeYear')}</span>
-        </p>
-        <p>
-          <span class="text-muted-foreground">{t().planner.graduation4yr}</span>{' '}
-          <span class="font-semibold">{graduationText('fourYear')}</span>
-        </p>
+        <Show
+          fallback={
+            <>
+              <p>
+                <span class="text-muted-foreground">
+                  {t().planner.graduation3yr}
+                </span>{' '}
+                <span class="font-semibold">{graduationText('threeYear')}</span>
+              </p>
+              <p>
+                <span class="text-muted-foreground">
+                  {t().planner.graduation4yr}
+                </span>{' '}
+                <span class="font-semibold">{graduationText('fourYear')}</span>
+              </p>
+            </>
+          }
+          when={nothingPlanned()}
+        >
+          <p class="text-muted-foreground sm:col-span-2">
+            {t().planner.emptySummary}
+          </p>
+        </Show>
         <Show when={props.evaluation.unplannedRequired.length > 0}>
           <details class="text-warning sm:col-span-2">
             <summary class="cursor-pointer font-medium">

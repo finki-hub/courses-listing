@@ -1,7 +1,8 @@
 import { defineConfig, devices } from '@playwright/test';
 import process from 'node:process';
 
-const PORT = 4_173;
+// E2E_PORT lets parallel local runs (e.g. two worktrees) use their own server.
+const PORT = Number(process.env['E2E_PORT'] ?? '4173');
 const isCi = process.env['CI'] === 'true';
 
 export default defineConfig({

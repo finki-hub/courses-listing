@@ -35,6 +35,34 @@ type GraduationAlertProps = {
   missingMandatory4yr: string[];
 };
 
+// A reminder, while expert mode is on, that prerequisites are not checked.
+export const PrerequisitesIgnoredNotice = (props: {
+  onTurnOff: () => void;
+}) => {
+  const { t } = useLanguage();
+  return (
+    <div
+      class={`${ALERT_STYLES.warning} flex flex-wrap items-center justify-between gap-x-3 gap-y-2`}
+    >
+      <span>
+        <span class="font-medium">
+          {t().simulator.settings.prerequisitesIgnored}.
+        </span>{' '}
+        {t().simulator.settings.prerequisitesIgnoredHint}
+      </span>
+      <button
+        class="bg-card hover:bg-muted min-h-8 rounded-md border px-3 text-sm font-medium transition-colors"
+        onClick={() => {
+          props.onTurnOff();
+        }}
+        type="button"
+      >
+        {t().simulator.settings.turnOff}
+      </button>
+    </div>
+  );
+};
+
 export const GraduationAlert = (props: GraduationAlertProps) => {
   const { t } = useLanguage();
   const names = useCourseNames();
