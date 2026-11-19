@@ -86,8 +86,9 @@ export const ProgressHeader = (props: ProgressHeaderProps) => {
               value={props.progress.credits}
             />
             <div class="text-muted-foreground relative h-4 text-[11px] sm:text-xs">
+              {/* Ends at its marker, so it never runs into the 4-year label. */}
               <span
-                class="absolute -translate-x-1/2 whitespace-nowrap"
+                class="absolute -translate-x-full pr-1 whitespace-nowrap"
                 style={{ left: `${String(props.progress.threeYearMark)}%` }}
               >
                 {GRADUATION_CREDITS_3YR}
