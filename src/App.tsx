@@ -30,6 +30,7 @@ import { PageSkeleton } from '@/components/ui/skeleton';
 import { useCourses } from '@/data/use-courses';
 import { ALERT_STYLES } from '@/lib/alert-styles';
 import { type AppNavigation, AppNavigationContext } from '@/lib/app-navigation';
+import { CourseNamesProvider } from '@/lib/CourseNamesProvider';
 import { useLanguage } from '@/lib/LanguageProvider';
 import {
   COURSE_QUERY_PARAM,
@@ -273,20 +274,22 @@ const App = () => {
                 data().filter((course) => !isMasterCourse(course)),
               );
               return (
-                <Switch>
-                  <Match when={page() === 'listing'}>
-                    <CourseTable courses={data()} />
-                  </Match>
-                  <Match when={page() === 'simulator'}>
-                    <EnrollmentSimulator courses={undergraduate()} />
-                  </Match>
-                  <Match when={page() === 'prerequisites'}>
-                    <PrerequisiteExplorer courses={undergraduate()} />
-                  </Match>
-                  <Match when={page() === 'equivalencies'}>
-                    <CourseEquivalencies courses={undergraduate()} />
-                  </Match>
-                </Switch>
+                <CourseNamesProvider courses={data()}>
+                  <Switch>
+                    <Match when={page() === 'listing'}>
+                      <CourseTable courses={data()} />
+                    </Match>
+                    <Match when={page() === 'simulator'}>
+                      <EnrollmentSimulator courses={undergraduate()} />
+                    </Match>
+                    <Match when={page() === 'prerequisites'}>
+                      <PrerequisiteExplorer courses={undergraduate()} />
+                    </Match>
+                    <Match when={page() === 'equivalencies'}>
+                      <CourseEquivalencies courses={undergraduate()} />
+                    </Match>
+                  </Switch>
+                </CourseNamesProvider>
               );
             }}
           </Match>

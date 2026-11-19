@@ -285,6 +285,11 @@ export const sq = {
     stepsAway: '{count} hapa larg',
     unlocks: 'Hap',
   },
+  prerequisiteText: {
+    and: 'dhe',
+    credits: '{credits} kredite',
+    or: 'ose',
+  },
   programState: {
     elective: 'Zgjedhore',
     'faculty-list': 'Lista e fakultetit',

@@ -15,6 +15,7 @@ import { EmptyState } from '@/components/ui/empty-state';
 import { SearchInput } from '@/components/ui/search-input';
 import { useLinkedCourseDialog } from '@/components/use-linked-course-dialog';
 import { getCourseIdentityFields } from '@/lib/course-filters';
+import { useCourseNames } from '@/lib/course-names-context';
 import { interpolate } from '@/lib/i18n';
 import { useLanguage } from '@/lib/LanguageProvider';
 import {
@@ -65,6 +66,13 @@ const createPickerMatcher = (
   };
 };
 
+// Course names in the order of the names they are shown by.
+const sortByShownName = (
+  courseNames: string[],
+  shown: (name: string) => string,
+): string[] =>
+  courseNames.toSorted((a, b) => NAME_COLLATOR.compare(shown(a), shown(b)));
+
 // The name a course goes by in an accreditation, if it is part of it.
 const nameIn = (
   course: CourseRaw,
@@ -110,6 +118,7 @@ const CoursePicker = (props: {
   search: string;
 }) => {
   const { t } = useLanguage();
+  const names = useCourseNames();
   return (
     <div class="space-y-2">
       <span
@@ -138,7 +147,7 @@ const CoursePicker = (props: {
                 }}
                 type="button"
               >
-                {name}
+                {names().courseName(name)}
               </button>
             )}
           </For>
@@ -150,6 +159,26 @@ const CoursePicker = (props: {
         </div>
       </Show>
     </div>
+  );
+};
+
+// Back to the course the map was moved away from.
+const BackButton = (props: { course: string; onClick: () => void }) => {
+  const { t } = useLanguage();
+  return (
+    <button
+      class="text-muted-foreground hover:text-foreground focus-visible:ring-ring inline-flex items-center gap-1.5 rounded-md text-sm transition-colors focus-visible:ring-2 focus-visible:outline-none"
+      onClick={() => {
+        props.onClick();
+      }}
+      type="button"
+    >
+      <ArrowLeft
+        aria-hidden="true"
+        class="h-4 w-4"
+      />
+      {interpolate(t().detail.back, { course: props.course })}
+    </button>
   );
 };
 
@@ -166,7 +195,8 @@ const PrerequisitesStart = () => {
 };
 
 export const PrerequisiteExplorer = (props: PrerequisiteExplorerProps) => {
-  const { t } = useLanguage();
+  const names = useCourseNames();
+  const shown = (name: string): string => names().courseName(name);
 
   const [savedAccreditation, saveAccreditation] =
     usePersistedSignal<Accreditation>(STORAGE_KEY_ACC, '2023', isAccreditation);
@@ -182,7 +212,9 @@ export const PrerequisiteExplorer = (props: PrerequisiteExplorerProps) => {
   const [focus, setFocus] = createSignal(linked?.name ?? '');
   // The courses moved away from, for going back along the map.
   const [trail, setTrail] = createSignal<string[]>([]);
-  const [search, setSearch] = createSignal(linked?.name ?? '');
+  const [search, setSearch] = createSignal(
+    linked ? untrack(names).courseName(linked.name) : '',
+  );
   const courseDialog = useLinkedCourseDialog(() => props.courses);
   let mapTop: HTMLDivElement | undefined;
 
@@ -215,16 +247,14 @@ export const PrerequisiteExplorer = (props: PrerequisiteExplorerProps) => {
   );
 
   const pickerCourses = createMemo(() =>
-    accCourses()
-      .keys()
-      .toArray()
-      .toSorted((a, b) => NAME_COLLATOR.compare(a, b))
-      .filter(createPickerMatcher(rawCourseMap(), search())),
+    sortByShownName(accCourses().keys().toArray(), shown).filter(
+      createPickerMatcher(rawCourseMap(), search()),
+    ),
   );
 
   const toLayers = (layers: string[][]): GraphCourse[][] =>
-    layers.map((names) =>
-      names
+    layers.map((layer) =>
+      layer
         .map((name) => accCourses().get(name))
         .filter((course) => course !== undefined)
         .toSorted(compareBySemesterAndName),
@@ -249,7 +279,7 @@ export const PrerequisiteExplorer = (props: PrerequisiteExplorerProps) => {
   const choose = (name: string) => {
     setTrail([]);
     setFocus(name);
-    setSearch(name);
+    setSearch(shown(name));
   };
 
   // Moves the map to a course on it, and brings the new middle into view.
@@ -257,7 +287,7 @@ export const PrerequisiteExplorer = (props: PrerequisiteExplorerProps) => {
     const current = focus();
     if (current) setTrail((previous) => [...previous, current]);
     setFocus(name);
-    setSearch(name);
+    setSearch(shown(name));
     mapTop?.scrollIntoView({ block: 'nearest' });
   };
 
@@ -266,7 +296,7 @@ export const PrerequisiteExplorer = (props: PrerequisiteExplorerProps) => {
     if (previous === undefined) return;
     setTrail((current) => current.slice(0, -1));
     setFocus(previous);
-    setSearch(previous);
+    setSearch(shown(previous));
     mapTop?.scrollIntoView({ block: 'nearest' });
   };
 
@@ -326,17 +356,10 @@ export const PrerequisiteExplorer = (props: PrerequisiteExplorerProps) => {
           >
             <Show when={trail().at(-1)}>
               {(previous) => (
-                <button
-                  class="text-muted-foreground hover:text-foreground focus-visible:ring-ring inline-flex items-center gap-1.5 rounded-md text-sm transition-colors focus-visible:ring-2 focus-visible:outline-none"
+                <BackButton
+                  course={shown(previous())}
                   onClick={goBack}
-                  type="button"
-                >
-                  <ArrowLeft
-                    aria-hidden="true"
-                    class="h-4 w-4"
-                  />
-                  {interpolate(t().detail.back, { course: previous() })}
-                </button>
+                />
               )}
             </Show>
             <PrerequisiteMap

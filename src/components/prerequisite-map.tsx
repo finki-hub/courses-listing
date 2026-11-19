@@ -1,6 +1,7 @@
 import { ArrowLeft, ArrowRight, ChevronRight } from 'lucide-solid';
 import { For, type JSX, Show } from 'solid-js';
 
+import { useCourseNames } from '@/lib/course-names-context';
 import { interpolate } from '@/lib/i18n';
 import { useLanguage } from '@/lib/LanguageProvider';
 import { type GraphCourse } from '@/lib/prerequisite-graph';
@@ -22,6 +23,7 @@ const CourseNode = (props: {
   onFocus: (name: string) => void;
 }) => {
   const { t } = useLanguage();
+  const names = useCourseNames();
   return (
     <li>
       <button
@@ -31,7 +33,9 @@ const CourseNode = (props: {
         }}
         type="button"
       >
-        <span class="min-w-0 flex-1 font-medium">{props.course.name}</span>
+        <span class="min-w-0 flex-1 font-medium">
+          {names().courseName(props.course.name)}
+        </span>
         <Show when={props.course.semester > 0}>
           <span class="text-muted-foreground shrink-0 text-xs tabular-nums">
             {t().common.semesterShort} {props.course.semester}
@@ -128,17 +132,20 @@ const MapColumn = (props: {
 // unlocks on the other. Any course on the map can become the middle.
 export const PrerequisiteMap = (props: PrerequisiteMapProps) => {
   const { t } = useLanguage();
+  const names = useCourseNames();
   return (
     <div
       aria-label={interpolate(t().prerequisites.mapLabel, {
-        course: props.focus.name,
+        course: names().courseName(props.focus.name),
       })}
       class="grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)_minmax(0,1fr)] lg:items-start"
       role="region"
     >
       <div class="bg-card border-primary space-y-3 rounded-xl border-2 p-4 lg:sticky lg:top-[calc(var(--tabbar-h,0px)+1rem)] lg:order-2">
         <div class="space-y-1">
-          <h3 class="text-lg leading-snug font-semibold">{props.focus.name}</h3>
+          <h3 class="text-lg leading-snug font-semibold">
+            {names().courseName(props.focus.name)}
+          </h3>
           <Show when={props.focus.semester > 0}>
             <p class="text-muted-foreground text-sm">
               {t().common.semester} {props.focus.semester}
@@ -150,7 +157,9 @@ export const PrerequisiteMap = (props: PrerequisiteMapProps) => {
             {t().common.prerequisite}
           </p>
           <p class="text-sm">
-            {props.focus.prerequisite ?? t().detail.noPrerequisites}
+            {props.focus.prerequisite === undefined
+              ? t().detail.noPrerequisites
+              : names().prerequisiteText(props.focus.prerequisite)}
           </p>
         </div>
         <button

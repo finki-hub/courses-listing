@@ -4,6 +4,7 @@ import {
   type SimilarCourse,
   type SimilarEquivalency,
 } from '@/data/course-similar-equivalencies';
+import { useCourseNames } from '@/lib/course-names-context';
 import { type EquivalencyPair } from '@/lib/equivalencies';
 import { interpolate, type Translations } from '@/lib/i18n';
 import { useLanguage } from '@/lib/LanguageProvider';
@@ -25,17 +26,36 @@ const CourseButton = (props: {
   code: string | undefined;
   name: string;
   onOpen: OpenEquivalencyCourse;
-}) => (
-  <button
-    class="focus-visible:ring-ring hover:text-primary w-fit rounded-sm text-left font-medium text-pretty break-words underline-offset-4 hover:underline focus-visible:ring-2 focus-visible:outline-none"
-    onClick={() => {
-      props.onOpen(props.accreditation, props.code);
-    }}
-    type="button"
-  >
-    {props.name}
-  </button>
-);
+}) => {
+  const names = useCourseNames();
+  return (
+    <button
+      class="focus-visible:ring-ring hover:text-primary w-fit rounded-sm text-left font-medium text-pretty break-words underline-offset-4 hover:underline focus-visible:ring-2 focus-visible:outline-none"
+      onClick={() => {
+        props.onOpen(props.accreditation, props.code);
+      }}
+      type="button"
+    >
+      {names().courseName(props.name)}
+    </button>
+  );
+};
+
+// A course's name as the accreditation wrote it, under its translation, so a
+// rename still shows when both names translate the same.
+const WrittenName = (props: { name: string }) => {
+  const names = useCourseNames();
+  return (
+    <Show when={names().courseName(props.name) !== props.name}>
+      <span
+        class="text-muted-foreground text-xs text-pretty"
+        lang="mk"
+      >
+        {props.name}
+      </span>
+    </Show>
+  );
+};
 
 const Code = (props: { code: string | undefined }) => (
   <Show when={props.code}>
@@ -62,6 +82,7 @@ const Side = (props: {
   <div class="flex min-w-0 flex-col gap-1">
     <AccreditationLabel>{props.accreditation}</AccreditationLabel>
     <CourseButton {...props} />
+    <WrittenName name={props.name} />
     <Code code={props.code} />
   </div>
 );

@@ -2,7 +2,7 @@ import { expect, type Page } from '@playwright/test';
 
 import { prepareContext, test } from './fixtures';
 
-const ALGORITHMS_ROW = /^Алгоритми и податочни структури/u;
+const ALGORITHMS_ROW = /^Algorithms and data structures/u;
 const SIX_CREDITS = /^6 credits/u;
 
 const setUp = async (page: Page) => {
@@ -25,14 +25,17 @@ test.describe('simulator', () => {
       .getByRole('listitem')
       .filter({ hasText: ALGORITHMS_ROW });
     await expect(algorithms).toContainText('Prerequisites not met');
+    await expect(algorithms).toContainText(
+      'Prerequisite: Structured programming',
+    );
     await expect(algorithms.getByRole('radiogroup')).toHaveCount(0);
 
-    await status(page, 'Структурно програмирање')
+    await status(page, 'Structured programming')
       .getByRole('radio', { name: 'Passed' })
       .check();
     await expect(algorithms).not.toContainText('Prerequisites not met');
     await expect(
-      status(page, 'Алгоритми и податочни структури').getByRole('radio', {
+      status(page, 'Algorithms and data structures').getByRole('radio', {
         name: 'Passed',
       }),
     ).toBeEnabled();
@@ -41,12 +44,12 @@ test.describe('simulator', () => {
 
   test('progress is kept after a reload', async ({ page }) => {
     await setUp(page);
-    await status(page, 'Калкулус 1')
+    await status(page, 'Calculus 1')
       .getByRole('radio', { name: 'Passed' })
       .check();
     await page.reload();
     await expect(
-      status(page, 'Калкулус 1').getByRole('radio', { name: 'Passed' }),
+      status(page, 'Calculus 1').getByRole('radio', { name: 'Passed' }),
     ).toBeChecked();
   });
 
@@ -58,7 +61,7 @@ test.describe('simulator', () => {
       .context()
       .grantPermissions(['clipboard-read', 'clipboard-write']);
     await setUp(page);
-    await status(page, 'Структурно програмирање')
+    await status(page, 'Structured programming')
       .getByRole('radio', { name: 'Passed' })
       .check();
     await page
@@ -76,7 +79,7 @@ test.describe('simulator', () => {
     await other.goto(link);
     await expect(
       other
-        .getByRole('radiogroup', { name: 'Status of Структурно програмирање' })
+        .getByRole('radiogroup', { name: 'Status of Structured programming' })
         .getByRole('radio', { name: 'Passed' }),
     ).toBeChecked();
     await otherContext.close();

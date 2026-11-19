@@ -285,6 +285,11 @@ export const mk = {
     stepsAway: '{count} чекори подалеку',
     unlocks: 'Отклучува',
   },
+  prerequisiteText: {
+    and: 'и',
+    credits: '{credits} кредити',
+    or: 'или',
+  },
   programState: {
     elective: 'Изборен',
     'faculty-list': 'Факултетска листа',

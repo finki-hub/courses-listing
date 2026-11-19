@@ -3,6 +3,7 @@ import { For, Show } from 'solid-js';
 
 import { Select } from '@/components/ui/select';
 import { StatusBadge } from '@/components/ui/status-badge';
+import { useCourseNames } from '@/lib/course-names-context';
 import { interpolate } from '@/lib/i18n';
 import { useLanguage } from '@/lib/LanguageProvider';
 import { getProgramStateKind, type SimulatorCourse } from '@/lib/simulator';
@@ -22,6 +23,8 @@ type PlanCourseRowProps = {
 // lacks for it.
 export const PlanCourseRow = (props: PlanCourseRowProps) => {
   const { t } = useLanguage();
+  const names = useCourseNames();
+  const name = () => names().courseName(props.course.name);
   const kind = () => getProgramStateKind(props.course.programState);
   const semesterLabel = (semester: number) =>
     interpolate(t().simulator.semesterTitle, { semester });
@@ -42,7 +45,7 @@ export const PlanCourseRow = (props: PlanCourseRowProps) => {
   return (
     <li class="grid gap-x-4 gap-y-2 px-3 py-2.5 sm:grid-cols-[minmax(0,1fr)_12rem] sm:items-center sm:px-4">
       <div class="min-w-0 space-y-1">
-        <div class="text-sm font-medium leading-snug">{props.course.name}</div>
+        <div class="text-sm font-medium leading-snug">{name()}</div>
         <div class="text-muted-foreground flex flex-wrap items-center gap-x-3 gap-y-1 text-xs">
           <Show when={kind()}>
             {(k) => (
@@ -75,7 +78,7 @@ export const PlanCourseRow = (props: PlanCourseRowProps) => {
         </For>
       </div>
       <Select
-        aria-label={`${t().planner.planFor}: ${props.course.name}`}
+        aria-label={`${t().planner.planFor}: ${name()}`}
         emptyLabel={t().planner.notPlanned}
         onChange={(value) => {
           const semester = Number.parseInt(value, 10);

@@ -20,12 +20,34 @@ test.describe('equivalencies', () => {
       .getByRole('textbox', { name: 'Search course or code' })
       .fill('F23L3W065');
     await expect(cards).toHaveCount(1);
+    // Both names translate the same, so the Macedonian ones show the rename.
     await expect(
-      cards.getByRole('button', { name: 'Сајбер безбедност' }),
-    ).toBeVisible();
-    await expect(
-      cards.getByRole('button', { name: 'Мрежна безбедност' }),
-    ).toBeVisible();
+      cards.getByRole('button', { name: 'Cybersecurity' }),
+    ).toHaveCount(2);
+    await expect(cards.getByText('Мрежна безбедност')).toBeVisible();
+    await expect(cards.getByText('Сајбер безбедност')).toBeVisible();
+
+    // Searching by the English name finds the course too.
+    await region
+      .getByRole('textbox', { name: 'Search course or code' })
+      .fill('cybersecurity');
+    await expect(cards).toHaveCount(1);
+  });
+
+  test.describe('in Macedonian', () => {
+    test.use({ language: 'mk' });
+
+    test('cards keep the names as written', async ({ page }) => {
+      await page.goto('/?page=equivalencies');
+      await page.getByRole('radio', { name: 'Преименувани' }).check();
+      const cards = page.getByRole('article');
+      await expect(
+        cards.getByRole('button', { name: 'Сајбер безбедност' }),
+      ).toBeVisible();
+      await expect(
+        cards.getByRole('button', { name: 'Мрежна безбедност' }),
+      ).toBeVisible();
+    });
   });
 
   test('a course on a card opens its dialog', async ({ page }) => {
@@ -33,7 +55,7 @@ test.describe('equivalencies', () => {
     await page
       .getByRole('button', {
         exact: true,
-        name: 'Алгоритми и податочни структури',
+        name: 'Algorithms and data structures',
       })
       .first()
       .click();

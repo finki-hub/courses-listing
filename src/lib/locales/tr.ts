@@ -282,6 +282,11 @@ export const tr = {
     stepsAway: '{count} adım uzakta',
     unlocks: 'Önünü açar',
   },
+  prerequisiteText: {
+    and: 've',
+    credits: '{credits} kredi',
+    or: 'veya',
+  },
   programState: {
     elective: 'Seçmeli',
     'faculty-list': 'Fakülte listesi',

@@ -34,9 +34,11 @@ const toCourse = (
   return info ? { code: info.code, name: info.name ?? course.name } : undefined;
 };
 
-// Courses in both accreditations, renamed ones first, each group by name.
+// Courses in both accreditations, renamed ones first, each group by the
+// name it is shown by.
 export const buildEquivalencyPairs = (
   courses: readonly CourseRaw[],
+  shown: (name: string) => string = (name) => name,
 ): EquivalencyPair[] => {
   const pairs: EquivalencyPair[] = [];
   for (const course of courses) {
@@ -65,8 +67,8 @@ export const buildEquivalencyPairs = (
     (left, right) =>
       Number(right.renamed) - Number(left.renamed) ||
       NAME_COLLATOR.compare(
-        left.accreditation2023.name,
-        right.accreditation2023.name,
+        shown(left.accreditation2023.name),
+        shown(right.accreditation2023.name),
       ),
   );
 };
@@ -83,13 +85,18 @@ export const pairMatchesView = (
 export const getRuleCourses = (rule: SimilarEquivalency) =>
   rule.kind === 'related' ? rule.courses : [...rule.sources, ...rule.targets];
 
+// Whether a rule names a course matching the term, by its name as written,
+// the name it is shown by or its code.
 export const ruleMatchesSearch = (
   rule: SimilarEquivalency,
   term: string,
+  shown: (name: string) => string = (name) => name,
 ): boolean =>
   !term ||
   getRuleCourses(rule).some((course) =>
-    normalizeSearchText(`${course.name} ${course.code}`).includes(term),
+    normalizeSearchText(
+      `${course.name} ${shown(course.name)} ${course.code}`,
+    ).includes(term),
   );
 
 // Combination rules with the same sources become one rule with every target.

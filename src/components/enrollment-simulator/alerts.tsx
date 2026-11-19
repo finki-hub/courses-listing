@@ -1,6 +1,7 @@
 import { Show } from 'solid-js';
 
 import { ALERT_STYLES } from '@/lib/alert-styles';
+import { useCourseNames } from '@/lib/course-names-context';
 import { interpolate } from '@/lib/i18n';
 import { useLanguage } from '@/lib/LanguageProvider';
 import { type GraduationEligibility } from '@/lib/simulator';
@@ -36,6 +37,7 @@ type GraduationAlertProps = {
 
 export const GraduationAlert = (props: GraduationAlertProps) => {
   const { t } = useLanguage();
+  const names = useCourseNames();
 
   const e = () => props.eligibility;
   const showAlert = () =>
@@ -53,7 +55,9 @@ export const GraduationAlert = (props: GraduationAlertProps) => {
         <Show when={e().credits3yr && !e().canGrad3yr}>
           <div class={ALERT_STYLES.warning}>
             {interpolate(t().simulator.missing3yr, {
-              courses: props.missingMandatory3yr.join(', '),
+              courses: props.missingMandatory3yr
+                .map((name) => names().courseName(name))
+                .join(', '),
             })}
           </div>
         </Show>
@@ -63,7 +67,9 @@ export const GraduationAlert = (props: GraduationAlertProps) => {
         <Show when={e().credits4yr && !e().canGrad4yr}>
           <div class={ALERT_STYLES.warning}>
             {interpolate(t().simulator.missing4yr, {
-              courses: props.missingMandatory4yr.join(', '),
+              courses: props.missingMandatory4yr
+                .map((name) => names().courseName(name))
+                .join(', '),
             })}
           </div>
         </Show>

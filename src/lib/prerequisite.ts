@@ -284,23 +284,26 @@ export const collectCourseNames = (node: PrereqNode): string[] => {
  * @param options - Prerequisite description options
  * @param options.electives - Elective course names to skip
  * @param options.t - The active translations
+ * @param options.courseName - How a course name is shown; as written by default
  * @returns A list of description lines
  */
 export const describePrereqNode = (
   node: PrereqNode,
   ctx: EvalContext,
-  { electives, t }: { electives: Set<string>; t: Translations },
+  options: {
+    courseName?: (name: string) => string;
+    electives: Set<string>;
+    t: Translations;
+  },
 ): string[] => {
+  const { electives, t } = options;
   switch (node.type) {
     case 'and':
-      return node.children.flatMap((c) =>
-        describePrereqNode(c, ctx, { electives, t }),
-      );
+      return node.children.flatMap((c) => describePrereqNode(c, ctx, options));
     case 'course': {
+      const course = options.courseName?.(node.name) ?? node.name;
       if (electives.has(node.name)) {
-        return [
-          interpolate(t.prereqDescription.elective, { course: node.name }),
-        ];
+        return [interpolate(t.prereqDescription.elective, { course })];
       }
       const st = ctx.statuses[node.name];
       const info = ctx.courseInfoMap.get(node.name);
@@ -310,14 +313,8 @@ export const describePrereqNode = (
       const met = diff === 1 ? (st?.listened ?? false) : (st?.passed ?? false);
       return [
         met
-          ? interpolate(t.prereqDescription.met, {
-              course: node.name,
-              status: needed,
-            })
-          : interpolate(t.prereqDescription.unmet, {
-              course: node.name,
-              status: needed,
-            }),
+          ? interpolate(t.prereqDescription.met, { course, status: needed })
+          : interpolate(t.prereqDescription.unmet, { course, status: needed }),
       ];
     }
     case 'credits': {
@@ -338,7 +335,7 @@ export const describePrereqNode = (
       return [];
     case 'or': {
       const descs = node.children.map((c) =>
-        describePrereqNode(c, ctx, { electives, t }),
+        describePrereqNode(c, ctx, options),
       );
       const metIdx = descs.findIndex((d) =>
         d.every((line) => line.includes('\u{2705}')),

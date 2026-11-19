@@ -43,7 +43,7 @@ test.describe('course listing', () => {
       dialog.getByRole('heading', { name: 'Prerequisites' }),
     ).toBeVisible();
     await expect(
-      dialog.getByRole('button', { name: 'Објектно-ориентирано програмирање' }),
+      dialog.getByRole('button', { name: 'Object-oriented programming' }),
     ).toBeVisible();
 
     await page.keyboard.press('Escape');
