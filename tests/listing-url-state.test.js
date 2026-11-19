@@ -35,6 +35,7 @@ const DEFAULT_STATE = {
   staff: '',
   tagMode: 'any',
   tags: [],
+  view: 'list',
 };
 
 const parse = (search) =>
@@ -69,6 +70,7 @@ test('valid listing params round-trip through the URL', () => {
     staff: 'Костадин Мишев',
     tagMode: 'all',
     tags: ['ai', 'web'],
+    view: 'list',
   };
   assert.deepEqual(parse(write(state)), state);
 });
@@ -197,4 +199,16 @@ test('a course link resolves within the preferred cycle first', () => {
     findPreferredCourseByLinkValue([undergraduate], 'Shared', isMaster),
     undergraduate,
   );
+});
+
+test("the curriculum layout is a master's param, omitted for the list", () => {
+  const master = { ...DEFAULT_STATE, cycle: 'master', program: 'DS23_1' };
+  assert.equal(write(master), 'cycle=master&prog=DS23_1');
+  const curriculum = { ...master, view: 'curriculum' };
+  const url = 'cycle=master&prog=DS23_1&layout=curriculum';
+  assert.equal(write(curriculum), url);
+  assert.deepEqual(parse(url), curriculum);
+  // Undergraduate links and unknown values fall back to the list.
+  assert.equal(parse('layout=curriculum').view, 'list');
+  assert.equal(parse('cycle=master&layout=x').view, 'list');
 });

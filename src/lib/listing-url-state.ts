@@ -30,10 +30,12 @@ const OFFERED_PARAM = 'offered';
 const CHANNEL_PARAM = 'channel';
 const SORT_PARAM = 'sort';
 const DIRECTION_PARAM = 'dir';
+const VIEW_PARAM = 'layout';
 
 const MASTER_CYCLE_VALUE = 'master';
 // Master's program codes, checked against the data once it has loaded.
 const MASTER_PROGRAM_CODE = /^\w{1,32}$/u;
+const CURRICULUM_VIEW_VALUE = 'curriculum';
 const TAG_SEPARATOR = ',';
 const FLAG_VALUE = '1';
 const MAX_SEMESTER = 8;
@@ -61,6 +63,7 @@ export const LISTING_FILTER_PARAMS: readonly string[] = [
   CHANNEL_PARAM,
   SORT_PARAM,
   DIRECTION_PARAM,
+  VIEW_PARAM,
 ];
 
 // Everything the listing filters by. Sorting is kept apart.
@@ -81,6 +84,8 @@ export type ListingFilters = {
   staff: string;
   tagMode: TagMode;
   tags: string[];
+  /** The master's results as a list or as a program's curriculum. */
+  view: ListingView;
 };
 
 export type ListingUrlOptions = {
@@ -93,6 +98,8 @@ export type ListingUrlState = ListingFilters & {
   sortColumn: SortColumn;
   sortDirection: SortDirection;
 };
+
+export type ListingView = 'curriculum' | 'list';
 
 export type StudyCycle = 'master' | 'undergraduate';
 
@@ -112,6 +119,7 @@ export const DEFAULT_LISTING_FILTERS: Readonly<ListingFilters> = {
   staff: '',
   tagMode: 'any',
   tags: [],
+  view: 'list',
 };
 
 const parseAccreditation = (value: null | string): Accreditation | null =>
@@ -206,6 +214,11 @@ export const parseListingUrlState = (
     staff: parseStaff(params.get(STAFF_PARAM)),
     tagMode: params.get(TAG_MODE_PARAM) === 'all' ? 'all' : 'any',
     tags: parseTags(params.get(TAGS_PARAM), options.tags),
+    // Only master's programs have a curriculum to show.
+    view:
+      cycle === 'master' && params.get(VIEW_PARAM) === CURRICULUM_VIEW_VALUE
+        ? 'curriculum'
+        : 'list',
   };
 };
 
@@ -249,6 +262,12 @@ export const writeListingUrlState = (
     [
       SORT_PARAM,
       state.sortColumn === DEFAULT_SORT_COLUMN ? null : state.sortColumn,
+    ],
+    [
+      VIEW_PARAM,
+      state.cycle === 'master' && state.view === 'curriculum'
+        ? CURRICULUM_VIEW_VALUE
+        : null,
     ],
     [
       DIRECTION_PARAM,

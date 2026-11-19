@@ -33,6 +33,8 @@ type ListingToolbarProps = {
   readonly onSwitchCycle: (cycle: StudyCycle) => void;
   readonly onToggleSort: (column: SortColumn) => void;
   readonly query: string;
+  /** Sorting applies to the results; hidden where they aren't sorted. */
+  readonly showSort?: boolean;
   readonly sortColumn: SortColumn;
   readonly sortColumns: readonly SortColumn[];
   readonly sortDirection: SortDirection;
@@ -105,51 +107,53 @@ export const ListingToolbar = (props: ListingToolbarProps) => {
           </Show>
         </button>
 
-        <div class="ml-auto flex items-center gap-2">
-          <label
-            class="text-muted-foreground sr-only text-sm sm:not-sr-only lg:sr-only xl:not-sr-only"
-            for="listing-sort"
-          >
-            {t().listing.sortBy}
-          </label>
-          <Select
-            class="w-40 sm:w-44"
-            id="listing-sort"
-            onChange={(value) => {
-              const column = props.sortColumns.find((item) => item === value);
-              if (column && column !== props.sortColumn)
-                props.onToggleSort(column);
-            }}
-            options={props.sortColumns.map((column) => ({
-              label: t().common[SORT_LABEL_KEYS[column]],
-              value: column,
-            }))}
-            value={props.sortColumn}
-          />
-          <IconButton
-            aria-label={directionLabel()}
-            onClick={() => {
-              props.onToggleSort(props.sortColumn);
-            }}
-            title={directionLabel()}
-            type="button"
-          >
-            <Show
-              fallback={
-                <ArrowDownWideNarrow
+        <Show when={props.showSort ?? true}>
+          <div class="ml-auto flex items-center gap-2">
+            <label
+              class="text-muted-foreground sr-only text-sm sm:not-sr-only lg:sr-only xl:not-sr-only"
+              for="listing-sort"
+            >
+              {t().listing.sortBy}
+            </label>
+            <Select
+              class="w-40 sm:w-44"
+              id="listing-sort"
+              onChange={(value) => {
+                const column = props.sortColumns.find((item) => item === value);
+                if (column && column !== props.sortColumn)
+                  props.onToggleSort(column);
+              }}
+              options={props.sortColumns.map((column) => ({
+                label: t().common[SORT_LABEL_KEYS[column]],
+                value: column,
+              }))}
+              value={props.sortColumn}
+            />
+            <IconButton
+              aria-label={directionLabel()}
+              onClick={() => {
+                props.onToggleSort(props.sortColumn);
+              }}
+              title={directionLabel()}
+              type="button"
+            >
+              <Show
+                fallback={
+                  <ArrowDownWideNarrow
+                    aria-hidden="true"
+                    class="h-4 w-4"
+                  />
+                }
+                when={props.sortDirection === 'asc'}
+              >
+                <ArrowUpNarrowWide
                   aria-hidden="true"
                   class="h-4 w-4"
                 />
-              }
-              when={props.sortDirection === 'asc'}
-            >
-              <ArrowUpNarrowWide
-                aria-hidden="true"
-                class="h-4 w-4"
-              />
-            </Show>
-          </IconButton>
-        </div>
+              </Show>
+            </IconButton>
+          </div>
+        </Show>
       </div>
     </div>
   );

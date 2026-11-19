@@ -2,8 +2,10 @@ import { type Accessor, createEffect, createMemo } from 'solid-js';
 
 import { useMasterData } from '@/data/use-master-data';
 import { type SeasonResolver } from '@/lib/course-facts';
+import { languageLocales } from '@/lib/i18n';
 import { useLanguage } from '@/lib/LanguageProvider';
 import { type ListingFilters } from '@/lib/listing-url-state';
+import { buildCurriculum } from '@/lib/master-curriculum';
 import {
   buildProgramIndex,
   type DegreeProgram,
@@ -19,7 +21,7 @@ import {
   type ProgramCourse,
   summarizePrograms,
 } from '@/lib/master-programs';
-import { type CourseRaw } from '@/types/course';
+import { type CourseRaw, getCourseName } from '@/types/course';
 
 // Filters that need the programs to decide.
 export const hasProgramFilters = (filters: ListingFilters): boolean =>
@@ -67,6 +69,19 @@ export const useMasterListing = (
     getMasterPrograms(loadedData()?.programs ?? []),
   );
 
+  // The course a program's row names: in the row's cycle, else by name.
+  const coursesByName = createMemo(() => {
+    const byName = new Map<string, CourseRaw>();
+    for (const course of courses()) {
+      byName.set(`${course.cycle ?? ''}\u{0}${course.name}`, course);
+      if (!byName.has(course.name)) byName.set(course.name, course);
+    }
+    return byName;
+  });
+  const findCourse = (entry: ProgramCourse): CourseRaw | undefined =>
+    coursesByName().get(`${entry.cycle ?? ''}\u{0}${entry.course}`) ??
+    coursesByName().get(entry.course);
+
   const entries = (course: CourseRaw): readonly ProgramCourse[] =>
     getProgramEntries(index(), course);
   const getSeason: SeasonResolver = (course) =>
@@ -95,8 +110,19 @@ export const useMasterListing = (
     creditOptions: createMemo(() =>
       getMasterCreditOptions(masterCourses(), index()),
     ),
+    curriculum: (code: string) =>
+      buildCurriculum(loadedData()?.programCourses ?? [], code, {
+        locale: languageLocales[language()],
+        nameOf: (row) => {
+          const course = findCourse(row);
+          return course === undefined
+            ? row.course
+            : getCourseName(course, null, language());
+        },
+      }),
     entries,
     error: () => masterData.data.state === 'errored',
+    findCourse,
     getCredits,
     getSeason,
     loaded,
@@ -104,6 +130,8 @@ export const useMasterListing = (
     masterCourses,
     matches,
     programCodes: createMemo(() => masterPrograms().map(({ code }) => code)),
+    programEcts: (code: string): null | number =>
+      programs().get(code)?.ects ?? null,
     programOptions: createMemo(() =>
       masterPrograms().map((program) => ({
         label: `${program.code}: ${programTitle(program.code)}`,

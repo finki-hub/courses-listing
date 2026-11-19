@@ -181,6 +181,21 @@ export const sq = {
     tagsLabel: 'Etiketat:',
   },
   masters: {
+    curriculum: {
+      chooseProgramText:
+        'Zgjidhni një program te filtrat për të parë planprogramin sipas semestrave.',
+      chooseProgramTitle: 'Zgjidhni një program master',
+      courseCount: {
+        one: '{count} lëndë',
+        other: '{count} lëndë',
+      },
+      curriculum: 'Planprogrami',
+      ects: '{ects} ECTS',
+      label: 'Pamja:',
+      list: 'Lista',
+      noCourses: 'Për këtë program nuk ka lëndë të listuara.',
+      unplaced: 'Pa semestër',
+    },
     cycle: 'Studimet:',
     electiveGroups: {
       facultySummer: 'Zgjedhore të fakultetit, verë',

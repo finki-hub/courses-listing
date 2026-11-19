@@ -181,6 +181,21 @@ export const en = {
     tagsLabel: 'Tags:',
   },
   masters: {
+    curriculum: {
+      chooseProgramText:
+        'Choose a program in the filters to see its curriculum by semester.',
+      chooseProgramTitle: "Choose a master's program",
+      courseCount: {
+        one: '{count} course',
+        other: '{count} courses',
+      },
+      curriculum: 'Curriculum',
+      ects: '{ects} ECTS',
+      label: 'View:',
+      list: 'List',
+      noCourses: 'No courses are listed for this program.',
+      unplaced: 'Not placed in a semester',
+    },
     cycle: 'Studies:',
     electiveGroups: {
       facultySummer: 'Faculty electives, summer',

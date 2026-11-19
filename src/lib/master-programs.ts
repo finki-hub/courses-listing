@@ -241,7 +241,7 @@ const GROUP_KINDS = {
 export type ElectiveGroupKind =
   'other' | (typeof GROUP_KINDS)[keyof typeof GROUP_KINDS];
 
-const GROUP_ORDER: readonly ElectiveGroupKind[] = [
+export const GROUP_ORDER: readonly ElectiveGroupKind[] = [
   'programWinter',
   'programSummer',
   'facultyWinter',
@@ -257,7 +257,7 @@ export type ElectiveGroup = {
   readonly name: null | string;
 };
 
-const getGroupKind = (group: null | string): ElectiveGroupKind =>
+export const getGroupKind = (group: null | string): ElectiveGroupKind =>
   group !== null && Object.hasOwn(GROUP_KINDS, group)
     ? GROUP_KINDS[group as keyof typeof GROUP_KINDS]
     : 'other';
