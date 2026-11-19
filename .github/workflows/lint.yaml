@@ -40,10 +40,10 @@ jobs:
           cache: npm
 
       - name: Install Dependencies
-        run: npm ci
+        run: npm ci --ignore-scripts
 
       - name: Install Chromium
-        run: npx playwright install --with-deps chromium
+        run: node node_modules/@playwright/test/cli.js install --with-deps chromium
 
       - name: Run Playwright
         run: npm run test:e2e
