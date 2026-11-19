@@ -1,6 +1,7 @@
 import { SearchX } from 'lucide-solid';
 import { createEffect, type JSX, Show } from 'solid-js';
 
+import { NoSavedCourses } from '@/components/saved-courses-ui';
 import { EmptyState } from '@/components/ui/empty-state';
 import { Sheet } from '@/components/ui/sheet';
 import { formatCount } from '@/lib/i18n';
@@ -115,27 +116,36 @@ export const FiltersFrame = (props: FiltersSheetProps) => {
 // No course matches: say so and offer to clear what narrowed the list.
 export const NoResults = (props: {
   readonly canClear: boolean;
+  /** The Saved filter is on and nothing is saved. */
+  readonly noneSaved?: boolean;
   readonly onClear: () => void;
 }) => {
   const { t } = useLanguage();
   return (
-    <EmptyState
-      action={
-        <Show when={props.canClear}>
-          <button
-            class="bg-card hover:bg-muted inline-flex h-9 items-center rounded-md border px-3 text-sm font-medium transition-colors"
-            onClick={() => {
-              props.onClear();
-            }}
-            type="button"
-          >
-            {t().filters.clearFilters}
-          </button>
-        </Show>
+    <Show
+      fallback={
+        <EmptyState
+          action={
+            <Show when={props.canClear}>
+              <button
+                class="bg-card hover:bg-muted inline-flex h-9 items-center rounded-md border px-3 text-sm font-medium transition-colors"
+                onClick={() => {
+                  props.onClear();
+                }}
+                type="button"
+              >
+                {t().filters.clearFilters}
+              </button>
+            </Show>
+          }
+          icon={<SearchX />}
+          text={t().listing.noResultsText}
+          title={t().listing.noResultsTitle}
+        />
       }
-      icon={<SearchX />}
-      text={t().listing.noResultsText}
-      title={t().listing.noResultsTitle}
-    />
+      when={props.noneSaved}
+    >
+      <NoSavedCourses />
+    </Show>
   );
 };

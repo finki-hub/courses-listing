@@ -139,6 +139,10 @@ export const tr = {
     programAll: 'Tüm programlar',
     removeChip: 'Filtreyi kaldır: {filter}',
     required: 'Zorunlu',
+    savedChip: 'Yalnızca kaydedilenler',
+    savedLinkCopied: 'Bağlantı kopyalandı',
+    savedLinkFailed: 'Bağlantı kopyalanamadı',
+    savedOnly: 'Yalnızca kaydedilenler ({count})',
     season: 'Yarıyıl:',
     sections: {
       curriculum: 'Müfredat',
@@ -148,6 +152,7 @@ export const tr = {
       topics: 'Konular',
     },
     semesterNumber: 'Yarıyıl no.:',
+    shareSaved: 'Kaydedilen dersleri paylaş',
     showCourses: 'Dersleri göster',
     showResults: {
       one: '{count} dersi göster',
@@ -350,6 +355,19 @@ export const tr = {
     prerequisite: '📋 Ön koşul:',
     prerequisitesIgnored: '⚠️ Önkoşullar yok sayılıyor (uzman modu)',
     required: 'ℹ️ Zorunlu ders',
+  },
+  saved: {
+    addShared: 'Kaydedilenlerime ekle',
+    column: 'Kaydedildi',
+    emptyText:
+      'Bir dersi kaydetmek için yanındaki yıldızı kullanın. Kaydedilen dersler bu tarayıcıda kalır.',
+    emptyTitle: 'Henüz kaydedilmiş ders yok',
+    save: '{course} dersini kaydet',
+    sharedBanner: {
+      one: 'Sizinle paylaşılan {count} ders gösteriliyor.',
+      other: 'Sizinle paylaşılan {count} ders gösteriliyor.',
+    },
+    showMine: 'Kaydettiğim dersleri göster',
   },
   simulator: {
     allUnlocked: '🔓 ≥ 180 krediniz var — tüm dersler açıldı',

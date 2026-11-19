@@ -18,6 +18,7 @@ import {
 import { EnrollmentHistorySection } from '@/components/course-detail/enrollment-history-section';
 import { MasterProgramsSection } from '@/components/course-detail/master-programs-section';
 import { RequiredForSection } from '@/components/course-detail/required-for-section';
+import { SaveButton } from '@/components/saved-courses-ui';
 import { Sheet } from '@/components/ui/sheet';
 import { type MasterListing } from '@/components/use-master-listing';
 import { getLatestEnrollmentYears } from '@/lib/course-facts';
@@ -25,6 +26,7 @@ import { getOffering } from '@/lib/course-offering';
 import { interpolate } from '@/lib/i18n';
 import { useLanguage } from '@/lib/LanguageProvider';
 import { isMasterCourse } from '@/lib/master-programs';
+import { useSavedCourses } from '@/lib/saved-courses-store';
 import {
   type Accreditation,
   type CourseRaw,
@@ -59,6 +61,45 @@ const StaffList = (props: { names: string[]; title: string }) => (
     </div>
   </Show>
 );
+
+// The panel's own actions: save the course, and show it on the map.
+const PanelActions = (props: {
+  course: CourseRaw;
+  name: string;
+  onShowPrerequisites?: (course: CourseRaw) => void;
+}) => {
+  const { t } = useLanguage();
+  const saved = useSavedCourses();
+  return (
+    <div class="flex items-center gap-2">
+      <Show when={!isMasterCourse(props.course) && props.onShowPrerequisites}>
+        {(show) => (
+          <button
+            class="hover:bg-muted focus-visible:ring-ring inline-flex min-h-9 items-center gap-2 rounded-md border px-3 text-sm font-medium transition-colors focus-visible:ring-2 focus-visible:outline-none"
+            onClick={() => {
+              show()(props.course);
+            }}
+            type="button"
+          >
+            <Network
+              aria-hidden="true"
+              class="h-4 w-4"
+            />
+            {t().detail.showMap}
+          </button>
+        )}
+      </Show>
+      <SaveButton
+        class="border"
+        courseName={props.name}
+        onToggle={() => {
+          saved.toggle(props.course);
+        }}
+        saved={saved.isSaved(props.course)}
+      />
+    </div>
+  );
+};
 
 // An undergraduate course's accreditations, and the courses that need it.
 const UndergraduateSections = (props: {
@@ -229,23 +270,11 @@ export const CourseDetailDialog = (props: CourseDetailDialogProps) => {
               )}
             </Show>
 
-            <Show when={!isMasterCourse(course()) && props.onShowPrerequisites}>
-              {(show) => (
-                <button
-                  class="hover:bg-muted focus-visible:ring-ring inline-flex min-h-9 items-center gap-2 rounded-md border px-3 text-sm font-medium transition-colors focus-visible:ring-2 focus-visible:outline-none"
-                  onClick={() => {
-                    show()(course());
-                  }}
-                  type="button"
-                >
-                  <Network
-                    aria-hidden="true"
-                    class="h-4 w-4"
-                  />
-                  {t().detail.showMap}
-                </button>
-              )}
-            </Show>
+            <PanelActions
+              course={course()}
+              name={nameOf(course())}
+              onShowPrerequisites={props.onShowPrerequisites}
+            />
 
             <Show
               fallback={

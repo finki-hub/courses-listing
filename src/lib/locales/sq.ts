@@ -139,6 +139,10 @@ export const sq = {
     programAll: 'Të gjitha programet',
     removeChip: 'Hiq filtrin: {filter}',
     required: 'E detyrueshme',
+    savedChip: 'Vetëm të ruajturat',
+    savedLinkCopied: 'Lidhja u kopjua',
+    savedLinkFailed: 'Lidhja nuk u kopjua',
+    savedOnly: 'Vetëm të ruajturat ({count})',
     season: 'Semestri:',
     sections: {
       curriculum: 'Plani mësimor',
@@ -148,6 +152,7 @@ export const sq = {
       topics: 'Temat',
     },
     semesterNumber: 'Nr. i semestrit:',
+    shareSaved: 'Ndaj lëndët e ruajtura',
     showCourses: 'Shfaq lëndët',
     showResults: {
       one: 'Shfaq {count} lëndë',
@@ -353,6 +358,19 @@ export const sq = {
     prerequisite: '📋 Parakushti:',
     prerequisitesIgnored: '⚠️ Parakushtet injorohen (modaliteti i ekspertit)',
     required: 'ℹ️ Lëndë e detyrueshme',
+  },
+  saved: {
+    addShared: 'Shto te të ruajturat e mia',
+    column: 'E ruajtur',
+    emptyText:
+      'Përdorni yllin pranë një lënde për ta ruajtur. Lëndët e ruajtura mbeten në këtë shfletues.',
+    emptyTitle: 'Ende nuk ka lëndë të ruajtura',
+    save: 'Ruaj {course}',
+    sharedBanner: {
+      one: 'Po shfaqet {count} lëndë e ndarë me ju.',
+      other: 'Po shfaqen {count} lëndë të ndara me ju.',
+    },
+    showMine: 'Shfaq lëndët e mia të ruajtura',
   },
   simulator: {
     allUnlocked: '🔓 Keni ≥ 180 kredite — të gjitha lëndët janë të hapura',

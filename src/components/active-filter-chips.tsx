@@ -56,6 +56,8 @@ const getChipLabel = (
       return getProgramChipLabel(filters, t, programLabel);
     case 'query':
       return interpolate(t.listing.searchChip, { value: chip.value });
+    case 'saved':
+      return t.filters.savedChip;
     case 'season':
       return chip.value === 'winter' ? t.common.winter : t.common.summer;
     case 'semester':

@@ -64,6 +64,13 @@ const STUDENTS_HEAD: ColumnHead = {
   sort: 'popularity',
   title: (t) => t.listing.studentsInfo,
 };
+const SAVE_HEAD: ColumnHead = {
+  cellClass: 'hidden w-10 py-0 text-center md:table-cell',
+  class: 'hidden w-10 md:table-cell',
+  key: 'save',
+  label: (t) => t.saved.column,
+  labelHidden: true,
+};
 const CHANNEL_HEAD: ColumnHead = {
   cellClass: 'hidden w-10 text-center md:table-cell',
   class: 'hidden w-10 md:table-cell',
@@ -98,6 +105,7 @@ const UNDERGRADUATE_HEADS: readonly ColumnHead[] = [
     label: (t) => t.common.tags,
   },
   CHANNEL_HEAD,
+  SAVE_HEAD,
   OPEN_HEAD,
 ];
 
@@ -106,6 +114,7 @@ const MASTER_HEADS: readonly ColumnHead[] = [
   CREDITS_HEAD,
   STUDENTS_HEAD,
   CHANNEL_HEAD,
+  SAVE_HEAD,
   OPEN_HEAD,
 ];
 
@@ -113,8 +122,10 @@ type CourseResultsProps = {
   readonly accreditation: Accreditation | null;
   readonly courses: readonly CourseRaw[];
   readonly getFacts: (course: CourseRaw) => CourseRowFacts;
+  readonly isSaved: (course: CourseRaw) => boolean;
   readonly master?: boolean;
   readonly onOpen: (course: CourseRaw, position: number) => void;
+  readonly onToggleSaved: (course: CourseRaw) => void;
   readonly onToggleSort: (column: SortColumn) => void;
   readonly sortColumn: SortColumn;
   readonly sortDirection: SortDirection;
@@ -151,6 +162,10 @@ export const CourseResults = (props: CourseResultsProps) => {
                     onClick={() => {
                       props.onOpen(course, index());
                     }}
+                    onToggleSaved={() => {
+                      props.onToggleSaved(course);
+                    }}
+                    saved={props.isSaved(course)}
                   />
                 </li>
               );
@@ -218,6 +233,10 @@ export const CourseResults = (props: CourseResultsProps) => {
                     onClick={() => {
                       props.onOpen(course, index());
                     }}
+                    onToggleSaved={() => {
+                      props.onToggleSaved(course);
+                    }}
+                    saved={props.isSaved(course)}
                   />
                 );
               }}

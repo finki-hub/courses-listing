@@ -28,6 +28,9 @@ const STAFF_PARAM = 'staff';
 const HIDE_INACTIVE_PARAM = 'hideinactive';
 const OFFERED_PARAM = 'offered';
 const CHANNEL_PARAM = 'channel';
+const SAVED_ONLY_PARAM = 'savedonly';
+// A link that carries a shared set of saved courses: `?saved=CODE1,CODE2`.
+export const SHARED_SAVED_PARAM = 'saved';
 const SORT_PARAM = 'sort';
 const DIRECTION_PARAM = 'dir';
 const VIEW_PARAM = 'layout';
@@ -61,6 +64,8 @@ export const LISTING_FILTER_PARAMS: readonly string[] = [
   HIDE_INACTIVE_PARAM,
   OFFERED_PARAM,
   CHANNEL_PARAM,
+  SAVED_ONLY_PARAM,
+  SHARED_SAVED_PARAM,
   SORT_PARAM,
   DIRECTION_PARAM,
   VIEW_PARAM,
@@ -79,6 +84,8 @@ export type ListingFilters = {
   program: null | string;
   programState: ProgramStateFilter;
   query: string;
+  /** Only the saved courses. */
+  savedOnly: boolean;
   season: SeasonFilter;
   semester: null | number;
   staff: string;
@@ -114,6 +121,7 @@ export const DEFAULT_LISTING_FILTERS: Readonly<ListingFilters> = {
   program: null,
   programState: null,
   query: '',
+  savedOnly: false,
   season: null,
   semester: null,
   staff: '',
@@ -207,6 +215,7 @@ export const parseListingUrlState = (
         ? null
         : parseProgramState(params.get(PROGRAM_STATE_PARAM)),
     query: params.get(QUERY_PARAM) ?? '',
+    savedOnly: params.get(SAVED_ONLY_PARAM) === FLAG_VALUE,
     season: parseSeason(params.get(SEASON_PARAM)),
     semester: parseBoundedInteger(params.get(SEMESTER_PARAM), MAX_SEMESTER),
     sortColumn: parseSortColumn(params.get(SORT_PARAM), options.sortColumns),
@@ -259,6 +268,7 @@ export const writeListingUrlState = (
     [HIDE_INACTIVE_PARAM, flag(state.hideInactive)],
     [OFFERED_PARAM, flag(state.offeredOnly)],
     [CHANNEL_PARAM, flag(state.channelOnly)],
+    [SAVED_ONLY_PARAM, flag(state.savedOnly)],
     [
       SORT_PARAM,
       state.sortColumn === DEFAULT_SORT_COLUMN ? null : state.sortColumn,

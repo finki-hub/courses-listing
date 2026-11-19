@@ -18,6 +18,7 @@ export type FilterChipKind =
   | 'offered'
   | 'program'
   | 'query'
+  | 'saved'
   | 'season'
   | 'semester'
   | 'staff'
@@ -48,6 +49,7 @@ const getAllFilterChips = (filters: ListingFilters): FilterChip[] => {
     ['inactive', filters.hideInactive],
     ['offered', filters.offeredOnly],
     ['channel', filters.channelOnly],
+    ['saved', filters.savedOnly],
   ];
   return [
     ...sources
@@ -77,6 +79,7 @@ const CHIP_RESETS: Record<
   offered: { offeredOnly: false },
   program: { program: null, programState: null },
   query: { query: '' },
+  saved: { savedOnly: false },
   season: { season: null },
   semester: { semester: null },
   staff: { staff: '' },
@@ -111,6 +114,7 @@ const CHIP_SECTIONS: Record<FilterChipKind, FilterSection | null> = {
   offered: 'status',
   program: 'program',
   query: null,
+  saved: 'status',
   season: 'curriculum',
   semester: 'curriculum',
   staff: 'people',

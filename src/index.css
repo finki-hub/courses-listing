@@ -41,6 +41,7 @@
   --color-faculty: hsl(var(--faculty));
   --color-faculty-soft: hsl(var(--faculty-soft));
   --color-faculty-border: hsl(var(--faculty-border));
+  --color-saved: hsl(var(--saved));
   --color-passed: hsl(var(--passed));
   --color-passed-soft: hsl(var(--passed-soft));
   --color-passed-border: hsl(var(--passed-border));
@@ -143,6 +144,7 @@
     --faculty: 215 16% 34%;
     --faculty-soft: 215 20% 94%;
     --faculty-border: 215 15% 82%;
+    --saved: 32 95% 30%;
     --passed: 142 70% 26%;
     --passed-soft: 142 50% 93%;
     --passed-border: 142 35% 74%;
@@ -194,6 +196,7 @@
     --faculty: 215 18% 74%;
     --faculty-soft: 215 12% 16%;
     --faculty-border: 215 10% 30%;
+    --saved: 43 96% 62%;
     --passed: 142 60% 62%;
     --passed-soft: 142 35% 13%;
     --passed-border: 142 30% 27%;

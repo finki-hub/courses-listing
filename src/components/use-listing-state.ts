@@ -140,6 +140,7 @@ export const useListingState = () => {
       ...DEFAULT_LISTING_FILTERS,
       cycle,
       query: current.query,
+      savedOnly: current.savedOnly,
       tagMode: current.tagMode,
     }));
     keepSortValid(cycle);

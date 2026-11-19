@@ -139,6 +139,10 @@ export const mk = {
     programAll: 'Сите програми',
     removeChip: 'Отстрани филтер: {filter}',
     required: 'Задолжителен',
+    savedChip: 'Само зачувани',
+    savedLinkCopied: 'Врската е копирана',
+    savedLinkFailed: 'Врската не може да се копира',
+    savedOnly: 'Само зачувани ({count})',
     season: 'Семестар:',
     sections: {
       curriculum: 'Наставен план',
@@ -148,6 +152,7 @@ export const mk = {
       topics: 'Теми',
     },
     semesterNumber: 'Бр. семестар:',
+    shareSaved: 'Сподели ги зачуваните предмети',
     showCourses: 'Прикажи предмети',
     showResults: {
       one: 'Прикажи {count} предмет',
@@ -354,6 +359,19 @@ export const mk = {
     prerequisite: '📋 Предуслов:',
     prerequisitesIgnored: '⚠️ Предусловите се игнорираат (експертски режим)',
     required: 'ℹ️ Задолжителен предмет',
+  },
+  saved: {
+    addShared: 'Додај во моите зачувани',
+    column: 'Зачувано',
+    emptyText:
+      'Користете ја ѕвездата до предметот за да го зачувате. Зачуваните предмети остануваат во овој прелистувач.',
+    emptyTitle: 'Сè уште нема зачувани предмети',
+    save: 'Зачувај {course}',
+    sharedBanner: {
+      one: 'Се прикажува {count} предмет споделен со вас.',
+      other: 'Се прикажуваат {count} предмети споделени со вас.',
+    },
+    showMine: 'Прикажи ги моите зачувани предмети',
   },
   simulator: {
     allUnlocked: '🔓 Имате ≥ 180 кредити — сите предмети се отклучени',
