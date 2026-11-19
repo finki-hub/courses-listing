@@ -179,7 +179,9 @@ const App = () => {
           <img
             alt={t().brand}
             class="h-10 w-10 shrink-0 object-contain sm:h-11 sm:w-11"
-            src="/logo.png"
+            height="129"
+            src="/logo-small.png"
+            width="144"
           />
           <h1 class="min-w-0 flex-1 text-[15px] leading-tight font-bold tracking-tight wrap-break-word sm:text-lg">
             {t().appTitle}
