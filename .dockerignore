@@ -1,0 +1,34 @@
+# Dependencies
+node_modules
+
+# Build output
+dist
+
+# Local environment files
+.env
+.env.*
+**/.env
+**/.env.*
+!**/.env.example
+
+# VCS and editor
+.git
+.gitignore
+.github
+.vscode
+.claude
+.codegraph
+.ruff_cache
+
+# Test output and logs
+test-results
+playwright-report
+*.log
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Docker
+Dockerfile
+.dockerignore

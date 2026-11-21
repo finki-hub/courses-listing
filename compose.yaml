@@ -1,0 +1,11 @@
+name: finki-hub-courses-listing-dev
+
+services:
+  site:
+    build:
+      context: .
+    image: finki-hub/courses-listing:latest
+    ports:
+      - "8080:8080"
+    pull_policy: never
+    restart: unless-stopped

@@ -1,0 +1,8 @@
+name: finki-hub-courses-listing
+
+services:
+  site:
+    image: ghcr.io/finki-hub/courses-listing:latest
+    ports:
+      - "8080:8080"
+    restart: unless-stopped
