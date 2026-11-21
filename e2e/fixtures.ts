@@ -1,7 +1,7 @@
 import { test as base, type BrowserContext } from '@playwright/test';
 import { join } from 'node:path';
 
-const DATA_HOST = 'https://data.finki-hub.com/legacy/';
+const DATA_HOST = 'https://data.finki-hub.com/';
 
 // Snapshots of the published data, trimmed to three master's programs, so the
 // tests never depend on the network or on the data changing.
@@ -18,8 +18,9 @@ export const prepareContext = async (
   language: string,
 ): Promise<void> => {
   await context.route(`${DATA_HOST}**`, async (route) => {
-    const file = new URL(route.request().url()).pathname.split('/').pop();
-    await (file !== undefined && FIXTURE_FILES.has(file)
+    const name = new URL(route.request().url()).pathname.split('/').pop();
+    const file = name?.endsWith('.json') ? name : `${name ?? ''}.json`;
+    await (FIXTURE_FILES.has(file)
       ? route.fulfill({
           contentType: 'application/json',
           headers: { 'access-control-allow-origin': '*' },

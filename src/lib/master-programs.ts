@@ -11,7 +11,7 @@ import {
 } from '@/lib/i18n';
 
 // Master's programs and which courses they list, from the data platform's
-// degree_programs.json and degree_program_courses.json.
+// degree_programs and degree_program_courses collections.
 
 const nullableString = z.string().nullable();
 const nullableNumber = z.number().nullable();
@@ -24,20 +24,46 @@ const degreeProgramSchema = z.object({
   title_en: nullableString,
 });
 
-const programCourseSchema = z.object({
+const programCourseRowSchema = z.object({
   code: nullableString,
-  course: z.string(),
+  course: z.object({ degree_cycle: nullableString, name: z.string() }),
   credits: nullableNumber,
-  cycle: nullableString,
   group: nullableString,
   group_name: nullableString,
   kind: z.string(),
-  program: z.string(),
+  program: z.object({ code: z.string() }),
   semester: nullableNumber,
 });
 
-export const degreeProgramsSchema = z.array(degreeProgramSchema);
-export const programCoursesSchema = z.array(programCourseSchema);
+type ProgramCourseRow = z.infer<typeof programCourseRowSchema>;
+
+const textOrder = new Intl.Collator('mk');
+
+// None sorts last.
+const lastIfNone = (value: null | string): string => value ?? '\u{FFFF}';
+
+// By program, then semester (none last), then catalog code (none last),
+// then course name: the order the curriculum is shown in.
+const programCourseOrder = (left: ProgramCourseRow, right: ProgramCourseRow) =>
+  textOrder.compare(left.program.code, right.program.code) ||
+  (left.semester ?? Infinity) - (right.semester ?? Infinity) ||
+  textOrder.compare(lastIfNone(left.code), lastIfNone(right.code)) ||
+  textOrder.compare(left.course.name, right.course.name);
+
+export const degreeProgramsSchema = z
+  .object({ data: z.array(degreeProgramSchema) })
+  .transform(({ data }) => data);
+
+export const programCoursesSchema = z
+  .object({ data: z.array(programCourseRowSchema) })
+  .transform(({ data }) =>
+    data.toSorted(programCourseOrder).map(({ course, program, ...row }) => ({
+      ...row,
+      course: course.name,
+      cycle: course.degree_cycle,
+      program: program.code,
+    })),
+  );
 
 export type DegreeProgram = z.infer<typeof degreeProgramSchema>;
 export type MasterData = {
@@ -45,7 +71,7 @@ export type MasterData = {
   readonly programs: readonly DegreeProgram[];
 };
 
-export type ProgramCourse = z.infer<typeof programCourseSchema>;
+export type ProgramCourse = z.infer<typeof programCoursesSchema>[number];
 
 export type Season = 'summer' | 'winter';
 
