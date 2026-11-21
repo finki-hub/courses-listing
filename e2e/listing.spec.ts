@@ -185,17 +185,20 @@ test.describe('course listing', () => {
     ).toHaveCount(4);
   });
 
-  test('opening a course does not resize the page', async ({ page }) => {
+  test('opening a course does not move the page', async ({ page }) => {
     await page.setViewportSize({ height: 900, width: 1_280 });
     await page.goto('/');
-    const headerWidth = () =>
-      page
-        .locator('header')
-        .evaluate((element) => element.getBoundingClientRect().width);
-    const before = await headerWidth();
+    const headerBox = () =>
+      page.locator('header').evaluate((element) => {
+        const rect = element.getBoundingClientRect();
+        return { left: rect.left, width: rect.width };
+      });
+    const before = await headerBox();
     await page.locator('tbody td:first-child button').first().click();
     await expect(page.getByRole('dialog')).toBeVisible();
-    expect(await headerWidth()).toBeCloseTo(before, 5);
+    const after = await headerBox();
+    expect(after.width).toBeCloseTo(before.width, 5);
+    expect(after.left).toBeCloseTo(before.left, 5);
     await page.keyboard.press('Escape');
     await expect(page.getByRole('dialog')).toHaveCount(0);
   });

@@ -253,11 +253,13 @@
     );
   }
 
-  /* Kobalte's scroll lock pads the root by the scrollbar width. The stable
-     gutter above already reserves that space, so the padding would shift the
-     page horizontally while a dialog is open. */
-  html[style*='overflow: hidden'] {
-    padding-right: 0 !important;
+  /* Kobalte's scroll lock pads the root by the scrollbar width. Where the
+     stable gutter above is supported it already reserves that space, so the
+     padding would shift the page horizontally while a dialog is open. */
+  @supports (scrollbar-gutter: stable) {
+    html[style*='overflow: hidden'] {
+      padding-right: 0 !important;
+    }
   }
 
   @media (prefers-reduced-motion: reduce) {

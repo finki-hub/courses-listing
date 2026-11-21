@@ -373,6 +373,8 @@ const StatusFlagRow = (props: {
         type="checkbox"
       />
       <span class="flex min-w-0 items-start gap-1.5">
+        {/* Before the label, so a wrapped label never leaves the icon
+            stranded at the far right of the row. */}
         <Show when={props.info}>
           {(info) => (
             <InfoTip
