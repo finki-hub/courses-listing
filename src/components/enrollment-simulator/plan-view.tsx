@@ -1,7 +1,8 @@
-import { CalendarRange } from 'lucide-solid';
-import { For, type JSX, Show } from 'solid-js';
+import { type JSX } from '@solidjs/web';
+import { For, Show } from 'solid-js';
 
 import { EmptyState } from '@/components/ui/empty-state';
+import { CalendarRange } from '@/components/ui/icons';
 import { SectionHeader } from '@/components/ui/page-header';
 import { useCourseNames } from '@/lib/course-names-context';
 import { interpolate } from '@/lib/i18n';

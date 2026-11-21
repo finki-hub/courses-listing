@@ -1,8 +1,9 @@
-import { SearchX } from 'lucide-solid';
-import { createEffect, type JSX, Show } from 'solid-js';
+import { type JSX } from '@solidjs/web';
+import { createEffect, Show } from 'solid-js';
 
 import { NoSavedCourses } from '@/components/saved-courses-ui';
 import { EmptyState } from '@/components/ui/empty-state';
+import { SearchX } from '@/components/ui/icons';
 import { Sheet } from '@/components/ui/sheet';
 import { formatCount } from '@/lib/i18n';
 import { useLanguage } from '@/lib/LanguageProvider';
@@ -100,9 +101,12 @@ const FiltersSheet = (props: FiltersSheetProps) => {
 // sheet, which closes by itself once the window grows to that width.
 export const FiltersFrame = (props: FiltersSheetProps) => {
   const wide = useMediaQuery(LARGE_SCREEN_QUERY);
-  createEffect(() => {
-    if (wide() && props.open) props.onOpenChange(false);
-  });
+  createEffect(
+    () => [wide(), props.open] as const,
+    ([isWide, isOpen]) => {
+      if (isWide && isOpen) props.onOpenChange(false);
+    },
+  );
   return (
     <Show
       fallback={<FiltersSheet {...props} />}

@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { registerHooks } from 'node:module';
 import { mock, test } from 'node:test';
-import { createRoot, createSignal } from 'solid-js';
+import { createRoot, createSignal, flush } from 'solid-js';
 
 import { translations } from '../src/lib/i18n.ts';
 
@@ -63,11 +63,20 @@ test('live language changes preserve simulator statuses, credit totals and gradu
   let setLanguage;
   let statuses;
   const dispose = createRoot((cleanup) => {
-    [statuses, setStatuses] = createSignal(
+    const [statusValues, changeStatuses] = createSignal(
       Object.fromEntries(threeYear.map((course) => [course.name, passed])),
     );
+    statuses = statusValues;
+    setStatuses = (value) => {
+      changeStatuses(value);
+      // Solid 2 stages writes; flush so reads and memos see the new value.
+      flush();
+    };
     const [language, changeLanguage] = createSignal('mk');
-    setLanguage = changeLanguage;
+    setLanguage = (value) => {
+      changeLanguage(value);
+      flush();
+    };
     languageContext.t = () => translations[language()];
     state = useSimulatorState({
       courseInfoMap: () => new Map(),

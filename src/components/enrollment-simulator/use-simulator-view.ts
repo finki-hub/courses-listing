@@ -3,7 +3,6 @@ import {
   createEffect,
   createMemo,
   createSignal,
-  onCleanup,
 } from 'solid-js';
 
 import { replaceUrlParams } from '@/lib/listing-url-state';
@@ -64,8 +63,8 @@ export const useSimulatorView = (params: SimulatorViewParams) => {
   );
 
   // The view and its filters live in the URL, so a reload keeps them.
-  createEffect(() => {
-    const state: SimulatorUrlState = {
+  createEffect(
+    (): SimulatorUrlState => ({
       level: params.levelFilter(),
       mode: params.mode(),
       search: search(),
@@ -73,17 +72,19 @@ export const useSimulatorView = (params: SimulatorViewParams) => {
       showOnlyEnabled: params.showOnlyEnabled(),
       tags: [...tagFilter()],
       type: typeFilter(),
-    };
-    // Waits for typing to pause; browsers throttle frequent URL updates.
-    const timer = setTimeout(() => {
-      replaceUrlParams((urlParams) => {
-        writeSimulatorUrlState(urlParams, state);
-      });
-    }, URL_WRITE_DELAY_MS);
-    onCleanup(() => {
-      clearTimeout(timer);
-    });
-  });
+    }),
+    (state) => {
+      // Waits for typing to pause; browsers throttle frequent URL updates.
+      const timer = setTimeout(() => {
+        replaceUrlParams((urlParams) => {
+          writeSimulatorUrlState(urlParams, state);
+        });
+      }, URL_WRITE_DELAY_MS);
+      return () => {
+        clearTimeout(timer);
+      };
+    },
+  );
 
   // Filters that only narrow the checklist and the plan, not "What next".
   const listFilterCount = () =>

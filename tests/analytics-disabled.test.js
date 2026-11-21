@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
-import { createRoot, createSignal } from 'solid-js';
+import { createRoot, createSignal, flush } from 'solid-js';
 
 import { useCourseSearchAnalytics } from '../src/components/use-course-search-analytics.ts';
 import { capture } from '../src/lib/analytics-client.ts';
@@ -12,7 +12,11 @@ test('search state and click handling remain usable when analytics never starts'
   let linkage;
   const dispose = createRoot((cleanup) => {
     const [search, setSearch] = createSignal('');
-    change = setSearch;
+    change = (value) => {
+      setSearch(value);
+      // Solid 2 stages writes; flush so reads and effects see the new value.
+      flush();
+    };
     query = search;
     linkage = useCourseSearchAnalytics(() => ({
       accreditation: null,

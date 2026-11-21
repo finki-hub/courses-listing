@@ -1,7 +1,7 @@
-import { ChevronRight } from 'lucide-solid';
 import { Show } from 'solid-js';
 
 import { SaveButton } from '@/components/saved-courses-ui';
+import { ChevronRight } from '@/components/ui/icons';
 import { interpolate } from '@/lib/i18n';
 import { useLanguage } from '@/lib/LanguageProvider';
 import {

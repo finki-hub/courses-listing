@@ -3,7 +3,6 @@ import {
   createEffect,
   createMemo,
   createSignal,
-  on,
 } from 'solid-js';
 
 import { type CourseInfo, type CourseStatus } from '@/lib/prerequisite';
@@ -52,9 +51,16 @@ export const useStudyPlan = (params: StudyPlanParams) => {
   const evaluation = createMemo(() => evaluatePlan(context()));
 
   createEffect(
-    on([plan, params.persist], ([value, save]) => {
-      if (save) savePlan(params.accreditation(), value, params.rawCourses());
-    }),
+    () =>
+      [
+        plan(),
+        params.persist(),
+        params.accreditation(),
+        params.rawCourses(),
+      ] as const,
+    ([value, save, accreditation, rawCourses]) => {
+      if (save) savePlan(accreditation, value, rawCourses);
+    },
   );
 
   const setSemester = (name: string, semester: number | undefined) => {

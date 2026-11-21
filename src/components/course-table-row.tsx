@@ -1,8 +1,9 @@
-import { ChevronRight } from 'lucide-solid';
+import { type JSX } from '@solidjs/web';
 import { siDiscord } from 'simple-icons';
-import { For, type JSX, Show } from 'solid-js';
+import { For, Show } from 'solid-js';
 
 import { SaveButton } from '@/components/saved-courses-ui';
+import { ChevronRight } from '@/components/ui/icons';
 import { TableCell, TableRow } from '@/components/ui/table';
 import { formatCompactYear, type Offering } from '@/lib/course-offering';
 import { formatNumber, getTagLabel, interpolate } from '@/lib/i18n';

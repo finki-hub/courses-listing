@@ -1,7 +1,8 @@
 import { Dialog as DialogPrimitive } from '@kobalte/core/dialog';
-import { X } from 'lucide-solid';
-import { type JSX, Show } from 'solid-js';
+import { type JSX } from '@solidjs/web';
+import { createEffect, Show } from 'solid-js';
 
+import { X } from '@/components/ui/icons';
 import { useLanguage } from '@/lib/LanguageProvider';
 import { cn } from '@/lib/utils';
 
@@ -33,13 +34,36 @@ export const Sheet = (props: SheetProps) => {
   // The panel opens from code rather than a trigger, so it remembers what had
   // focus and returns it there on close instead of leaving it on the page.
   let opener: HTMLElement | undefined;
+
+  // Kobalte 2 alpha registers its dismissable layer before the content ref is
+  // set, so its Escape and outside-click handling never run. Handle Escape
+  // here until that is fixed upstream; a handled event is left alone.
+  const onEscape = (event: KeyboardEvent) => {
+    if (event.defaultPrevented || event.key !== 'Escape') return;
+    props.onOpenChange(false);
+  };
+  createEffect(
+    () => props.open,
+    (open) => {
+      if (open) addEventListener('keydown', onEscape);
+      return () => {
+        removeEventListener('keydown', onEscape);
+      };
+    },
+  );
+
   return (
     <DialogPrimitive
       onOpenChange={props.onOpenChange}
       open={props.open}
     >
       <DialogPrimitive.Portal>
-        <DialogPrimitive.Overlay class="bg-scrim data-[expanded]:animate-in data-[closed]:animate-out data-[closed]:fade-out-0 data-[expanded]:fade-in-0 fixed inset-0 z-50" />
+        <DialogPrimitive.Overlay
+          class="bg-scrim data-[expanded]:animate-in data-[closed]:animate-out data-[closed]:fade-out-0 data-[expanded]:fade-in-0 fixed inset-0 z-50"
+          onClick={() => {
+            props.onOpenChange(false);
+          }}
+        />
         <DialogPrimitive.Content
           class={cn(
             'bg-card text-card-foreground data-[expanded]:animate-in data-[closed]:animate-out fixed z-50 flex flex-col shadow-xl duration-200 motion-reduce:duration-0',
@@ -92,7 +116,7 @@ export const Sheet = (props: SheetProps) => {
             ref={(element) => {
               props.bodyRef?.(element);
             }}
-            tabIndex={0}
+            tabindex={0}
           >
             {props.children}
           </div>

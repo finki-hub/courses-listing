@@ -1,4 +1,5 @@
-import { createMemo, For, type JSX } from 'solid-js';
+import { type JSX } from '@solidjs/web';
+import { createMemo, For } from 'solid-js';
 
 import { cn } from '@/lib/utils';
 
@@ -198,7 +199,7 @@ export const SegmentedControl = <T extends number | string>(
           const selected = () => key === selectedKey();
           return (
             <button
-              aria-checked={selected()}
+              aria-checked={selected() ? 'true' : 'false'}
               aria-label={
                 option()?.description === undefined
                   ? undefined
@@ -217,7 +218,7 @@ export const SegmentedControl = <T extends number | string>(
                 choose(key);
               }}
               role="radio"
-              tabIndex={key === tabKey() ? 0 : -1}
+              tabindex={key === tabKey() ? 0 : -1}
               title={option()?.description}
               type="button"
             >

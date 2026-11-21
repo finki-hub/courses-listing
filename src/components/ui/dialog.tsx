@@ -1,11 +1,6 @@
 import { Dialog as DialogPrimitive } from '@kobalte/core/dialog';
-import {
-  type ComponentProps,
-  mergeProps,
-  Show,
-  splitProps,
-  type ValidComponent,
-} from 'solid-js';
+import { type ComponentProps, type ValidComponent } from '@solidjs/web';
+import { merge, omit, Show } from 'solid-js';
 
 import { useLanguage } from '@/lib/LanguageProvider';
 import { cn } from '@/lib/utils';
@@ -29,8 +24,8 @@ export const DialogContent = <T extends ValidComponent = 'div'>(
   const defaults: Partial<DialogContentProps> = {
     showCloseButton: true,
   };
-  const merge = mergeProps(defaults, props);
-  const [, rest] = splitProps(merge, ['class', 'children', 'showCloseButton']);
+  const merged = merge(defaults, props);
+  const rest = omit(merged, 'class', 'children', 'showCloseButton');
 
   return (
     <>
@@ -38,12 +33,12 @@ export const DialogContent = <T extends ValidComponent = 'div'>(
       <DialogPrimitive.Content
         class={cn(
           'bg-card data-[expanded]:animate-in data-[closed]:animate-out data-[closed]:fade-out-0 data-[expanded]:fade-in-0 data-[closed]:zoom-out-95 data-[expanded]:zoom-in-95 fixed top-[50%] left-[50%] z-50 grid w-full max-w-[calc(100%-2rem)] translate-x-[-50%] translate-y-[-50%] gap-4 rounded-lg border p-6 shadow-lg duration-200 sm:max-w-lg',
-          merge.class,
+          merged.class,
         )}
         {...rest}
       >
-        {merge.children}
-        <Show when={merge.showCloseButton}>
+        {merged.children}
+        <Show when={merged.showCloseButton}>
           <DialogPrimitive.CloseButton
             aria-label={t().common.close}
             class="focus-visible:ring-ring absolute top-4 right-4 rounded-xs opacity-70 transition-[opacity,box-shadow] duration-200 hover:opacity-100 focus-visible:ring-2 focus-visible:outline-none [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4"
@@ -71,7 +66,7 @@ export const DialogContent = <T extends ValidComponent = 'div'>(
 type DialogHeaderProps = ComponentProps<'div'>;
 
 export const DialogHeader = (props: DialogHeaderProps) => {
-  const [, rest] = splitProps(props, ['class']);
+  const rest = omit(props, 'class');
 
   return (
     <div
@@ -89,11 +84,11 @@ export const DialogTitle = <T extends ValidComponent = 'h2'>(
   ownProps: DialogTitleProps<T>,
 ) => {
   const props = ownProps as DialogTitleProps;
-  const [local, rest] = splitProps(props, ['class']);
+  const rest = omit(props, 'class');
 
   return (
     <DialogPrimitive.Title
-      class={cn('text-lg leading-none font-semibold', local.class)}
+      class={cn('text-lg leading-none font-semibold', props.class)}
       {...rest}
     />
   );
@@ -107,11 +102,11 @@ export const DialogDescription = <T extends ValidComponent = 'p'>(
   ownProps: DialogDescriptionProps<T>,
 ) => {
   const props = ownProps as DialogDescriptionProps;
-  const [local, rest] = splitProps(props, ['class']);
+  const rest = omit(props, 'class');
 
   return (
     <DialogPrimitive.Description
-      class={cn('text-muted-foreground text-sm', local.class)}
+      class={cn('text-muted-foreground text-sm', props.class)}
       {...rest}
     />
   );

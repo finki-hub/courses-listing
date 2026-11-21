@@ -1,4 +1,4 @@
-import { batch, createMemo, createSignal } from 'solid-js';
+import { createMemo, createSignal } from 'solid-js';
 
 import { type CourseStatus } from '@/lib/prerequisite';
 import {
@@ -222,13 +222,11 @@ export const useEnrollmentSimulator = (courses: () => CourseRaw[]) => {
   );
 
   const switchAccreditation = (acc: Accreditation) => {
-    batch(() => {
-      if (preview.previewing()) preview.discard();
-      setAccreditation(acc);
-      setProgram(getStudyPrograms(acc)[0] ?? DEFAULT_PROGRAM);
-      setStatuses(loadStatuses(acc, courses()));
-      plan.reload(acc);
-    });
+    if (preview.previewing()) preview.discard();
+    setAccreditation(acc);
+    setProgram(getStudyPrograms(acc)[0] ?? DEFAULT_PROGRAM);
+    setStatuses(loadStatuses(acc, courses()));
+    plan.reload(acc);
   };
 
   return {

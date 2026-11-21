@@ -1,6 +1,6 @@
-import { TriangleAlert } from 'lucide-solid';
 import { For, Show } from 'solid-js';
 
+import { TriangleAlert } from '@/components/ui/icons';
 import { Select } from '@/components/ui/select';
 import { StatusBadge } from '@/components/ui/status-badge';
 import { useCourseNames } from '@/lib/course-names-context';

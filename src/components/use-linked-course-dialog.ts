@@ -28,13 +28,15 @@ export const useLinkedCourseDialog = (
   );
   const [open, setOpen] = createSignal(linkedCourse !== undefined);
 
-  createEffect(() => {
-    const shown = open() ? course() : null;
-    replaceUrlParams((params) => {
-      if (shown) params.set(COURSE_QUERY_PARAM, getCourseLinkValue(shown));
-      else params.delete(COURSE_QUERY_PARAM);
-    });
-  });
+  createEffect(
+    () => (open() ? course() : null),
+    (shown) => {
+      replaceUrlParams((params) => {
+        if (shown) params.set(COURSE_QUERY_PARAM, getCourseLinkValue(shown));
+        else params.delete(COURSE_QUERY_PARAM);
+      });
+    },
+  );
 
   const openCourse = (value: CourseRaw) => {
     setCourse(value);

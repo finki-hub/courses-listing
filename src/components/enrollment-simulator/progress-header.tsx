@@ -1,6 +1,7 @@
-import { ChevronDown, RotateCcw } from 'lucide-solid';
-import { createSignal, createUniqueId, For, type JSX } from 'solid-js';
+import { type JSX } from '@solidjs/web';
+import { createSignal, createUniqueId, For } from 'solid-js';
 
+import { ChevronDown, RotateCcw } from '@/components/ui/icons';
 import { interpolate } from '@/lib/i18n';
 import { useLanguage } from '@/lib/LanguageProvider';
 import {
@@ -112,7 +113,7 @@ export const ProgressHeader = (props: ProgressHeaderProps) => {
           </div>
           <button
             aria-controls={detailsId}
-            aria-expanded={expanded()}
+            aria-expanded={expanded() ? 'true' : 'false'}
             class="text-muted-foreground hover:text-foreground hover:bg-muted focus-visible:ring-ring inline-flex min-h-9 shrink-0 items-center gap-1 rounded-md px-2 text-xs font-medium transition-colors focus-visible:ring-2 focus-visible:outline-none sm:hidden"
             onClick={() => setExpanded((value) => !value)}
             type="button"

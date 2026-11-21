@@ -1,9 +1,10 @@
-import { type ComponentProps, splitProps } from 'solid-js';
+import { type ComponentProps } from '@solidjs/web';
+import { omit } from 'solid-js';
 
 import { cn } from '@/lib/utils';
 
 export const Card = (props: ComponentProps<'div'>) => {
-  const [, rest] = splitProps(props, ['class']);
+  const rest = omit(props, 'class');
 
   return (
     <div
@@ -17,7 +18,7 @@ export const Card = (props: ComponentProps<'div'>) => {
 };
 
 export const CardHeader = (props: ComponentProps<'div'>) => {
-  const [, rest] = splitProps(props, ['class']);
+  const rest = omit(props, 'class');
 
   return (
     <div
@@ -30,11 +31,11 @@ export const CardHeader = (props: ComponentProps<'div'>) => {
 const EMPTY_CHILDREN: ReadonlySet<unknown> = new Set([false, null, undefined]);
 
 export const CardTitle = (props: ComponentProps<'h3'>) => {
-  const [, rest] = splitProps(props, ['class']);
+  const rest = omit(props, 'class');
 
   return (
     <h3
-      aria-hidden={EMPTY_CHILDREN.has(props.children)}
+      aria-hidden={EMPTY_CHILDREN.has(props.children) ? 'true' : 'false'}
       class={cn('leading-none', props.class)}
       {...rest}
     />
@@ -42,7 +43,7 @@ export const CardTitle = (props: ComponentProps<'h3'>) => {
 };
 
 export const CardContent = (props: ComponentProps<'div'>) => {
-  const [, rest] = splitProps(props, ['class']);
+  const rest = omit(props, 'class');
 
   return (
     <div

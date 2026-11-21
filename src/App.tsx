@@ -1,21 +1,15 @@
-import {
-  ArrowLeftRight,
-  Library,
-  ListChecks,
-  type LucideProps,
-  Network,
-} from 'lucide-solid';
+import { dynamic, type JSX } from '@solidjs/web';
 import { siGithub } from 'simple-icons';
 import {
   createEffect,
   createMemo,
   createSignal,
+  Errored,
   For,
-  type JSX,
+  Loading,
   Match,
   Switch,
 } from 'solid-js';
-import { Dynamic } from 'solid-js/web';
 
 import { CourseEquivalencies } from '@/components/course-equivalencies';
 import { CourseTable } from '@/components/course-table';
@@ -24,6 +18,13 @@ import { LanguageSelect } from '@/components/language-select';
 import { PrerequisiteExplorer } from '@/components/prerequisite-explorer';
 import { ThemeToggle } from '@/components/theme-toggle';
 import { IconLink } from '@/components/ui/icon-controls';
+import {
+  ArrowLeftRight,
+  type IconProps,
+  Library,
+  ListChecks,
+  Network,
+} from '@/components/ui/icons';
 import { PageHeader } from '@/components/ui/page-header';
 import { PageSkeleton } from '@/components/ui/skeleton';
 import { useCourses } from '@/data/use-courses';
@@ -55,7 +56,7 @@ const PAGE_VALUES: ReadonlySet<string> = new Set([
 
 const isPage = (value: string): value is Page => PAGE_VALUES.has(value);
 
-const PAGE_ICONS: Record<Page, (props: LucideProps) => JSX.Element> = {
+const PAGE_ICONS: Record<Page, (props: IconProps) => JSX.Element> = {
   equivalencies: ArrowLeftRight,
   listing: Library,
   prerequisites: Network,
@@ -99,7 +100,7 @@ const App = () => {
     { label: t().nav.prerequisites, value: 'prerequisites' },
     { label: t().nav.equivalencies, value: 'equivalencies' },
   ];
-  const [courses] = useCourses();
+  const courses = useCourses();
   const [page, setPage] = createSignal<Page>(getInitialPage());
   let previousPage: Page | undefined;
 
@@ -127,32 +128,37 @@ const App = () => {
     return headers[page()];
   };
 
-  createEffect(() => {
-    const staticActivePage = page();
-    language();
-    localStorage.setItem('active-page', staticActivePage);
+  const undergraduate = createMemo(() =>
+    courses().filter((course) => !isMasterCourse(course)),
+  );
 
-    const pageChanged =
-      previousPage !== undefined && previousPage !== staticActivePage;
-    previousPage = staticActivePage;
-    replaceUrlParams((params) => {
-      params.set(PAGE_QUERY_PARAM, staticActivePage);
-      if (staticActivePage !== 'simulator') {
-        params.delete(SIMULATOR_SHARE_PARAM);
-        for (const param of SIMULATOR_VIEW_PARAMS) params.delete(param);
-      }
-      if (staticActivePage !== 'listing') {
-        for (const param of LISTING_FILTER_PARAMS) params.delete(param);
-      }
-      if (staticActivePage !== 'prerequisites') {
-        params.delete(PREREQUISITE_FOCUS_PARAM);
-      }
-      // A course link belongs to the tab it was opened on, if that tab has one.
-      if (pageChanged || !COURSE_LINK_PAGES.has(staticActivePage)) {
-        params.delete(COURSE_QUERY_PARAM);
-      }
-    });
-  });
+  createEffect(
+    () => ({ language: language(), page: page() }),
+    ({ page: staticActivePage }) => {
+      localStorage.setItem('active-page', staticActivePage);
+
+      const pageChanged =
+        previousPage !== undefined && previousPage !== staticActivePage;
+      previousPage = staticActivePage;
+      replaceUrlParams((params) => {
+        params.set(PAGE_QUERY_PARAM, staticActivePage);
+        if (staticActivePage !== 'simulator') {
+          params.delete(SIMULATOR_SHARE_PARAM);
+          for (const param of SIMULATOR_VIEW_PARAMS) params.delete(param);
+        }
+        if (staticActivePage !== 'listing') {
+          for (const param of LISTING_FILTER_PARAMS) params.delete(param);
+        }
+        if (staticActivePage !== 'prerequisites') {
+          params.delete(PREREQUISITE_FOCUS_PARAM);
+        }
+        // A course link belongs to the tab it was opened on, if that tab has one.
+        if (pageChanged || !COURSE_LINK_PAGES.has(staticActivePage)) {
+          params.delete(COURSE_QUERY_PARAM);
+        }
+      });
+    },
+  );
 
   const navigation: AppNavigation = {
     showPrerequisites: (course) => {
@@ -166,7 +172,7 @@ const App = () => {
   };
 
   return (
-    <AppNavigationContext.Provider value={navigation}>
+    <AppNavigationContext value={navigation}>
       <header class="bg-card border-b">
         <div class="container mx-auto flex min-h-16 items-center gap-3 py-2">
           <img
@@ -215,6 +221,7 @@ const App = () => {
           <For each={tabs()}>
             {(tab) => {
               const active = () => page() === tab.value;
+              const PageIcon = dynamic(() => PAGE_ICONS[tab.value]);
               return (
                 <button
                   aria-current={active() ? 'page' : undefined}
@@ -229,10 +236,9 @@ const App = () => {
                   }}
                   type="button"
                 >
-                  <Dynamic
+                  <PageIcon
                     aria-hidden="true"
                     class={`h-5 w-5 shrink-0 sm:h-4 sm:w-4 ${active() ? 'text-primary' : ''}`}
-                    component={PAGE_ICONS[tab.value]}
                   />
                   <span class="max-w-full truncate">{tab.label}</span>
                 </button>
@@ -248,46 +254,39 @@ const App = () => {
           title={pageHeader().title}
         />
 
-        <Switch>
-          <Match when={courses.loading}>
-            <PageSkeleton
-              label={t().common.loading}
-              variant={page() === 'listing' ? 'listing' : 'page'}
-            />
-          </Match>
-          <Match when={courses.error !== undefined}>
+        <Errored
+          fallback={
             <div class={ALERT_STYLES.error}>{t().common.loadError}</div>
-          </Match>
-          <Match when={courses()}>
-            {(data) => {
-              // Only the listing shows master's courses; the other tabs work
-              // on the undergraduate curriculum.
-              const undergraduate = createMemo(() =>
-                data().filter((course) => !isMasterCourse(course)),
-              );
-              return (
-                <CourseNamesProvider courses={data()}>
-                  <Switch>
-                    <Match when={page() === 'listing'}>
-                      <CourseTable courses={data()} />
-                    </Match>
-                    <Match when={page() === 'simulator'}>
-                      <EnrollmentSimulator courses={undergraduate()} />
-                    </Match>
-                    <Match when={page() === 'prerequisites'}>
-                      <PrerequisiteExplorer courses={undergraduate()} />
-                    </Match>
-                    <Match when={page() === 'equivalencies'}>
-                      <CourseEquivalencies courses={undergraduate()} />
-                    </Match>
-                  </Switch>
-                </CourseNamesProvider>
-              );
-            }}
-          </Match>
-        </Switch>
+          }
+        >
+          <Loading
+            fallback={
+              <PageSkeleton
+                label={t().common.loading}
+                variant={page() === 'listing' ? 'listing' : 'page'}
+              />
+            }
+          >
+            <CourseNamesProvider courses={courses()}>
+              <Switch>
+                <Match when={page() === 'listing'}>
+                  <CourseTable courses={courses()} />
+                </Match>
+                <Match when={page() === 'simulator'}>
+                  <EnrollmentSimulator courses={undergraduate()} />
+                </Match>
+                <Match when={page() === 'prerequisites'}>
+                  <PrerequisiteExplorer courses={undergraduate()} />
+                </Match>
+                <Match when={page() === 'equivalencies'}>
+                  <CourseEquivalencies courses={undergraduate()} />
+                </Match>
+              </Switch>
+            </CourseNamesProvider>
+          </Loading>
+        </Errored>
       </main>
-    </AppNavigationContext.Provider>
+    </AppNavigationContext>
   );
 };
 

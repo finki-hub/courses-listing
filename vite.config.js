@@ -1,7 +1,7 @@
+import solid from '@solidjs/vite-plugin';
 import tailwindcss from '@tailwindcss/vite';
 import { resolve } from 'node:path';
 import process from 'node:process';
-import solid from 'vite-plugin-solid';
 
 import { localizeHtml } from './src/lib/page-metadata.ts';
 

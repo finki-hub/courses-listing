@@ -1,7 +1,8 @@
-import { Sparkles } from 'lucide-solid';
-import { For, type JSX, Show } from 'solid-js';
+import { type JSX } from '@solidjs/web';
+import { For, Show } from 'solid-js';
 
 import { EmptyState } from '@/components/ui/empty-state';
+import { Sparkles } from '@/components/ui/icons';
 import { SectionHeader } from '@/components/ui/page-header';
 import { StatusBadge } from '@/components/ui/status-badge';
 import { useCourseNames } from '@/lib/course-names-context';
