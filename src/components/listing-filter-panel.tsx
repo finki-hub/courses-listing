@@ -410,8 +410,13 @@ const StatusSection = (props: SectionProps) => {
       key: 'offeredOnly',
       label: t().filters.offeredOnly,
     },
-    { key: 'channelOnly', label: t().filters.channelOnly },
     {
+      info: t().filters.channelInfo,
+      key: 'channelOnly',
+      label: t().filters.channelOnly,
+    },
+    {
+      info: t().filters.savedInfo,
       key: 'savedOnly',
       label: interpolate(t().filters.savedOnly, { count: props.savedCount }),
     },

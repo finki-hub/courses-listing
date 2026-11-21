@@ -8,6 +8,8 @@ const SETTINGS_BUTTON = /^Change the program/u;
 const HPC_INFO = /Tick this if you passed the HPC course/u;
 const FILLED = /^Planned \d+ required courses\./u;
 const THREE_YEAR = /3-year degree is complete in:/u;
+const ENROLL_REQUIRED = /^Enroll required:/u;
+const PASS_REQUIRED = /^Pass required:/u;
 
 const setUp = async (page: Page) => {
   await page.goto('/?page=simulator');
@@ -157,5 +159,15 @@ test.describe('simulator', () => {
     await expect(sheet).toBeVisible();
     await page.keyboard.press('Escape');
     await expect(sheet).toBeHidden();
+  });
+
+  test('bulk actions explain what they mark', async ({ page }) => {
+    await setUp(page);
+    await expect(
+      page.getByRole('button', { name: ENROLL_REQUIRED }).first(),
+    ).toBeVisible();
+    await expect(
+      page.getByRole('button', { name: PASS_REQUIRED }).first(),
+    ).toBeVisible();
   });
 });

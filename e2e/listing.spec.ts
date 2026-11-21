@@ -11,6 +11,8 @@ const MASTER_PARAM = /[?&]cycle=master/u;
 const ADVANCED_PROGRAMMING = /^Advanced programming(?: |$)/u;
 const HIDE_INACTIVE_INFO = /Hides courses marked/u;
 const LANGUAGE_BUTTON = /^Language/u;
+const STUDENTS_YEAR_HEADER = /^Students \d{4}\/\d{4}$/u;
+const YEAR_ONLY = /^\d{4}\/\d{4}$/u;
 
 test.describe('course listing', () => {
   test('search narrows the list and survives a reload', async ({ page }) => {
@@ -143,5 +145,58 @@ test.describe('course listing', () => {
     await expect(checkbox).not.toBeChecked();
     await page.keyboard.press('Escape');
     await expect(page.getByText(HIDE_INACTIVE_INFO)).toBeHidden();
+  });
+
+  test('the study chooser lines up with the filters', async ({ page }) => {
+    await page.setViewportSize({ height: 900, width: 1_280 });
+    await page.goto('/');
+    const chooser = await page
+      .locator('main')
+      .getByRole('radiogroup')
+      .first()
+      .boundingBox();
+    const sidebar = await page.locator('aside').boundingBox();
+    expect(
+      Math.abs((chooser?.width ?? 0) - (sidebar?.width ?? 0)),
+    ).toBeLessThan(1);
+    const search = await page.getByRole('textbox').first().boundingBox();
+    const table = await page.getByRole('table').boundingBox();
+    expect(Math.abs((search?.x ?? 0) - (table?.x ?? 0))).toBeLessThan(2);
+  });
+
+  test('the students column shows only the year', async ({ page }) => {
+    await page.setViewportSize({ height: 900, width: 1_280 });
+    await page.goto('/');
+    const header = page.getByRole('columnheader', {
+      name: STUDENTS_YEAR_HEADER,
+    });
+    await expect(header).toHaveText(YEAR_ONLY);
+  });
+
+  test('every status filter has an info button', async ({ page }) => {
+    await page.setViewportSize({ height: 900, width: 1_280 });
+    await page.goto('/');
+    const rows = page
+      .locator('aside li')
+      .filter({ has: page.locator('input[type=checkbox]') });
+    await expect(rows).toHaveCount(4);
+    await expect(
+      rows.getByRole('button', { name: 'More information' }),
+    ).toHaveCount(4);
+  });
+
+  test('opening a course does not resize the page', async ({ page }) => {
+    await page.setViewportSize({ height: 900, width: 1_280 });
+    await page.goto('/');
+    const headerWidth = () =>
+      page
+        .locator('header')
+        .evaluate((element) => element.getBoundingClientRect().width);
+    const before = await headerWidth();
+    await page.locator('tbody td:first-child button').first().click();
+    await expect(page.getByRole('dialog')).toBeVisible();
+    expect(await headerWidth()).toBeCloseTo(before, 5);
+    await page.keyboard.press('Escape');
+    await expect(page.getByRole('dialog')).toHaveCount(0);
   });
 });
