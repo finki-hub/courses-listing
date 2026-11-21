@@ -1,5 +1,6 @@
 import { SegmentedControl } from '@/components/ui/segmented-control';
 import { useLanguage } from '@/lib/LanguageProvider';
+import { cn } from '@/lib/utils';
 import {
   COURSE_LEVELS,
   type CourseLevelFilter as CourseLevelFilterValue,
@@ -22,7 +23,7 @@ export const CourseLevelFilter = (props: CourseLevelFilterProps) => {
   return (
     <SegmentedControl
       allLabel={t().common.all}
-      class={`w-full sm:w-auto ${props.class ?? ''}`}
+      class={cn('w-full sm:w-auto', props.class)}
       items={LEVEL_ITEMS}
       onClear={() => {
         props.onSelect(null);

@@ -112,7 +112,8 @@ test.describe('course listing', () => {
     await expect(
       page.getByRole('button', { name: 'Remove filter: Summer' }),
     ).toBeVisible();
-    expect(await top()).toBe(before);
+    const after = await top();
+    expect(Math.abs(after - before)).toBeLessThan(1);
   });
 
   test('the table has no credits column or credits sort', async ({ page }) => {

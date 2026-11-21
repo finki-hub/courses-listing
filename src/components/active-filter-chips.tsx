@@ -87,7 +87,7 @@ export const ActiveFilterChips = (props: ActiveFilterChipsProps) => {
   const chips = () => getFilterChips(props.filters);
 
   return (
-    <div class="flex flex-wrap items-center gap-2 text-sm">
+    <div class="flex min-h-6 flex-wrap items-center gap-2 text-sm">
       <span
         aria-live="polite"
         class="text-muted-foreground"
@@ -122,7 +122,7 @@ export const ActiveFilterChips = (props: ActiveFilterChipsProps) => {
                     aria-label={interpolate(t().filters.removeChip, {
                       filter: label(),
                     })}
-                    class="bg-muted text-foreground hover:bg-muted/70 inline-flex items-center gap-1 rounded-full border px-2.5 py-px text-xs font-medium transition-colors"
+                    class="bg-muted text-foreground hover:bg-muted/70 inline-flex min-h-6 items-center gap-1 rounded-full border px-2.5 py-px text-xs font-medium transition-colors"
                     onClick={() => {
                       props.onRemove(chip);
                     }}
