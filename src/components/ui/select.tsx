@@ -69,8 +69,11 @@ export const Select = (props: SelectProps) => {
         <Show when={isUnknown()}>
           <option value={current()}>{current()}</option>
         </Show>
-        <For each={props.options}>
-          {(option) => <option value={option.value}>{option.label}</option>}
+        <For
+          each={props.options}
+          keyed={(option) => option.value}
+        >
+          {(option) => <option value={option().value}>{option().label}</option>}
         </For>
       </select>
       <ChevronDown

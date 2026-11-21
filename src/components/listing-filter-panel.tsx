@@ -385,18 +385,21 @@ const StatusSection = (props: SectionProps) => {
       title={t().filters.sections.status}
     >
       <ul class="space-y-2">
-        <For each={flags()}>
+        <For
+          each={flags()}
+          keyed={(flag) => flag.key}
+        >
           {(flag) => (
             <li class="flex items-center gap-1">
               <LabeledCheckbox
-                checked={props.filters[flag.key]}
+                checked={props.filters[flag().key]}
                 onChange={() => {
-                  props.onUpdate({ [flag.key]: !props.filters[flag.key] });
+                  props.onUpdate({ [flag().key]: !props.filters[flag().key] });
                 }}
               >
-                {flag.label}
+                {flag().label}
               </LabeledCheckbox>
-              <Show when={flag.info}>
+              <Show when={flag().info}>
                 {(info) => <InfoTip text={info()} />}
               </Show>
             </li>

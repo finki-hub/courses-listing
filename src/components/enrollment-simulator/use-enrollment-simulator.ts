@@ -1,4 +1,4 @@
-import { createMemo, createSignal } from 'solid-js';
+import { createMemo, createSignal, untrack } from 'solid-js';
 
 import { type CourseStatus } from '@/lib/prerequisite';
 import {
@@ -105,7 +105,8 @@ export const useEnrollmentSimulator = (courses: () => CourseRaw[]) => {
   );
 
   const [statuses, setStatuses] = createSignal(
-    initialState.resolveStatuses(parsedCourses()),
+    // The saved statuses are a one-time snapshot of the initial courses.
+    initialState.resolveStatuses(untrack(parsedCourses)),
   );
 
   const planRef: { reload?: (acc: Accreditation) => void } = {}; // set below
@@ -154,7 +155,7 @@ export const useEnrollmentSimulator = (courses: () => CourseRaw[]) => {
     courseInfoMap,
     courses: parsedCourses,
     ignorePrerequisites,
-    initialPlan: initialState.resolvePlan(parsedCourses()),
+    initialPlan: initialState.resolvePlan(untrack(parsedCourses)),
     persist: preview.persist,
     rawCourses: courses,
     statuses,

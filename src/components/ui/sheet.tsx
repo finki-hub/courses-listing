@@ -27,6 +27,9 @@ const PANEL_SIDES = {
     'sm:right-0 sm:border-l data-[expanded]:sm:slide-in-from-right data-[closed]:sm:slide-out-to-right',
 } as const;
 
+// Only the panel opened last answers Escape, as Kobalte's layer stack would.
+const openSheets: symbol[] = [];
+
 // A panel over the page: a side panel on desktop and a bottom sheet on
 // mobile, with a title, a close button, a scrolling body and a footer.
 export const Sheet = (props: SheetProps) => {
@@ -38,15 +41,27 @@ export const Sheet = (props: SheetProps) => {
   // Kobalte 2 alpha registers its dismissable layer before the content ref is
   // set, so its Escape and outside-click handling never run. Handle Escape
   // here until that is fixed upstream; a handled event is left alone.
+  const sheet = Symbol('sheet');
   const onEscape = (event: KeyboardEvent) => {
-    if (event.defaultPrevented || event.key !== 'Escape') return;
+    if (
+      event.defaultPrevented ||
+      event.key !== 'Escape' ||
+      openSheets.at(-1) !== sheet
+    )
+      return;
     props.onOpenChange(false);
   };
   createEffect(
     () => props.open,
     (open) => {
-      if (open) addEventListener('keydown', onEscape);
+      if (open) {
+        openSheets.push(sheet);
+        addEventListener('keydown', onEscape);
+      }
+      // eslint-disable-next-line unicorn/consistent-function-scoping -- closes over this panel's symbol
       return () => {
+        const index = openSheets.indexOf(sheet);
+        if (index !== -1) openSheets.splice(index, 1);
         removeEventListener('keydown', onEscape);
       };
     },

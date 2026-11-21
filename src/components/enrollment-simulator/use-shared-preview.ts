@@ -1,4 +1,4 @@
-import { type Accessor, createSignal } from 'solid-js';
+import { type Accessor, createSignal, untrack } from 'solid-js';
 
 import { writeBrowserStorage } from '@/lib/safe-storage';
 import { loadStatuses, type SimulatorCourse } from '@/lib/simulator';
@@ -61,7 +61,7 @@ const finishSharedLink = () => {
 export const useSharedPreview = (params: SharedPreviewParams) => {
   const { shared } = params;
   const [previewing, setPreviewing] = createSignal(
-    shared !== undefined && wouldReplaceSaved(params.courses(), shared),
+    shared !== undefined && wouldReplaceSaved(untrack(params.courses), shared),
   );
   if (shared && !previewing()) finishSharedLink();
 

@@ -8,6 +8,7 @@ import {
   For,
   Loading,
   Match,
+  Show,
   Switch,
 } from 'solid-js';
 
@@ -31,6 +32,7 @@ import { useCourses } from '@/data/use-courses';
 import { ALERT_STYLES } from '@/lib/alert-styles';
 import { type AppNavigation, AppNavigationContext } from '@/lib/app-navigation';
 import { CourseNamesProvider } from '@/lib/CourseNamesProvider';
+import { type Translations } from '@/lib/i18n';
 import { useLanguage } from '@/lib/LanguageProvider';
 import {
   COURSE_QUERY_PARAM,
@@ -43,7 +45,7 @@ import { PREREQUISITE_FOCUS_PARAM } from '@/lib/prerequisite-graph';
 import { useRevealFocus } from '@/lib/reveal-focus';
 import { PAGE_QUERY_PARAM, SIMULATOR_SHARE_PARAM } from '@/lib/simulator-share';
 import { SIMULATOR_VIEW_PARAMS } from '@/lib/simulator-url-state';
-import { trackHeight } from '@/lib/track-height';
+import { createHeightTracker } from '@/lib/track-height';
 
 type Page = 'equivalencies' | 'listing' | 'prerequisites' | 'simulator';
 
@@ -85,14 +87,36 @@ const getInitialPage = (): Page => {
   return isPage(storedPage) ? storedPage : 'listing';
 };
 
-// Publishes the sticky tab bar's height as --tabbar-h, so content that sticks
-// below it (such as the simulator's progress header) can sit right under it.
-const trackTabBarHeight = (element: HTMLElement) => {
-  trackHeight(element, '--tabbar-h');
+const getPageHeader = (
+  page: Page,
+  strings: Translations,
+): { description?: string; title: string } => {
+  // The simulator describes each of its views itself, under its view switch.
+  const headers: Record<Page, { description?: string; title: string }> = {
+    equivalencies: {
+      description: strings.equivalencies.description,
+      title: strings.equivalencies.heading,
+    },
+    listing: {
+      description: strings.pageIntro.listing,
+      title: strings.nav.listing,
+    },
+    prerequisites: {
+      description: strings.prerequisites.description,
+      title: strings.nav.prerequisites,
+    },
+    simulator: {
+      title: strings.nav.simulator,
+    },
+  };
+  return headers[page];
 };
 
 const App = () => {
   useRevealFocus();
+  // Publishes the sticky tab bar's height as --tabbar-h, so content that
+  // sticks below it (such as the simulator's progress header) sits under it.
+  const trackTabBarHeight = createHeightTracker('--tabbar-h');
   const { language, setLanguage, t } = useLanguage();
   const tabs = (): Array<{ label: string; value: Page }> => [
     { label: t().nav.listing, value: 'listing' },
@@ -104,29 +128,7 @@ const App = () => {
   const [page, setPage] = createSignal<Page>(getInitialPage());
   let previousPage: Page | undefined;
 
-  // Each tab's title and what it is for.
-  const pageHeader = () => {
-    const strings = t();
-    // The simulator describes each of its views itself, under its view switch.
-    const headers: Record<Page, { description?: string; title: string }> = {
-      equivalencies: {
-        description: strings.equivalencies.description,
-        title: strings.equivalencies.heading,
-      },
-      listing: {
-        description: strings.pageIntro.listing,
-        title: strings.nav.listing,
-      },
-      prerequisites: {
-        description: strings.prerequisites.description,
-        title: strings.nav.prerequisites,
-      },
-      simulator: {
-        title: strings.nav.simulator,
-      },
-    };
-    return headers[page()];
-  };
+  const pageHeader = () => getPageHeader(page(), t());
 
   const undergraduate = createMemo(() =>
     courses().filter((course) => !isMasterCourse(course)),
@@ -267,22 +269,24 @@ const App = () => {
               />
             }
           >
-            <CourseNamesProvider courses={courses()}>
-              <Switch>
-                <Match when={page() === 'listing'}>
-                  <CourseTable courses={courses()} />
-                </Match>
-                <Match when={page() === 'simulator'}>
-                  <EnrollmentSimulator courses={undergraduate()} />
-                </Match>
-                <Match when={page() === 'prerequisites'}>
-                  <PrerequisiteExplorer courses={undergraduate()} />
-                </Match>
-                <Match when={page() === 'equivalencies'}>
-                  <CourseEquivalencies courses={undergraduate()} />
-                </Match>
-              </Switch>
-            </CourseNamesProvider>
+            <Show when={courses()}>
+              <CourseNamesProvider courses={courses()}>
+                <Switch>
+                  <Match when={page() === 'listing'}>
+                    <CourseTable courses={courses()} />
+                  </Match>
+                  <Match when={page() === 'simulator'}>
+                    <EnrollmentSimulator courses={undergraduate()} />
+                  </Match>
+                  <Match when={page() === 'prerequisites'}>
+                    <PrerequisiteExplorer courses={undergraduate()} />
+                  </Match>
+                  <Match when={page() === 'equivalencies'}>
+                    <CourseEquivalencies courses={undergraduate()} />
+                  </Match>
+                </Switch>
+              </CourseNamesProvider>
+            </Show>
           </Loading>
         </Errored>
       </main>
