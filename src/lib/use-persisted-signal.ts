@@ -1,4 +1,4 @@
-import { type Accessor, createEffect, createSignal, on } from 'solid-js';
+import { type Accessor, createEffect, createSignal } from 'solid-js';
 
 /**
  * A signal that automatically persists its value to localStorage.
@@ -17,13 +17,14 @@ export const usePersistedSignal = <T extends string>(
   const isValid = stored !== null && (validate?.(stored) ?? true);
   const initial = isValid ? (stored as T) : defaultValue;
 
-  const [value, setValue] = createSignal(initial);
+  const [value, setValue] = createSignal<string>(initial);
 
   createEffect(
-    on(value, (v) => {
+    () => value(),
+    (v) => {
       localStorage.setItem(key, v);
-    }),
+    },
   );
 
-  return [value, setValue];
+  return [() => value() as T, setValue];
 };

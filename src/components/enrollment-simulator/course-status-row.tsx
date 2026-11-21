@@ -1,6 +1,6 @@
-import { Lock } from 'lucide-solid';
 import { Show } from 'solid-js';
 
+import { Lock } from '@/components/ui/icons';
 import { InfoTip } from '@/components/ui/info-tip';
 import { SegmentedControl } from '@/components/ui/segmented-control';
 import { StatusBadge } from '@/components/ui/status-badge';

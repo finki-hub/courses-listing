@@ -39,13 +39,15 @@ export const useMasterListing = (
   const { language, t } = useLanguage();
   const masterData = useMasterData();
 
-  createEffect(() => {
-    if (isMaster()) masterData.request();
-  });
+  createEffect(
+    () => isMaster(),
+    (masterView) => {
+      if (masterView) masterData.request();
+    },
+  );
 
-  // Reading an errored resource throws: only use it once it is ready.
-  const loadedData = () =>
-    masterData.data.state === 'ready' ? masterData.data() : undefined;
+  // Reading an errored load returns no data: only use it once it is ready.
+  const loadedData = () => masterData.data();
   const loaded = () => loadedData() !== undefined;
 
   const masterCourses = createMemo(() => courses().filter(isMasterCourse));
@@ -121,12 +123,12 @@ export const useMasterListing = (
         },
       }),
     entries,
-    error: () => masterData.data.state === 'errored',
+    error: masterData.error,
     findCourse,
     getCredits,
     getSeason,
     loaded,
-    loading: () => masterData.data.loading,
+    loading: masterData.loading,
     masterCourses,
     matches,
     programCodes: createMemo(() => masterPrograms().map(({ code }) => code)),

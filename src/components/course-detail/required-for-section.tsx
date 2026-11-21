@@ -59,7 +59,7 @@ const RequiredForList = (props: {
       </ul>
       <Show when={foldable()}>
         <button
-          aria-expanded={expanded()}
+          aria-expanded={expanded() ? 'true' : 'false'}
           class="text-muted-foreground hover:text-foreground cursor-pointer text-xs underline underline-offset-2"
           onClick={() => {
             setExpanded((value) => !value);

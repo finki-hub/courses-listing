@@ -1,6 +1,6 @@
-import { X } from 'lucide-solid';
 import { createUniqueId, For, Show } from 'solid-js';
 
+import { X } from '@/components/ui/icons';
 import {
   formatCount,
   getTagLabel,

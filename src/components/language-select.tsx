@@ -1,7 +1,7 @@
 import { Select } from '@kobalte/core/select';
-import { Check, ChevronDown, Globe } from 'lucide-solid';
 import { createUniqueId } from 'solid-js';
 
+import { Check, ChevronDown, Globe } from '@/components/ui/icons';
 import { isLanguage, type Language, languageNames } from '@/lib/i18n';
 
 type LanguageSelectProps = {

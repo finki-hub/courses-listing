@@ -1,7 +1,7 @@
-import { Moon, Sun } from 'lucide-solid';
-import { createSignal, onMount, Show } from 'solid-js';
+import { createSignal, onSettled, Show } from 'solid-js';
 
 import { IconButton } from '@/components/ui/icon-controls';
+import { Moon, Sun } from '@/components/ui/icons';
 import { useLanguage } from '@/lib/LanguageProvider';
 
 type Theme = 'dark' | 'light';
@@ -26,7 +26,7 @@ export const ThemeToggle = () => {
     localStorage.setItem(STORAGE_KEY_THEME, nextTheme);
   };
 
-  onMount(() => {
+  onSettled(() => {
     applyTheme(theme());
   });
 

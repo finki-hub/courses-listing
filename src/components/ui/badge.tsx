@@ -1,5 +1,6 @@
+import { type ComponentProps } from '@solidjs/web';
 import { cva, type VariantProps } from 'class-variance-authority';
-import { type ComponentProps, splitProps } from 'solid-js';
+import { omit } from 'solid-js';
 
 import { cn } from '@/lib/utils';
 
@@ -23,11 +24,11 @@ const badgeVariants = cva(
 type BadgeProps = ComponentProps<'div'> & VariantProps<typeof badgeVariants>;
 
 export const Badge = (props: BadgeProps) => {
-  const [local, rest] = splitProps(props, ['class', 'variant']);
+  const rest = omit(props, 'class', 'variant');
 
   return (
     <div
-      class={cn(badgeVariants({ variant: local.variant }), local.class)}
+      class={cn(badgeVariants({ variant: props.variant }), props.class)}
       {...rest}
     />
   );

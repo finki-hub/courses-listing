@@ -45,13 +45,15 @@ export const useSavedListing = (deps: SavedListingDeps) => {
     deps.listing.showLinkedCycle(undergraduate ? 'undergraduate' : 'master');
   }
 
-  createEffect(() => {
-    const list = shared();
-    replaceUrlParams((params) => {
-      if (list === null) params.delete(SAVED_PARAM);
-      else params.set(SAVED_PARAM, serializeSavedParam(list));
-    });
-  });
+  createEffect(
+    () => shared(),
+    (list) => {
+      replaceUrlParams((params) => {
+        if (list === null) params.delete(SAVED_PARAM);
+        else params.set(SAVED_PARAM, serializeSavedParam(list));
+      });
+    },
+  );
 
   const own = createMemo(
     () => new Set(resolveSavedValues(deps.courses(), saved.values())),

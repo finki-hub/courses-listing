@@ -1,4 +1,3 @@
-import { ArrowLeft, Network } from 'lucide-solid';
 import {
   createEffect,
   createMemo,
@@ -12,6 +11,7 @@ import { AccreditationSwitch } from '@/components/accreditation-switch';
 import { CourseDetailDialog } from '@/components/course-detail-dialog';
 import { PrerequisiteMap } from '@/components/prerequisite-map';
 import { EmptyState } from '@/components/ui/empty-state';
+import { ArrowLeft, Network } from '@/components/ui/icons';
 import { SearchInput } from '@/components/ui/search-input';
 import { useLinkedCourseDialog } from '@/components/use-linked-course-dialog';
 import { getCourseIdentityFields } from '@/lib/course-filters';
@@ -130,8 +130,8 @@ const CoursePicker = (props: {
       <SearchInput
         aria-labelledby="course-search-label"
         id="course-search"
-        onInput={(e) => {
-          props.onSearch(e.currentTarget.value);
+        onInput={(event: Event & { currentTarget: HTMLInputElement }) => {
+          props.onSearch(event.currentTarget.value);
         }}
         placeholder={t().prerequisites.searchPlaceholder}
         value={props.search}
@@ -268,13 +268,15 @@ export const PrerequisiteExplorer = (props: PrerequisiteExplorerProps) => {
     toLayers(collectLayers(focus(), graph().unlocks)),
   );
 
-  createEffect(() => {
-    const raw = rawCourseMap().get(focus());
-    replaceUrlParams((params) => {
-      if (raw) params.set(PREREQUISITE_FOCUS_PARAM, getCourseLinkValue(raw));
-      else params.delete(PREREQUISITE_FOCUS_PARAM);
-    });
-  });
+  createEffect(
+    () => rawCourseMap().get(focus()),
+    (raw) => {
+      replaceUrlParams((params) => {
+        if (raw) params.set(PREREQUISITE_FOCUS_PARAM, getCourseLinkValue(raw));
+        else params.delete(PREREQUISITE_FOCUS_PARAM);
+      });
+    },
+  );
 
   const choose = (name: string) => {
     setTrail([]);

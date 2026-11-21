@@ -1,4 +1,4 @@
-import { createResource } from 'solid-js';
+import { createMemo } from 'solid-js';
 
 import { type CourseRaw, coursesSchema } from '@/types/course';
 
@@ -13,4 +13,5 @@ const fetchCourses = async (): Promise<CourseRaw[]> => {
   return coursesSchema.parse(data);
 };
 
-export const useCourses = () => createResource(fetchCourses);
+// Suspends until the courses arrive; render it under a `Loading` boundary.
+export const useCourses = () => createMemo(() => fetchCourses());

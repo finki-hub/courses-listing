@@ -1,6 +1,6 @@
-import { GraduationCap } from 'lucide-solid';
 import { createSignal } from 'solid-js';
 
+import { GraduationCap } from '@/components/ui/icons';
 import { InfoTip } from '@/components/ui/info-tip';
 import { LabeledCheckbox } from '@/components/ui/labeled-checkbox';
 import { Sheet } from '@/components/ui/sheet';

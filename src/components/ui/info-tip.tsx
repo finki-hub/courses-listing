@@ -1,6 +1,6 @@
-import { Info } from 'lucide-solid';
 import { For, Show } from 'solid-js';
 
+import { Info } from '@/components/ui/icons';
 import {
   Popover,
   PopoverContent,

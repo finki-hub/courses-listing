@@ -1,7 +1,7 @@
-import { Bookmark, Check, Link2, Star } from 'lucide-solid';
 import { createSignal, onCleanup, Show } from 'solid-js';
 
 import { EmptyState } from '@/components/ui/empty-state';
+import { Bookmark, Check, Link2, Star } from '@/components/ui/icons';
 import { formatCount, interpolate } from '@/lib/i18n';
 import { useLanguage } from '@/lib/LanguageProvider';
 import { cn } from '@/lib/utils';
@@ -24,7 +24,7 @@ export const SaveButton = (props: SaveButtonProps) => {
   return (
     <button
       aria-label={label()}
-      aria-pressed={props.saved}
+      aria-pressed={props.saved ? 'true' : 'false'}
       class={cn(
         'focus-visible:ring-ring inline-flex h-9 w-9 shrink-0 cursor-pointer items-center justify-center rounded-md transition-colors hover:bg-muted focus-visible:ring-2 focus-visible:outline-none',
         props.saved ? 'text-saved' : 'text-muted-foreground',

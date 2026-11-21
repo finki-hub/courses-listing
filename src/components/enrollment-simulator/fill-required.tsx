@@ -1,6 +1,6 @@
-import { Wand2 } from 'lucide-solid';
 import { createSignal } from 'solid-js';
 
+import { Wand2 } from '@/components/ui/icons';
 import { InfoTip } from '@/components/ui/info-tip';
 import { capture } from '@/lib/analytics-client';
 import { interpolate } from '@/lib/i18n';

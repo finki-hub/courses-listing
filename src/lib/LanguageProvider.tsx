@@ -30,9 +30,12 @@ export const LanguageProvider = (props: ParentProps) => {
   const [language, setLanguage] = createSignal<Language>(
     isLanguage(saved) ? saved : 'mk',
   );
-  createEffect(() => {
-    updatePageMetadata(language(), document);
-  });
+  createEffect(
+    () => language(),
+    (nextLanguage) => {
+      updatePageMetadata(nextLanguage, document);
+    },
+  );
   const t = createMemo(() => translations[language()]);
   const value: LanguageContextValue = {
     language,
@@ -43,16 +46,8 @@ export const LanguageProvider = (props: ParentProps) => {
     t,
   };
 
-  return (
-    <LanguageContext.Provider value={value}>
-      {props.children}
-    </LanguageContext.Provider>
-  );
+  return <LanguageContext value={value}>{props.children}</LanguageContext>;
 };
 
-export const useLanguage = (): LanguageContextValue => {
-  const context = useContext(LanguageContext);
-  if (!context)
-    throw new Error('useLanguage must be used within a LanguageProvider');
-  return context;
-};
+export const useLanguage = (): LanguageContextValue =>
+  useContext(LanguageContext);

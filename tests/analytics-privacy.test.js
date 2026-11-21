@@ -2,7 +2,7 @@
 import assert from 'node:assert/strict';
 import { registerHooks } from 'node:module';
 import { test } from 'node:test';
-import { createRoot, createSignal } from 'solid-js';
+import { createRoot, createSignal, flush } from 'solid-js';
 
 import {
   createAnalyticsConfig,
@@ -216,8 +216,14 @@ const exerciseSearchPayloads = async (t, sdk, requests) => {
   const disposeSearch = createRoot((cleanup) => {
     const [query, setQuery] = createSignal('');
     const [tags, setTags] = createSignal(new Set());
-    updateSearch = setQuery;
-    updateTags = setTags;
+    updateSearch = (value) => {
+      setQuery(value);
+      flush();
+    };
+    updateTags = (value) => {
+      setTags(value);
+      flush();
+    };
     const criteria = () => ({
       accreditation: null,
       level: null,
@@ -446,7 +452,10 @@ test('real SDK serializes only approved captures; remote replay and opt-out stay
   let currentSearch;
   const dispose = createRoot((cleanup) => {
     const [search, update] = createSignal('');
-    setSearch = update;
+    setSearch = (value) => {
+      update(value);
+      flush();
+    };
     currentSearch = search;
     useCourseSearchAnalytics(() => ({
       accreditation: null,

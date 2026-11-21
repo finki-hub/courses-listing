@@ -1,6 +1,6 @@
-import { ArrowDown, ArrowUp, Minus } from 'lucide-solid';
 import { Show } from 'solid-js';
 
+import { ArrowDown, ArrowUp, Minus } from '@/components/ui/icons';
 import {
   ENROLLMENT_TREND_DOWN_CLASS,
   ENROLLMENT_TREND_NEUTRAL_CLASS,

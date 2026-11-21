@@ -1,8 +1,8 @@
-import { GraduationCap } from 'lucide-solid';
 import { Show } from 'solid-js';
 
 import { MasterCurriculum } from '@/components/master-curriculum';
 import { EmptyState } from '@/components/ui/empty-state';
+import { GraduationCap } from '@/components/ui/icons';
 import { SegmentedControl } from '@/components/ui/segmented-control';
 import { capture } from '@/lib/analytics-client';
 import { useLanguage } from '@/lib/LanguageProvider';

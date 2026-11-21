@@ -1,6 +1,7 @@
-import { Check } from 'lucide-solid';
-import { type JSX, Show } from 'solid-js';
+import { type JSX } from '@solidjs/web';
+import { Show } from 'solid-js';
 
+import { Check } from '@/components/ui/icons';
 import { cn } from '@/lib/utils';
 
 type ToggleChipProps = {
@@ -14,7 +15,7 @@ type ToggleChipProps = {
 // a control at rest and shows a check when on.
 export const ToggleChip = (props: ToggleChipProps) => (
   <button
-    aria-pressed={props.pressed}
+    aria-pressed={props.pressed ? 'true' : 'false'}
     class={cn(
       'focus-visible:ring-ring focus-visible:ring-offset-background inline-flex min-h-8 shrink-0 items-center gap-1.5 rounded-full border px-3 text-sm whitespace-nowrap transition-colors focus-visible:ring-2 focus-visible:ring-offset-1 focus-visible:outline-none',
       props.pressed
