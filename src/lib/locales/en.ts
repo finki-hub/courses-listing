@@ -129,11 +129,11 @@ export const en = {
       'Hides courses marked as deactivated and courses that never had enrolled students.',
     level: 'Level:',
     levelInfo:
-      'Each course belongs to one of three levels: L1 introductory, L2 intermediate and L3 advanced.\nAmong electives, the simulator counts at most {l1} credits from L1 and {l2} credits from L2; L3 has no limit.',
+      'Each course belongs to one of three levels: L1 introductory, L2 intermediate and L3 advanced.\nAmong electives, the simulator counts at most {l1} credits from L1 and {l2} credits from L2. L3 has no limit.',
     more: 'More filters',
     offeredInfo:
       'Courses with enrolled students in the latest academic year that has figures for their semester.',
-    offeredOnly: 'Offered this year',
+    offeredOnly: 'Students enrolled this year',
     panelTitle: 'Filters',
     program: 'Program:',
     programAll: 'All programs',
@@ -493,7 +493,7 @@ export const en = {
     ai: 'Artificial intelligence',
     coding: 'Programming',
     databases: 'Databases',
-    delemangi: "⭐ Stefan's picks",
+    delemangi: '⭐ Delemangi',
     devops: 'DevOps',
     filler: 'Filler',
     hardware: 'Hardware',

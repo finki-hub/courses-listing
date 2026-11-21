@@ -88,6 +88,8 @@ test('invalid values fall back to defaults', () => {
     parse('acc=2013&level=4&season=spring&sort=credits&dir=up&tags=,unknown,'),
     DEFAULT_STATE,
   );
+  // An unknown sort column resets the direction instead of keeping it.
+  assert.deepEqual(parse('sort=credits&dir=desc'), DEFAULT_STATE);
   assert.deepEqual(
     parse(
       'prog=xx&pstate=required&sem=9&credits=06&hideinactive=yes&offered=0&channel=true&savedonly=yes&tagmode=none',

@@ -46,14 +46,12 @@ export const SORT_COLUMNS: SortColumn[] = [
   'channel',
   'tags',
   'semester',
-  'credits',
   'popularity',
 ];
 
 // Master's courses have no semesters, accreditations or tags to sort by.
 export const MASTER_SORT_COLUMNS: SortColumn[] = [
   'name',
-  'credits',
   'popularity',
   'channel',
 ];

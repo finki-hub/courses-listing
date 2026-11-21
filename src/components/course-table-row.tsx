@@ -23,14 +23,7 @@ export type CourseColumn = {
 };
 
 export type CourseColumnKey =
-  | 'channel'
-  | 'credits'
-  | 'name'
-  | 'open'
-  | 'save'
-  | 'semester'
-  | 'students'
-  | 'tags';
+  'channel' | 'name' | 'open' | 'save' | 'semester' | 'students' | 'tags';
 
 // Values shown beside a course: for undergraduate courses by the
 // accreditation they are shown by, for master's ones by their programs.
@@ -215,7 +208,6 @@ export const CourseTableRow = (props: CourseTableRowProps) => {
         <DiscordMark />
       </Show>
     ),
-    credits: () => <>{props.facts.credits ?? ''}</>,
     name: () => (
       <span class="flex flex-col gap-0.5">
         <button

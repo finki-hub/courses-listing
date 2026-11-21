@@ -200,6 +200,12 @@ export const parseListingUrlState = (
     options.programs,
     cycle,
   );
+  const requestedSort = params.get(SORT_PARAM);
+  const knownSortColumns: readonly string[] = options.sortColumns;
+  // An unknown sort column falls back to the default; its direction should
+  // fall back with it instead of leaving e.g. a descending name sort.
+  const sortIsKnown =
+    requestedSort !== null && knownSortColumns.includes(requestedSort);
   return {
     accreditation: parseAccreditation(params.get(ACCREDITATION_PARAM)),
     channelOnly: params.get(CHANNEL_PARAM) === FLAG_VALUE,
@@ -218,8 +224,11 @@ export const parseListingUrlState = (
     savedOnly: params.get(SAVED_ONLY_PARAM) === FLAG_VALUE,
     season: parseSeason(params.get(SEASON_PARAM)),
     semester: parseBoundedInteger(params.get(SEMESTER_PARAM), MAX_SEMESTER),
-    sortColumn: parseSortColumn(params.get(SORT_PARAM), options.sortColumns),
-    sortDirection: parseSortDirection(params.get(DIRECTION_PARAM)),
+    sortColumn: parseSortColumn(requestedSort, options.sortColumns),
+    sortDirection:
+      requestedSort === null || sortIsKnown
+        ? parseSortDirection(params.get(DIRECTION_PARAM))
+        : DEFAULT_SORT_DIRECTION,
     staff: parseStaff(params.get(STAFF_PARAM)),
     tagMode: params.get(TAG_MODE_PARAM) === 'all' ? 'all' : 'any',
     tags: parseTags(params.get(TAGS_PARAM), options.tags),
