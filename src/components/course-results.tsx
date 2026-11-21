@@ -44,13 +44,6 @@ const NAME_HEAD: ColumnHead = {
   label: (t) => t.common.course,
   sort: 'name',
 };
-const CREDITS_HEAD: ColumnHead = {
-  cellClass: `${NUMBER_CELL} md:table-cell`,
-  class: 'hidden w-20 text-right md:table-cell',
-  key: 'credits',
-  label: (t) => t.common.credits,
-  sort: 'credits',
-};
 const STUDENTS_HEAD: ColumnHead = {
   cellClass: `${NUMBER_CELL} md:table-cell`,
   class: 'hidden w-32 text-right md:table-cell',
@@ -96,7 +89,6 @@ const UNDERGRADUATE_HEADS: readonly ColumnHead[] = [
     label: (t) => t.common.semesterShort,
     sort: 'semester',
   },
-  CREDITS_HEAD,
   STUDENTS_HEAD,
   {
     cellClass: 'hidden xl:table-cell',
@@ -111,7 +103,6 @@ const UNDERGRADUATE_HEADS: readonly ColumnHead[] = [
 
 const MASTER_HEADS: readonly ColumnHead[] = [
   NAME_HEAD,
-  CREDITS_HEAD,
   STUDENTS_HEAD,
   CHANNEL_HEAD,
   SAVE_HEAD,

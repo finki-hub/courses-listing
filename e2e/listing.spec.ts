@@ -9,6 +9,7 @@ const ANY_COURSE_PARAM = /course=/u;
 const MASTER_PARAM = /[?&]cycle=master/u;
 // The table names the button after the course; phone cards add details.
 const ADVANCED_PROGRAMMING = /^Advanced programming(?: |$)/u;
+const HIDE_INACTIVE_INFO = /Hides courses marked/u;
 const LANGUAGE_BUTTON = /^Language/u;
 
 test.describe('course listing', () => {
@@ -93,5 +94,53 @@ test.describe('course listing', () => {
     await page.getByRole('button', { name: 'Courses' }).click();
     await page.setViewportSize({ height: 800, width: 500 });
     await expect(page.getByRole('button', { name: 'Filters' })).toBeVisible();
+  });
+
+  test('enabling a filter does not move the table', async ({ page }) => {
+    await page.setViewportSize({ height: 900, width: 1_280 });
+    await page.goto('/');
+    const table = page.getByRole('table');
+    await expect(table).toBeVisible();
+    const top = () =>
+      table.evaluate((element) => element.getBoundingClientRect().top);
+    const before = await top();
+    await page
+      .locator('aside')
+      .getByRole('group', { exact: true, name: 'Semester' })
+      .getByRole('radio', { name: 'Summer' })
+      .click();
+    await expect(
+      page.getByRole('button', { name: 'Remove filter: Summer' }),
+    ).toBeVisible();
+    expect(await top()).toBe(before);
+  });
+
+  test('the table has no credits column or credits sort', async ({ page }) => {
+    await page.setViewportSize({ height: 900, width: 1_280 });
+    await page.goto('/');
+    await expect(page.getByRole('table')).toBeVisible();
+    await expect(
+      page.getByRole('columnheader', { name: 'Credits' }),
+    ).toHaveCount(0);
+    await expect(
+      page.locator('#listing-sort option').filter({ hasText: 'Credits' }),
+    ).toHaveCount(0);
+  });
+
+  test("the status filter's info button does not toggle it", async ({
+    page,
+  }) => {
+    await page.setViewportSize({ height: 900, width: 1_280 });
+    await page.goto('/');
+    const row = page
+      .locator('aside li')
+      .filter({ hasText: 'Hide inactive courses' });
+    const checkbox = row.locator('input[type=checkbox]');
+    await expect(checkbox).not.toBeChecked();
+    await row.getByRole('button', { name: 'More information' }).click();
+    await expect(page.getByText(HIDE_INACTIVE_INFO)).toBeVisible();
+    await expect(checkbox).not.toBeChecked();
+    await page.keyboard.press('Escape');
+    await expect(page.getByText(HIDE_INACTIVE_INFO)).toBeHidden();
   });
 });

@@ -8,7 +8,6 @@ import { TagChips } from '@/components/tag-chips';
 import { FIELD_CLASS } from '@/components/ui/field';
 import { ChevronDown } from '@/components/ui/icons';
 import { InfoTip } from '@/components/ui/info-tip';
-import { LabeledCheckbox } from '@/components/ui/labeled-checkbox';
 import { SegmentedControl } from '@/components/ui/segmented-control';
 import { Select } from '@/components/ui/select';
 import { getListingPrograms } from '@/lib/course-facts';
@@ -29,7 +28,9 @@ const SECTIONS_STORAGE_KEY = 'listing-filter-sections';
 
 const TRAILING_COLON = /:\s*$/u;
 
-const FULL_WIDTH = 'w-full sm:flex sm:w-full';
+// The segmented track hugs its options on wide screens instead of leaving an
+// empty tail after the last one.
+const SEGMENTED_WIDTH = 'w-full sm:w-fit';
 
 // Rarely used groups start collapsed; a group holding an active filter opens.
 const DEFAULT_OPEN: Record<FilterSectionKey, boolean> = {
@@ -196,7 +197,7 @@ const CurriculumSection = (props: SectionProps) => {
       <FilterField label={t().filters.season}>
         <SegmentedControl
           allLabel={t().common.all}
-          class={FULL_WIDTH}
+          class={SEGMENTED_WIDTH}
           items={[
             { label: t().common.winter, value: 'winter' as const },
             { label: t().common.summer, value: 'summer' as const },
@@ -215,7 +216,7 @@ const CurriculumSection = (props: SectionProps) => {
         <FilterField label={t().filters.semesterNumber}>
           <SegmentedControl
             allLabel={t().common.all}
-            class={FULL_WIDTH}
+            class={SEGMENTED_WIDTH}
             items={numberItems(SEMESTERS)}
             onClear={() => {
               props.onUpdate({ semester: null });
@@ -232,7 +233,7 @@ const CurriculumSection = (props: SectionProps) => {
           label={t().filters.level}
         >
           <CourseLevelFilter
-            class={FULL_WIDTH}
+            class={SEGMENTED_WIDTH}
             onSelect={(level) => {
               props.onUpdate({ level });
             }}
@@ -244,7 +245,7 @@ const CurriculumSection = (props: SectionProps) => {
         <FilterField label={t().filters.credits}>
           <SegmentedControl
             allLabel={t().common.all}
-            class={FULL_WIDTH}
+            class={SEGMENTED_WIDTH}
             items={numberItems(props.credits)}
             onClear={() => {
               props.onUpdate({ credits: null });
@@ -299,7 +300,7 @@ const ProgramSection = (props: SectionProps) => {
         <SegmentedControl
           allLabel={t().common.all}
           aria-label={label()}
-          class={FULL_WIDTH}
+          class={SEGMENTED_WIDTH}
           items={[
             { label: t().filters.required, value: 'required' as const },
             { label: t().filters.elective, value: 'elective' as const },
@@ -336,7 +337,7 @@ const TopicsSection = (props: SectionProps) => {
       >
         <FilterField label={t().filters.tagMode}>
           <SegmentedControl
-            class={FULL_WIDTH}
+            class={SEGMENTED_WIDTH}
             items={[
               { label: t().filters.tagModeAny, value: 'any' as const },
               { label: t().filters.tagModeAll, value: 'all' as const },
@@ -350,6 +351,44 @@ const TopicsSection = (props: SectionProps) => {
         </FilterField>
       </Show>
     </FilterSection>
+  );
+};
+
+const StatusFlagRow = (props: {
+  checked: boolean;
+  info?: string;
+  label: string;
+  onChange: () => void;
+}) => {
+  const id = createUniqueId();
+  return (
+    <li class="flex items-start gap-2 text-sm">
+      <input
+        checked={props.checked}
+        class="accent-primary mt-0.5 h-4 w-4 dark:[color-scheme:dark]"
+        id={id}
+        onChange={() => {
+          props.onChange();
+        }}
+        type="checkbox"
+      />
+      <span class="flex min-w-0 items-start gap-1.5">
+        <Show when={props.info}>
+          {(info) => (
+            <InfoTip
+              class="-mt-0.5 shrink-0"
+              text={info()}
+            />
+          )}
+        </Show>
+        <label
+          class="cursor-pointer pt-0.5"
+          for={id}
+        >
+          {props.label}
+        </label>
+      </span>
+    </li>
   );
 };
 
@@ -390,19 +429,14 @@ const StatusSection = (props: SectionProps) => {
           keyed={(flag) => flag.key}
         >
           {(flag) => (
-            <li class="flex items-center gap-1">
-              <LabeledCheckbox
-                checked={props.filters[flag().key]}
-                onChange={() => {
-                  props.onUpdate({ [flag().key]: !props.filters[flag().key] });
-                }}
-              >
-                {flag().label}
-              </LabeledCheckbox>
-              <Show when={flag().info}>
-                {(info) => <InfoTip text={info()} />}
-              </Show>
-            </li>
+            <StatusFlagRow
+              checked={props.filters[flag().key]}
+              info={flag().info}
+              label={flag().label}
+              onChange={() => {
+                props.onUpdate({ [flag().key]: !props.filters[flag().key] });
+              }}
+            />
           )}
         </For>
       </ul>
