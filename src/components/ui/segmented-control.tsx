@@ -20,6 +20,8 @@ type SegmentedControlProps<T extends number | string> = {
   'aria-label'?: string;
   'aria-labelledby'?: string;
   class?: string;
+  /** Stretch options to fill a fixed-width track. */
+  fill?: boolean;
   items: Array<SegmentedItem<T>> | ReadonlyArray<SegmentedItem<T>>;
   onClear?: () => void;
   onSelect: (value: T) => void;
@@ -208,7 +210,7 @@ export const SegmentedControl = <T extends number | string>(
               class={cn(
                 OPTION_BASE,
                 OPTION_SIZES[props.size ?? 'md'],
-                'sm:flex-none',
+                props.fill ? 'sm:flex-1' : 'sm:flex-none',
                 selected()
                   ? 'bg-raised text-foreground shadow-sm ring-1 ring-border'
                   : 'text-muted-foreground hover:text-foreground hover:bg-raised/60',

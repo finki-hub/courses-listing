@@ -74,7 +74,7 @@ export const mk = {
     noHistoryDescription:
       'За овој предмет моментално нема години со внесен број на слушачи.',
     noPrevious: 'Нема претходна година за споредба',
-    notOfferedYet: 'Сè уште не се нуди',
+    notOfferedYet: 'Никогаш не е активиран',
     peakYear: 'Година со највисок број на слушачи',
     same: 'Ист број на слушачи како претходната година',
     stable: 'Стабилно',
@@ -119,6 +119,7 @@ export const mk = {
     accreditation: 'Акредитација:',
     activeCount: '{count} активни',
     activeFilters: 'Активни филтри',
+    channelInfo: 'Прикажува само предмети што имаат Discord канал.',
     channelOnly: 'Има Discord канал',
     clearAll: 'Исчисти сè',
     clearFilters: 'Исчисти ги филтрите',
@@ -140,6 +141,7 @@ export const mk = {
     removeChip: 'Отстрани филтер: {filter}',
     required: 'Задолжителен',
     savedChip: 'Само зачувани',
+    savedInfo: 'Прикажува само предмети што сте ги зачувале.',
     savedLinkCopied: 'Врската е копирана',
     savedLinkFailed: 'Врската не може да се копира',
     savedOnly: 'Само зачувани ({count})',
@@ -174,7 +176,7 @@ export const mk = {
     moreTags: '+{count}',
     noResultsText: 'Отстранете филтер или пребарајте нешто друго.',
     noResultsTitle: 'Ниту еден предмет не одговара на филтрите',
-    notOfferedYet: 'Сè уште не се нуди',
+    notOfferedYet: 'Никогаш не е активиран',
     openDetails: 'Отвори детали за {course}',
     resultCount: {
       one: '{count} предмет',
@@ -378,7 +380,7 @@ export const mk = {
     attended: 'Слушан',
     attendedPlural: 'Слушани',
     attendedShort: 'С',
-    bulk: { listened: 'Сите слушани', passed: 'Сите положени' },
+    bulk: { listened: 'Запиши задолжителни', passed: 'Положи задолжителни' },
     bulkLabel: {
       listened:
         'Означи ги достапните задолжителни предмети од семестар {semester} како слушани',

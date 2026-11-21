@@ -74,7 +74,7 @@ export const sq = {
     noHistoryDescription:
       'Për këtë lëndë aktualisht nuk ka të dhëna vjetore për numrin e studentëve.',
     noPrevious: 'Nuk ka vit të mëparshëm për krahasim',
-    notOfferedYet: 'Ende nuk ofrohet',
+    notOfferedYet: 'Nuk është aktivizuar kurrë',
     peakYear: 'Viti me numrin më të madh të studentëve',
     same: 'I njëjti numër studentësh si vitin e kaluar',
     stable: 'E qëndrueshme',
@@ -119,6 +119,7 @@ export const sq = {
     accreditation: 'Akreditimi:',
     activeCount: '{count} aktivë',
     activeFilters: 'Filtrat aktivë',
+    channelInfo: 'Shfaq vetëm lëndët që kanë një kanal Discord.',
     channelOnly: 'Ka kanal në Discord',
     clearAll: 'Pastro të gjitha',
     clearFilters: 'Pastro filtrat',
@@ -140,6 +141,7 @@ export const sq = {
     removeChip: 'Hiq filtrin: {filter}',
     required: 'E detyrueshme',
     savedChip: 'Vetëm të ruajturat',
+    savedInfo: 'Shfaq vetëm lëndët që i keni ruajtur.',
     savedLinkCopied: 'Lidhja u kopjua',
     savedLinkFailed: 'Lidhja nuk u kopjua',
     savedOnly: 'Vetëm të ruajturat ({count})',
@@ -174,7 +176,7 @@ export const sq = {
     moreTags: '+{count}',
     noResultsText: 'Hiqni një filtër ose kërkoni diçka tjetër.',
     noResultsTitle: 'Asnjë lëndë nuk përputhet me këto filtra',
-    notOfferedYet: 'Ende nuk ofrohet',
+    notOfferedYet: 'Nuk është aktivizuar kurrë',
     openDetails: 'Hap detajet për {course}',
     resultCount: {
       one: '{count} lëndë',

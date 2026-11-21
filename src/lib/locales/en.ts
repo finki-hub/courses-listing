@@ -74,7 +74,7 @@ export const en = {
     noHistoryDescription:
       'No yearly enrollment figures are currently available for this course.',
     noPrevious: 'No previous year to compare',
-    notOfferedYet: 'Not offered yet',
+    notOfferedYet: 'Never activated',
     peakYear: 'Year with the highest enrollment',
     same: 'Same enrollment as the previous year',
     stable: 'Stable',
@@ -119,6 +119,7 @@ export const en = {
     accreditation: 'Accreditation:',
     activeCount: '{count} active',
     activeFilters: 'Active filters',
+    channelInfo: 'Shows only courses that have a Discord channel.',
     channelOnly: 'Has a Discord channel',
     clearAll: 'Clear all',
     clearFilters: 'Clear filters',
@@ -140,6 +141,7 @@ export const en = {
     removeChip: 'Remove filter: {filter}',
     required: 'Required',
     savedChip: 'Only saved',
+    savedInfo: 'Shows only the courses you saved.',
     savedLinkCopied: 'Link copied',
     savedLinkFailed: 'Could not copy the link',
     savedOnly: 'Only saved ({count})',
@@ -174,7 +176,7 @@ export const en = {
     moreTags: '+{count}',
     noResultsText: 'Remove a filter or search for something else.',
     noResultsTitle: 'No courses match these filters',
-    notOfferedYet: 'Not offered yet',
+    notOfferedYet: 'Never activated',
     openDetails: 'Open details for {course}',
     resultCount: {
       one: '{count} course',
@@ -375,7 +377,7 @@ export const en = {
     attended: 'Enrolled',
     attendedPlural: 'Enrolled',
     attendedShort: 'E',
-    bulk: { listened: 'All enrolled', passed: 'All passed' },
+    bulk: { listened: 'Enroll required', passed: 'Pass required' },
     bulkLabel: {
       listened:
         'Mark the available required courses of semester {semester} as enrolled',

@@ -12,7 +12,6 @@ import {
   type SortDirection,
   sortIndicator,
 } from '@/lib/course-filters';
-import { formatCompactYear } from '@/lib/course-offering';
 import { interpolate, type Translations } from '@/lib/i18n';
 import { useLanguage } from '@/lib/LanguageProvider';
 import { SMALL_SCREEN_QUERY, useMediaQuery } from '@/lib/use-media-query';
@@ -26,6 +25,7 @@ import {
 } from './course-table-row';
 
 type ColumnHead = CourseColumn & {
+  readonly ariaLabel?: (t: Translations, studentsYear?: string) => string;
   readonly class: string;
   readonly label: (t: Translations, studentsYear?: string) => string;
   /** Visually hidden header, for columns whose content explains itself. */
@@ -45,15 +45,14 @@ const NAME_HEAD: ColumnHead = {
   sort: 'name',
 };
 const STUDENTS_HEAD: ColumnHead = {
+  ariaLabel: (t, year) =>
+    year === undefined
+      ? t.enrollment.students
+      : interpolate(t.listing.studentsYear, { year }),
   cellClass: `${NUMBER_CELL} md:table-cell`,
   class: 'hidden w-32 text-right md:table-cell',
   key: 'students',
-  label: (t, year) =>
-    year === undefined
-      ? t.enrollment.students
-      : interpolate(t.listing.studentsYear, {
-          year: formatCompactYear(year),
-        }),
+  label: (t, year) => year ?? t.enrollment.students,
   sort: 'popularity',
   title: (t) => t.listing.studentsInfo,
 };
@@ -186,6 +185,7 @@ export const CourseResults = (props: CourseResultsProps) => {
                     >
                       {(sort) => (
                         <button
+                          aria-label={head.ariaLabel?.(t(), props.studentsYear)}
                           class={`hover:text-foreground w-full cursor-pointer select-none ${
                             head.class.includes('text-right')
                               ? 'text-right'

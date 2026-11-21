@@ -74,7 +74,7 @@ export const tr = {
     noHistoryDescription:
       'Bu ders için yıllık kayıtlı öğrenci sayıları henüz mevcut değil.',
     noPrevious: 'Karşılaştırılacak önceki yıl yok',
-    notOfferedYet: 'Henüz açılmadı',
+    notOfferedYet: 'Hiç etkinleştirilmedi',
     peakYear: 'En çok öğrencinin kayıtlı olduğu yıl',
     same: 'Önceki yılla aynı öğrenci sayısı',
     stable: 'Sabit',
@@ -119,6 +119,7 @@ export const tr = {
     accreditation: 'Akreditasyon:',
     activeCount: '{count} etkin',
     activeFilters: 'Etkin filtreler',
+    channelInfo: 'Yalnızca Discord kanalı olan dersleri gösterir.',
     channelOnly: 'Discord kanalı var',
     clearAll: 'Tümünü temizle',
     clearFilters: 'Filtreleri temizle',
@@ -140,6 +141,7 @@ export const tr = {
     removeChip: 'Filtreyi kaldır: {filter}',
     required: 'Zorunlu',
     savedChip: 'Yalnızca kaydedilenler',
+    savedInfo: 'Yalnızca kaydettiğiniz dersleri gösterir.',
     savedLinkCopied: 'Bağlantı kopyalandı',
     savedLinkFailed: 'Bağlantı kopyalanamadı',
     savedOnly: 'Yalnızca kaydedilenler ({count})',
@@ -174,7 +176,7 @@ export const tr = {
     moreTags: '+{count}',
     noResultsText: 'Bir filtreyi kaldırın veya başka bir şey arayın.',
     noResultsTitle: 'Bu filtrelere uyan ders yok',
-    notOfferedYet: 'Henüz açılmadı',
+    notOfferedYet: 'Hiç etkinleştirilmedi',
     openDetails: '{course} ayrıntılarını aç',
     resultCount: {
       one: '{count} ders',
@@ -374,7 +376,7 @@ export const tr = {
     attended: 'Kayıtlı',
     attendedPlural: 'Kayıtlı',
     attendedShort: 'K',
-    bulk: { listened: 'Tümü kayıtlı', passed: 'Tümü geçildi' },
+    bulk: { listened: 'Zorunluları kaydet', passed: 'Zorunluları geç' },
     bulkLabel: {
       listened:
         '{semester}. yarıyılın alınabilir zorunlu derslerini kayıtlı olarak işaretle',

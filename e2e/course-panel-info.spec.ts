@@ -74,7 +74,7 @@ test.describe('last offered', () => {
       .fill('Web3 applications');
     await expect(
       page.getByRole('row').filter({ hasText: 'Web3 applications' }),
-    ).toContainText('Not offered yet');
+    ).toContainText('Never activated');
   });
 
   test('the panel states when the course was last offered', async ({

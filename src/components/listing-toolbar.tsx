@@ -58,10 +58,11 @@ export const ListingToolbar = (props: ListingToolbarProps) => {
 
   return (
     <div class="flex flex-col gap-3 lg:flex-row lg:items-center">
-      <div class="flex min-w-0 flex-1 flex-col gap-3 sm:flex-row sm:items-center">
+      <div class="flex min-w-0 flex-1 flex-col gap-3 sm:flex-row sm:items-center lg:gap-6">
         <SegmentedControl
           aria-label={stackedLabel(t().masters.cycle)}
-          class="w-full shrink-0 sm:w-auto"
+          class="w-full shrink-0 sm:w-auto lg:w-[16.5rem]"
+          fill
           items={[
             {
               label: t().masters.undergraduate,
