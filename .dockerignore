@@ -7,6 +7,9 @@ dist
 # Local environment files
 .env
 .env.*
+**/.env
+**/.env.*
+!**/.env.example
 
 # VCS and editor
 .git
