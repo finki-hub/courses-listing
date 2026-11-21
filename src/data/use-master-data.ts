@@ -2,23 +2,42 @@ import { createEffect, createSignal } from 'solid-js';
 
 import {
   degreeProgramsSchema,
+  MASTER_CYCLE,
   type MasterData,
   programCoursesSchema,
 } from '@/lib/master-programs';
 
-const DATA_URL = 'https://data.finki-hub.com/legacy';
+const ITEMS_URL = 'https://data.finki-hub.com/items';
 
-const fetchJson = async (file: string): Promise<unknown> => {
-  const response = await fetch(`${DATA_URL}/${file}`);
+const PROGRAMS_QUERY = new URLSearchParams({
+  fields: 'code,title,title_en,cycle,ects',
+  limit: '-1',
+  sort: 'code',
+});
+
+// Only the master's courses: the undergraduate curricula are not shown here.
+const PROGRAM_COURSES_QUERY = new URLSearchParams({
+  fields:
+    'program.code,course.name,course.degree_cycle,kind,semester,group,group_name,credits,code',
+  'filter[course][degree_cycle][_eq]': MASTER_CYCLE,
+  limit: '-1',
+  sort: 'id',
+});
+
+const fetchItems = async (
+  collection: string,
+  query: URLSearchParams,
+): Promise<unknown> => {
+  const response = await fetch(`${ITEMS_URL}/${collection}?${String(query)}`);
   if (!response.ok)
-    throw new Error(`Failed to fetch ${file}: ${response.statusText}`);
+    throw new Error(`Failed to fetch ${collection}: ${response.statusText}`);
   return response.json();
 };
 
 const fetchMasterData = async (): Promise<MasterData> => {
   const [programs, programCourses] = await Promise.all([
-    fetchJson('degree_programs.json'),
-    fetchJson('degree_program_courses.json'),
+    fetchItems('degree_programs', PROGRAMS_QUERY),
+    fetchItems('degree_program_courses', PROGRAM_COURSES_QUERY),
   ]);
   return {
     programCourses: programCoursesSchema.parse(programCourses),

@@ -1,1 +1,200 @@
-[{"code":"DS23_1","cycle":"second","ects":60,"title":null,"title_en":"Master of Science in Data science in computer science and engineering"},{"code":"ID","cycle":"third","ects":null,"title":"Доктор по природно-математички науки, специјалност информатика","title_en":"PhD in natural sciences, specialty in informatics"},{"code":"IE23","cycle":"first","ects":240,"title":"Дипломиран инженер по информатички науки и компјутерско инженерство, насока Информатичка едукација","title_en":"Bachelor of Science in Information education"},{"code":"IMB18","cycle":"first","ects":240,"title":null,"title_en":null},{"code":"IMB23","cycle":"first","ects":240,"title":"Дипломиран инженер по информатички науки и компјутерско инженерство, насока интернет,мрежи и безбедност","title_en":"Bachelor of Science in Internet, networks and security"},{"code":"IMB23_3","cycle":"first","ects":180,"title":"Дипломиран инженер по информатички технологии и компјутерско инженерство, насока интернет,мрежи и безбедност","title_en":"Bachelor of Science in Internet, networks and security"},{"code":"KE18","cycle":"first","ects":240,"title":null,"title_en":null},{"code":"KI18","cycle":"first","ects":240,"title":null,"title_en":null},{"code":"KI23","cycle":"first","ects":240,"title":"Дипломиран инженер по информатички науки и компјутерско инженерство, насока компјутерско инженерство","title_en":"Bachelor of Science in Computer Engineering"},{"code":"KI23_3","cycle":"first","ects":180,"title":"Дипломиран инженер по информатички технологии и компјутерско инженерство, насока компјутерско инженерство","title_en":"Bachelor of Science in Computer Engineering"},{"code":"KN18","cycle":"first","ects":240,"title":null,"title_en":null},{"code":"KN23","cycle":"first","ects":240,"title":"Дипломиран инженер по информатички науки и компјутерско инженерство, насока Компјутерски науки","title_en":"Bachelor of Science in Computer Science"},{"code":"KN23_3","cycle":"first","ects":180,"title":"Дипломиран инженер по информатички технологии и компјутерско инженерство, насока Компјутерски науки","title_en":"Bachelor of Science in Computer Science"},{"code":"KNID","cycle":"third","ects":null,"title":"Доктор по техничко-технолошки науки, специјалност компјутерски науки и инженерство","title_en":"PhD in technical sciences in the field of computer science and engineering"},{"code":"PET18","cycle":"first","ects":240,"title":null,"title_en":null},{"code":"PIT18","cycle":"first","ects":240,"title":null,"title_en":null},{"code":"PIT23","cycle":"first","ects":240,"title":"Дипломиран инженер по информатички науки и компјутерско инженерство, насока Примена на информациски технологии","title_en":"Bachelor of Science in Software Engineering and Information Technologies"},{"code":"PIT23_3","cycle":"first","ects":180,"title":"Дипломиран инженер по информатички технологии и компјутерско инженерство, насока Примена на информациски технологии","title_en":"Bachelor of Science in Software Engineering and Information Technologies"},{"code":"SEIS18","cycle":"first","ects":240,"title":null,"title_en":"Bachelor of Science in Software Engineering and Information Technologies"},{"code":"SEIS23","cycle":"first","ects":240,"title":null,"title_en":"Bachelor of Science in Software Engineering and Information Technologies"},{"code":"SEIS23_3","cycle":"first","ects":180,"title":null,"title_en":"Bachelor of Science in Software Engineering and Information Technologies"},{"code":"SI23_1","cycle":"second","ects":60,"title":"Магистер по Софтверско инженерство","title_en":"Master of Science in Software Engineering"},{"code":"SI23_2","cycle":"second","ects":120,"title":"Магистер по Софтверско инженерство","title_en":"Master of Science in Software Engineering"},{"code":"SIIS18","cycle":"first","ects":240,"title":null,"title_en":null},{"code":"SIIS23","cycle":"first","ects":240,"title":"Дипломиран инженер по информатички науки и компјутерско инженерство, насока софтверско инженерство и информациски системи","title_en":"Bachelor of Science in Software Engineering and Information Technologies"},{"code":"SIIS23_3","cycle":"first","ects":180,"title":"Дипломиран инженер по информатички технологии и компјутерско инженерство, насока софтверско инженерство и информациски системи","title_en":"Bachelor of Science in Software Engineering and Information Technologies"},{"code":"SSP23","cycle":"first","ects":120,"title":"Виш стручен програмер","title_en":"Bachelor of Applied Science in programming"},{"code":"SSP23_3","cycle":"first","ects":180,"title":"Висок стручен програмер","title_en":"Bachelor of Applied Science in programming"}]
+{
+  "data": [
+    {
+      "code": "DS23_1",
+      "cycle": "second",
+      "ects": 60,
+      "title": null,
+      "title_en": "Master of Science in Data science in computer science and engineering"
+    },
+    {
+      "code": "ID",
+      "cycle": "third",
+      "ects": null,
+      "title": "Доктор по природно-математички науки, специјалност информатика",
+      "title_en": "PhD in natural sciences, specialty in informatics"
+    },
+    {
+      "code": "IE23",
+      "cycle": "first",
+      "ects": 240,
+      "title": "Дипломиран инженер по информатички науки и компјутерско инженерство, насока Информатичка едукација",
+      "title_en": "Bachelor of Science in Information education"
+    },
+    {
+      "code": "IMB18",
+      "cycle": "first",
+      "ects": 240,
+      "title": null,
+      "title_en": null
+    },
+    {
+      "code": "IMB23",
+      "cycle": "first",
+      "ects": 240,
+      "title": "Дипломиран инженер по информатички науки и компјутерско инженерство, насока интернет,мрежи и безбедност",
+      "title_en": "Bachelor of Science in Internet, networks and security"
+    },
+    {
+      "code": "IMB23_3",
+      "cycle": "first",
+      "ects": 180,
+      "title": "Дипломиран инженер по информатички технологии и компјутерско инженерство, насока интернет,мрежи и безбедност",
+      "title_en": "Bachelor of Science in Internet, networks and security"
+    },
+    {
+      "code": "KE18",
+      "cycle": "first",
+      "ects": 240,
+      "title": null,
+      "title_en": null
+    },
+    {
+      "code": "KI18",
+      "cycle": "first",
+      "ects": 240,
+      "title": null,
+      "title_en": null
+    },
+    {
+      "code": "KI23",
+      "cycle": "first",
+      "ects": 240,
+      "title": "Дипломиран инженер по информатички науки и компјутерско инженерство, насока компјутерско инженерство",
+      "title_en": "Bachelor of Science in Computer Engineering"
+    },
+    {
+      "code": "KI23_3",
+      "cycle": "first",
+      "ects": 180,
+      "title": "Дипломиран инженер по информатички технологии и компјутерско инженерство, насока компјутерско инженерство",
+      "title_en": "Bachelor of Science in Computer Engineering"
+    },
+    {
+      "code": "KN18",
+      "cycle": "first",
+      "ects": 240,
+      "title": null,
+      "title_en": null
+    },
+    {
+      "code": "KN23",
+      "cycle": "first",
+      "ects": 240,
+      "title": "Дипломиран инженер по информатички науки и компјутерско инженерство, насока Компјутерски науки",
+      "title_en": "Bachelor of Science in Computer Science"
+    },
+    {
+      "code": "KN23_3",
+      "cycle": "first",
+      "ects": 180,
+      "title": "Дипломиран инженер по информатички технологии и компјутерско инженерство, насока Компјутерски науки",
+      "title_en": "Bachelor of Science in Computer Science"
+    },
+    {
+      "code": "KNID",
+      "cycle": "third",
+      "ects": null,
+      "title": "Доктор по техничко-технолошки науки, специјалност компјутерски науки и инженерство",
+      "title_en": "PhD in technical sciences in the field of computer science and engineering"
+    },
+    {
+      "code": "PET18",
+      "cycle": "first",
+      "ects": 240,
+      "title": null,
+      "title_en": null
+    },
+    {
+      "code": "PIT18",
+      "cycle": "first",
+      "ects": 240,
+      "title": null,
+      "title_en": null
+    },
+    {
+      "code": "PIT23",
+      "cycle": "first",
+      "ects": 240,
+      "title": "Дипломиран инженер по информатички науки и компјутерско инженерство, насока Примена на информациски технологии",
+      "title_en": "Bachelor of Science in Software Engineering and Information Technologies"
+    },
+    {
+      "code": "PIT23_3",
+      "cycle": "first",
+      "ects": 180,
+      "title": "Дипломиран инженер по информатички технологии и компјутерско инженерство, насока Примена на информациски технологии",
+      "title_en": "Bachelor of Science in Software Engineering and Information Technologies"
+    },
+    {
+      "code": "SEIS18",
+      "cycle": "first",
+      "ects": 240,
+      "title": null,
+      "title_en": "Bachelor of Science in Software Engineering and Information Technologies"
+    },
+    {
+      "code": "SEIS23",
+      "cycle": "first",
+      "ects": 240,
+      "title": null,
+      "title_en": "Bachelor of Science in Software Engineering and Information Technologies"
+    },
+    {
+      "code": "SEIS23_3",
+      "cycle": "first",
+      "ects": 180,
+      "title": null,
+      "title_en": "Bachelor of Science in Software Engineering and Information Technologies"
+    },
+    {
+      "code": "SI23_1",
+      "cycle": "second",
+      "ects": 60,
+      "title": "Магистер по Софтверско инженерство",
+      "title_en": "Master of Science in Software Engineering"
+    },
+    {
+      "code": "SI23_2",
+      "cycle": "second",
+      "ects": 120,
+      "title": "Магистер по Софтверско инженерство",
+      "title_en": "Master of Science in Software Engineering"
+    },
+    {
+      "code": "SIIS18",
+      "cycle": "first",
+      "ects": 240,
+      "title": null,
+      "title_en": null
+    },
+    {
+      "code": "SIIS23",
+      "cycle": "first",
+      "ects": 240,
+      "title": "Дипломиран инженер по информатички науки и компјутерско инженерство, насока софтверско инженерство и информациски системи",
+      "title_en": "Bachelor of Science in Software Engineering and Information Technologies"
+    },
+    {
+      "code": "SIIS23_3",
+      "cycle": "first",
+      "ects": 180,
+      "title": "Дипломиран инженер по информатички технологии и компјутерско инженерство, насока софтверско инженерство и информациски системи",
+      "title_en": "Bachelor of Science in Software Engineering and Information Technologies"
+    },
+    {
+      "code": "SSP23",
+      "cycle": "first",
+      "ects": 120,
+      "title": "Виш стручен програмер",
+      "title_en": "Bachelor of Applied Science in programming"
+    },
+    {
+      "code": "SSP23_3",
+      "cycle": "first",
+      "ects": 180,
+      "title": "Висок стручен програмер",
+      "title_en": "Bachelor of Applied Science in programming"
+    }
+  ]
+}

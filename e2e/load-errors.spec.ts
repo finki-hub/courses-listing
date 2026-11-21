@@ -1,12 +1,13 @@
 import { type BrowserContext, expect, test } from '@playwright/test';
 import { join } from 'node:path';
 
-const DATA_HOST = 'https://data.finki-hub.com/legacy/';
+const DATA_HOST = 'https://data.finki-hub.com/';
 const FIXTURES = join(import.meta.dirname, 'fixtures');
 
 const prepare = async (context: BrowserContext, failing: string) => {
   await context.route(`${DATA_HOST}**`, async (route) => {
-    const file = new URL(route.request().url()).pathname.split('/').pop() ?? '';
+    const name = new URL(route.request().url()).pathname.split('/').pop() ?? '';
+    const file = name.endsWith('.json') ? name : `${name}.json`;
     if (file === failing) {
       await route.abort('failed');
       return;
