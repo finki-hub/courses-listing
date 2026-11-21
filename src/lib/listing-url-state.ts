@@ -201,11 +201,11 @@ export const parseListingUrlState = (
     cycle,
   );
   const requestedSort = params.get(SORT_PARAM);
+  const knownSortColumns: readonly string[] = options.sortColumns;
   // An unknown sort column falls back to the default; its direction should
   // fall back with it instead of leaving e.g. a descending name sort.
   const sortIsKnown =
-    requestedSort !== null &&
-    options.sortColumns.some((column) => column === requestedSort);
+    requestedSort !== null && knownSortColumns.includes(requestedSort);
   return {
     accreditation: parseAccreditation(params.get(ACCREDITATION_PARAM)),
     channelOnly: params.get(CHANNEL_PARAM) === FLAG_VALUE,
