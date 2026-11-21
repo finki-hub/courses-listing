@@ -574,7 +574,7 @@ export const CourseTable = (props: CourseTableProps) => {
         masters={masters}
         onOpenChange={courseDialog.setOpen}
         onOpenCourse={courseDialog.openCourse}
-        onShowPrerequisites={navigation?.showPrerequisites}
+        onShowPrerequisites={navigation.showPrerequisites}
         open={courseDialog.open()}
       />
     </div>

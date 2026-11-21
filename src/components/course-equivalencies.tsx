@@ -186,7 +186,7 @@ export const CourseEquivalencies = (props: CourseEquivalenciesProps) => {
         courses={props.courses}
         onOpenChange={courseDialog.setOpen}
         onOpenCourse={courseDialog.openCourse}
-        onShowPrerequisites={navigation?.showPrerequisites}
+        onShowPrerequisites={navigation.showPrerequisites}
         open={courseDialog.open()}
       />
     </section>

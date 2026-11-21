@@ -82,4 +82,16 @@ test.describe('course listing', () => {
     ).toBeVisible();
     await expect(page.locator('html')).toHaveAttribute('lang', 'mk');
   });
+
+  test('the responsive layout keeps tracking after a tab switch', async ({
+    page,
+  }) => {
+    await page.setViewportSize({ height: 800, width: 1_280 });
+    await page.goto('/');
+    await expect(page.getByRole('button', { name: 'Filters' })).toHaveCount(0);
+    await page.getByRole('button', { name: 'Simulator' }).click();
+    await page.getByRole('button', { name: 'Courses' }).click();
+    await page.setViewportSize({ height: 800, width: 500 });
+    await expect(page.getByRole('button', { name: 'Filters' })).toBeVisible();
+  });
 });

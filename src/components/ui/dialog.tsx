@@ -38,7 +38,7 @@ export const DialogContent = <T extends ValidComponent = 'div'>(
         {...rest}
       >
         {merged.children}
-        <Show when={merged.showCloseButton}>
+        <Show when={merged.showCloseButton ?? true}>
           <DialogPrimitive.CloseButton
             aria-label={t().common.close}
             class="focus-visible:ring-ring absolute top-4 right-4 rounded-xs opacity-70 transition-[opacity,box-shadow] duration-200 hover:opacity-100 focus-visible:ring-2 focus-visible:outline-none [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4"

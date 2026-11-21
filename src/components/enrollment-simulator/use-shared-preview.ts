@@ -63,7 +63,7 @@ export const useSharedPreview = (params: SharedPreviewParams) => {
   const [previewing, setPreviewing] = createSignal(
     shared !== undefined && wouldReplaceSaved(untrack(params.courses), shared),
   );
-  if (shared && !previewing()) finishSharedLink();
+  if (shared && !untrack(previewing)) finishSharedLink();
 
   // Keeps the shared state as the student's own; saving resumes with it.
   const keep = () => {

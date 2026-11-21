@@ -43,8 +43,8 @@ const Icon: Component<IconProps & { children: JSX.Element; name: string }> = (
   const height = () => props.height ?? props.size ?? DEFAULT_SIZE;
   const strokeWidth = () =>
     props.absoluteStrokeWidth
-      ? (Number(props.strokeWidth ?? DEFAULT_STROKE_WIDTH) * Number(width())) /
-        DEFAULT_SIZE
+      ? (Number(props.strokeWidth ?? DEFAULT_STROKE_WIDTH) * DEFAULT_SIZE) /
+        Number(width())
       : (props.strokeWidth ?? DEFAULT_STROKE_WIDTH);
 
   return (
@@ -476,7 +476,7 @@ export const Sun = (props: IconProps) => (
 
 export const TriangleAlert = (props: IconProps) => (
   <Icon
-    name="triangle-exclamation-point"
+    name="triangle-alert"
     {...props}
   >
     <path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3" />

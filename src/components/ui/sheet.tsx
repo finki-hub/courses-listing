@@ -29,6 +29,8 @@ const PANEL_SIDES = {
 
 // Only the panel opened last answers Escape, as Kobalte's layer stack would.
 const openSheets: symbol[] = [];
+const NESTED_LAYER_SELECTOR =
+  '[role="dialog"]:not([data-sheet-content]), [role="listbox"], [role="menu"]';
 
 // A panel over the page: a side panel on desktop and a bottom sheet on
 // mobile, with a title, a close button, a scrolling body and a footer.
@@ -46,7 +48,10 @@ export const Sheet = (props: SheetProps) => {
     if (
       event.defaultPrevented ||
       event.key !== 'Escape' ||
-      openSheets.at(-1) !== sheet
+      openSheets.at(-1) !== sheet ||
+      // A nested popover, select or menu closes first; only the sheet closes
+      // once nothing else is open above it.
+      document.querySelector(NESTED_LAYER_SELECTOR)
     )
       return;
     props.onOpenChange(false);
@@ -87,6 +92,7 @@ export const Sheet = (props: SheetProps) => {
             PANEL_SIDES[props.side ?? 'right'],
             props.class,
           )}
+          data-sheet-content
           onCloseAutoFocus={(event) => {
             if (!opener?.isConnected) return;
             event.preventDefault();
