@@ -1,9 +1,10 @@
-import { type ComponentProps, splitProps } from 'solid-js';
+import { type ComponentProps } from '@solidjs/web';
+import { omit } from 'solid-js';
 
 import { cn } from '@/lib/utils';
 
 export const Table = (props: ComponentProps<'table'>) => {
-  const [, rest] = splitProps(props, ['class']);
+  const rest = omit(props, 'class');
 
   return (
     <div class="relative w-full overflow-x-auto">
@@ -16,7 +17,7 @@ export const Table = (props: ComponentProps<'table'>) => {
 };
 
 export const TableHeader = (props: ComponentProps<'thead'>) => {
-  const [, rest] = splitProps(props, ['class']);
+  const rest = omit(props, 'class');
 
   return (
     <thead
@@ -27,7 +28,7 @@ export const TableHeader = (props: ComponentProps<'thead'>) => {
 };
 
 export const TableBody = (props: ComponentProps<'tbody'>) => {
-  const [, rest] = splitProps(props, ['class']);
+  const rest = omit(props, 'class');
 
   return (
     <tbody
@@ -38,7 +39,7 @@ export const TableBody = (props: ComponentProps<'tbody'>) => {
 };
 
 export const TableRow = (props: ComponentProps<'tr'>) => {
-  const [, rest] = splitProps(props, ['class']);
+  const rest = omit(props, 'class');
 
   return (
     <tr
@@ -49,7 +50,7 @@ export const TableRow = (props: ComponentProps<'tr'>) => {
 };
 
 export const TableHead = (props: ComponentProps<'th'>) => {
-  const [, rest] = splitProps(props, ['class']);
+  const rest = omit(props, 'class');
 
   return (
     <th
@@ -63,7 +64,7 @@ export const TableHead = (props: ComponentProps<'th'>) => {
 };
 
 export const TableCell = (props: ComponentProps<'td'>) => {
-  const [, rest] = splitProps(props, ['class']);
+  const rest = omit(props, 'class');
 
   return (
     <td

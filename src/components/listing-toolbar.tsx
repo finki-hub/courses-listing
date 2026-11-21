@@ -1,12 +1,12 @@
-import {
-  ArrowDownWideNarrow,
-  ArrowUpNarrowWide,
-  SlidersHorizontal,
-} from 'lucide-solid';
 import { Show } from 'solid-js';
 
 import { stackedLabel } from '@/components/listing-filter-panel';
 import { IconButton } from '@/components/ui/icon-controls';
+import {
+  ArrowDownWideNarrow,
+  ArrowUpNarrowWide,
+  SlidersHorizontal,
+} from '@/components/ui/icons';
 import { SearchInput } from '@/components/ui/search-input';
 import { SegmentedControl } from '@/components/ui/segmented-control';
 import { Select } from '@/components/ui/select';
@@ -75,7 +75,7 @@ export const ListingToolbar = (props: ListingToolbarProps) => {
         <div class="min-w-0 flex-1">
           <SearchInput
             aria-label={t().common.searchCourses}
-            onInput={(event) => {
+            onInput={(event: Event & { currentTarget: HTMLInputElement }) => {
               props.onSearch(event.currentTarget.value);
             }}
             placeholder={t().listing.searchPlaceholder}

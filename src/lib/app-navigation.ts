@@ -9,6 +9,6 @@ export type AppNavigation = {
 
 export const AppNavigationContext = createContext<AppNavigation>();
 
-// Moving between tabs from inside one; undefined outside the app shell.
-export const useAppNavigation = (): AppNavigation | undefined =>
+// Moving between tabs from inside one. Throws outside the app shell.
+export const useAppNavigation = (): AppNavigation =>
   useContext(AppNavigationContext);

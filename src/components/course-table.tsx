@@ -193,17 +193,20 @@ const useDropUnknownProgram = (
   masters: MasterListing,
   master: () => boolean,
 ) => {
-  createEffect(() => {
-    const program = listing.filters().program;
-    if (
-      program !== null &&
-      master() &&
-      masters.loaded() &&
-      !masters.programCodes().includes(program)
-    ) {
-      listing.updateFilters({ program: null, programState: null });
-    }
-  });
+  createEffect(
+    () =>
+      [
+        listing.filters().program,
+        master(),
+        masters.loaded(),
+        masters.programCodes(),
+      ] as const,
+    ([program, isMaster, loaded, codes]) => {
+      if (program !== null && isMaster && loaded && !codes.includes(program)) {
+        listing.updateFilters({ program: null, programState: null });
+      }
+    },
+  );
 };
 
 // Whether the master's programs are still loading or failed to.
@@ -571,7 +574,7 @@ export const CourseTable = (props: CourseTableProps) => {
         masters={masters}
         onOpenChange={courseDialog.setOpen}
         onOpenCourse={courseDialog.openCourse}
-        onShowPrerequisites={navigation?.showPrerequisites}
+        onShowPrerequisites={navigation.showPrerequisites}
         open={courseDialog.open()}
       />
     </div>

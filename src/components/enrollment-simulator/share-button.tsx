@@ -1,6 +1,11 @@
-import { Check, Link2, LoaderCircle, TriangleAlert } from 'lucide-solid';
 import { createSignal, Match, onCleanup, Switch } from 'solid-js';
 
+import {
+  Check,
+  Link2,
+  LoaderCircle,
+  TriangleAlert,
+} from '@/components/ui/icons';
 import { type Translations } from '@/lib/i18n';
 import { useLanguage } from '@/lib/LanguageProvider';
 import { cn } from '@/lib/utils';

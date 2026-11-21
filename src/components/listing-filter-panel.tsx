@@ -1,18 +1,12 @@
-import { ChevronDown } from 'lucide-solid';
-import {
-  createSignal,
-  createUniqueId,
-  For,
-  type JSX,
-  Show,
-  untrack,
-} from 'solid-js';
+import { type JSX } from '@solidjs/web';
+import { createSignal, createUniqueId, For, Show, untrack } from 'solid-js';
 
 import { AccreditationSwitch } from '@/components/accreditation-switch';
 import { CourseLevelFilter } from '@/components/course-level-filter';
 import { ShareSavedButton } from '@/components/saved-courses-ui';
 import { TagChips } from '@/components/tag-chips';
 import { FIELD_CLASS } from '@/components/ui/field';
+import { ChevronDown } from '@/components/ui/icons';
 import { InfoTip } from '@/components/ui/info-tip';
 import { LabeledCheckbox } from '@/components/ui/labeled-checkbox';
 import { SegmentedControl } from '@/components/ui/segmented-control';
@@ -99,7 +93,7 @@ const FilterSection = (props: FilterSectionProps) => {
       <h3>
         <button
           aria-controls={bodyId}
-          aria-expanded={open()}
+          aria-expanded={open() ? 'true' : 'false'}
           class="focus-visible:ring-ring flex w-full items-center justify-between gap-2 rounded-md py-1 text-left text-sm font-semibold focus-visible:ring-2 focus-visible:outline-none"
           onClick={() => {
             const next = !open();
@@ -391,18 +385,21 @@ const StatusSection = (props: SectionProps) => {
       title={t().filters.sections.status}
     >
       <ul class="space-y-2">
-        <For each={flags()}>
+        <For
+          each={flags()}
+          keyed={(flag) => flag.key}
+        >
           {(flag) => (
             <li class="flex items-center gap-1">
               <LabeledCheckbox
-                checked={props.filters[flag.key]}
+                checked={props.filters[flag().key]}
                 onChange={() => {
-                  props.onUpdate({ [flag.key]: !props.filters[flag.key] });
+                  props.onUpdate({ [flag().key]: !props.filters[flag().key] });
                 }}
               >
-                {flag.label}
+                {flag().label}
               </LabeledCheckbox>
-              <Show when={flag.info}>
+              <Show when={flag().info}>
                 {(info) => <InfoTip text={info()} />}
               </Show>
             </li>

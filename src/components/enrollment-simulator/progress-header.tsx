@@ -1,6 +1,7 @@
-import { ChevronDown, RotateCcw } from 'lucide-solid';
-import { createSignal, createUniqueId, For, type JSX } from 'solid-js';
+import { type JSX } from '@solidjs/web';
+import { createSignal, createUniqueId, For } from 'solid-js';
 
+import { ChevronDown, RotateCcw } from '@/components/ui/icons';
 import { interpolate } from '@/lib/i18n';
 import { useLanguage } from '@/lib/LanguageProvider';
 import {
@@ -8,7 +9,7 @@ import {
   GRADUATION_CREDITS_4YR,
 } from '@/lib/simulator';
 import { type SimulatorProgress } from '@/lib/simulator-setup';
-import { trackHeight } from '@/lib/track-height';
+import { createHeightTracker } from '@/lib/track-height';
 import { cn } from '@/lib/utils';
 
 import { SIMULATOR_ACTION_CLASS } from './course-styles';
@@ -29,6 +30,7 @@ type ProgressHeaderProps = {
 // On phones the counts and limits fold behind "Details".
 export const ProgressHeader = (props: ProgressHeaderProps) => {
   const { t } = useLanguage();
+  const trackProgressHeight = createHeightTracker('--sticky-progress-h');
   const [expanded, setExpanded] = createSignal(false);
   const detailsId = createUniqueId();
 
@@ -43,9 +45,7 @@ export const ProgressHeader = (props: ProgressHeaderProps) => {
     <section
       aria-label={t().simulator.progress.label}
       class="bg-card sticky top-[calc(var(--tabbar-h,0px)+4px)] z-30 space-y-3 rounded-xl border p-3 shadow-md sm:px-4"
-      ref={(element) => {
-        trackHeight(element, '--sticky-progress-h');
-      }}
+      ref={trackProgressHeight}
     >
       <div class="flex flex-wrap items-center gap-x-4 gap-y-3">
         <div class="min-w-0 flex-1 lg:max-w-sm lg:flex-none">
@@ -112,7 +112,7 @@ export const ProgressHeader = (props: ProgressHeaderProps) => {
           </div>
           <button
             aria-controls={detailsId}
-            aria-expanded={expanded()}
+            aria-expanded={expanded() ? 'true' : 'false'}
             class="text-muted-foreground hover:text-foreground hover:bg-muted focus-visible:ring-ring inline-flex min-h-9 shrink-0 items-center gap-1 rounded-md px-2 text-xs font-medium transition-colors focus-visible:ring-2 focus-visible:outline-none sm:hidden"
             onClick={() => setExpanded((value) => !value)}
             type="button"

@@ -1,9 +1,10 @@
-import { SlidersHorizontal } from 'lucide-solid';
-import { createSignal, type JSX, Show } from 'solid-js';
+import { type JSX } from '@solidjs/web';
+import { createSignal, Show } from 'solid-js';
 
 import { CourseLevelFilter } from '@/components/course-level-filter';
 import { FilterGroup } from '@/components/filter-group';
 import { TagChips } from '@/components/tag-chips';
+import { SlidersHorizontal } from '@/components/ui/icons';
 import { LabeledCheckbox } from '@/components/ui/labeled-checkbox';
 import { SearchInput } from '@/components/ui/search-input';
 import { SegmentedControl } from '@/components/ui/segmented-control';
@@ -134,7 +135,7 @@ export const SimulatorFilters = (props: SimulatorFiltersProps) => {
         <div class="min-w-0 flex-1 sm:min-w-64">
           <SearchInput
             aria-label={t().simulator.search}
-            onInput={(event) => {
+            onInput={(event: Event & { currentTarget: HTMLInputElement }) => {
               props.onSearch(event.currentTarget.value);
             }}
             placeholder={t().prerequisites.searchPlaceholder}

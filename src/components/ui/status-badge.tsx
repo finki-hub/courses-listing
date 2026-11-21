@@ -1,4 +1,5 @@
-import { type JSX, splitProps } from 'solid-js';
+import { type JSX } from '@solidjs/web';
+import { omit } from 'solid-js';
 
 import { cn } from '@/lib/utils';
 
@@ -35,16 +36,16 @@ type StatusBadgeProps = JSX.HTMLAttributes<HTMLSpanElement> & {
 
 // A short status label (required, elective, passed...) in its semantic color.
 export const StatusBadge = (props: StatusBadgeProps) => {
-  const [local, rest] = splitProps(props, ['class', 'size', 'tone']);
+  const rest = omit(props, 'class', 'size', 'tone');
   return (
     <span
       class={cn(
         'inline-flex shrink-0 items-center gap-1 rounded-full border font-medium whitespace-nowrap',
-        local.size === 'md'
+        props.size === 'md'
           ? 'px-2.5 py-0.5 text-xs'
           : 'px-2 py-px text-[11px] leading-4',
-        STATUS_TONE_CLASSES[local.tone],
-        local.class,
+        STATUS_TONE_CLASSES[props.tone],
+        props.class,
       )}
       {...rest}
     />

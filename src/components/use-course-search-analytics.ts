@@ -1,4 +1,4 @@
-import { createEffect, createMemo, onCleanup, untrack } from 'solid-js';
+import { createEffect, createMemo, untrack } from 'solid-js';
 
 import type { SortColumn, SortDirection } from '@/lib/course-filters';
 import type {
@@ -38,46 +38,48 @@ export const useCourseSearchAnalytics = (
   let attempt: undefined | { id: string; state: string };
   let settled: undefined | { id: string; query: string; state: string };
 
-  createEffect(() => {
-    const currentState = state();
-    const { query, resultCount } = untrack(getContext);
-    attempt = undefined;
-    if (query === '') {
-      settled = undefined;
-      return;
-    }
-
-    const timer = setTimeout(() => {
-      // A canceled edit returning to the settled state is not another attempt.
-      // Its clicks remain unlinked until this debounce has finished.
-      if (settled?.state === currentState) {
-        attempt = settled;
-        return;
-      }
-      // Refinement also includes result-count updates, not only user actions.
-      const event =
-        settled?.query === query
-          ? 'catalog_refinement'
-          : 'catalog_query_intent';
-      const id = crypto.randomUUID();
-      attempt = { id, state: currentState };
-      settled = { ...attempt, query };
-      // eslint-disable-next-line camelcase -- PostHog event props are snake_case
-      const linkage = { search_attempt_id: id };
-      capture(event, {
-        ...linkage,
-        // eslint-disable-next-line camelcase -- PostHog event props are snake_case
-        result_count: resultCount,
-      });
-      if (resultCount === 0) {
-        capture('search_zero_results', linkage);
-      }
-    }, 500);
-    onCleanup(() => {
-      clearTimeout(timer);
+  createEffect(
+    () => state(),
+    (currentState) => {
+      const { query, resultCount } = untrack(getContext);
       attempt = undefined;
-    });
-  });
+      let timer: ReturnType<typeof setTimeout> | undefined;
+      if (query === '') {
+        settled = undefined;
+      } else {
+        timer = setTimeout(() => {
+          // A canceled edit returning to the settled state is not another attempt.
+          // Its clicks remain unlinked until this debounce has finished.
+          if (settled?.state === currentState) {
+            attempt = settled;
+            return;
+          }
+          // Refinement also includes result-count updates, not only user actions.
+          const event =
+            settled?.query === query
+              ? 'catalog_refinement'
+              : 'catalog_query_intent';
+          const id = crypto.randomUUID();
+          attempt = { id, state: currentState };
+          settled = { ...attempt, query };
+          // eslint-disable-next-line camelcase -- PostHog event props are snake_case
+          const linkage = { search_attempt_id: id };
+          capture(event, {
+            ...linkage,
+            // eslint-disable-next-line camelcase -- PostHog event props are snake_case
+            result_count: resultCount,
+          });
+          if (resultCount === 0) {
+            capture('search_zero_results', linkage);
+          }
+        }, 500);
+      }
+      return () => {
+        if (timer !== undefined) clearTimeout(timer);
+        attempt = undefined;
+      };
+    },
+  );
 
   // A click during debounce is deliberately unlinked, never linked to history.
   return () =>

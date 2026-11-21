@@ -1,8 +1,7 @@
-import type { JSX } from 'solid-js';
-
-import { Search } from 'lucide-solid';
+import type { JSX } from '@solidjs/web';
 
 import { FIELD_CLASS } from '@/components/ui/field';
+import { Search } from '@/components/ui/icons';
 import { cn } from '@/lib/utils';
 
 type SearchInputProps = Omit<

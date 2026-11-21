@@ -1,7 +1,7 @@
-import { ArrowDown, ArrowUp, Minus } from 'lucide-solid';
 import { For, Show } from 'solid-js';
 
 import { Badge } from '@/components/ui/badge';
+import { ArrowDown, ArrowUp, Minus } from '@/components/ui/icons';
 import {
   Table,
   TableBody,

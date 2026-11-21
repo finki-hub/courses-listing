@@ -5,6 +5,7 @@ import { prepareContext, test } from './fixtures';
 const ALGORITHMS_ROW = /^Algorithms and data structures/u;
 const SIX_CREDITS = /^6 credits/u;
 const SETTINGS_BUTTON = /^Change the program/u;
+const HPC_INFO = /Tick this if you passed the HPC course/u;
 const FILLED = /^Planned \d+ required courses\./u;
 const THREE_YEAR = /3-year degree is complete in:/u;
 
@@ -131,5 +132,30 @@ test.describe('simulator', () => {
 
     await page.getByRole('button', { name: 'Undo' }).click();
     await expect(empty).toBeVisible();
+  });
+
+  test('Escape closes an info tip before the settings sheet', async ({
+    page,
+  }) => {
+    await page.goto('/?page=simulator');
+    await page
+      .getByRole('combobox', { name: 'Study program' })
+      .selectOption({ index: 1 });
+    await page.getByRole('button', { name: 'Start' }).click();
+    await page.getByRole('button', { name: SETTINGS_BUTTON }).click();
+
+    const sheet = page.getByRole('dialog', { name: 'Your studies' });
+    await expect(sheet).toBeVisible();
+    await sheet
+      .getByRole('button', { name: 'More information' })
+      .first()
+      .click();
+    const tip = page.getByText(HPC_INFO);
+    await expect(tip).toBeVisible();
+    await page.keyboard.press('Escape');
+    await expect(tip).toBeHidden();
+    await expect(sheet).toBeVisible();
+    await page.keyboard.press('Escape');
+    await expect(sheet).toBeHidden();
   });
 });

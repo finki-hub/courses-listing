@@ -1,4 +1,4 @@
-import { createEffect, createSignal, on, onCleanup } from 'solid-js';
+import { createEffect, createSignal } from 'solid-js';
 
 import { getListingPrograms } from '@/lib/course-facts';
 import {
@@ -72,29 +72,29 @@ export const useListingState = () => {
   // Typing updates the URL once it pauses, not on every keystroke.
   const [urlQuery, setUrlQuery] = createSignal(initialFilters.query);
   createEffect(
-    on(
-      search,
-      (query) => {
-        const timer = setTimeout(setUrlQuery, SEARCH_URL_DELAY_MS, query);
-        onCleanup(() => {
-          clearTimeout(timer);
-        });
-      },
-      { defer: true },
-    ),
+    () => search(),
+    (query) => {
+      const timer = setTimeout(setUrlQuery, SEARCH_URL_DELAY_MS, query);
+      return () => {
+        clearTimeout(timer);
+      };
+    },
+    { defer: true },
   );
 
-  createEffect(() => {
-    const state = {
+  createEffect(
+    () => ({
       ...filters(),
       query: urlQuery(),
       sortColumn: sortColumn(),
       sortDirection: sortDirection(),
-    };
-    replaceUrlParams((params) => {
-      writeListingUrlState(params, state, { tags: ALL_TAGS });
-    });
-  });
+    }),
+    (state) => {
+      replaceUrlParams((params) => {
+        writeListingUrlState(params, state, { tags: ALL_TAGS });
+      });
+    },
+  );
 
   const toggleTag = (tag: string) => {
     const current = filters().tags;

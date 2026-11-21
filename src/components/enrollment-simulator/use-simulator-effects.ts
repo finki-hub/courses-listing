@@ -1,4 +1,4 @@
-import { type Accessor, createEffect, on, type Setter } from 'solid-js';
+import { type Accessor, createEffect, type Setter } from 'solid-js';
 
 import { type CourseStatus } from '@/lib/prerequisite';
 import {
@@ -48,19 +48,21 @@ export const useSimulatorEffects = (params: SimulatorEffectsParams): void => {
   } = params;
 
   createEffect(
-    on(statuses, (s) => {
+    () => statuses(),
+    (s) => {
       const normalized = normalizeExclusiveProjectStatuses(s);
       if (normalized !== s) {
         setStatuses(normalized);
       }
-    }),
+    },
   );
 
   createEffect(
-    on([enabledMap, statuses], ([enabled, s]) => {
+    () => [enabledMap(), statuses(), parsedCourses()] as const,
+    ([enabled, s, courses]) => {
       const updates: Record<string, CourseStatus> = {};
       let changed = false;
-      for (const c of parsedCourses()) {
+      for (const c of courses) {
         const st = s[c.name];
         if (!st) continue;
         if (
@@ -76,49 +78,56 @@ export const useSimulatorEffects = (params: SimulatorEffectsParams): void => {
       if (changed) {
         setStatuses((prev) => ({ ...prev, ...updates }));
       }
-    }),
+    },
   );
 
   createEffect(
-    on([statuses, persist], ([s, save]) => {
-      if (save) saveStatuses(accreditation(), s, params.rawCourses());
-    }),
+    () =>
+      [statuses(), persist(), accreditation(), params.rawCourses()] as const,
+    ([s, save, acc, raw]) => {
+      if (save) saveStatuses(acc, s, raw);
+    },
   );
 
   createEffect(
-    on([accreditation, persist], ([acc, save]) => {
+    () => [accreditation(), persist()] as const,
+    ([acc, save]) => {
       if (save) localStorage.setItem(STORAGE_KEY_ACC, acc);
-    }),
+    },
   );
 
   createEffect(
-    on([program, persist], ([p, save]) => {
+    () => [program(), persist()] as const,
+    ([p, save]) => {
       if (save) localStorage.setItem(STORAGE_KEY_PROGRAM, p);
-    }),
+    },
   );
 
   createEffect(
-    on([hpcCompleted, persist], ([value, save]) => {
+    () => [hpcCompleted(), persist()] as const,
+    ([value, save]) => {
       if (save) localStorage.setItem(STORAGE_KEY_HPC, String(value));
-    }),
+    },
   );
 
   createEffect(
-    on([ignorePrerequisites, persist], ([value, save]) => {
+    () => [ignorePrerequisites(), persist()] as const,
+    ([value, save]) => {
       if (save) {
         localStorage.setItem(STORAGE_KEY_IGNORE_PREREQUISITES, String(value));
       }
-    }),
+    },
   );
 
   createEffect(
-    on([uniListCredits, persist], ([credits, save]) => {
+    () => [uniListCredits(), persist()] as const,
+    ([credits, save]) => {
       const normalized = clampUniListCredits(credits);
       if (normalized !== credits) {
         setUniListCredits(normalized);
         return;
       }
       if (save) saveUniListCredits(normalized);
-    }),
+    },
   );
 };

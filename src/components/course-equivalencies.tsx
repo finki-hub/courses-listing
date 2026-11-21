@@ -107,7 +107,7 @@ export const CourseEquivalencies = (props: CourseEquivalenciesProps) => {
           </label>
           <SearchInput
             id="equivalencies-search"
-            onInput={(event) => {
+            onInput={(event: Event & { currentTarget: HTMLInputElement }) => {
               setSearch(event.currentTarget.value);
             }}
             placeholder={t().equivalencies.searchPlaceholder}
@@ -186,7 +186,7 @@ export const CourseEquivalencies = (props: CourseEquivalenciesProps) => {
         courses={props.courses}
         onOpenChange={courseDialog.setOpen}
         onOpenCourse={courseDialog.openCourse}
-        onShowPrerequisites={navigation?.showPrerequisites}
+        onShowPrerequisites={navigation.showPrerequisites}
         open={courseDialog.open()}
       />
     </section>

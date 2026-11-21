@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
-import { createRoot, createSignal } from 'solid-js';
+import { createRoot, createSignal, flush } from 'solid-js';
 
 const events = [];
 const UUID_PATTERN = /^[\da-f-]{36}$/u;
@@ -34,7 +34,11 @@ test('Solid search attempts debounce, invalidate and dispose without stale linka
       sortDirection: 'asc',
       tags: new Set(),
     });
-    change = (patch) => setContext((previous) => ({ ...previous, ...patch }));
+    change = (patch) => {
+      setContext((previous) => ({ ...previous, ...patch }));
+      // Solid 2 stages writes; flush so the effect runs before we tick timers.
+      flush();
+    };
     linkage = useCourseSearchAnalytics(context);
     return cleanup;
   });

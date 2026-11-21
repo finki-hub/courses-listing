@@ -1,14 +1,8 @@
-import { ChevronDown } from 'lucide-solid';
-import {
-  createSignal,
-  createUniqueId,
-  For,
-  type JSX,
-  Show,
-  untrack,
-} from 'solid-js';
+import { type JSX } from '@solidjs/web';
+import { createSignal, createUniqueId, For, Show, untrack } from 'solid-js';
 
 import { EmptyState } from '@/components/ui/empty-state';
+import { ChevronDown } from '@/components/ui/icons';
 import { formatCount, interpolate } from '@/lib/i18n';
 import { useLanguage } from '@/lib/LanguageProvider';
 import {
@@ -121,7 +115,7 @@ const ElectiveGroupBlock = (props: GroupProps) => {
       <h5>
         <button
           aria-controls={bodyId}
-          aria-expanded={open()}
+          aria-expanded={open() ? 'true' : 'false'}
           class="hover:bg-muted/50 focus-visible:ring-ring flex w-full cursor-pointer items-center justify-between gap-3 px-3 py-2.5 text-left text-sm font-medium transition-colors focus-visible:ring-2 focus-visible:outline-none focus-visible:ring-inset"
           onClick={() => {
             setOpen((value) => !value);

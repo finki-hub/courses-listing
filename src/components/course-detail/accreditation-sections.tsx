@@ -1,8 +1,9 @@
-import { ExternalLink } from 'lucide-solid';
-import { createMemo, For, type JSX, Show } from 'solid-js';
+import { type JSX } from '@solidjs/web';
+import { createMemo, For, Show } from 'solid-js';
 
 import { PrerequisiteText } from '@/components/course-detail/prerequisite-text';
 import { ProgramStates } from '@/components/course-detail/program-states';
+import { ExternalLink } from '@/components/ui/icons';
 import { SectionHeader } from '@/components/ui/page-header';
 import { capture } from '@/lib/analytics-client';
 import {

@@ -1,10 +1,8 @@
-import { ArrowLeft, Network } from 'lucide-solid';
 import {
   createEffect,
   createMemo,
   createSignal,
   For,
-  on,
   Show,
   untrack,
 } from 'solid-js';
@@ -19,6 +17,7 @@ import { EnrollmentHistorySection } from '@/components/course-detail/enrollment-
 import { MasterProgramsSection } from '@/components/course-detail/master-programs-section';
 import { RequiredForSection } from '@/components/course-detail/required-for-section';
 import { SaveButton } from '@/components/saved-courses-ui';
+import { ArrowLeft, Network } from '@/components/ui/icons';
 import { Sheet } from '@/components/ui/sheet';
 import { type MasterListing } from '@/components/use-master-listing';
 import { getLatestEnrollmentYears } from '@/lib/course-facts';
@@ -178,42 +177,46 @@ export const CourseDetailDialog = (props: CourseDetailDialogProps) => {
   const nameOf = (value: CourseRaw) =>
     getCourseName(value, props.accreditation, language());
 
-  createEffect(() => {
-    if (props.course) setLastCourse(props.course);
-  });
+  createEffect(
+    () => props.course,
+    (course) => {
+      if (course) setLastCourse(course);
+    },
+  );
 
   // History changes only once the course has actually changed: forward
   // pushes the course left, back pops it, and anything else starts over.
   let lastSeen = untrack(() => props.course);
   createEffect(
-    on(
-      () => props.course,
-      (current) => {
-        const left = lastSeen;
-        lastSeen = current;
-        const { move } = pending;
-        pending.move = undefined;
-        const asked = current !== null && move?.course === current;
-        if (asked && move.kind === 'back') {
-          setHistory((list) => list.slice(0, -1));
-        } else if (asked && left) {
-          setHistory((list) => [...list, left]);
-        } else {
-          setHistory([]);
-        }
-        // The clicked link is gone: start the new course at the top and keep
-        // focus in the panel.
-        body?.scrollTo({ top: 0 });
-        body?.focus({ preventScroll: true });
-      },
-      { defer: true },
-    ),
+    () => props.course,
+    (current) => {
+      const left = lastSeen;
+      lastSeen = current;
+      const { move } = pending;
+      pending.move = undefined;
+      const asked = current !== null && move?.course === current;
+      if (asked && move.kind === 'back') {
+        setHistory((list) => list.slice(0, -1));
+      } else if (asked && left) {
+        setHistory((list) => [...list, left]);
+      } else {
+        setHistory([]);
+      }
+      // The clicked link is gone: start the new course at the top and keep
+      // focus in the panel.
+      body?.scrollTo({ top: 0 });
+      body?.focus({ preventScroll: true });
+    },
+    { defer: true },
   );
-  createEffect(() => {
-    if (props.open) return;
-    pending.move = undefined;
-    setHistory([]);
-  });
+  createEffect(
+    () => props.open,
+    (open) => {
+      if (open) return;
+      pending.move = undefined;
+      setHistory([]);
+    },
+  );
 
   const openFromPanel = (next: CourseRaw) => {
     pending.move = { course: next, kind: 'forward' };

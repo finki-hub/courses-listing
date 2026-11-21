@@ -1,4 +1,5 @@
-import { createUniqueId, type JSX, Show } from 'solid-js';
+import { type JSX } from '@solidjs/web';
+import { createUniqueId, Show } from 'solid-js';
 
 import { InfoTip } from '@/components/ui/info-tip';
 

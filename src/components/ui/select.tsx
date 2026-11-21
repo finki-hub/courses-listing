@@ -1,14 +1,8 @@
-import { ChevronDown } from 'lucide-solid';
-import {
-  type ComponentProps,
-  createEffect,
-  For,
-  on,
-  Show,
-  splitProps,
-} from 'solid-js';
+import { type ComponentProps } from '@solidjs/web';
+import { createEffect, For, omit, Show } from 'solid-js';
 
 import { FIELD_CLASS } from '@/components/ui/field';
+import { ChevronDown } from '@/components/ui/icons';
 import { cn } from '@/lib/utils';
 
 export type SelectOption = { label: string; value: string };
@@ -27,33 +21,35 @@ type SelectProps = Omit<ComponentProps<'select'>, 'onChange' | 'value'> & {
 // missing from the options gets an option of its own instead of silently
 // showing the first one.
 export const Select = (props: SelectProps) => {
-  const [local, rest] = splitProps(props, [
+  const rest = omit(
+    props,
     'class',
     'emptyLabel',
     'onChange',
     'options',
     'value',
-  ]);
-  const current = () => local.value ?? '';
+  );
+  const current = () => props.value ?? '';
   const isUnknown = () =>
     current() !== '' &&
-    local.options.every((option) => option.value !== current());
+    props.options.every((option) => option.value !== current());
 
   let select: HTMLSelectElement | undefined;
   // Rebuilt options can reset the native selection, so reapply the value
   // after every change to it or to the options.
   createEffect(
-    on([current, () => local.options, isUnknown], ([value]) => {
+    () => [current(), props.options, isUnknown()] as const,
+    ([value]) => {
       if (select) select.value = value;
-    }),
+    },
   );
 
   return (
-    <div class={cn('relative w-full', local.class)}>
+    <div class={cn('relative w-full', props.class)}>
       <select
         class={cn(FIELD_CLASS, 'cursor-pointer appearance-none pr-9')}
         onChange={(event) => {
-          local.onChange(event.currentTarget.value);
+          props.onChange(event.currentTarget.value);
         }}
         ref={(element) => {
           select = element;
@@ -61,20 +57,23 @@ export const Select = (props: SelectProps) => {
         value={current()}
         {...rest}
       >
-        <Show when={local.emptyLabel !== undefined || current() === ''}>
+        <Show when={props.emptyLabel !== undefined || current() === ''}>
           <option
-            disabled={local.emptyLabel === undefined}
-            hidden={local.emptyLabel === undefined}
+            disabled={props.emptyLabel === undefined}
+            hidden={props.emptyLabel === undefined}
             value=""
           >
-            {local.emptyLabel ?? ''}
+            {props.emptyLabel ?? ''}
           </option>
         </Show>
         <Show when={isUnknown()}>
           <option value={current()}>{current()}</option>
         </Show>
-        <For each={local.options}>
-          {(option) => <option value={option.value}>{option.label}</option>}
+        <For
+          each={props.options}
+          keyed={(option) => option.value}
+        >
+          {(option) => <option value={option().value}>{option().label}</option>}
         </For>
       </select>
       <ChevronDown

@@ -1,4 +1,4 @@
-import { createResource, createSignal } from 'solid-js';
+import { createEffect, createSignal } from 'solid-js';
 
 import {
   degreeProgramsSchema,
@@ -29,12 +29,34 @@ const fetchMasterData = async (): Promise<MasterData> => {
 // Loaded the first time the master's view is shown, then kept.
 export const useMasterData = () => {
   const [requested, setRequested] = createSignal(false);
-  const [data] = createResource(
-    () => requested() || undefined,
-    fetchMasterData,
+  const [data, setData] = createSignal<MasterData>();
+  const [error, setError] = createSignal(false);
+  const [loading, setLoading] = createSignal(false);
+  let started = false;
+
+  createEffect(
+    () => requested(),
+    (isRequested) => {
+      if (!isRequested || started) return;
+      started = true;
+      setLoading(true);
+      void (async () => {
+        try {
+          const value = await fetchMasterData();
+          setData(value);
+        } catch {
+          setError(true);
+        } finally {
+          setLoading(false);
+        }
+      })();
+    },
   );
+
   return {
     data,
+    error,
+    loading,
     request: () => {
       setRequested(true);
     },

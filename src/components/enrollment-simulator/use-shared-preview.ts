@@ -1,4 +1,4 @@
-import { type Accessor, batch, createSignal } from 'solid-js';
+import { type Accessor, createSignal, untrack } from 'solid-js';
 
 import { writeBrowserStorage } from '@/lib/safe-storage';
 import { loadStatuses, type SimulatorCourse } from '@/lib/simulator';
@@ -61,9 +61,9 @@ const finishSharedLink = () => {
 export const useSharedPreview = (params: SharedPreviewParams) => {
   const { shared } = params;
   const [previewing, setPreviewing] = createSignal(
-    shared !== undefined && wouldReplaceSaved(params.courses(), shared),
+    shared !== undefined && wouldReplaceSaved(untrack(params.courses), shared),
   );
-  if (shared && !previewing()) finishSharedLink();
+  if (shared && !untrack(previewing)) finishSharedLink();
 
   // Keeps the shared state as the student's own; saving resumes with it.
   const keep = () => {
@@ -74,10 +74,8 @@ export const useSharedPreview = (params: SharedPreviewParams) => {
   // Leaves the preview and brings back what the student saved.
   const discard = () => {
     const saved = getSavedSimulatorSettings();
-    batch(() => {
-      params.onDiscard(saved);
-      setPreviewing(false);
-    });
+    params.onDiscard(saved);
+    setPreviewing(false);
     finishSharedLink();
   };
 

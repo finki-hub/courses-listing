@@ -1,4 +1,4 @@
-import { type Accessor, createEffect, on, type Setter } from 'solid-js';
+import { type Accessor, createEffect, type Setter } from 'solid-js';
 
 import { type CourseStatus } from '@/lib/prerequisite';
 import { type SimulatorCourse, toggleListenedStatus } from '@/lib/simulator';
@@ -31,9 +31,11 @@ export const useSimulatorActions = (params: SimulatorActionsParams) => {
 
   // A reset's snapshot belongs to the accreditation and program it was made in.
   createEffect(
-    on([params.accreditation, params.program], undoable.dismiss, {
-      defer: true,
-    }),
+    () => [params.accreditation(), params.program()] as const,
+    () => {
+      undoable.dismiss();
+    },
+    { defer: true },
   );
 
   const toggleListened = (name: string) => {

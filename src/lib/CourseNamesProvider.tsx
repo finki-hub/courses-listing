@@ -39,8 +39,6 @@ export const CourseNamesProvider = (
     };
   });
   return (
-    <CourseNamesContext.Provider value={names}>
-      {props.children}
-    </CourseNamesContext.Provider>
+    <CourseNamesContext value={names}>{props.children}</CourseNamesContext>
   );
 };
