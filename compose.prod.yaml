@@ -4,5 +4,5 @@ services:
   site:
     image: ghcr.io/finki-hub/courses-listing:latest
     ports:
-      - "8080:80"
+      - "8080:8080"
     restart: unless-stopped
