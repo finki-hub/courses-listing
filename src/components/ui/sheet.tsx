@@ -135,9 +135,12 @@ export const Sheet = (props: SheetProps) => {
           <div
             class="focus-visible:ring-ring min-h-0 flex-1 overflow-y-auto px-4 py-4 focus-visible:ring-2 focus-visible:outline-none focus-visible:ring-inset sm:px-5"
             ref={(element) => {
+              // Set the property rather than the JSX attribute: Solid 2 types
+              // spell it `tabindex`, while the a11y rule only accepts an
+              // interactive element carrying `tabIndex`.
+              element.tabIndex = 0;
               props.bodyRef?.(element);
             }}
-            tabindex={0}
           >
             {props.children}
           </div>
