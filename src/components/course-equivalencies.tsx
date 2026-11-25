@@ -160,7 +160,7 @@ export const CourseEquivalencies = (props: CourseEquivalenciesProps) => {
         }
         when={shownCount() > 0}
       >
-        <div class="grid items-start gap-3 lg:grid-cols-2">
+        <div class="grid gap-3 lg:grid-cols-2">
           <For each={shownPairs()}>
             {(pair) => (
               <PairCard
