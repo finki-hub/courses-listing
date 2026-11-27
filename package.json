@@ -4,7 +4,7 @@
     "@solidjs/web": "^2.0.3",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
-    "posthog-js": "^1.454.1",
+    "posthog-js": "^1.454.2",
     "simple-icons": "^16.38.1",
     "solid-js": "^2.0.3",
     "tailwind-merge": "^3.7.1",
